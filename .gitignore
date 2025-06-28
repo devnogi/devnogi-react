@@ -42,3 +42,7 @@ next-env.d.ts
 
 # editor
 .cursor
+
+# development principles
+DEVELOPMENT_PRINCIPLES.md
+GIT_COMMIT_CONVENTION.md
