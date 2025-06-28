@@ -76,6 +76,21 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-blue: #0000C0;
+  --color-red: #C00000;
+  --color-yellow: #FFFF00;
+  --color-light-gray: #D3D3D3;
+  --color-dark-gray: #282828;
+  --color-cobalt-blue: #3678F1;
+  --color-bright-red: #CF1414;
+  --color-banana-yellow: #FFE062;
+  --color-ivory-ice: #DEBA86;
+  --color-hydran-pink: #FFBFCA;
+  --color-choco-brown: #4E2E28;
+  --color-delegate-green: #7DDCC4;
+  --color-purple: #800080;
 }
 
 .dark {
@@ -138,3 +153,53 @@
     -ms-overflow-style: none;
   }
 }
+
+/* 다크 모드 지원 (선택사항) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 다크 모드에서 색상 조정이 필요한 경우 여기에 추가 */
+  }
+}
+
+/* 기본 스타일 */
+body {
+  color: var(--color-black);
+  background: var(--color-white);
+}
+
+/* 유틸리티 클래스 */
+.text-theme-blue { color: var(--color-blue); }
+.text-theme-red { color: var(--color-red); }
+.text-theme-yellow { color: var(--color-yellow); }
+.text-theme-cobalt-blue { color: var(--color-cobalt-blue); }
+.text-theme-bright-red { color: var(--color-bright-red); }
+.text-theme-banana-yellow { color: var(--color-banana-yellow); }
+.text-theme-ivory-ice { color: var(--color-ivory-ice); }
+.text-theme-hydran-pink { color: var(--color-hydran-pink); }
+.text-theme-choco-brown { color: var(--color-choco-brown); }
+.text-theme-delegate-green { color: var(--color-delegate-green); }
+.text-theme-purple { color: var(--color-purple); }
+
+.bg-theme-blue { background-color: var(--color-blue); }
+.bg-theme-red { background-color: var(--color-red); }
+.bg-theme-yellow { background-color: var(--color-yellow); }
+.bg-theme-cobalt-blue { background-color: var(--color-cobalt-blue); }
+.bg-theme-bright-red { background-color: var(--color-bright-red); }
+.bg-theme-banana-yellow { background-color: var(--color-banana-yellow); }
+.bg-theme-ivory-ice { background-color: var(--color-ivory-ice); }
+.bg-theme-hydran-pink { background-color: var(--color-hydran-pink); }
+.bg-theme-choco-brown { background-color: var(--color-choco-brown); }
+.bg-theme-delegate-green { background-color: var(--color-delegate-green); }
+.bg-theme-purple { background-color: var(--color-purple); }
+
+.border-theme-blue { border-color: var(--color-blue); }
+.border-theme-red { border-color: var(--color-red); }
+.border-theme-yellow { border-color: var(--color-yellow); }
+.border-theme-cobalt-blue { border-color: var(--color-cobalt-blue); }
+.border-theme-bright-red { border-color: var(--color-bright-red); }
+.border-theme-banana-yellow { border-color: var(--color-banana-yellow); }
+.border-theme-ivory-ice { border-color: var(--color-ivory-ice); }
+.border-theme-hydran-pink { border-color: var(--color-hydran-pink); }
+.border-theme-choco-brown { border-color: var(--color-choco-brown); }
+.border-theme-delegate-green { border-color: var(--color-delegate-green); }
+.border-theme-purple { border-color: var(--color-purple); }
