@@ -16,13 +16,13 @@ function NavBar() {
       </div>
       <div className="sm:flex hidden items-center justify-between md:gap-4 gap-2">
         <Link href="/" className="hover:bg-gray-200 px-2 py-1 rounded">
-          메뉴1
+          홈
         </Link>
-        <Link href="/" className="hover:bg-gray-200 px-2 py-1 rounded">
-          메뉴2
+        <Link href="/posts" className="hover:bg-gray-200 px-2 py-1 rounded">
+          게시글
         </Link>
-        <Link href="/" className="hover:bg-gray-200 px-2 py-1 rounded">
-          메뉴3
+        <Link href="/auction" className="hover:bg-gray-200 px-2 py-1 rounded">
+          경매
         </Link>
         <Link href="/" className="hover:bg-gray-200 px-2 py-1 rounded">
           메뉴4
