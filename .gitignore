@@ -42,3 +42,10 @@ next-env.d.ts
 
 # editor
 .cursor
+
+# dev_rules
+/dev_rules
+
+# references
+/reference
+
