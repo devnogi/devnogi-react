@@ -71,7 +71,7 @@ const RecursiveCategoryItem = ({
   );
 };
 
-const AuctionCategory = ({
+export default function AuctionCategory({
   selectedId,
   onSelect,
   expandedIds,
@@ -81,7 +81,7 @@ const AuctionCategory = ({
   onSelect: (id: string) => void;
   expandedIds: Set<string>;
   onToggleExpand: (id: string) => void;
-}) => {
+}) {
   return (
     <div className="flex flex-1 flex-col h-full">
       <div className="text-center border border-gray-600 rounded-xs">
@@ -103,6 +103,4 @@ const AuctionCategory = ({
       </div>
     </div>
   );
-};
-
-export default AuctionCategory;
+}

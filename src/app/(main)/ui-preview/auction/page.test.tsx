@@ -13,7 +13,7 @@ Object.defineProperty(window, "localStorage", {
 });
 
 // Mock components
-jest.mock("@/components/page/auction/category", () => {
+jest.mock("@/components/page/auction/Category", () => {
   return function MockAuctionCategory({
     selectedId,
     onSelect,
@@ -30,13 +30,13 @@ jest.mock("@/components/page/auction/category", () => {
   };
 });
 
-jest.mock("@/components/page/auction/search", () => {
+jest.mock("@/components/page/auction/Search", () => {
   return function MockAuctionSearch() {
     return <span data-testid="auction-search" />;
   };
 });
 
-jest.mock("@/components/page/auction/list", () => {
+jest.mock("@/components/page/auction/List", () => {
   return function MockAuctionList() {
     return <span data-testid="auction-list" />;
   };

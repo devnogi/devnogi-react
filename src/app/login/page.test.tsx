@@ -178,6 +178,7 @@ describe("LoginPage", () => {
   it("로그인 성공 후 이전 페이지 이동 테스트", async () => {
     // 이전 페이지 referrer 설정
     Object.defineProperty(document, "referrer", {
+      configurable: true,
       value: "/auction",
       writable: true,
     });

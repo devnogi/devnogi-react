@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { ItemCategory } from "@/data/item-category";
 import React from "react";
 
-function AuctionSearch({
+export default function AuctionSearch({
   path,
   onCategorySelect,
 }: {
@@ -42,5 +42,3 @@ function AuctionSearch({
     </div>
   );
 }
-
-export default AuctionSearch;

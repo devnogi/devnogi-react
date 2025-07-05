@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import AuctionSearch from "./search";
+import AuctionSearch from "./Search";
 import { ItemCategory } from "@/data/item-category";
 
 const createMockPath = (): ItemCategory[] => [

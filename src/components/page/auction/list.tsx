@@ -42,7 +42,7 @@ const ListItem = ({ item }: { item: AuctionItem }) => (
   </div>
 );
 
-function AuctionList({ items }: { items: AuctionItem[] }) {
+export default function AuctionList({ items }: { items: AuctionItem[] }) {
   return (
     <div className="flex-1 flex flex-col">
       <ListHeader />
@@ -54,5 +54,3 @@ function AuctionList({ items }: { items: AuctionItem[] }) {
     </div>
   );
 }
-
-export default AuctionList;

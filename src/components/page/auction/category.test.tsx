@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import AuctionCategory from "./category";
+import AuctionCategory from "./Category";
 
 const createMockProps = () => ({
   selectedId: "",

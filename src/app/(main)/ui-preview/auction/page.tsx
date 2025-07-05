@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import AuctionCategory from "@/components/page/auction/category";
-import AuctionList from "@/components/page/auction/list";
-import AuctionSearch from "@/components/page/auction/search";
+import React, { useState, useEffect, useMemo } from "react";
+import AuctionCategory from "@/components/page/auction/Category";
+import AuctionList from "@/components/page/auction/List";
+import AuctionSearch from "@/components/page/auction/Search";
 import { ItemCategory, itemCategories } from "@/data/item-category";
 import { mockItems } from "@/data/mock-items";
 
@@ -13,7 +13,6 @@ export default function Page() {
   const [selectedId, setSelectedId] = useState<string>("all");
   const [isClient, setIsClient] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const [categoryPath, setCategoryPath] = useState<ItemCategory[]>([]);
 
   const findCategoryPath = (
     categories: ItemCategory[],
@@ -58,6 +57,21 @@ export default function Page() {
     });
   };
 
+  // selectedId가 변경될 때마다 categoryPath와 expandedIds 업데이트
+  const categoryPath = useMemo(
+    () => findCategoryPath(itemCategories, selectedId),
+    [selectedId],
+  );
+
+  // 기존에 열려있던 카테고리들을 유지하면서 선택된 카테고리 경로 추가
+  useEffect(() => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      categoryPath.slice(0, -1).forEach((c) => next.add(c.id));
+      return next;
+    });
+  }, [categoryPath]);
+
   // 웹페이지 재접속시에도 기존 카테고리 선택 유지
   useEffect(() => {
     setIsClient(true);
@@ -66,21 +80,6 @@ export default function Page() {
       setSelectedId(saved);
     }
   }, []);
-
-  // selectedId가 변경될 때마다 categoryPath와 expandedIds 업데이트
-  useEffect(() => {
-    const path = findCategoryPath(itemCategories, selectedId);
-    setCategoryPath(path);
-
-    // 기존에 열려있던 카테고리들을 유지하면서 선택된 카테고리 경로 추가
-    setExpandedIds((prev) => {
-      const newSet = new Set([
-        ...prev,
-        ...path.slice(0, -1).map((category) => category.id),
-      ]);
-      return newSet;
-    });
-  }, [selectedId]);
 
   return (
     <div className="select-none flex flex-col h-full">

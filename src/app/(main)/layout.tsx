@@ -13,7 +13,7 @@ export default function RootLayout({
         </div>
       </header>
       <main className="flex-1 overflow-auto">
-        <div className="max-w-6xl w-full mx-auto">{children}</div>
+        <div className="max-w-6xl w-full mx-auto h-full">{children}</div>
       </main>
     </div>
   );
