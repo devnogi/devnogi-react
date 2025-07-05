@@ -15,13 +15,20 @@ Next.js로 구현된 MSA 아키텍처의 프론트엔드 프로젝트입니다. 
 
 ```
 devnogi-front/
-├── src/                 # 소스 코드
-│   ├── app/             # Next.js App Router 구조
-│   └── lib/             # 유틸리티 함수
-└── public/              # 정적 파일
+├── src/             # 소스 코드
+│   ├── app/         # Next.js App Router 구조
+│   ├── components/  # 공통 컴포넌트
+│   │   ├── page/    # 각 페이지별 컴포넌트
+│   │   └── ui/      # 쉐이든 ui 컴포넌트
+│   ├── data/        # 데이터/목업
+│   └── lib/         # 유틸리티 함수
+└── public/          # 정적 파일
 ```
 
 ## 개발 환경 설정
+
+0. 원본 저장소에서 프로젝트 포크  
+[원본 저장소 링크](https://github.com/devnogi/devnogi-react)
 
 1. 저장소 클론
 ```bash
@@ -51,6 +58,8 @@ npm run dev
 
 ### 브랜치 작업 플로우
 
+0. 작업 전 원본 저장소와 싱크 확인
+
 1. 새로운 작업 시작
 ```bash
 git switch main
@@ -67,6 +76,8 @@ git push origin 브랜치명
    - PR 생성 시 작업 내용 상세히 설명
    - 코드 리뷰 진행
    - 승인 후 main 브랜치에 머지
+
+3. 머지 완료 후 포크 저장소 최신화
 
 ### 커밋 메시지 컨벤션
 
