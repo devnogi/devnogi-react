@@ -1,0 +1,5 @@
+# Gateway URL
+GATEWAY_URL=http://localhost:3001
+
+# BFF URL
+NEXT_PUBLIC_BACKEND_URL=http://localhost:3000

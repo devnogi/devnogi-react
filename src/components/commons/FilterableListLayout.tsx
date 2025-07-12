@@ -8,12 +8,19 @@ import { ItemCategory, itemCategories } from "@/data/item-category";
 export default function FilterableListLayout({
   children,
   categoryStorageKey,
+  selectedCategory,
+  setSelectedCategory,
+  itemName,
+  setItemName,
 }: {
   children: React.ReactNode;
   categoryStorageKey: string;
+  selectedCategory: string;
+  setSelectedCategory: (id: string) => void;
+  itemName: string;
+  setItemName: (name: string) => void;
 }) {
-  const [selectedId, setSelectedId] = useState<string>("all");
-  const [isClient, setIsClient] = useState(false);
+  const [isClientMounted, setIsClientMounted] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const findCategoryPath = (
@@ -41,8 +48,8 @@ export default function FilterableListLayout({
   };
 
   const handleCategorySelect = (id: string) => {
-    setSelectedId(id);
-    if (isClient) {
+    setSelectedCategory(id);
+    if (isClientMounted) {
       localStorage.setItem(categoryStorageKey, id);
     }
   };
@@ -60,8 +67,8 @@ export default function FilterableListLayout({
   };
 
   const categoryPath = useMemo(
-    () => findCategoryPath(itemCategories, selectedId),
-    [selectedId],
+    () => findCategoryPath(itemCategories, selectedCategory),
+    [selectedCategory],
   );
 
   useEffect(() => {
@@ -73,10 +80,10 @@ export default function FilterableListLayout({
   }, [categoryPath]);
 
   useEffect(() => {
-    setIsClient(true);
+    setIsClientMounted(true);
     const saved = localStorage.getItem(categoryStorageKey);
     if (saved) {
-      setSelectedId(saved);
+      setSelectedCategory(saved);
     }
   }, []);
 
@@ -86,12 +93,14 @@ export default function FilterableListLayout({
         <AuctionSearch
           path={categoryPath}
           onCategorySelect={handleCategorySelect}
+          itemName={itemName}
+          setItemName={setItemName}
         />
       </div>
       <div className="flex px-4 py-2">
         <div className="w-44 flex-shrink-0 overflow-auto lg:flex hidden">
           <AuctionCategory
-            selectedId={selectedId}
+            selectedId={selectedCategory}
             onSelect={handleCategorySelect}
             expandedIds={expandedIds}
             onToggleExpand={handleToggleExpand}

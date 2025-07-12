@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import FilterableListLayout from "./FilterableListLayout";
+import { useState } from "react";
 
 // Mock localStorage
 const localStorageMock = {
@@ -42,6 +43,28 @@ jest.mock("@/components/page/auction/List", () => {
   };
 });
 
+function ComponentWrapper({
+  children,
+  categoryStorageKey,
+}: {
+  children: React.ReactNode;
+  categoryStorageKey: string;
+}) {
+  const [category, setCategory] = useState<string>("all");
+  const [itemName, setItemName] = useState<string>("");
+  return (
+    <FilterableListLayout
+      categoryStorageKey={categoryStorageKey}
+      selectedCategory={category}
+      setSelectedCategory={setCategory}
+      itemName={itemName}
+      setItemName={setItemName}
+    >
+      {children}
+    </FilterableListLayout>
+  );
+}
+
 describe("FilterableListLayout", () => {
   beforeEach(() => {
     localStorageMock.getItem.mockClear();
@@ -50,9 +73,9 @@ describe("FilterableListLayout", () => {
 
   it("컴포넌트 렌더링 테스트", () => {
     render(
-      <FilterableListLayout categoryStorageKey="testKey">
+      <ComponentWrapper categoryStorageKey="testKey">
         <span data-testid="child-content" />
-      </FilterableListLayout>,
+      </ComponentWrapper>,
     );
 
     // 컴포넌트 렌더링 확인
@@ -69,9 +92,9 @@ describe("FilterableListLayout", () => {
     localStorageMock.getItem.mockReturnValue("melee");
 
     render(
-      <FilterableListLayout categoryStorageKey="testKey">
+      <ComponentWrapper categoryStorageKey="testKey">
         <span data-testid="child-content" />
-      </FilterableListLayout>,
+      </ComponentWrapper>,
     );
 
     // 초기값 테스트

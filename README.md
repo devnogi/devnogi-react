@@ -10,19 +10,21 @@ Next.js로 구현된 MSA 아키텍처의 프론트엔드 프로젝트입니다. 
 - **스타일링**: 
   - Tailwind CSS v4
   - Shadcn/UI
+- **백엔드서버모킹**: json-server
 
 ## 프로젝트 구조
 
 ```
 devnogi-front/
-├── src/             # 소스 코드
+├── src/           # 소스 코드
 │   ├── app/         # Next.js App Router 구조
-│   ├── components/  # 공통 컴포넌트
-│   │   ├── page/    # 각 페이지별 컴포넌트
-│   │   └── ui/      # 쉐이든 ui 컴포넌트
+│   ├── components/  # 컴포넌트
+│   │   ├── page/      # 각 페이지별 컴포넌트
+│   │   └── ui/        # 쉐이든 ui 컴포넌트
 │   ├── data/        # 데이터/목업
-│   └── lib/         # 유틸리티 함수
-└── public/          # 정적 파일
+│   ├── lib/         # 외부 연동, 설정 서비스
+│   └── utils/       # 공통 유틸리티 함수
+└── public/        # 정적 파일
 ```
 
 ## 개발 환경 설정
@@ -41,12 +43,33 @@ cd devnogi-front
 npm install
 ```
 
-3. 개발 서버 실행
+3. 환경파일 생성
+```plaintext
+.sample_env를 참조해 루트 디렉토리에 .env 파일 생성
+```
+
+4. 개발 서버 실행
 ```bash
 npm run dev
 ```
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 애플리케이션을 확인할 수 있습니다.
+
+### Gateway 모킹 서버
+
+[json-server](https://github.com/typicode/json-server#readme)를 사용해 Gateway를 모킹할 수 있습니다.
+
+1. 서버 파일 생성
+```plaintext
+루트 디렉토리에 api 구조에 맞게 db.json 파일 생성
+```
+
+2. 
+``` bash
+npx json-server --watch db.json --port 3001
+```
+
+[http://localhost:3001](http://localhost:3001)로 모킹 서버에 접근할 수 있습니다.
 
 ## 개발 프로세스
 

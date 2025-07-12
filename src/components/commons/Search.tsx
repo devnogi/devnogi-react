@@ -8,9 +8,13 @@ import React from "react";
 export default function SearchSection({
   path,
   onCategorySelect,
+  itemName,
+  setItemName,
 }: {
   path: ItemCategory[];
   onCategorySelect: (categoryId: string) => void;
+  itemName: string;
+  setItemName: (name: string) => void;
 }) {
   return (
     <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-1">
@@ -22,6 +26,8 @@ export default function SearchSection({
         type="text"
         placeholder="아이템 검색"
         className="rounded-xs"
+        value={itemName}
+        onChange={(e) => setItemName(e.target.value)}
       />
       <Button className="rounded-xs cursor-pointer">찾기</Button>
       <Button className="rounded-xs cursor-pointer">검색 초기화</Button>

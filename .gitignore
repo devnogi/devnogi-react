@@ -43,3 +43,6 @@ next-env.d.ts
 # editor
 .cursor
 GEMINI.md
+
+# json-server
+db.json

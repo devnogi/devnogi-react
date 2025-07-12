@@ -15,7 +15,10 @@ function NavBar() {
         </Link>
       </div>
       <div className="sm:flex hidden items-center justify-start md:gap-4 gap-2">
-        <Link href="/trade-log" className="hover:bg-gray-200 px-2 py-1 rounded">
+        <Link
+          href="/auction-history"
+          className="hover:bg-gray-200 px-2 py-1 rounded"
+        >
           거래 내역
         </Link>
         <Link href="/auction" className="hover:bg-gray-200 px-2 py-1 rounded">
