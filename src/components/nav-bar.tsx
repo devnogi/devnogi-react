@@ -12,7 +12,7 @@ export default function NavBar() {
   const navItems = [
     { href: "/auction-history", label: "거래 내역" },
     { href: "/auction", label: "경매장" },
-    { href: "/ui-preview/error-test", label: "오류페이지 프리뷰" },
+    { href: "/community", label: "커뮤니티" },
   ];
 
   return (

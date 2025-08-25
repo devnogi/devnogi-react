@@ -1,0 +1,71 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const posts = [
+  {
+    id: 1,
+    category: "일반",
+    title: "글 제목 1",
+    author: "작성자 1",
+    createdAt: "2023-10-27",
+    views: 100,
+    likes: 10,
+  },
+  {
+    id: 2,
+    category: "정보",
+    title: "글 제목 2",
+    author: "작성자 2",
+    createdAt: "2023-10-26",
+    views: 200,
+    likes: 20,
+  },
+  {
+    id: 3,
+    category: "질문",
+    title: "글 제목 3",
+    author: "작성자 3",
+    createdAt: "2023-10-25",
+    views: 300,
+    likes: 30,
+  },
+];
+
+function List() {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[100px]">번호</TableHead>
+          <TableHead className="w-[150px]">카테고리</TableHead>
+          <TableHead>제목</TableHead>
+          <TableHead className="w-[150px]">작성자</TableHead>
+          <TableHead className="w-[150px]">작성일</TableHead>
+          <TableHead className="w-[100px]">조회수</TableHead>
+          <TableHead className="w-[100px]">추천</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {posts.map((post) => (
+          <TableRow key={post.id}>
+            <TableCell>{post.id}</TableCell>
+            <TableCell>{post.category}</TableCell>
+            <TableCell>{post.title}</TableCell>
+            <TableCell>{post.author}</TableCell>
+            <TableCell>{post.createdAt}</TableCell>
+            <TableCell>{post.views}</TableCell>
+            <TableCell>{post.likes}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+export default List;
