@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const posts = [
   {
@@ -65,7 +66,9 @@ function List() {
             <TableRow key={post.id}>
               <TableCell>{post.id}</TableCell>
               <TableCell>{post.category}</TableCell>
-              <TableCell>{post.title}</TableCell>
+              <TableCell>
+                <Link href={`/community/${post.id}`}>{post.title}</Link>
+              </TableCell>
               <TableCell>{post.author}</TableCell>
               <TableCell>{post.createdAt}</TableCell>
               <TableCell>{post.views}</TableCell>
