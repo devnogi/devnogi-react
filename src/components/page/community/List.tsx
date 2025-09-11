@@ -12,7 +12,7 @@ import Link from "next/link";
 const posts = [
   {
     id: 1,
-    category: "일반",
+    category: "자유게시판",
     title: "글 제목 1",
     author: "작성자 1",
     createdAt: "2023-10-27",
@@ -21,7 +21,7 @@ const posts = [
   },
   {
     id: 2,
-    category: "정보",
+    category: "공략 게시판",
     title: "글 제목 2",
     author: "작성자 2",
     createdAt: "2023-10-26",
@@ -30,7 +30,7 @@ const posts = [
   },
   {
     id: 3,
-    category: "질문",
+    category: "거래 게시판",
     title: "글 제목 3",
     author: "작성자 3",
     createdAt: "2023-10-25",
@@ -39,7 +39,16 @@ const posts = [
   },
 ];
 
-function List() {
+interface ListProps {
+  selectedCategory: string;
+}
+
+function List({ selectedCategory }: ListProps) {
+  const filteredPosts =
+    selectedCategory === "전체"
+      ? posts
+      : posts.filter((post) => post.category === selectedCategory);
+
   return (
     <div>
       <div className="flex justify-end mb-4">
@@ -62,7 +71,7 @@ function List() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <TableRow key={post.id}>
               <TableCell>{post.id}</TableCell>
               <TableCell>{post.category}</TableCell>

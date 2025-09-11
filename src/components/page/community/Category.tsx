@@ -1,22 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const categories = ["전체", "일반", "정보", "질문"];
+interface Board {
+  id: number;
+  name: string;
+}
 
-function Category() {
-  const [selectedCategory, setSelectedCategory] = useState("전체");
+interface CategoryProps {
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+}
+
+function Category({ selectedCategory, setSelectedCategory }: CategoryProps) {
+  const [categories, setCategories] = useState<Board[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function fetchBoards() {
+      try {
+        const response = await fetch("/api/boards");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setCategories(data.data.boards);
+      } catch (error) {
+        setError(error as Error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBoards();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  const allCategories = [{ id: 0, name: "전체" }, ...categories];
 
   return (
     <div className="flex gap-2">
-      {categories.map((category) => (
+      {allCategories.map((category) => (
         <Button
-          key={category}
-          variant={selectedCategory === category ? "default" : "outline"}
-          onClick={() => setSelectedCategory(category)}
+          key={category.id}
+          variant={selectedCategory === category.name ? "default" : "outline"}
+          onClick={() => setSelectedCategory(category.name)}
         >
-          {category}
+          {category.name}
         </Button>
       ))}
     </div>

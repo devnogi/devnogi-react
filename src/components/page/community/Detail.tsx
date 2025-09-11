@@ -4,7 +4,7 @@ import Link from "next/link";
 const posts = [
   {
     id: 1,
-    category: "일반",
+    category: "자유게시판",
     title: "글 제목 1",
     author: "작성자 1",
     createdAt: "2023-10-27",
@@ -15,7 +15,7 @@ const posts = [
   },
   {
     id: 2,
-    category: "정보",
+    category: "공략 게시판",
     title: "글 제목 2",
     author: "작성자 2",
     createdAt: "2023-10-26",
@@ -26,7 +26,7 @@ const posts = [
   },
   {
     id: 3,
-    category: "질문",
+    category: "거래 게시판",
     title: "글 제목 3",
     author: "작성자 3",
     createdAt: "2023-10-25",
