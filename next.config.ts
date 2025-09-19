@@ -9,8 +9,20 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: "http://138.2.126.248:8080/api/:path*",
+        source: "/api/boards",
+        destination: "http://168.107.43.221:8080/dcs/api/boards",
+      },
+      {
+        source: "/api/posts/:path*",
+        destination: "http://168.107.43.221:8080/dcs/api/posts/:path*",
+      },
+      {
+        source: "/api/auction-history",
+        destination: "http://168.107.43.221:8080/oab/api/auction-history",
+      },
+      {
+        source: "/api/items/categories",
+        destination: "http://168.107.43.221:8080/oab/api/items/categories",
       },
     ];
   },

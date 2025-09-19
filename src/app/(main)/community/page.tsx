@@ -6,16 +6,16 @@ import List from "@/components/page/community/List";
 import PageTitle from "@/components/commons/PageTitle";
 
 function CommunityPage() {
-  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [selectedBoardId, setSelectedBoardId] = useState(0);
 
   return (
     <main className="flex flex-col gap-8">
       <PageTitle title="커뮤니티" />
       <Category
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
+        selectedBoardId={selectedBoardId}
+        setSelectedBoardId={setSelectedBoardId}
       />
-      <List selectedCategory={selectedCategory} />
+      <List selectedBoardId={selectedBoardId} />
     </main>
   );
 }

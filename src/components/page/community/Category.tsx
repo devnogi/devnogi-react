@@ -9,11 +9,11 @@ interface Board {
 }
 
 interface CategoryProps {
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
+  selectedBoardId: number;
+  setSelectedBoardId: (id: number) => void;
 }
 
-function Category({ selectedCategory, setSelectedCategory }: CategoryProps) {
+function Category({ selectedBoardId, setSelectedBoardId }: CategoryProps) {
   const [categories, setCategories] = useState<Board[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -52,8 +52,8 @@ function Category({ selectedCategory, setSelectedCategory }: CategoryProps) {
       {allCategories.map((category) => (
         <Button
           key={category.id}
-          variant={selectedCategory === category.name ? "default" : "outline"}
-          onClick={() => setSelectedCategory(category.name)}
+          variant={selectedBoardId === category.id ? "default" : "outline"}
+          onClick={() => setSelectedBoardId(category.id)}
         >
           {category.name}
         </Button>

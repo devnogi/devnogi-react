@@ -8,46 +8,39 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { fetchAllPosts, fetchPostsByBoardId } from "@/lib/api/posts";
 
-const posts = [
-  {
-    id: 1,
-    category: "자유게시판",
-    title: "글 제목 1",
-    author: "작성자 1",
-    createdAt: "2023-10-27",
-    views: 100,
-    likes: 10,
-  },
-  {
-    id: 2,
-    category: "공략 게시판",
-    title: "글 제목 2",
-    author: "작성자 2",
-    createdAt: "2023-10-26",
-    views: 200,
-    likes: 20,
-  },
-  {
-    id: 3,
-    category: "거래 게시판",
-    title: "글 제목 3",
-    author: "작성자 3",
-    createdAt: "2023-10-25",
-    views: 300,
-    likes: 30,
-  },
-];
-
-interface ListProps {
-  selectedCategory: string;
+interface Post {
+  id: number;
+  category: string;
+  title: string;
+  author: string;
+  createdAt: string;
+  views: number;
+  likes: number;
 }
 
-function List({ selectedCategory }: ListProps) {
-  const filteredPosts =
-    selectedCategory === "전체"
-      ? posts
-      : posts.filter((post) => post.category === selectedCategory);
+interface ListProps {
+  selectedBoardId: number;
+}
+
+function List({ selectedBoardId }: ListProps) {
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    async function getPosts() {
+      if (selectedBoardId !== 0) {
+        const fetchedPosts = await fetchPostsByBoardId(selectedBoardId);
+        setPosts(fetchedPosts.data.items);
+      } else {
+        const fetchedPosts = await fetchAllPosts();
+        setPosts(fetchedPosts.data.items);
+      }
+    }
+
+    getPosts();
+  }, [selectedBoardId]);
 
   return (
     <div>
@@ -71,7 +64,7 @@ function List({ selectedCategory }: ListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredPosts.map((post) => (
+          {posts.map((post) => (
             <TableRow key={post.id}>
               <TableCell>{post.id}</TableCell>
               <TableCell>{post.category}</TableCell>
