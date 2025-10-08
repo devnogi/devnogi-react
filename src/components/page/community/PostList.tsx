@@ -7,11 +7,9 @@ import { Loader2 } from "lucide-react";
 
 interface PostListProps {
   boardId?: number;
-  sort?: string;
-  search?: string;
 }
 
-export default function PostList({ boardId, sort, search }: PostListProps) {
+export default function PostList({ boardId }: PostListProps) {
   const {
     data,
     fetchNextPage,
@@ -20,7 +18,7 @@ export default function PostList({ boardId, sort, search }: PostListProps) {
     isLoading,
     isError,
     error,
-  } = useInfinitePosts({ boardId, sort, search });
+  } = useInfinitePosts({ boardId });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -65,7 +63,7 @@ export default function PostList({ boardId, sort, search }: PostListProps) {
     );
   }
 
-  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+  const allPosts = data?.pages.flatMap((page) => page.items) ?? [];
 
   if (allPosts.length === 0) {
     return (

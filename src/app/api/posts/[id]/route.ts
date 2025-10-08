@@ -1,20 +1,28 @@
-import { POSTS_ENDPOINT } from "@/lib/api/constants";
 import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-// post detail 요청 캐싱 기간 5분(초)
+// posts 요청 캐싱 기간 5분(초)
 export const revalidate = 300;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const postId = params.id;
+  const { id } = await params;
+  const { searchParams } = new URL(request.url);
+  const page = searchParams.get("page") ?? "1";
+  const size = searchParams.get("size") ?? "20";
 
   try {
     const axios = createServerAxios(request);
-    const { data, status } = await axios.get(`${POSTS_ENDPOINT}/${postId}`);
+    // DCS API: GET /api/posts/{boardId} (게시판별 게시글 조회)
+    const { data, status } = await axios.get(`/dcs/api/posts/${id}`, {
+      params: {
+        page,
+        size,
+      },
+    });
     return NextResponse.json(data, { status: status });
   } catch (error: unknown) {
     // AxiosError 처리(Gateway 통신 오류)

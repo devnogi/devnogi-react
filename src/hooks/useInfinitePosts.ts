@@ -2,50 +2,72 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { clientAxios } from "@/lib/api/clients";
-import { Post, PostsResponse, PostsQueryParams } from "@/types/community";
 
 interface UseInfinitePostsParams {
   boardId?: number;
-  sort?: string;
-  search?: string;
   size?: number;
+}
+
+interface PostSummary {
+  id: number;
+  title: string;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  createdAt: string;
+}
+
+interface PageMeta {
+  currentPage: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  isFirst: boolean;
+  isLast: boolean;
+}
+
+interface PostsData {
+  items: PostSummary[];
+  meta: PageMeta;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  code: string;
+  message: string;
+  data: T;
+  timestamp: string;
 }
 
 export function useInfinitePosts({
   boardId,
-  sort = "latest",
-  search = "",
   size = 20,
 }: UseInfinitePostsParams = {}) {
-  return useInfiniteQuery<PostsResponse>({
-    queryKey: ["posts", boardId, sort, search],
-    queryFn: async ({ pageParam = 0 }) => {
-      const params: PostsQueryParams = {
-        page: pageParam as number,
-        size,
-        sort: sort as any,
-      };
+  return useInfiniteQuery<PostsData>({
+    queryKey: ["posts", boardId],
+    queryFn: async ({ pageParam = 1 }) => {
+      // boardId가 있으면 게시판별 조회, 없으면 전체 조회
+      const endpoint = boardId
+        ? `/posts/${boardId}`
+        : "/posts";
 
-      if (boardId) {
-        params.boardId = boardId;
-      }
-
-      if (search) {
-        params.search = search;
-      }
-
-      const response = await clientAxios.get<PostsResponse>("/posts", {
-        params,
+      const response = await clientAxios.get<ApiResponse<PostsData>>(endpoint, {
+        params: {
+          page: pageParam as number,
+          size,
+        },
       });
 
-      return response.data;
+      return response.data.data;
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.hasNext) {
-        return lastPage.currentPage + 1;
+      if (!lastPage.meta.isLast) {
+        return lastPage.meta.currentPage + 1;
       }
       return undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: 1,
+    staleTime: 5 * 60 * 1000, // 5분
+    gcTime: 10 * 60 * 1000, // 10분
   });
 }

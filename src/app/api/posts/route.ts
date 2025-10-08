@@ -8,18 +8,17 @@ export const revalidate = 300;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const params = {
-    boardId: searchParams.get("boardId") ?? "",
-    page: searchParams.get("page") ?? "0",
-    size: searchParams.get("size") ?? "20",
-    sort: searchParams.get("sort") ?? "latest",
-    search: searchParams.get("search") ?? "",
-  };
+  const page = searchParams.get("page") ?? "0";
+  const size = searchParams.get("size") ?? "20";
 
   try {
     const axios = createServerAxios(request);
+    // DCS API: GET /api/posts (전체 게시판 게시글 조회)
     const { data, status } = await axios.get(POSTS_ENDPOINT, {
-      params,
+      params: {
+        page,
+        size,
+      },
     });
     return NextResponse.json(data, { status: status });
   } catch (error: unknown) {

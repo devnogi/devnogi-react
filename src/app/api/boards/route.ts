@@ -3,14 +3,19 @@ import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-// boards 요청 캐싱 기간 1시간(초)
-export const revalidate = 3600;
+// boards 요청 캐싱 기간 12시간 (매일 12시, 24시에 갱신)
+export const revalidate = 43200; // 12시간 (초)
 
 export async function GET(request: NextRequest) {
   try {
     const axios = createServerAxios(request);
     const { data, status } = await axios.get(BOARDS_ENDPOINT);
-    return NextResponse.json(data, { status: status });
+    return NextResponse.json(data, {
+      status: status,
+      headers: {
+        "Cache-Control": "public, s-maxage=43200, stale-while-revalidate=86400",
+      },
+    });
   } catch (error: unknown) {
     // AxiosError 처리(Gateway 통신 오류)
     if ((error as AxiosError).isAxiosError) {
