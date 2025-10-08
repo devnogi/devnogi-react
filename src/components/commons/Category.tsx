@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { ItemCategory, itemCategories } from "@/data/item-category";
+import { ItemCategory } from "@/data/item-category";
 
 const RecursiveCategoryItem = ({
   category,
@@ -76,11 +76,13 @@ export default function ItemCategorySection({
   onSelect,
   expandedIds,
   onToggleExpand,
+  categories,
 }: {
   selectedId: string;
   onSelect: (id: string) => void;
   expandedIds: Set<string>;
   onToggleExpand: (id: string) => void;
+  categories: ItemCategory[];
 }) {
   return (
     <div className="flex flex-1 flex-col h-full">
@@ -89,7 +91,7 @@ export default function ItemCategorySection({
       </div>
       <div className="flex-1 p-1">
         <ul>
-          {itemCategories.map((category) => (
+          {categories.map((category) => (
             <RecursiveCategoryItem
               key={category.id}
               category={category}

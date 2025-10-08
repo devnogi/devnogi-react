@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:3.39.119.27)",
+      "WebFetch(domain:138.2.126.248)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(python3:*)",
+      "Bash(git add:*)",
+      "Bash(git commit --no-verify -m \"$(cat <<''EOF''\nfeat: 동적 아이템 카테고리 API 연동 및 캐싱 구현\n\n- OAB API (/oab/api/item-infos/categories) 연동\n- topCategory/subCategory를 계층 구조로 변환\n- 12시간 캐싱 (매일 12시, 24시 갱신)\n- useItemCategories 훅으로 TanStack Query 캐싱\n- 경매장/거래 내역 화면에 동적 카테고리 적용\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

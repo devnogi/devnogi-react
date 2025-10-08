@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import AuctionCategory from "@/components/commons/Category";
 import AuctionSearch from "@/components/commons/Search";
-import { ItemCategory, itemCategories } from "@/data/item-category";
+import { ItemCategory } from "@/data/item-category";
+import { useItemCategories } from "@/hooks/useItemCategories";
 
 export default function FilterableListLayout({
   children,
@@ -22,6 +23,8 @@ export default function FilterableListLayout({
 }) {
   const [isClientMounted, setIsClientMounted] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const { data: categories, isLoading } = useItemCategories();
 
   const findCategoryPath = (
     categories: ItemCategory[],
@@ -67,8 +70,8 @@ export default function FilterableListLayout({
   };
 
   const categoryPath = useMemo(
-    () => findCategoryPath(itemCategories, selectedCategory),
-    [selectedCategory],
+    () => findCategoryPath(categories || [], selectedCategory),
+    [selectedCategory, categories],
   );
 
   useEffect(() => {
@@ -87,6 +90,26 @@ export default function FilterableListLayout({
     }
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="select-none flex flex-col h-full">
+        <div className="flex-shrink-0 px-4 py-2">
+          <div className="h-10 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="flex px-4 py-2">
+          <div className="w-44 flex-shrink-0 overflow-auto lg:flex hidden">
+            <div className="flex-1 space-y-2">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-6 bg-gray-200 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+          <div className="flex-1">{children}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="select-none flex flex-col h-full">
       <div className="flex-shrink-0 px-4 py-2">
@@ -104,6 +127,7 @@ export default function FilterableListLayout({
             onSelect={handleCategorySelect}
             expandedIds={expandedIds}
             onToggleExpand={handleToggleExpand}
+            categories={categories || []}
           />
         </div>
         <div className="flex-1">{children}</div>
