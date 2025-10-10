@@ -198,11 +198,231 @@ On commit, the following runs automatically on staged files:
 - Branch naming: `feat/`, `fix/`, `docs/`, etc.
 - Commit convention: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`
 
-## Font Copyright
+## Typography
 
-The Mabinogi Classic OTF font (`src/app/Mabinogi_Classic_OTF.otf`) has copyright restrictions:
+### Primary Font: Pretendard
+
+The project uses **Pretendard** as the primary font for all text content.
+
+**Key Features:**
+- Modern, clean sans-serif designed for Korean and English
+- SIL Open Font License 1.1 (commercial use allowed)
+- Excellent readability optimized for digital screens
+- 9 weight variations (100-900)
+- Successor to Apple SD Gothic Neo and Roboto
+
+**Implementation:**
+- Font files: `src/app/fonts/Pretendard-*.woff2`
+- Configuration: `src/app/fonts.ts`
+- CSS variable: `--font-pretendard`
+- Tailwind: `font-sans` class
+
+**Download:**
+- GitHub: https://github.com/orioncactus/pretendard
+- See `src/app/fonts/README.md` for installation guide
+
+### Secondary Font: Mabinogi Classic (Limited Use)
+
+Reserved exclusively for game-related branding elements.
+
+**Restrictions:**
+- Copyright restrictions apply
 - Do NOT convert to WOFF or other formats
-- Must use original file as-is
+- Must use original OTF file as-is
+- Use only for Mabinogi brand elements
+
+---
+
+## UI/UX Design System
+
+### Design Philosophy
+
+DevNogi follows a **soft, modern, and friendly** design approach inspired by Reddit, Threads, and Notion:
+
+**Core Principles:**
+- 🎨 **Rounded & Soft**: Generous border radius, smooth corners, gentle shadows
+- 🌈 **Colorful but Subtle**: Soft pastels, gradient accents, avoid harsh contrasts
+- ✨ **Clean & Minimal**: Generous whitespace, clear hierarchy, uncluttered layouts
+- 😊 **Friendly & Approachable**: Warm colors, welcoming interactions, playful micro-interactions
+
+### Color Palette
+
+**Brand Colors (Blue):**
+- `brand-500` (#0ea5e9): Primary brand color - buttons, links, emphasis
+- `brand-100` to `brand-900`: Full scale for backgrounds, hovers, text
+
+**Accent Colors (Purple):**
+- `accent-500` (#a855f7): Secondary accent - badges, highlights, special actions
+- `accent-100` to `accent-900`: Full scale for accents and decorative elements
+
+**Usage Guidelines:**
+- Primary actions: `bg-gradient-to-r from-blue-600 to-purple-600`
+- Backgrounds: Soft gradients like `bg-gradient-to-br from-blue-50 via-white to-purple-50`
+- Interactive elements: Subtle hover effects with color transitions
+- Avoid pure black/white - use `gray-900` / `gray-50` instead
+
+### Border Radius Standards
+
+Following a **rounded, friendly aesthetic**:
+
+| Element | Radius | Class | Use Case |
+|---------|--------|-------|----------|
+| Cards | 16-24px | `rounded-2xl` | Main content cards, modals |
+| Buttons | 8-12px | `rounded-lg` | Buttons, form inputs |
+| Small elements | 6-8px | `rounded-md` | Tags, badges, pills |
+| Images | 12px | `rounded-xl` | Profile images, thumbnails |
+| Avatars | 50% | `rounded-full` | User avatars |
+
+**Never use:**
+- Sharp corners (`rounded-none`) except for specific layout elements
+- Small radius (<4px) - prefer larger, friendlier curves
+
+### Spacing & Layout
+
+**Generous Whitespace:**
+- Content padding: `p-6` to `p-8` (24-32px)
+- Element spacing: `gap-4` to `gap-6` (16-24px)
+- Section margins: `my-8` to `my-12` (32-48px)
+
+**Container Widths:**
+- Max width: `max-w-7xl` (1280px) for main content
+- Reading content: `max-w-2xl` to `max-w-3xl` (672-768px)
+- Forms: `max-w-md` to `max-w-lg` (448-512px)
+
+### Shadows & Elevation
+
+**Soft, Subtle Shadows:**
+- Cards: `shadow-xl` with subtle blur
+- Hover states: Increase shadow on interaction
+- Modals: `shadow-2xl` for maximum depth
+- Avoid harsh, dark shadows - keep them soft and light
+
+Example:
+```css
+/* Preferred */
+box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+/* Avoid */
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+```
+
+### Interactive Elements
+
+**Buttons:**
+- Primary: Gradient background (`from-blue-600 to-purple-600`)
+- Height: `h-12` (48px) for comfortable touch targets
+- Hover: Scale slightly (`hover:scale-[1.02]`), deepen gradient
+- Disabled: 50% opacity, no hover effects
+
+**Inputs:**
+- Height: `h-12` (48px)
+- Padding: `pl-11` when icons present (left padding)
+- Border: `border-gray-300`, focus: `border-blue-500`
+- Rounded: `rounded-lg`
+- Icons: Always positioned with left padding for visual balance
+
+**Links:**
+- Color: `text-blue-600`
+- Hover: `hover:text-blue-700` with underline
+- Visited: Slightly darker shade
+
+### Typography Scale
+
+| Element | Size | Weight | Usage |
+|---------|------|--------|-------|
+| H1 | 30-36px | 700 | Page titles |
+| H2 | 24-30px | 600-700 | Section headers |
+| H3 | 20-24px | 600 | Subsection headers |
+| Body | 14-16px | 400 | Main text content |
+| Small | 12-14px | 400 | Captions, metadata |
+| Tiny | 10-12px | 400 | Footnotes, legal |
+
+**Line Height:**
+- Headings: 1.2-1.3
+- Body text: 1.5-1.7 (generous for readability)
+- Code: 1.4
+
+### Component Patterns
+
+**Cards:**
+```tsx
+<div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+  {/* content */}
+</div>
+```
+
+**Gradients:**
+- Backgrounds: Subtle, multi-stop gradients
+- Buttons: Bold, two-color gradients
+- Text: Gradient text for emphasis (`bg-clip-text text-transparent`)
+
+**Icons:**
+- Size: `w-5 h-5` (20px) for inline, `w-6 h-6` (24px) for standalone
+- Color: Match text color or use `text-gray-400`
+- Spacing: `gap-2` between icon and text
+
+### Animation & Transitions
+
+**Subtle Motion:**
+- Duration: `200-300ms` for most interactions
+- Easing: `ease-in-out` or `cubic-bezier` for smooth feel
+- Hover: Scale (1.02), color change, shadow increase
+- Loading: Gentle spin, pulse, or fade animations
+
+**Examples:**
+```css
+/* Hover scale */
+transition-all duration-200 transform hover:scale-[1.02]
+
+/* Color transition */
+transition-colors duration-200
+
+/* Fade in */
+animate-fade-in
+```
+
+### Accessibility Guidelines
+
+**Color Contrast:**
+- Text on light backgrounds: Minimum `gray-700`
+- Interactive elements: Meet WCAG AA standards (4.5:1)
+- Never rely solely on color to convey information
+
+**Focus States:**
+- Visible focus rings: `focus:ring-2 focus:ring-blue-500`
+- Keyboard navigation fully supported
+- Skip to content links where appropriate
+
+**Touch Targets:**
+- Minimum 44x44px for buttons/links
+- Generous padding around interactive elements
+- Clear hover and active states
+
+### Best Practices
+
+**DO:**
+- Use rounded corners generously (16px+)
+- Apply soft shadows for depth
+- Use gradient backgrounds for visual interest
+- Maintain generous whitespace
+- Keep interactions smooth and responsive
+- Use Pretendard font for all text
+
+**DON'T:**
+- Use sharp corners unless absolutely necessary
+- Apply harsh, dark shadows
+- Overcrowd content - embrace whitespace
+- Use tiny fonts (<12px) for body text
+- Mix multiple font families
+- Create jarring hover effects
+
+### Inspiration References
+
+This design system draws inspiration from:
+- **Reddit**: Card-based layout, clear content hierarchy
+- **Threads**: Soft colors, rounded design, friendly interactions
+- **Notion**: Clean aesthetic, generous whitespace, smooth animations
+- **Linear**: Modern gradients, subtle shadows, refined typography
 
 ---
 
