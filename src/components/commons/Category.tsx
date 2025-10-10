@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useState, useEffect, useRef } from "react";
 import { ItemCategory } from "@/data/item-category";
 
 const RecursiveCategoryItem = ({
@@ -84,12 +85,49 @@ export default function ItemCategorySection({
   onToggleExpand: (id: string) => void;
   categories: ItemCategory[];
 }) {
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    setIsScrolling(true);
+
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col h-full">
       <div className="text-center border border-gray-600 rounded-xs">
         카테고리
       </div>
-      <div className="flex-1 p-1">
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className={clsx(
+          "flex-1 p-1 overflow-y-auto category-scrollbar",
+          isScrolling && "scrolling",
+        )}
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: isScrolling
+            ? "rgb(156 163 175) transparent"
+            : "transparent transparent",
+        }}
+      >
         <ul>
           {categories.map((category) => (
             <RecursiveCategoryItem

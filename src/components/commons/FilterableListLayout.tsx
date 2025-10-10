@@ -120,8 +120,8 @@ export default function FilterableListLayout({
           setItemName={setItemName}
         />
       </div>
-      <div className="flex px-4 py-2">
-        <div className="w-44 flex-shrink-0 overflow-auto lg:flex hidden">
+      <div className="flex px-4 py-2 flex-1 overflow-hidden">
+        <div className="w-44 flex-shrink-0 lg:flex hidden">
           <AuctionCategory
             selectedId={selectedCategory}
             onSelect={handleCategorySelect}
@@ -130,7 +130,7 @@ export default function FilterableListLayout({
             categories={categories || []}
           />
         </div>
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 overflow-auto">{children}</div>
       </div>
     </div>
   );
