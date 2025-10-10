@@ -1,4 +1,3 @@
-import { POSTS_ENDPOINT } from "@/lib/api/constants";
 import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,13 +7,14 @@ export const revalidate = 300;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const postId = params.id;
+  const { id: postId } = await params;
 
   try {
     const axios = createServerAxios(request);
-    const { data, status } = await axios.get(`${POSTS_ENDPOINT}/${postId}`);
+    // DCS API: GET /api/posts/details/{id}
+    const { data, status } = await axios.get(`/dcs/api/posts/details/${postId}`);
     return NextResponse.json(data, { status: status });
   } catch (error: unknown) {
     // AxiosError 처리(Gateway 통신 오류)

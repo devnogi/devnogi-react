@@ -1,15 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { clientAxios } from "@/lib/api/clients";
-import { PostDetail } from "@/types/community";
-import { ArrowLeft, Heart, MessageCircle, Share2, MoreVertical } from "lucide-react";
-import Image from "next/image";
+import { usePostDetail } from "@/hooks/usePostDetail";
+import { ArrowLeft, Heart, MessageCircle, Share2, Eye } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import CommentList from "./CommentList";
 
 interface PostDetailViewProps {
   postId: string;
@@ -21,13 +19,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     isLoading,
     isError,
     error,
-  } = useQuery<PostDetail>({
-    queryKey: ["post", postId],
-    queryFn: async () => {
-      const response = await clientAxios.get<PostDetail>(`/posts/${postId}`);
-      return response.data;
-    },
-  });
+  } = usePostDetail(Number(postId));
 
   if (isLoading) {
     return (
@@ -53,6 +45,14 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     locale: ko,
   });
 
+  const formattedDate = new Date(post.createdAt).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   const handleLike = () => {
     // TODO: Implement like functionality
   };
@@ -62,141 +62,112 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <Link href="/community">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-2 -ml-2">
             <ArrowLeft className="w-4 h-4" />
-            뒤로가기
+            목록으로
           </Button>
         </Link>
       </div>
 
-      {/* Post Content */}
-      <article className="bg-white rounded-lg border border-gray-200 p-6">
-        {/* Author Info */}
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-start gap-3">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-              {post.author.profileImage ? (
-                <Image
-                  src={post.author.profileImage}
-                  alt={post.author.nickname}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold text-lg">
-                  {post.author.nickname[0].toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">
-                  {post.author.nickname}
-                </span>
-                <span className="text-gray-500 text-sm">
-                  @{post.author.username}
-                </span>
+      {/* Post Content - Threads Style */}
+      <article className="bg-white rounded-xl border border-gray-200">
+        {/* Author Section */}
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              {/* Profile Image */}
+              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                {post.userId.toString()[0]}
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                <span>{relativeTime}</span>
-                <span>·</span>
-                <span className="text-xs px-2 py-0.5 bg-gray-100 rounded-full">
-                  {post.boardName}
-                </span>
+
+              {/* Author Info */}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-900">
+                    사용자 {post.userId}
+                  </span>
+                  <span className="text-gray-400 text-sm">·</span>
+                  <span className="text-gray-500 text-sm">
+                    {relativeTime}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {formattedDate}
+                </div>
               </div>
             </div>
           </div>
-          <button className="text-gray-500 hover:text-gray-700">
-            <MoreVertical className="w-5 h-5" />
-          </button>
         </div>
-
-        {/* Post Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          {post.title}
-        </h1>
 
         {/* Post Body */}
-        <div className="prose max-w-none mb-6">
-          <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
+        <div className="p-6">
+          <h1 className="text-xl font-bold text-gray-900 mb-4">
+            {post.title}
+          </h1>
+          <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+            {post.content}
+          </div>
         </div>
 
-        {/* Post Images */}
-        {post.images && post.images.length > 0 && (
-          <div className="mb-6">
-            {post.images.length === 1 ? (
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden">
-                <Image
-                  src={post.images[0]}
-                  alt="Post image"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {post.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square rounded-lg overflow-hidden"
-                  >
-                    <Image
-                      src={image}
-                      alt={`Post image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Stats Bar */}
+        <div className="px-6 py-4 border-t border-gray-100">
+          <div className="flex items-center gap-6 text-sm text-gray-600">
+            <div className="flex items-center gap-1.5">
+              <Eye className="w-4 h-4" />
+              <span>{post.viewCount.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Heart
+                className={`w-4 h-4 ${post.isLiked ? "fill-red-500 text-red-500" : ""}`}
+              />
+              <span>{post.likeCount.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <MessageCircle className="w-4 h-4" />
+              <span>{post.commentCount.toLocaleString()}</span>
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* Post Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {post.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="text-sm text-blue-600 hover:underline cursor-pointer"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Post Stats */}
-        <div className="flex items-center gap-6 pt-6 border-t border-gray-200">
+        {/* Action Buttons */}
+        <div className="px-6 py-3 border-t border-gray-100 flex items-center gap-2">
           <button
             onClick={handleLike}
-            className="flex items-center gap-2 text-gray-600 hover:text-red-500 transition-colors group"
+            className={`flex-1 py-2.5 rounded-lg font-medium transition-colors ${
+              post.isLiked
+                ? "bg-red-50 text-red-600 hover:bg-red-100"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+            }`}
           >
-            <Heart
-              className={`w-6 h-6 ${post.isLiked ? "fill-red-500 text-red-500" : "group-hover:fill-red-100"}`}
-            />
-            <span>{post.likeCount}</span>
+            <div className="flex items-center justify-center gap-2">
+              <Heart
+                className={`w-4 h-4 ${post.isLiked ? "fill-current" : ""}`}
+              />
+              <span className="text-sm">
+                {post.isLiked ? "좋아요 취소" : "좋아요"}
+              </span>
+            </div>
           </button>
-          <div className="flex items-center gap-2 text-gray-600">
-            <MessageCircle className="w-6 h-6" />
-            <span>{post.commentCount}</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <span className="text-sm">조회 {post.viewCount}</span>
-          </div>
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors ml-auto"
+            className="flex-1 py-2.5 rounded-lg font-medium bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
           >
-            <Share2 className="w-6 h-6" />
+            <div className="flex items-center justify-center gap-2">
+              <Share2 className="w-4 h-4" />
+              <span className="text-sm">공유</span>
+            </div>
           </button>
         </div>
       </article>
+
+      {/* Comments Section */}
+      <div className="mt-6">
+        <CommentList postId={Number(postId)} />
+      </div>
     </div>
   );
 }

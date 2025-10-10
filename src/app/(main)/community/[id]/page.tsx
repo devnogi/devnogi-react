@@ -3,25 +3,27 @@ import CommentList from "@/components/page/community/CommentList";
 import CommentForm from "@/components/page/community/CommentForm";
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-function PostPage({ params }: PostPageProps) {
+async function PostPage({ params }: PostPageProps) {
+  const { id } = await params;
+
   return (
     <div className="flex flex-col gap-8 pb-8">
       {/* Post Detail */}
-      <PostDetailView postId={params.id} />
+      <PostDetailView postId={id} />
 
       {/* Comments Section */}
       <div className="max-w-3xl mx-auto w-full">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <CommentList postId={params.id} />
+          <CommentList postId={id} />
 
           {/* Comment Form */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <CommentForm postId={params.id} />
+            <CommentForm postId={id} />
           </div>
         </div>
       </div>
