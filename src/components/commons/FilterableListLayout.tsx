@@ -120,17 +120,21 @@ export default function FilterableListLayout({
           setItemName={setItemName}
         />
       </div>
-      <div className="flex px-4 py-2 flex-1 overflow-hidden">
-        <div className="w-44 flex-shrink-0 lg:flex hidden">
-          <AuctionCategory
-            selectedId={selectedCategory}
-            onSelect={handleCategorySelect}
-            expandedIds={expandedIds}
-            onToggleExpand={handleToggleExpand}
-            categories={categories || []}
-          />
-        </div>
-        <div className="flex-1 overflow-auto">{children}</div>
+
+      {/* Fixed Floating Category Sidebar */}
+      <div className="fixed left-24 top-32 bottom-8 w-56 z-40 lg:block hidden">
+        <AuctionCategory
+          selectedId={selectedCategory}
+          onSelect={handleCategorySelect}
+          expandedIds={expandedIds}
+          onToggleExpand={handleToggleExpand}
+          categories={categories || []}
+        />
+      </div>
+
+      {/* Main Content with left margin for category sidebar */}
+      <div className="px-4 py-2 lg:ml-60 ml-0">
+        {children}
       </div>
     </div>
   );
