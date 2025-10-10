@@ -112,15 +112,6 @@ export default function FilterableListLayout({
 
   return (
     <div className="select-none flex flex-col h-full">
-      <div className="flex-shrink-0 px-4 py-2">
-        <AuctionSearch
-          path={categoryPath}
-          onCategorySelect={handleCategorySelect}
-          itemName={itemName}
-          setItemName={setItemName}
-        />
-      </div>
-
       {/* Fixed Floating Category Sidebar */}
       <div className="fixed left-24 top-32 bottom-8 w-56 z-40 lg:block hidden">
         <AuctionCategory
@@ -132,9 +123,22 @@ export default function FilterableListLayout({
         />
       </div>
 
-      {/* Main Content with left margin for category sidebar */}
-      <div className="px-4 py-2 lg:ml-60 ml-0">
-        {children}
+      {/* Centered Main Content Container */}
+      <div className="flex-1 flex justify-center overflow-auto">
+        <div className="w-full max-w-4xl px-6 py-8">
+          {/* Search Section */}
+          <div className="mb-6">
+            <AuctionSearch
+              path={categoryPath}
+              onCategorySelect={handleCategorySelect}
+              itemName={itemName}
+              setItemName={setItemName}
+            />
+          </div>
+
+          {/* Results Section */}
+          <div>{children}</div>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import CategoryLayout from "@/components/commons/FilterableListLayout";
-import PageTitle from "@/components/commons/PageTitle";
 import AuctionHistoryList from "@/components/page/auction-history/List";
 import { clientAxios } from "@/lib/api/clients";
 import { AUCTION_HISTORY_ENDPOINT } from "@/lib/api/constants";
@@ -31,20 +30,14 @@ export default function Page() {
   });
 
   return (
-    <div className="container min-w-full">
-      <div className="mb-4 pt-4 px-4">
-        <PageTitle title="경매장 거래 내역 검색" />
-      </div>
-
-      <CategoryLayout
-        selectedCategory={itemCategory}
-        setSelectedCategory={setItemCategory}
-        itemName={itemName}
-        setItemName={setItemName}
-        categoryStorageKey="lastSelectedCategoryTradeLog"
-      >
-        <AuctionHistoryList auctionHistoryList={auctionHistory} />
-      </CategoryLayout>
-    </div>
+    <CategoryLayout
+      selectedCategory={itemCategory}
+      setSelectedCategory={setItemCategory}
+      itemName={itemName}
+      setItemName={setItemName}
+      categoryStorageKey="lastSelectedCategoryTradeLog"
+    >
+      <AuctionHistoryList auctionHistoryList={auctionHistory} />
+    </CategoryLayout>
   );
 }
