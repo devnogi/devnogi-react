@@ -1,4 +1,4 @@
-import NavBar from "@/components/nav-bar";
+import Sidebar from "@/components/sidebar";
 
 export default function RootLayout({
   children,
@@ -6,14 +6,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <header className="border-b bg-white sticky top-0 z-10">
-        <div className="max-w-7xl w-full mx-auto flex-shrink-0">
-          <NavBar />
-        </div>
-      </header>
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-7xl w-full mx-auto h-full px-4 py-6">
+    <div className="h-screen flex bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      {/* Left Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <main className="flex-1 ml-20 overflow-auto">
+        <div className="max-w-7xl w-full mx-auto h-full px-6 py-8">
           {children}
         </div>
       </main>
