@@ -14,11 +14,13 @@ export default function SearchSection({
   onCategorySelect,
   itemName,
   setItemName,
+  onSearch,
 }: {
   path: ItemCategory[];
   onCategorySelect: (categoryId: string) => void;
   itemName: string;
   setItemName: (name: string) => void;
+  onSearch?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: itemInfos = [], isLoading } = useItemInfos();
@@ -112,7 +114,10 @@ export default function SearchSection({
 
       {/* Action Buttons */}
       <div className="flex gap-3 mt-4">
-        <Button className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all">
+        <Button
+          className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
+          onClick={onSearch}
+        >
           찾기
         </Button>
         <Button
