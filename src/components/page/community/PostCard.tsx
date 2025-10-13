@@ -25,7 +25,7 @@ export default function PostCard({ post }: PostCardProps) {
   });
 
   return (
-    <Link href={`/community/${post.id}`}>
+    <Link href={`/community/${post.id}`} className="block">
       <article className="bg-white rounded-lg p-4 sm:p-6 border border-gray-200 hover:border-gray-300 transition-colors">
         {/* Post Content */}
         <div className="mb-3">

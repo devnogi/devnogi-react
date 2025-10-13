@@ -74,7 +74,7 @@ export default function PostList({ boardId }: PostListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {allPosts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
