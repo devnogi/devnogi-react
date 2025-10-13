@@ -160,11 +160,12 @@ export default function PostCreateModal({
               damping: 25,
               stiffness: 300,
             }}
-            className={`fixed z-50 ${
+            className={`fixed z-50 overflow-hidden ${
               isExpanded
                 ? "inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"
-                : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-gray-100"
+                : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[85vh] bg-white shadow-2xl border border-gray-100"
             }`}
+            style={!isExpanded ? { borderRadius: "32px" } : undefined}
           >
             <div className="h-full flex flex-col">
               {/* Header */}
