@@ -6,13 +6,14 @@ import PostList from "@/components/page/community/PostList";
 import PageTitle from "@/components/commons/PageTitle";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import Link from "next/link";
+import PostCreateModal from "@/components/page/community/PostCreateModal";
 
 function CommunityPage() {
   const [selectedBoardId, setSelectedBoardId] = useState<number | undefined>(
     undefined,
   );
   const [sortOption, setSortOption] = useState("latest");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <main className="flex flex-col gap-6 pb-8">
@@ -37,16 +38,20 @@ function CommunityPage() {
           <option value="views">조회순</option>
         </select>
 
-        <Link href="/community/new">
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            글쓰기
-          </Button>
-        </Link>
+        <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
+          <Plus className="w-4 h-4" />
+          글쓰기
+        </Button>
       </div>
 
       {/* Post List */}
       <PostList boardId={selectedBoardId} sort={sortOption} />
+
+      {/* Post Create Modal */}
+      <PostCreateModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </main>
   );
 }
