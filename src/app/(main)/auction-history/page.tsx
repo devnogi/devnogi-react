@@ -141,7 +141,7 @@ export default function Page() {
   }
 
   return (
-    <div className="select-none flex flex-col h-full">
+    <div className="select-none absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Fixed Floating Category Sidebar */}
       <div className="fixed left-24 top-32 bottom-8 w-56 z-40 lg:block hidden">
         <CategorySection
@@ -154,7 +154,7 @@ export default function Page() {
       </div>
 
       {/* Centered Main Content Container */}
-      <div className="flex-1 flex justify-center overflow-auto bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="h-full overflow-auto flex justify-center">
         <div className="w-full max-w-4xl px-6 py-8">
           {/* Header */}
           <div className="mb-8">
