@@ -1,52 +1,57 @@
 "use client";
 
-import { Comment } from "@/types/community";
+import { CommentPageResponseItem } from "@/types/community";
 import { Heart, MessageCircle } from "lucide-react";
-import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
 import { useState } from "react";
 import CommentForm from "./CommentForm";
 
 interface CommentItemProps {
-  comment: Comment;
+  comment: CommentPageResponseItem;
   postId: string;
   isReply?: boolean;
+  replies?: CommentPageResponseItem[];
 }
 
 export default function CommentItem({
   comment,
   postId,
   isReply = false,
+  replies = [],
 }: CommentItemProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
-
-  const relativeTime = formatDistanceToNow(new Date(comment.createdAt), {
-    addSuffix: true,
-    locale: ko,
-  });
 
   const handleLike = () => {
     // TODO: Implement comment like functionality
   };
+
+  // 삭제되거나 차단된 댓글 표시
+  if (comment.isDeleted || comment.isBlocked) {
+    return (
+      <div className={`${isReply ? "ml-12" : ""}`}>
+        <div className="flex gap-3">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-200" />
+          <div className="flex-1">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-gray-400 text-sm italic">
+                {comment.isDeleted
+                  ? "삭제된 댓글입니다."
+                  : "차단된 댓글입니다."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`${isReply ? "ml-12" : ""}`}>
       <div className="flex gap-3">
         {/* Author Avatar */}
         <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-          {comment.author.profileImage ? (
-            <Image
-              src={comment.author.profileImage}
-              alt={comment.author.nickname}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold">
-              {comment.author.nickname[0].toUpperCase()}
-            </div>
-          )}
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+            {comment.userId.toString()[0]}
+          </div>
         </div>
 
         {/* Comment Content */}
@@ -54,10 +59,7 @@ export default function CommentItem({
           <div className="bg-gray-50 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <span className="font-semibold text-gray-900 text-sm">
-                {comment.author.nickname}
-              </span>
-              <span className="text-gray-500 text-xs">
-                @{comment.author.username}
+                사용자 {comment.userId}
               </span>
             </div>
             <p className="text-gray-700 text-sm whitespace-pre-wrap">
@@ -67,7 +69,6 @@ export default function CommentItem({
 
           {/* Comment Actions */}
           <div className="flex items-center gap-4 mt-2 px-3">
-            <span className="text-xs text-gray-500">{relativeTime}</span>
             <button
               onClick={handleLike}
               className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors text-xs"
@@ -103,9 +104,9 @@ export default function CommentItem({
       </div>
 
       {/* Replies */}
-      {comment.replies && comment.replies.length > 0 && (
+      {replies && replies.length > 0 && (
         <div className="mt-4 space-y-4">
-          {comment.replies.map((reply) => (
+          {replies.map((reply) => (
             <CommentItem
               key={reply.id}
               comment={reply}

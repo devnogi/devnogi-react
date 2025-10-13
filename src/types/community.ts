@@ -74,6 +74,34 @@ export interface Comment {
   replies?: Comment[];
 }
 
+// 백엔드 댓글 응답 아이템 타입
+export interface CommentPageResponseItem {
+  id: number;
+  userId: number;
+  parentComment: number | null;
+  content: string;
+  likeCount: number;
+  isDeleted: boolean;
+  isBlocked: boolean;
+  isLiked: boolean;
+}
+
+// 페이지 메타 정보
+export interface PageMeta {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+  isFirst: boolean;
+  isLast: boolean;
+}
+
+// 백엔드 댓글 목록 응답 타입
+export interface BackendCommentsResponse {
+  items: CommentPageResponseItem[];
+  meta: PageMeta;
+}
+
 // 댓글 목록 응답 타입
 export interface CommentsResponse {
   comments: Comment[];
