@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import AuctionCategory from "@/components/commons/Category";
 import AuctionSearch from "@/components/commons/Search";
-import { ItemCategory, itemCategories } from "@/data/item-category";
+import { ItemCategory } from "@/data/item-category";
+import { useItemCategories } from "@/hooks/useItemCategories";
 
 export default function FilterableListLayout({
   children,
@@ -22,6 +23,8 @@ export default function FilterableListLayout({
 }) {
   const [isClientMounted, setIsClientMounted] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const { data: categories, isLoading } = useItemCategories();
 
   const findCategoryPath = (
     categories: ItemCategory[],
@@ -67,8 +70,8 @@ export default function FilterableListLayout({
   };
 
   const categoryPath = useMemo(
-    () => findCategoryPath(itemCategories, selectedCategory),
-    [selectedCategory],
+    () => findCategoryPath(categories || [], selectedCategory),
+    [selectedCategory, categories],
   );
 
   useEffect(() => {
@@ -87,26 +90,55 @@ export default function FilterableListLayout({
     }
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="select-none flex flex-col h-full">
+        <div className="flex-shrink-0 px-4 py-2">
+          <div className="h-10 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="flex px-4 py-2">
+          <div className="w-44 flex-shrink-0 overflow-auto lg:flex hidden">
+            <div className="flex-1 space-y-2">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-6 bg-gray-200 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+          <div className="flex-1">{children}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="select-none flex flex-col h-full">
-      <div className="flex-shrink-0 px-4 py-2">
-        <AuctionSearch
-          path={categoryPath}
-          onCategorySelect={handleCategorySelect}
-          itemName={itemName}
-          setItemName={setItemName}
+      {/* Fixed Floating Category Sidebar */}
+      <div className="fixed left-24 top-32 bottom-8 w-56 z-40 lg:block hidden">
+        <AuctionCategory
+          selectedId={selectedCategory}
+          onSelect={handleCategorySelect}
+          expandedIds={expandedIds}
+          onToggleExpand={handleToggleExpand}
+          categories={categories || []}
         />
       </div>
-      <div className="flex px-4 py-2">
-        <div className="w-44 flex-shrink-0 overflow-auto lg:flex hidden">
-          <AuctionCategory
-            selectedId={selectedCategory}
-            onSelect={handleCategorySelect}
-            expandedIds={expandedIds}
-            onToggleExpand={handleToggleExpand}
-          />
+
+      {/* Centered Main Content Container */}
+      <div className="flex-1 flex justify-center overflow-auto">
+        <div className="w-full max-w-4xl px-6 py-8">
+          {/* Search Section */}
+          <div className="mb-6">
+            <AuctionSearch
+              path={categoryPath}
+              onCategorySelect={handleCategorySelect}
+              itemName={itemName}
+              setItemName={setItemName}
+            />
+          </div>
+
+          {/* Results Section */}
+          <div>{children}</div>
         </div>
-        <div className="flex-1">{children}</div>
       </div>
     </div>
   );

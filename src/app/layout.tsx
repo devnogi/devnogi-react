@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "@/app/_providers/Providers";
-
-// 폰트 woff 등으로 변환 금지 - 수정 금지 원본 사용 저작권 조건 있음
-const mabinogi = localFont({
-  src: "./Mabinogi_Classic_OTF.otf",
-});
 
 export const metadata: Metadata = {
   title: "Devnogi",
@@ -19,7 +13,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={mabinogi.className}>
+    <html lang="ko">
+      <head>
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+      </head>
       <body>
         <Providers>{children}</Providers>
       </body>

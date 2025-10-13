@@ -127,14 +127,38 @@
   &::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* Firefox */
   &* {
     scrollbar-width: none;
   }
-  
+
   /* IE and Edge */
   &* {
     -ms-overflow-style: none;
   }
+}
+
+/* 카테고리 스크롤바 스타일 */
+.category-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+/* 스크롤 중일 때만 스크롤바 표시 */
+.category-scrollbar.scrolling::-webkit-scrollbar-thumb {
+  background: rgb(156 163 175);
+}
+
+.category-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
 }
