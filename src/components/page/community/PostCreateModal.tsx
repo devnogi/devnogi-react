@@ -112,6 +112,16 @@ export default function PostCreateModal({
   };
 
   const handleClose = () => {
+    // Check if there's any content
+    const hasContent = content.trim() || images.length > 0 || tags.length > 0;
+
+    if (hasContent) {
+      const confirmed = window.confirm(
+        "작성 중인 내용이 있습니다. 정말로 나가시겠습니까?\n작성한 내용은 저장되지 않습니다.",
+      );
+      if (!confirmed) return;
+    }
+
     setContent("");
     setImages([]);
     setTags([]);
@@ -135,7 +145,7 @@ export default function PostCreateModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black bg-opacity-20 z-40"
+            className="fixed inset-0 bg-black/20 z-40"
             onClick={!isExpanded ? handleClose : undefined}
           />
 
