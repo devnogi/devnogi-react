@@ -12,6 +12,8 @@ interface AutocompleteProps {
   onArrowUpFromFirst?: () => void;
   externalSelectedIndex?: number;
   onSelectedIndexChange?: (index: number) => void;
+  externalIsOpen?: boolean;
+  onIsOpenChange?: (isOpen: boolean) => void;
 }
 
 export default function Autocomplete({
@@ -22,6 +24,8 @@ export default function Autocomplete({
   onArrowUpFromFirst,
   externalSelectedIndex,
   onSelectedIndexChange,
+  externalIsOpen,
+  onIsOpenChange,
 }: AutocompleteProps) {
   const [internalSelectedIndex, setInternalSelectedIndex] = useState(-1);
   const selectedIndex =
@@ -30,7 +34,9 @@ export default function Autocomplete({
       : internalSelectedIndex;
   const setSelectedIndex = onSelectedIndexChange || setInternalSelectedIndex;
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = onIsOpenChange || setInternalIsOpen;
   const dropdownRef = useRef<HTMLUListElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -53,10 +59,12 @@ export default function Autocomplete({
     }
   }, [filteredItems, externalSelectedIndex, setSelectedIndex]);
 
-  // 드롭다운 표시 여부 결정
+  // 드롭다운 표시 여부 결정 (외부 제어가 없을 때만)
   useEffect(() => {
-    setIsOpen(filteredItems.length > 0 && value.trim().length > 0);
-  }, [filteredItems, value]);
+    if (externalIsOpen === undefined) {
+      setIsOpen(filteredItems.length > 0 && value.trim().length > 0);
+    }
+  }, [filteredItems, value, externalIsOpen, setIsOpen]);
 
   // 선택된 아이템으로 스크롤
   useEffect(() => {
@@ -147,7 +155,10 @@ export default function Autocomplete({
                   ? "bg-blue-50 text-blue-700"
                   : "text-gray-900 hover:bg-gray-50",
               )}
-              onClick={() => handleSelect(item)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleSelect(item);
+              }}
               onMouseEnter={() => handleMouseEnter(index)}
               role="option"
               aria-selected={selectedIndex === index}
