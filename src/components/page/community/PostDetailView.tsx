@@ -7,7 +7,6 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import CommentList from "./CommentList";
 
 interface PostDetailViewProps {
   postId: string;
@@ -62,7 +61,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="w-full px-4 py-6">
       {/* Header */}
       <div className="mb-6">
         <Link href="/community">
@@ -163,11 +162,6 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
           </button>
         </div>
       </article>
-
-      {/* Comments Section */}
-      <div className="mt-6">
-        <CommentList postId={Number(postId)} />
-      </div>
     </div>
   );
 }
