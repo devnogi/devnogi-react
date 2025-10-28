@@ -166,7 +166,7 @@ export default function Page() {
       </div>
 
       {/* Centered Main Content Container */}
-      <div className="h-full overflow-auto flex justify-center">
+      <div className="h-full overflow-auto flex justify-center [scrollbar-gutter:stable]">
         <div className="w-full max-w-4xl px-6 py-8">
           {/* Header */}
           <div className="mb-8">
