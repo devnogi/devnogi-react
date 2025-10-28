@@ -65,6 +65,19 @@ export default function SearchSection({
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 엔터키: 선택된 항목이 있으면 자동완성, 없으면 검색 실행
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (selectedIndex >= 0 && filteredItems[selectedIndex]) {
+        handleItemSelect(filteredItems[selectedIndex]);
+      } else {
+        // 선택된 항목이 없으면 검색 실행
+        onSearch?.();
+        setIsAutocompleteOpen(false);
+      }
+      return;
+    }
+
     if (itemName.trim().length === 0) return;
 
     // 아래 화살표: 자동완성의 첫 번째 아이템으로 이동 또는 다음 아이템 선택
@@ -82,11 +95,6 @@ export default function SearchSection({
       } else if (selectedIndex === 0) {
         setSelectedIndex(-1);
       }
-    }
-    // 엔터키: 선택된 아이템을 자동완성
-    else if (e.key === "Enter" && selectedIndex >= 0 && filteredItems[selectedIndex]) {
-      e.preventDefault();
-      handleItemSelect(filteredItems[selectedIndex]);
     }
     // Escape: 자동완성 닫기
     else if (e.key === "Escape") {

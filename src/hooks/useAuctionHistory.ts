@@ -46,6 +46,8 @@ export interface AuctionHistorySearchParams {
   size?: number;
   sortBy?: string;
   direction?: string;
+  // Dynamic filter fields - these will be added by SearchFilterCard
+  [key: string]: string | number | undefined;
 }
 
 async function fetchAuctionHistory(
@@ -53,6 +55,7 @@ async function fetchAuctionHistory(
 ): Promise<AuctionHistoryResponse> {
   const queryParams = new URLSearchParams();
 
+  // Standard params
   if (params.itemName) queryParams.append("itemName", params.itemName);
   if (params.itemTopCategory)
     queryParams.append("itemTopCategory", params.itemTopCategory);
@@ -62,6 +65,27 @@ async function fetchAuctionHistory(
   if (params.size) queryParams.append("size", params.size.toString());
   if (params.sortBy) queryParams.append("sortBy", params.sortBy);
   if (params.direction) queryParams.append("direction", params.direction);
+
+  // Dynamic filter params - add any additional parameters
+  const knownKeys = [
+    "itemName",
+    "itemTopCategory",
+    "itemSubCategory",
+    "page",
+    "size",
+    "sortBy",
+    "direction",
+  ];
+  Object.entries(params).forEach(([key, value]) => {
+    if (
+      !knownKeys.includes(key) &&
+      value !== undefined &&
+      value !== null &&
+      value !== ""
+    ) {
+      queryParams.append(key, value.toString());
+    }
+  });
 
   const response = await fetch(
     `/api/auction-history/search?${queryParams.toString()}`,
