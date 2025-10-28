@@ -17,7 +17,7 @@ import {
   FilterValue,
   ActiveFilter,
 } from "@/types/search-filter";
-import { Plus, X, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, X, RotateCcw, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
 
 interface SearchFilterCardProps {
   onFilterApply: (filters: Record<string, string | number>) => void;
@@ -187,10 +187,11 @@ export default function SearchFilterCard({
 
         if (!valueField || !standardField) return null;
 
-        const standardMetadata = filter.searchCondition[standardField];
+        const currentStandard = (filter.values[standardField] as string) || "UP";
+        const isUp = currentStandard === "UP";
 
         return (
-          <div className="space-y-2">
+          <div className="flex items-center gap-2">
             <Input
               type="number"
               placeholder="값 입력"
@@ -198,25 +199,25 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, valueField, e.target.value)
               }
-              className="h-9 rounded-lg text-sm"
+              className="h-9 rounded-lg text-sm flex-1"
             />
-            <Select
-              value={filter.values[standardField] as string}
-              onValueChange={(value) =>
-                handleFilterValueChange(filter.id, standardField, value)
+            <button
+              onClick={() =>
+                handleFilterValueChange(
+                  filter.id,
+                  standardField,
+                  isUp ? "DOWN" : "UP",
+                )
               }
+              className="h-9 w-9 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              title={isUp ? "이상 (클릭하면 이하)" : "이하 (클릭하면 이상)"}
             >
-              <SelectTrigger className="h-9 rounded-lg text-sm">
-                <SelectValue placeholder="기준 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                {standardMetadata.allowedValues?.map((val) => (
-                  <SelectItem key={val} value={val}>
-                    {val}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {isUp ? (
+                <ArrowUp className="w-4 h-4 text-blue-600" />
+              ) : (
+                <ArrowDown className="w-4 h-4 text-purple-600" />
+              )}
+            </button>
           </div>
         );
       }
