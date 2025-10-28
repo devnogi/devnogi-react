@@ -17,7 +17,7 @@ import {
   FilterValue,
   ActiveFilter,
 } from "@/types/search-filter";
-import { Plus, X, Search, RotateCcw } from "lucide-react";
+import { Plus, X, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SearchFilterCardProps {
   onFilterApply: (filters: Record<string, string | number>) => void;
@@ -42,6 +42,7 @@ export default function SearchFilterCard({
     dateTo: "",
   });
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
+  const [isDateCollapsed, setIsDateCollapsed] = useState(false);
 
   const handleAddFilter = useCallback(
     (option: SearchOptionMetadata) => {
@@ -153,28 +154,26 @@ export default function SearchFilterCard({
         if (!fromField || !toField) return null;
 
         return (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                placeholder="최소"
-                value={filter.values[fromField] || ""}
-                onChange={(e) =>
-                  handleFilterValueChange(filter.id, fromField, e.target.value)
-                }
-                className="h-10 rounded-lg"
-              />
-              <span className="text-gray-400">~</span>
-              <Input
-                type="number"
-                placeholder="최대"
-                value={filter.values[toField] || ""}
-                onChange={(e) =>
-                  handleFilterValueChange(filter.id, toField, e.target.value)
-                }
-                className="h-10 rounded-lg"
-              />
-            </div>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              placeholder="최소"
+              value={filter.values[fromField] || ""}
+              onChange={(e) =>
+                handleFilterValueChange(filter.id, fromField, e.target.value)
+              }
+              className="h-9 rounded-lg text-sm"
+            />
+            <span className="text-gray-400 text-sm">~</span>
+            <Input
+              type="number"
+              placeholder="최대"
+              value={filter.values[toField] || ""}
+              onChange={(e) =>
+                handleFilterValueChange(filter.id, toField, e.target.value)
+              }
+              className="h-9 rounded-lg text-sm"
+            />
           </div>
         );
       }
@@ -199,7 +198,7 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, valueField, e.target.value)
               }
-              className="h-10 rounded-lg"
+              className="h-9 rounded-lg text-sm"
             />
             <Select
               value={filter.values[standardField] as string}
@@ -207,7 +206,7 @@ export default function SearchFilterCard({
                 handleFilterValueChange(filter.id, standardField, value)
               }
             >
-              <SelectTrigger className="h-10 rounded-lg">
+              <SelectTrigger className="h-9 rounded-lg text-sm">
                 <SelectValue placeholder="기준 선택" />
               </SelectTrigger>
               <SelectContent>
@@ -239,7 +238,7 @@ export default function SearchFilterCard({
               handleFilterValueChange(filter.id, enumField, value)
             }
           >
-            <SelectTrigger className="h-10 rounded-lg">
+            <SelectTrigger className="h-9 rounded-lg text-sm">
               <SelectValue placeholder="선택하세요" />
             </SelectTrigger>
             <SelectContent>
@@ -263,7 +262,7 @@ export default function SearchFilterCard({
           onChange={(e) =>
             handleFilterValueChange(filter.id, fieldName, e.target.value)
           }
-          className="h-10 rounded-lg"
+          className="h-9 rounded-lg text-sm"
         />
       );
     },
@@ -276,83 +275,112 @@ export default function SearchFilterCard({
 
   if (isLoading) {
     return (
-      <div className="fixed right-24 top-32 bottom-8 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 p-6 flex items-center justify-center">
-        <div className="text-gray-500">로딩 중...</div>
+      <div className="fixed right-24 top-32 bottom-8 w-72 bg-white rounded-xl shadow-xl border border-gray-200 p-4 flex items-center justify-center">
+        <div className="text-gray-500 text-sm">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="fixed right-24 top-32 bottom-8 w-80 overflow-auto">
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Search className="w-5 h-5" />
+    <div className="fixed right-24 top-32 bottom-8 w-72 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="space-y-3">
+        {/* Header - Compact */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-3 px-4">
+          <h2 className="text-base font-bold text-gray-900">
             검색 필터
           </h2>
         </div>
 
-        {/* Price Filter */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            💰 금액 (골드)
-          </h3>
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              placeholder="최소"
-              value={basicFilters.priceMin}
-              onChange={(e) =>
-                setBasicFilters({ ...basicFilters, priceMin: e.target.value })
-              }
-              className="h-10 rounded-lg"
-            />
-            <span className="text-gray-400">~</span>
-            <Input
-              type="number"
-              placeholder="최대"
-              value={basicFilters.priceMax}
-              onChange={(e) =>
-                setBasicFilters({ ...basicFilters, priceMax: e.target.value })
-              }
-              className="h-10 rounded-lg"
-            />
+        {/* Price & Date Combined Filter */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+          {/* Price Section */}
+          <div className="mb-3">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              💰 금액 (골드)
+            </h3>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                placeholder="최소"
+                value={basicFilters.priceMin}
+                onChange={(e) =>
+                  setBasicFilters({ ...basicFilters, priceMin: e.target.value })
+                }
+                className="h-9 rounded-lg text-sm"
+              />
+              <span className="text-gray-400 text-sm">~</span>
+              <Input
+                type="number"
+                placeholder="최대"
+                value={basicFilters.priceMax}
+                onChange={(e) =>
+                  setBasicFilters({ ...basicFilters, priceMax: e.target.value })
+                }
+                className="h-9 rounded-lg text-sm"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Date Filter */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            📅 거래 일자
-          </h3>
-          <div className="space-y-2">
-            <Input
-              type="date"
-              value={basicFilters.dateFrom}
-              onChange={(e) =>
-                setBasicFilters({ ...basicFilters, dateFrom: e.target.value })
-              }
-              className="h-10 rounded-lg"
-            />
-            <Input
-              type="date"
-              value={basicFilters.dateTo}
-              onChange={(e) =>
-                setBasicFilters({ ...basicFilters, dateTo: e.target.value })
-              }
-              className="h-10 rounded-lg"
-            />
+          {/* Date Section - Collapsible */}
+          <div className="border-t border-gray-100 pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-gray-700">
+                📅 거래 일자
+              </h3>
+              <button
+                onClick={() => setIsDateCollapsed(!isDateCollapsed)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {isDateCollapsed ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronUp className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+
+            {!isDateCollapsed ? (
+              <div className="space-y-2">
+                <Input
+                  type="date"
+                  value={basicFilters.dateFrom}
+                  onChange={(e) =>
+                    setBasicFilters({ ...basicFilters, dateFrom: e.target.value })
+                  }
+                  className="h-9 rounded-lg text-sm"
+                />
+                <Input
+                  type="date"
+                  value={basicFilters.dateTo}
+                  onChange={(e) =>
+                    setBasicFilters({ ...basicFilters, dateTo: e.target.value })
+                  }
+                  className="h-9 rounded-lg text-sm"
+                />
+              </div>
+            ) : (
+              <div className="text-xs text-gray-500 mt-1">
+                {basicFilters.dateFrom || basicFilters.dateTo ? (
+                  <div className="flex items-center gap-1">
+                    <span>{basicFilters.dateFrom || "시작일"}</span>
+                    <span>~</span>
+                    <span>{basicFilters.dateTo || "종료일"}</span>
+                  </div>
+                ) : (
+                  <span className="text-gray-400">일자 미선택</span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Add Filter Button */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
           <div className="relative">
             <Button
               variant="outline"
               onClick={() => setShowAddFilterDropdown(!showAddFilterDropdown)}
-              className="w-full h-10 rounded-lg flex items-center justify-center gap-2"
+              className="w-full h-9 rounded-lg flex items-center justify-center gap-2 text-sm"
               disabled={availableOptions.length === 0}
             >
               <Plus className="w-4 h-4" />
@@ -360,12 +388,12 @@ export default function SearchFilterCard({
             </Button>
 
             {showAddFilterDropdown && availableOptions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-64 overflow-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-56 overflow-auto z-50">
                 {availableOptions.map((option) => (
                   <button
                     key={option.id}
                     onClick={() => handleAddFilter(option)}
-                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 transition-colors"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
                   >
                     {option.searchOptionName}
                   </button>
@@ -379,9 +407,9 @@ export default function SearchFilterCard({
         {activeFilters.map((filter) => (
           <div
             key={filter.id}
-            className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6"
+            className="bg-white rounded-xl shadow-lg border border-gray-200 p-4"
           >
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-gray-700">
                 {filter.searchOptionName}
               </h3>
@@ -397,19 +425,19 @@ export default function SearchFilterCard({
         ))}
 
         {/* Action Buttons */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
           <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={handleReset}
-              className="flex-1 h-10 rounded-lg flex items-center justify-center gap-2"
+              className="flex-1 h-9 rounded-lg flex items-center justify-center gap-1.5 text-sm"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3.5 h-3.5" />
               초기화
             </Button>
             <Button
               onClick={handleApply}
-              className="flex-1 h-10 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+              className="flex-1 h-9 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 text-sm"
             >
               검색 적용
             </Button>
