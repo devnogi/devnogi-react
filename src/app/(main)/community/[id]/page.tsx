@@ -17,8 +17,8 @@ async function PostPage({ params }: PostPageProps) {
       <PostDetailView postId={id} />
 
       {/* Comments Section */}
-      <div className="max-w-3xl mx-auto w-full">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="w-full px-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <CommentList postId={id} />
 
           {/* Comment Form */}

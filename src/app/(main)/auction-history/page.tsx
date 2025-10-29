@@ -3,6 +3,7 @@
 import SearchSection from "@/components/commons/Search";
 import AuctionHistoryList from "@/components/page/auction-history/AuctionHistoryList";
 import CategorySection from "@/components/commons/Category";
+import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
 import {
@@ -120,6 +121,17 @@ export default function Page() {
     setCurrentPage(1);
   };
 
+  const handleFilterApply = (filters: Record<string, string | number>) => {
+    // Merge existing search params with new filters
+    const params: AuctionHistorySearchParams = {
+      ...searchParams,
+      ...filters,
+    };
+
+    setSearchParams(params);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -154,7 +166,7 @@ export default function Page() {
       </div>
 
       {/* Centered Main Content Container */}
-      <div className="h-full overflow-auto flex justify-center">
+      <div className="h-full overflow-auto flex justify-center [scrollbar-gutter:stable]">
         <div className="w-full max-w-4xl px-6 py-8">
           {/* Header */}
           <div className="mb-8">
@@ -219,6 +231,11 @@ export default function Page() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Fixed Floating Filter Card - Right Side */}
+      <div className="hidden lg:block">
+        <SearchFilterCard onFilterApply={handleFilterApply} />
       </div>
     </div>
   );
