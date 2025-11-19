@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/types/community";
+import { AuctionHistorySearchParams } from "@/types/auction-history";
 
 export interface ItemOption {
   id: string;
@@ -38,54 +39,46 @@ export interface AuctionHistoryResponse {
   meta: PageMeta;
 }
 
-export interface AuctionHistorySearchParams {
-  itemName?: string;
-  itemTopCategory?: string;
-  itemSubCategory?: string;
-  page?: number;
-  size?: number;
-  sortBy?: string;
-  direction?: string;
-  // Dynamic filter fields - these will be added by SearchFilterCard
-  [key: string]: string | number | undefined;
+/**
+ * Nested object를 Spring Boot @ModelAttribute 형식의 query parameter로 변환
+ * 예: { priceSearchRequest: { priceFrom: 10000 } } -> "priceSearchRequest.priceFrom=10000"
+ */
+function buildNestedQueryParams(
+  obj: Record<string, unknown>,
+  prefix = "",
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  Object.entries(obj).forEach(([key, value]) => {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+    if (value === null || value === undefined || value === "") {
+      return; // Skip empty values
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      // Recursively handle nested objects
+      const nestedParams = buildNestedQueryParams(
+        value as Record<string, unknown>,
+        fullKey,
+      );
+      nestedParams.forEach((v, k) => params.append(k, v));
+    } else {
+      // Primitive values
+      params.append(fullKey, String(value));
+    }
+  });
+
+  return params;
 }
 
 async function fetchAuctionHistory(
   params: AuctionHistorySearchParams,
 ): Promise<AuctionHistoryResponse> {
-  const queryParams = new URLSearchParams();
-
-  // Standard params
-  if (params.itemName) queryParams.append("itemName", params.itemName);
-  if (params.itemTopCategory)
-    queryParams.append("itemTopCategory", params.itemTopCategory);
-  if (params.itemSubCategory)
-    queryParams.append("itemSubCategory", params.itemSubCategory);
-  if (params.page) queryParams.append("page", params.page.toString());
-  if (params.size) queryParams.append("size", params.size.toString());
-  if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-  if (params.direction) queryParams.append("direction", params.direction);
-
-  // Dynamic filter params - add any additional parameters
-  const knownKeys = [
-    "itemName",
-    "itemTopCategory",
-    "itemSubCategory",
-    "page",
-    "size",
-    "sortBy",
-    "direction",
-  ];
-  Object.entries(params).forEach(([key, value]) => {
-    if (
-      !knownKeys.includes(key) &&
-      value !== undefined &&
-      value !== null &&
-      value !== ""
-    ) {
-      queryParams.append(key, value.toString());
-    }
-  });
+  // Convert entire params object to nested query parameters
+  const queryParams = buildNestedQueryParams(
+    params as unknown as Record<string, unknown>,
+  );
 
   const response = await fetch(
     `/api/auction-history/search?${queryParams.toString()}`,

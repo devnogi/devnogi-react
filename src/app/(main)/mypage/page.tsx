@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginModal from "@/components/auth/LoginModal";
 
 // TODO: 실제 API 연동 시 교체
 const mockUserData = {
@@ -29,8 +31,62 @@ const mockUserData = {
 };
 
 export default function MyPage() {
+  const { user: authUser, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
   const [user] = useState(mockUserData);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    // 로딩이 끝나고 인증되지 않은 경우 로그인 모달 표시
+    if (!isLoading && !isAuthenticated) {
+      setIsLoginModalOpen(true);
+    }
+  }, [isLoading, isAuthenticated]);
+
+  const handleLoginSuccess = async () => {
+    // 로그인 성공 후 사용자 정보 새로고침
+    await refreshUser();
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  // 로딩 중
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 로그인 모달 표시
+  if (!isAuthenticated) {
+    return (
+      <>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">로그인이 필요합니다</p>
+            <Button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg"
+            >
+              로그인
+            </Button>
+          </div>
+        </div>
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      </>
+    );
+  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -63,10 +119,6 @@ export default function MyPage() {
     );
   };
 
-  const handleLogout = () => {
-    // TODO: 로그아웃 로직 구현
-    console.log("로그아웃");
-  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

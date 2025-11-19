@@ -6,10 +6,8 @@ import CategorySection from "@/components/commons/Category";
 import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
-import {
-  useAuctionHistory,
-  AuctionHistorySearchParams,
-} from "@/hooks/useAuctionHistory";
+import { useAuctionHistory } from "@/hooks/useAuctionHistory";
+import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -121,7 +119,7 @@ export default function Page() {
     setCurrentPage(1);
   };
 
-  const handleFilterApply = (filters: Record<string, string | number>) => {
+  const handleFilterApply = (filters: AuctionHistorySearchParams) => {
     // Merge existing search params with new filters
     const params: AuctionHistorySearchParams = {
       ...searchParams,

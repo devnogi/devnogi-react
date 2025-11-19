@@ -17,10 +17,11 @@ import {
   FilterValue,
   ActiveFilter,
 } from "@/types/search-filter";
+import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { Plus, X, RotateCcw, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
 
 interface SearchFilterCardProps {
-  onFilterApply: (filters: Record<string, string | number>) => void;
+  onFilterApply: (filters: AuctionHistorySearchParams) => void;
 }
 
 interface BasicFilters {
@@ -92,26 +93,79 @@ export default function SearchFilterCard({
   }, []);
 
   const handleApply = useCallback(() => {
-    const allFilters: Record<string, string | number> = {};
+    const searchParams: AuctionHistorySearchParams = {};
 
-    // Add basic filters
-    if (basicFilters.priceMin)
-      allFilters.priceMin = Number(basicFilters.priceMin);
-    if (basicFilters.priceMax)
-      allFilters.priceMax = Number(basicFilters.priceMax);
-    if (basicFilters.dateFrom) allFilters.dateFrom = basicFilters.dateFrom;
-    if (basicFilters.dateTo) allFilters.dateTo = basicFilters.dateTo;
+    // Build price search request
+    if (basicFilters.priceMin || basicFilters.priceMax) {
+      searchParams.priceSearchRequest = {};
+      if (basicFilters.priceMin) {
+        searchParams.priceSearchRequest.priceFrom = Number(basicFilters.priceMin);
+      }
+      if (basicFilters.priceMax) {
+        searchParams.priceSearchRequest.priceTo = Number(basicFilters.priceMax);
+      }
+    }
 
-    // Add dynamic filters
-    activeFilters.forEach((filter) => {
-      Object.entries(filter.values).forEach(([key, value]) => {
-        if (value !== undefined && value !== "") {
-          allFilters[key] = value;
-        }
+    // Build date auction buy request
+    if (basicFilters.dateFrom || basicFilters.dateTo) {
+      searchParams.dateAuctionBuyRequest = {};
+      if (basicFilters.dateFrom) {
+        searchParams.dateAuctionBuyRequest.dateAuctionBuyFrom = basicFilters.dateFrom;
+      }
+      if (basicFilters.dateTo) {
+        searchParams.dateAuctionBuyRequest.dateAuctionBuyTo = basicFilters.dateTo;
+      }
+    }
+
+    // Build item option search request from dynamic filters
+    if (activeFilters.length > 0) {
+      searchParams.itemOptionSearchRequest = {};
+
+      activeFilters.forEach((filter) => {
+        // Map filter values to nested structure
+        // searchCondition의 key로부터 옵션 타입을 추출
+        const conditionKeys = Object.keys(filter.searchCondition);
+
+        // 각 필터는 하나의 옵션 타입을 가짐 (예: balanceSearch, criticalSearch 등)
+        // filter.values에는 실제 값들이 있음
+        Object.entries(filter.values).forEach(([key, value]) => {
+          if (value === undefined || value === "") return;
+
+          // searchCondition의 key를 통해 어떤 타입의 검색인지 확인
+          // 예: balance -> balanceSearch, critical -> criticalSearch
+          const searchKey = conditionKeys[0]; // 첫 번째 키 (예: "balance")
+
+          // 옵션 타입 결정 (예: balanceSearch)
+          let optionSearchKey: string;
+          if (key.endsWith("From") || key.endsWith("To")) {
+            // Range search (예: ergFrom/ergTo -> ergSearch)
+            const baseName = key.replace(/(From|To)$/, "");
+            optionSearchKey = `${baseName}Search`;
+          } else if (key.endsWith("Standard")) {
+            // Value with standard (예: balanceStandard -> balanceSearch)
+            const baseName = key.replace(/Standard$/, "");
+            optionSearchKey = `${baseName}Search`;
+          } else if (key === "wearingRestrictions") {
+            optionSearchKey = "wearingRestrictionsSearch";
+          } else if (key === "ergRank") {
+            optionSearchKey = "ergRankSearch";
+          } else {
+            // Default: add "Search" suffix
+            optionSearchKey = `${key}Search`;
+          }
+
+          // Initialize nested object if not exists
+          if (!searchParams.itemOptionSearchRequest![optionSearchKey as keyof typeof searchParams.itemOptionSearchRequest]) {
+            (searchParams.itemOptionSearchRequest as Record<string, Record<string, unknown>>)[optionSearchKey] = {};
+          }
+
+          // Set the value
+          (searchParams.itemOptionSearchRequest as Record<string, Record<string, unknown>>)[optionSearchKey][key] = value;
+        });
       });
-    });
+    }
 
-    onFilterApply(allFilters);
+    onFilterApply(searchParams);
   }, [basicFilters, activeFilters, onFilterApply]);
 
   const analyzeFilterType = useCallback(

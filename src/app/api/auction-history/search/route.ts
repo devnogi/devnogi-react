@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-interface AuctionHistorySearchParams {
-  itemName?: string;
-  itemTopCategory?: string;
-  itemSubCategory?: string;
-  page?: number;
-  size?: number;
-  sortBy?: string;
-  direction?: string;
-}
+import { AuctionHistorySearchParams } from "@/types/auction-history";
 
 interface ItemOption {
   id: string;
@@ -53,6 +44,39 @@ interface AuctionHistoryResponse {
   meta: PageMeta;
 }
 
+/**
+ * Nested object를 Spring Boot @ModelAttribute 형식의 query parameter로 변환
+ * 예: { priceSearchRequest: { priceFrom: 10000 } } -> "priceSearchRequest.priceFrom=10000"
+ */
+function buildNestedQueryParams(
+  obj: Record<string, unknown>,
+  prefix = "",
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  Object.entries(obj).forEach(([key, value]) => {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+    if (value === null || value === undefined || value === "") {
+      return; // Skip empty values
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      // Recursively handle nested objects
+      const nestedParams = buildNestedQueryParams(
+        value as Record<string, unknown>,
+        fullKey,
+      );
+      nestedParams.forEach((v, k) => params.append(k, v));
+    } else {
+      // Primitive values
+      params.append(fullKey, String(value));
+    }
+  });
+
+  return params;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const gatewayUrl = process.env.GATEWAY_BASE_URL;
@@ -61,8 +85,10 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const params: AuctionHistorySearchParams = {
-      itemName: searchParams.get("itemName") || "",
+
+    // Build search request object from query parameters
+    const searchRequest: AuctionHistorySearchParams = {
+      itemName: searchParams.get("itemName") || undefined,
       itemTopCategory: searchParams.get("itemTopCategory") || undefined,
       itemSubCategory: searchParams.get("itemSubCategory") || undefined,
       page: searchParams.get("page")
@@ -72,20 +98,51 @@ export async function GET(request: NextRequest) {
         ? parseInt(searchParams.get("size")!)
         : 20,
       sortBy: searchParams.get("sortBy") || "dateAuctionBuy",
-      direction: searchParams.get("direction") || "desc",
+      direction:
+        (searchParams.get("direction") as "asc" | "desc") || "desc",
     };
 
-    // Build query string
-    const queryParams = new URLSearchParams();
-    if (params.itemName) queryParams.append("itemName", params.itemName);
-    if (params.itemTopCategory)
-      queryParams.append("itemTopCategory", params.itemTopCategory);
-    if (params.itemSubCategory)
-      queryParams.append("itemSubCategory", params.itemSubCategory);
-    queryParams.append("page", params.page!.toString());
-    queryParams.append("size", params.size!.toString());
-    queryParams.append("sortBy", params.sortBy!);
-    queryParams.append("direction", params.direction!);
+    // Extract nested filter parameters (priceSearchRequest, dateAuctionBuyRequest, itemOptionSearchRequest)
+    searchParams.forEach((value, key) => {
+      // Skip pagination and basic search params
+      if (
+        [
+          "itemName",
+          "itemTopCategory",
+          "itemSubCategory",
+          "page",
+          "size",
+          "sortBy",
+          "direction",
+        ].includes(key)
+      ) {
+        return;
+      }
+
+      // Parse nested keys like "priceSearchRequest.priceFrom"
+      const parts = key.split(".");
+      if (parts.length > 1) {
+        let current: Record<string, unknown> = searchRequest as Record<
+          string,
+          unknown
+        >;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (!current[parts[i]]) {
+            current[parts[i]] = {};
+          }
+          current = current[parts[i]] as Record<string, unknown>;
+        }
+        const lastKey = parts[parts.length - 1];
+        // Try to parse as number if possible
+        const numValue = Number(value);
+        current[lastKey] = isNaN(numValue) ? value : numValue;
+      }
+    });
+
+    // Build query string with nested parameters
+    const queryParams = buildNestedQueryParams(
+      searchRequest as unknown as Record<string, unknown>,
+    );
 
     const response = await fetch(
       `${gatewayUrl}/oab/auction-history/search?${queryParams.toString()}`,
