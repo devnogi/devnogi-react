@@ -32,9 +32,11 @@ const mockUserData = {
 
 export default function MyPage() {
   const { user: authUser, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
-  const [user] = useState(mockUserData);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // authUser가 있으면 authUser 사용, 없으면 mockData 사용 (개발 편의상)
+  const user = authUser || mockUserData;
 
   useEffect(() => {
     // 로딩이 끝나고 인증되지 않은 경우 로그인 모달 표시
@@ -128,16 +130,16 @@ export default function MyPage() {
           {/* Profile Image */}
           <div className="relative group">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
-              {user.profileImageUrl ? (
+              {authUser?.profileImageUrl || user.profileImageUrl ? (
                 <Image
-                  src={user.profileImageUrl}
+                  src={authUser?.profileImageUrl || user.profileImageUrl!}
                   alt="Profile"
                   width={96}
                   height={96}
                   className="object-cover"
                 />
               ) : (
-                user.nickname[0]
+                (authUser?.nickname || user.nickname)[0]
               )}
             </div>
             <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
@@ -149,13 +151,13 @@ export default function MyPage() {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl font-bold text-gray-900">
-                {user.nickname}
+                {authUser?.nickname || user.nickname}
               </h1>
               {getStatusBadge(user.status)}
             </div>
             <p className="text-gray-600 flex items-center gap-2 mb-4">
               <Mail className="w-4 h-4" />
-              {user.email}
+              {authUser?.email || user.email}
             </p>
             <div className="flex gap-3">
               <Button
@@ -185,28 +187,34 @@ export default function MyPage() {
           <InfoRow
             icon={<User className="w-5 h-5 text-gray-400" />}
             label="회원 ID"
-            value={`#${user.id}`}
+            value={`#${authUser?.userId || user.id}`}
           />
           <InfoRow
             icon={<Shield className="w-5 h-5 text-gray-400" />}
             label="권한"
             value={user.role === "USER" ? "일반 회원" : "관리자"}
           />
-          <InfoRow
-            icon={<Calendar className="w-5 h-5 text-gray-400" />}
-            label="가입일"
-            value={formatDate(user.createdAt)}
-          />
-          <InfoRow
-            icon={<Clock className="w-5 h-5 text-gray-400" />}
-            label="마지막 로그인"
-            value={formatDate(user.lastLoginAt)}
-          />
-          <InfoRow
-            icon={<Calendar className="w-5 h-5 text-gray-400" />}
-            label="정보 수정일"
-            value={formatDate(user.updatedAt)}
-          />
+          {user.createdAt && (
+            <InfoRow
+              icon={<Calendar className="w-5 h-5 text-gray-400" />}
+              label="가입일"
+              value={formatDate(user.createdAt)}
+            />
+          )}
+          {user.lastLoginAt && (
+            <InfoRow
+              icon={<Clock className="w-5 h-5 text-gray-400" />}
+              label="마지막 로그인"
+              value={formatDate(user.lastLoginAt)}
+            />
+          )}
+          {user.updatedAt && (
+            <InfoRow
+              icon={<Calendar className="w-5 h-5 text-gray-400" />}
+              label="정보 수정일"
+              value={formatDate(user.updatedAt)}
+            />
+          )}
         </div>
       </div>
 

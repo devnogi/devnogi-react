@@ -18,13 +18,14 @@ import {
   Eye,
   EyeOff,
   Lock,
-  User,
+  Mail,
   Loader2,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
   email: z
@@ -84,6 +85,7 @@ const NaverIcon = () => (
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -99,28 +101,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "로그인에 실패했습니다");
-      }
-
+      await login(data.email, data.password, data.rememberMe);
       onLoginSuccess?.();
       onClose();
     } catch (error) {
       console.error("로그인 실패:", error);
-      // TODO: 에러 메시지 UI 표시
       alert(error instanceof Error ? error.message : "로그인에 실패했습니다");
     } finally {
       setIsLoading(false);
@@ -165,10 +150,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     이메일
                   </FormLabel>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
                     <FormControl>
                       <Input
-                        placeholder="이메일을 입력하세요"
+                        type="email"
+                        placeholder="example@email.com"
                         className="pl-11 pr-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                         {...field}
                       />

@@ -26,9 +26,11 @@ import {
   Mail,
   CheckCircle2,
   XCircle,
+  Camera,
 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
+import Image from "next/image";
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from "@/components/page/auth/TermsOfService";
 
 const signUpSchema = z
@@ -51,8 +53,8 @@ const signUpSchema = z
       .string()
       .min(2, { message: "닉네임은 최소 2자 이상이어야 합니다" })
       .max(20, { message: "닉네임은 최대 20자까지 가능합니다" })
-      .regex(/^[가-힣a-zA-Z0-9_]+$/, {
-        message: "한글, 영문, 숫자, 언더스코어(_)만 사용 가능합니다",
+      .regex(/^[가-힣a-zA-Z0-9]{2,20}$/, {
+        message: "한글, 영문, 숫자만 사용 가능합니다 (2-20자)",
       }),
     agreeTerms: z.boolean().refine((val) => val === true, {
       message: "이용약관에 동의해주세요",
@@ -76,6 +78,10 @@ export default function SignUpPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [termsContent, setTermsContent] = useState("");
+  const [emailCheckStatus, setEmailCheckStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
+  const [nicknameCheckStatus, setNicknameCheckStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm<SignUpFormData>({
@@ -114,25 +120,108 @@ export default function SignUpPage() {
 
   const passwordStrength = getPasswordStrength(password);
 
+  const checkEmailAvailability = async (email: string) => {
+    if (!email || !email.match(/^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/)) {
+      setEmailCheckStatus("idle");
+      return;
+    }
+
+    setEmailCheckStatus("checking");
+    try {
+      const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+      const data = await response.json();
+
+      if (data.success && data.data === true) {
+        setEmailCheckStatus("available");
+      } else {
+        setEmailCheckStatus("unavailable");
+      }
+    } catch (error) {
+      console.error("이메일 중복 확인 실패:", error);
+      setEmailCheckStatus("idle");
+    }
+  };
+
+  const checkNicknameAvailability = async (nickname: string) => {
+    if (!nickname || !nickname.match(/^[가-힣a-zA-Z0-9]{2,20}$/)) {
+      setNicknameCheckStatus("idle");
+      return;
+    }
+
+    setNicknameCheckStatus("checking");
+    try {
+      const response = await fetch(`/api/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+      const data = await response.json();
+
+      if (data.success && data.data === true) {
+        setNicknameCheckStatus("available");
+      } else {
+        setNicknameCheckStatus("unavailable");
+      }
+    } catch (error) {
+      console.error("닉네임 중복 확인 실패:", error);
+      setNicknameCheckStatus("idle");
+    }
+  };
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 파일 크기 체크 (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("파일 크기는 5MB 이하만 가능합니다");
+        return;
+      }
+
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (data: SignUpFormData) => {
+    // 이메일, 닉네임 중복 체크 확인
+    if (emailCheckStatus !== "available") {
+      alert("이메일 중복 확인을 해주세요");
+      return;
+    }
+
+    if (nicknameCheckStatus !== "available") {
+      alert("닉네임 중복 확인을 해주세요");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // TODO: 실제 회원가입 API 호출
-      console.log("회원가입 데이터:", {
-        email: data.email,
-        password: data.password,
-        nickname: data.nickname,
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("nickname", data.nickname);
+
+      if (profileImage) {
+        formData.append("file", profileImage);
+      }
+
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        body: formData,
       });
 
-      // 임시 딜레이
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const result = await response.json();
 
-      // 회원가입 성공 시 로그인 페이지로 이동
+      if (!response.ok) {
+        throw new Error(result.message || "회원가입에 실패했습니다");
+      }
+
+      alert("회원가입이 완료되었습니다!");
       router.push("/sign-in");
     } catch (error) {
       console.error("회원가입 실패:", error);
-      // TODO: 에러 처리
+      alert(error instanceof Error ? error.message : "회원가입에 실패했습니다");
     } finally {
       setIsLoading(false);
     }
@@ -176,6 +265,39 @@ export default function SignUpPage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
+                {/* Profile Image */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                      {profileImagePreview ? (
+                        <Image
+                          src={profileImagePreview}
+                          alt="Profile Preview"
+                          width={96}
+                          height={96}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <User className="w-12 h-12" />
+                      )}
+                    </div>
+                    <label
+                      htmlFor="profile-image"
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <Camera className="w-4 h-4 text-gray-600" />
+                    </label>
+                    <input
+                      id="profile-image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfileImageChange}
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">프로필 이미지 (선택사항)</p>
+                </div>
+
                 {/* Email */}
                 <FormField
                   control={form.control}
@@ -191,11 +313,38 @@ export default function SignUpPage() {
                           <Input
                             type="email"
                             placeholder="example@email.com"
-                            className="pl-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                            className="pl-11 pr-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setEmailCheckStatus("idle");
+                            }}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              checkEmailAvailability(e.target.value);
+                            }}
                           />
                         </FormControl>
+                        {emailCheckStatus !== "idle" && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
+                            {emailCheckStatus === "checking" && (
+                              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                            )}
+                            {emailCheckStatus === "available" && (
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            )}
+                            {emailCheckStatus === "unavailable" && (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
+                          </div>
+                        )}
                       </div>
+                      {emailCheckStatus === "unavailable" && (
+                        <p className="text-sm text-red-500 mt-1">이미 사용 중인 이메일입니다</p>
+                      )}
+                      {emailCheckStatus === "available" && (
+                        <p className="text-sm text-green-500 mt-1">사용 가능한 이메일입니다</p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -335,13 +484,40 @@ export default function SignUpPage() {
                         <FormControl>
                           <Input
                             placeholder="커뮤니티에서 사용할 닉네임"
-                            className="pl-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                            className="pl-11 pr-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setNicknameCheckStatus("idle");
+                            }}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              checkNicknameAvailability(e.target.value);
+                            }}
                           />
                         </FormControl>
+                        {nicknameCheckStatus !== "idle" && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
+                            {nicknameCheckStatus === "checking" && (
+                              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                            )}
+                            {nicknameCheckStatus === "available" && (
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            )}
+                            {nicknameCheckStatus === "unavailable" && (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
+                          </div>
+                        )}
                       </div>
+                      {nicknameCheckStatus === "unavailable" && (
+                        <p className="text-sm text-red-500 mt-1">이미 사용 중인 닉네임입니다</p>
+                      )}
+                      {nicknameCheckStatus === "available" && (
+                        <p className="text-sm text-green-500 mt-1">사용 가능한 닉네임입니다</p>
+                      )}
                       <FormDescription className="text-xs text-gray-500 mt-2">
-                        한글, 영문, 숫자, 언더스코어(_) 사용 가능 (2-20자)
+                        한글, 영문, 숫자만 사용 가능 (2-20자)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

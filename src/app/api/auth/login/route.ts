@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerAxios } from "@/lib/api/server";
+import { createAuthServerAxios } from "@/lib/api/server";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
 
-    // Auth Server로 로그인 요청 (게이트웨이를 통해)
-    const serverAxios = await createServerAxios(request);
+    // Auth Server로 로그인 요청
+    // 로컬 게이트웨이(localhost:8099)를 통해 /das/**로 라우팅됩니다
+    const serverAxios = createAuthServerAxios(request);
     const response = await serverAxios.post("/das/api/auth/login", {
       email,
       password,
