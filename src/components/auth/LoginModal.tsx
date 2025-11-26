@@ -112,9 +112,35 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // TODO: 소셜 로그인 구현
-    console.log(`${provider} 소셜 로그인 시도`);
+  const handleSocialLogin = (provider: "google" | "kakao" | "naver") => {
+    // 소셜 로그인 시작
+    import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
+      initiateSocialLogin(provider);
+    });
+
+    // 소셜 로그인 완료 메시지 수신 대기
+    const messageHandler = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data.type === "social_login_success") {
+        // 로그인 성공
+        onLoginSuccess?.();
+        onClose();
+        window.removeEventListener("message", messageHandler);
+      } else if (event.data.type === "social_signup_success") {
+        // 회원가입 후 로그인 성공
+        onLoginSuccess?.();
+        onClose();
+        window.removeEventListener("message", messageHandler);
+      } else if (event.data.type === "social_login_cancel") {
+        // 취소됨
+        window.removeEventListener("message", messageHandler);
+      }
+    };
+
+    window.addEventListener("message", messageHandler);
   };
 
   const clearField = (fieldName: "email" | "password") => {
