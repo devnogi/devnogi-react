@@ -86,21 +86,29 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
 
-    // Build search request object from query parameters
-    const searchRequest: AuctionHistorySearchParams = {
-      itemName: searchParams.get("itemName") || undefined,
-      itemTopCategory: searchParams.get("itemTopCategory") || undefined,
-      itemSubCategory: searchParams.get("itemSubCategory") || undefined,
-      page: searchParams.get("page")
-        ? parseInt(searchParams.get("page")!)
-        : 1,
-      size: searchParams.get("size")
-        ? parseInt(searchParams.get("size")!)
-        : 20,
-      sortBy: searchParams.get("sortBy") || "dateAuctionBuy",
-      direction:
-        (searchParams.get("direction") as "asc" | "desc") || "desc",
-    };
+    // Separate pagination params (PageRequestDto) and search params (AuctionHistorySearchRequest)
+    const pageParams: Record<string, string> = {};
+    const searchRequest: Record<string, unknown> = {};
+
+    // Extract pagination parameters
+    const page = searchParams.get("page") || "1";
+    const size = searchParams.get("size") || "20";
+    const sortBy = searchParams.get("sortBy") || "DATE_AUCTION_BUY"; // enum value
+    const direction = searchParams.get("direction") || "DESC"; // enum value
+
+    pageParams.page = page;
+    pageParams.size = size;
+    pageParams.sortBy = sortBy;
+    pageParams.direction = direction;
+
+    // Extract basic search parameters
+    const itemName = searchParams.get("itemName");
+    const itemTopCategory = searchParams.get("itemTopCategory");
+    const itemSubCategory = searchParams.get("itemSubCategory");
+
+    if (itemName) searchRequest.itemName = itemName;
+    if (itemTopCategory) searchRequest.itemTopCategory = itemTopCategory;
+    if (itemSubCategory) searchRequest.itemSubCategory = itemSubCategory;
 
     // Extract nested filter parameters (priceSearchRequest, dateAuctionBuyRequest, itemOptionSearchRequest)
     searchParams.forEach((value, key) => {
@@ -122,10 +130,7 @@ export async function GET(request: NextRequest) {
       // Parse nested keys like "priceSearchRequest.priceFrom"
       const parts = key.split(".");
       if (parts.length > 1) {
-        let current: Record<string, unknown> = searchRequest as Record<
-          string,
-          unknown
-        >;
+        let current: Record<string, unknown> = searchRequest;
         for (let i = 0; i < parts.length - 1; i++) {
           if (!current[parts[i]]) {
             current[parts[i]] = {};
@@ -139,13 +144,33 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Build query string with nested parameters
-    const queryParams = buildNestedQueryParams(
-      searchRequest as unknown as Record<string, unknown>,
-    );
+    // Build query string - pagination params first, then search params
+    const queryParams = new URLSearchParams(pageParams);
+
+    // Add basic search params
+    Object.entries(searchRequest).forEach(([key, value]) => {
+      if (value === null || value === undefined || value === "") {
+        return;
+      }
+
+      if (typeof value === "object" && !Array.isArray(value)) {
+        // Handle nested objects with dot notation
+        const nestedParams = buildNestedQueryParams(
+          value as Record<string, unknown>,
+          key,
+        );
+        nestedParams.forEach((v, k) => queryParams.append(k, v));
+      } else {
+        // Primitive values
+        queryParams.append(key, String(value));
+      }
+    });
+
+    // URLSearchParams encodes spaces as '+', but backend expects '%20'
+    const queryString = queryParams.toString().replace(/\+/g, "%20");
 
     const response = await fetch(
-      `${gatewayUrl}/oab/auction-history/search?${queryParams.toString()}`,
+      `${gatewayUrl}/oab/auction-history/search?${queryString}`,
       {
         next: { revalidate: 300 }, // Cache for 5 minutes
       },
