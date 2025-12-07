@@ -2,6 +2,11 @@
 
 import { AuctionHistoryItem } from "@/hooks/useAuctionHistory";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface AuctionHistoryListProps {
   items: AuctionHistoryItem[];
@@ -48,111 +53,189 @@ export default function AuctionHistoryList({
     }).format(date);
   };
 
+  const formatDateShort = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("ko-KR", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
+
   return (
-    <div className="space-y-4">
-      {items.map((item, index) => (
-        <div
-          key={`${item.auctionBuyId}-${index}`}
-          className="bg-white p-6 rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-shadow"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              {/* Item Name */}
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {item.itemDisplayName}
-                </h3>
-                {item.itemName !== item.itemDisplayName && (
-                  <span className="text-sm text-gray-500">
-                    ({item.itemName})
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+      {/* Table Header */}
+      <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+        <div className="col-span-5 font-semibold text-gray-900 text-sm">
+          아이템 이름
+        </div>
+        <div className="col-span-2 font-semibold text-gray-900 text-sm text-center">
+          카테고리
+        </div>
+        <div className="col-span-2 font-semibold text-gray-900 text-sm text-right">
+          가격
+        </div>
+        <div className="col-span-2 font-semibold text-gray-900 text-sm text-center">
+          거래일시
+        </div>
+        <div className="col-span-1 font-semibold text-gray-900 text-sm text-center">
+          수량
+        </div>
+      </div>
+
+      {/* Table Body */}
+      <div className="divide-y divide-gray-100">
+        {items.map((item, index) => (
+          <Popover key={`${item.auctionBuyId}-${index}`}>
+            <PopoverTrigger asChild>
+              <div className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
+                {/* Item Name */}
+                <div className="col-span-5 flex items-center">
+                  <div className="truncate">
+                    <span className="font-medium text-gray-900">
+                      {item.itemDisplayName}
+                    </span>
+                    {item.itemName !== item.itemDisplayName && (
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({item.itemName})
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div className="col-span-2 flex items-center justify-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="rounded-md bg-blue-50 text-blue-700 border-0 text-xs px-2 py-0.5"
+                  >
+                    {item.itemSubCategory}
+                  </Badge>
+                </div>
+
+                {/* Price */}
+                <div className="col-span-2 flex items-center justify-end">
+                  <span className="font-bold text-blue-600">
+                    {formatPrice(item.auctionPricePerUnit)}
                   </span>
+                  <span className="text-sm text-gray-500 ml-1">G</span>
+                </div>
+
+                {/* Date */}
+                <div className="col-span-2 flex items-center justify-center text-sm text-gray-600">
+                  {formatDateShort(item.dateAuctionBuy)}
+                </div>
+
+                {/* Count */}
+                <div className="col-span-1 flex items-center justify-center text-sm text-gray-600">
+                  {item.itemCount}
+                </div>
+              </div>
+            </PopoverTrigger>
+
+            <PopoverContent
+              className="w-96 p-0 border-2 border-gray-300"
+              side="right"
+              align="start"
+            >
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 border-b-2 border-gray-300">
+                <h4 className="font-bold text-gray-900 text-lg mb-1">
+                  {item.itemDisplayName}
+                </h4>
+                {item.itemName !== item.itemDisplayName && (
+                  <p className="text-sm text-gray-600">({item.itemName})</p>
                 )}
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge className="rounded-md bg-blue-100 text-blue-800 border-0">
+                    {item.itemTopCategory}
+                  </Badge>
+                  <span className="text-gray-400">›</span>
+                  <Badge className="rounded-md bg-purple-100 text-purple-800 border-0">
+                    {item.itemSubCategory}
+                  </Badge>
+                </div>
               </div>
 
-              {/* Category */}
-              <div className="flex items-center gap-2 mb-3">
-                <Badge
-                  variant="secondary"
-                  className="rounded-lg bg-blue-50 text-blue-700 border-0"
-                >
-                  {item.itemTopCategory}
-                </Badge>
-                <span className="text-gray-400">›</span>
-                <Badge
-                  variant="secondary"
-                  className="rounded-lg bg-purple-50 text-purple-700 border-0"
-                >
-                  {item.itemSubCategory}
-                </Badge>
-              </div>
-
-              {/* Item Options */}
-              {item.itemOptions.length > 0 && (
-                <div className="space-y-1 mb-3">
-                  {item.itemOptions
-                    .filter(
-                      (opt) =>
-                        !opt.optionType.includes("색상") &&
-                        opt.optionType !== "아이템 색상",
-                    )
-                    .slice(0, 5)
-                    .map((option, idx) => (
-                      <div key={option.id} className="text-sm text-gray-600">
-                        <span className="font-medium">{option.optionType}</span>
-                        {option.optionSubType && (
-                          <span className="text-gray-500">
-                            {" "}
-                            ({option.optionSubType})
-                          </span>
-                        )}
-                        : <span className="text-gray-900">{option.optionValue}</span>
-                        {option.optionValue2 && (
-                          <span className="text-gray-900">
-                            {" "}
-                            ~ {option.optionValue2}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  {item.itemOptions.filter(
-                    (opt) =>
-                      !opt.optionType.includes("색상") &&
-                      opt.optionType !== "아이템 색상",
-                  ).length > 5 && (
-                    <div className="text-sm text-gray-400">
-                      +
-                      {item.itemOptions.filter(
-                        (opt) =>
-                          !opt.optionType.includes("색상") &&
-                          opt.optionType !== "아이템 색상",
-                      ).length - 5}{" "}
-                      more...
+              <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
+                {/* Price Info */}
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">
+                      거래 가격
+                    </span>
+                    <div className="text-right">
+                      <span className="text-xl font-bold text-blue-600">
+                        {formatPrice(item.auctionPricePerUnit)}
+                      </span>
+                      <span className="text-sm text-gray-600 ml-1">골드</span>
+                    </div>
+                  </div>
+                  {item.itemCount > 1 && (
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-blue-200">
+                      <span className="text-xs text-gray-600">수량</span>
+                      <span className="text-sm font-semibold text-gray-700">
+                        {item.itemCount}개
+                      </span>
                     </div>
                   )}
                 </div>
-              )}
 
-              {/* Date */}
-              <div className="text-sm text-gray-500">
-                거래일시: {formatDate(item.dateAuctionBuy)}
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="text-right ml-6">
-              <div className="text-2xl font-bold text-blue-600">
-                {formatPrice(item.auctionPricePerUnit)}
-              </div>
-              <div className="text-sm text-gray-500 mt-1">골드</div>
-              {item.itemCount > 1 && (
-                <div className="text-xs text-gray-400 mt-1">
-                  수량: {item.itemCount}개
+                {/* Date Info */}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">거래일시</span>
+                  <span className="font-medium text-gray-900">
+                    {formatDate(item.dateAuctionBuy)}
+                  </span>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
+
+                {/* Item Options */}
+                {item.itemOptions.length > 0 && (
+                  <div className="space-y-2">
+                    <h5 className="font-semibold text-gray-900 text-sm border-b border-gray-200 pb-1">
+                      아이템 옵션
+                    </h5>
+                    <div className="space-y-1.5">
+                      {item.itemOptions
+                        .filter(
+                          (opt) =>
+                            !opt.optionType.includes("색상") &&
+                            opt.optionType !== "아이템 색상",
+                        )
+                        .map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex items-start justify-between text-sm bg-gray-50 rounded px-2 py-1.5"
+                          >
+                            <span className="font-medium text-gray-700 flex-shrink-0">
+                              {option.optionType}
+                              {option.optionSubType && (
+                                <span className="text-gray-500 font-normal ml-1">
+                                  ({option.optionSubType})
+                                </span>
+                              )}
+                            </span>
+                            <span className="text-gray-900 font-semibold ml-2">
+                              {option.optionValue}
+                              {option.optionValue2 && ` ~ ${option.optionValue2}`}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Transaction ID */}
+                <div className="pt-2 border-t border-gray-200">
+                  <div className="text-xs text-gray-500">
+                    거래 ID: {item.auctionBuyId}
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        ))}
+      </div>
     </div>
   );
 }
