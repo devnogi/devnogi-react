@@ -1,0 +1,88 @@
+version: "3.8"
+
+# 로컬 개발 환경용 Docker Compose 설정
+# 사용법: docker-compose -f docker-compose-local.yml --env-file .env.local up --build
+
+services:
+  nextjs-app:
+    image: node:20-alpine
+    container_name: nextjs-app-local
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "${PORT:-3010}:${PORT:-3010}"
+    env_file:
+      - .env.local  # 로컬 환경 변수 파일
+    labels:
+      autoheal: "true"
+    environment:
+      # === Application Configuration ===
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3010}
+
+      # === Gateway Configuration ===
+      NEXT_PUBLIC_GATEWAY_LOCAL_URL: ${NEXT_PUBLIC_GATEWAY_LOCAL_URL:-http://localhost:8090}
+      NEXT_PUBLIC_GATEWAY_DEV_URL: ${NEXT_PUBLIC_GATEWAY_DEV_URL:-http://168.107.43.221:8080}
+      NEXT_PUBLIC_USE_LOCAL_GATEWAY_FOR: ${NEXT_PUBLIC_USE_LOCAL_GATEWAY_FOR:-}
+
+      # === API Configuration ===
+      API_MOCKING: ${API_MOCKING:-disabled}
+      VERCEL_ENV: ${VERCEL_ENV:-development}
+
+    volumes:
+      # Hot reload를 위한 소스 코드 마운트 (로컬 개발용)
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+
+    restart: on-failure:${RESTART_POLICY_MAX_RETRIES:-3}
+
+    # 로컬 개발용 리소스 제한
+    deploy:
+      resources:
+        limits:
+          memory: ${DOCKER_MEMORY_LIMIT:-512m}
+        reservations:
+          memory: ${DOCKER_MEMORY_RESERVATION:-256m}
+
+    networks:
+      - nextjs-network
+
+    # Health Check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-3010}/api/health"]
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-10s}
+      retries: ${HEALTHCHECK_RETRIES:-3}
+      start_period: ${HEALTHCHECK_START_PERIOD:-60s}
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: "${LOGGING_MAX_FILE:-3}"
+
+  # Autoheal: unhealthy 컨테이너 자동 재시작
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal-nextjs-local
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_INTERVAL: ${AUTOHEAL_INTERVAL:-30}
+      AUTOHEAL_START_PERIOD: ${AUTOHEAL_START_PERIOD:-0}
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: ${AUTOHEAL_DEFAULT_STOP_TIMEOUT:-10}
+      DOCKER_SOCK: /var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - nextjs-network
+    deploy:
+      resources:
+        limits:
+          memory: ${AUTOHEAL_MEMORY_LIMIT:-50m}
+        reservations:
+          memory: ${AUTOHEAL_MEMORY_RESERVATION:-20m}
+
+networks:
+  nextjs-network:
+    driver: bridge
