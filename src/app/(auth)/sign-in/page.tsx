@@ -121,9 +121,11 @@ export default function Page() {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // TODO: 소셜 로그인 구현
-    console.log(`${provider} 소셜 로그인 시도`);
+  const handleSocialLogin = (provider: "google" | "kakao" | "naver") => {
+    // 소셜 로그인 시작
+    import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
+      initiateSocialLogin(provider);
+    });
   };
 
   return (

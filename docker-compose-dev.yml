@@ -1,0 +1,86 @@
+version: "3.8"
+
+# 개발 서버 환경용 Docker Compose 설정
+# 사용법: docker-compose -f docker-compose-dev.yml --env-file .env.dev up --build
+# 운영 레벨 빌드 (npm run build + npm start)
+
+services:
+  nextjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    # 로컬 이미지 이름 (Docker Hub에 push하지 않음)
+    image: devnogi-react:dev
+    container_name: nextjs-app-dev
+    ports:
+      - "${PORT:-3010}:${PORT:-3010}"
+    env_file:
+      - .env.dev  # 개발 서버 환경 변수 파일
+    labels:
+      autoheal: "true"
+    environment:
+      # === Application Configuration ===
+      NODE_ENV: production
+      PORT: ${PORT:-3010}
+      HOSTNAME: "0.0.0.0"
+
+      # === Gateway Configuration ===
+      NEXT_PUBLIC_GATEWAY_DEV_URL: ${NEXT_PUBLIC_GATEWAY_DEV_URL:-http://168.107.43.221:8080}
+
+      # === API Configuration ===
+      API_MOCKING: ${API_MOCKING:-disabled}
+      VERCEL_ENV: ${VERCEL_ENV:-production}
+
+    restart: on-failure:${RESTART_POLICY_MAX_RETRIES:-5}
+
+    # 개발 서버용 리소스 제한
+    deploy:
+      resources:
+        limits:
+          memory: ${DOCKER_MEMORY_LIMIT:-1g}
+        reservations:
+          memory: ${DOCKER_MEMORY_RESERVATION:-512m}
+
+    networks:
+      - nextjs-network
+
+    # Health Check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-3010}/api/health"]
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-10s}
+      retries: ${HEALTHCHECK_RETRIES:-5}
+      start_period: ${HEALTHCHECK_START_PERIOD:-90s}
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-20m}
+        max-file: "${LOGGING_MAX_FILE:-5}"
+
+  # Autoheal: unhealthy 컨테이너 자동 재시작
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal-nextjs-dev
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_INTERVAL: ${AUTOHEAL_INTERVAL:-30}
+      AUTOHEAL_START_PERIOD: ${AUTOHEAL_START_PERIOD:-0}
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: ${AUTOHEAL_DEFAULT_STOP_TIMEOUT:-10}
+      DOCKER_SOCK: /var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - nextjs-network
+    deploy:
+      resources:
+        limits:
+          memory: ${AUTOHEAL_MEMORY_LIMIT:-50m}
+        reservations:
+          memory: ${AUTOHEAL_MEMORY_RESERVATION:-20m}
+
+networks:
+  nextjs-network:
+    driver: bridge

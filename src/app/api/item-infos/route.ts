@@ -31,20 +31,15 @@ function getSecondsUntilNextCacheUpdate(): number {
 
 export const revalidate = 21600; // 6시간 (기본값)
 
-interface ItemInfoResponse {
+interface ItemInfoSummaryResponse {
   name: string;
   topCategory: string;
   subCategory: string;
-  description: string | null;
-  inventoryWidth: number | null;
-  inventoryHeight: number | null;
-  inventoryMaxBundleCount: number | null;
-  history: string | null;
-  acquisitionMethod: string | null;
-  storeSalesPrice: string | null;
-  weaponType: string | null;
-  repair: string | null;
-  maxAlterationCount: number | null;
+}
+
+interface ItemCategoryResponse {
+  topCategory: string;
+  subCategory: string;
 }
 
 interface ApiResponse<T> {
@@ -64,26 +59,75 @@ export async function GET() {
 
     const secondsUntilNextUpdate = getSecondsUntilNextCacheUpdate();
 
-    const response = await fetch(`${gatewayUrl}/oab/api/item-infos`, {
-      next: { revalidate: secondsUntilNextUpdate }, // 다음 갱신 시간까지 캐싱
-    });
+    // 1. 먼저 카테고리 정보를 가져옴
+    const categoriesResponse = await fetch(
+      `${gatewayUrl}/oab/api/item-infos/categories`,
+      {
+        next: { revalidate: secondsUntilNextUpdate },
+      },
+    );
 
-    if (!response.ok) {
-      throw new Error(`OAB API 호출 실패: ${response.status}`);
+    if (!categoriesResponse.ok) {
+      throw new Error(
+        `카테고리 API 호출 실패: ${categoriesResponse.status}`,
+      );
     }
 
-    const apiResponse: ApiResponse<ItemInfoResponse[]> = await response.json();
+    const categoriesApiResponse: ApiResponse<ItemCategoryResponse[]> =
+      await categoriesResponse.json();
 
-    if (!apiResponse.success) {
-      throw new Error(apiResponse.message || "아이템 정보 조회 실패");
+    if (!categoriesApiResponse.success) {
+      throw new Error(
+        categoriesApiResponse.message || "카테고리 조회 실패",
+      );
     }
+
+    // 2. 각 카테고리별로 summary API 호출
+    const summaryPromises = categoriesApiResponse.data.map(
+      async ({ topCategory, subCategory }) => {
+        const params = new URLSearchParams({
+          topCategory,
+          subCategory,
+        });
+
+        const response = await fetch(
+          `${gatewayUrl}/oab/api/item-infos/summary?${params.toString()}`,
+          {
+            next: { revalidate: secondsUntilNextUpdate },
+          },
+        );
+
+        if (!response.ok) {
+          console.error(
+            `Summary API 호출 실패 (${topCategory}/${subCategory}): ${response.status}`,
+          );
+          return [];
+        }
+
+        const apiResponse: ApiResponse<ItemInfoSummaryResponse[]> =
+          await response.json();
+
+        if (!apiResponse.success) {
+          console.error(
+            `Summary API 실패 (${topCategory}/${subCategory}): ${apiResponse.message}`,
+          );
+          return [];
+        }
+
+        return apiResponse.data;
+      },
+    );
+
+    // 3. 모든 요청을 병렬로 처리하고 결과를 합침
+    const summaryResults = await Promise.all(summaryPromises);
+    const allItemInfos = summaryResults.flat();
 
     return NextResponse.json(
       {
         success: true,
         code: "COMMON_SUCCESS",
         message: "요청이 성공적으로 처리되었습니다.",
-        data: apiResponse.data,
+        data: allItemInfos,
         timestamp: new Date().toISOString(),
       },
       {

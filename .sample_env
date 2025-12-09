@@ -7,5 +7,18 @@ VERCEL_ENV=development
 # API 모킹 활성화 여부 (enabled | disabled)
 API_MOCKING=enabled
 
-# Gateway URL
-GATEWAY_BASE_URL=https://your.gateway.com
+# === Gateway Configuration ===
+# 로컬 게이트웨이 URL (로컬에서 실행 중인 게이트웨이)
+NEXT_PUBLIC_GATEWAY_LOCAL_URL=http://localhost:8090
+
+# 개발 서버 게이트웨이 URL (원격 게이트웨이)
+NEXT_PUBLIC_GATEWAY_DEV_URL=http://168.107.43.221:8080
+
+# 로컬 게이트웨이를 사용할 서비스 목록 (쉼표로 구분)
+# 예시: auth,community (auth와 community만 로컬 게이트웨이 사용)
+# 빈 값: 모든 서비스가 개발 서버 게이트웨이 사용
+NEXT_PUBLIC_USE_LOCAL_GATEWAY_FOR=
+
+# === Legacy Gateway URLs (하위 호환성) ===
+# 기존 코드와의 호환성을 위해 유지
+GATEWAY_BASE_URL=http://168.107.43.221:8080

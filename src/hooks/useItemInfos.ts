@@ -7,16 +7,6 @@ export interface ItemInfo {
   name: string;
   topCategory: string;
   subCategory: string;
-  description: string | null;
-  inventoryWidth: number | null;
-  inventoryHeight: number | null;
-  inventoryMaxBundleCount: number | null;
-  history: string | null;
-  acquisitionMethod: string | null;
-  storeSalesPrice: string | null;
-  weaponType: string | null;
-  repair: string | null;
-  maxAlterationCount: number | null;
 }
 
 async function fetchItemInfos(): Promise<ItemInfo[]> {
