@@ -341,7 +341,7 @@ export default function Page() {
 
             {/* Pagination */}
             {data?.meta && data.meta.totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-8">
+              <div className="flex justify-center items-center gap-4 mt-8 mb-24 md:mb-8">
                 <Button
                   variant="outline"
                   onClick={handlePreviousPage}

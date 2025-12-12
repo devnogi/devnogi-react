@@ -67,13 +67,13 @@ export default function AuctionHistoryList({
     <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-        <div className="col-span-5 font-semibold text-gray-900 text-sm">
+        <div className="col-span-6 md:col-span-5 font-semibold text-gray-900 text-sm">
           아이템 이름
         </div>
-        <div className="col-span-2 font-semibold text-gray-900 text-sm text-center">
+        <div className="hidden md:block md:col-span-2 font-semibold text-gray-900 text-sm text-center">
           카테고리
         </div>
-        <div className="col-span-2 font-semibold text-gray-900 text-sm text-right">
+        <div className="col-span-3 md:col-span-2 font-semibold text-gray-900 text-sm text-right">
           가격
         </div>
         <div className="col-span-2 font-semibold text-gray-900 text-sm text-center">
@@ -91,7 +91,7 @@ export default function AuctionHistoryList({
             <PopoverTrigger asChild>
               <div className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
                 {/* Item Name */}
-                <div className="col-span-5 flex items-center">
+                <div className="col-span-6 md:col-span-5 flex items-center">
                   <div className="truncate">
                     <span className="font-medium text-gray-900">
                       {item.itemDisplayName}
@@ -105,7 +105,7 @@ export default function AuctionHistoryList({
                 </div>
 
                 {/* Category */}
-                <div className="col-span-2 flex items-center justify-center gap-1">
+                <div className="hidden md:flex md:col-span-2 items-center justify-center gap-1">
                   <Badge
                     variant="secondary"
                     className="rounded-md bg-blue-50 text-blue-700 border-0 text-xs px-2 py-0.5"
@@ -115,7 +115,7 @@ export default function AuctionHistoryList({
                 </div>
 
                 {/* Price */}
-                <div className="col-span-2 flex items-center justify-end">
+                <div className="col-span-3 md:col-span-2 flex items-center justify-end">
                   <span className="font-bold text-blue-600">
                     {formatPrice(item.auctionPricePerUnit)}
                   </span>
