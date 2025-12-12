@@ -173,7 +173,7 @@ export default function MobileSearchModal({
               </div>
               {filteredItems.map((item, index) => (
                 <button
-                  key={item.id}
+                  key={`${item.topCategory}-${item.subCategory}-${item.name}`}
                   onClick={() => handleItemSelect(item)}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                     selectedIndex === index
