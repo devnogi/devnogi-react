@@ -3,11 +3,16 @@
 import SearchSection from "@/components/commons/Search";
 import AuctionHistoryList from "@/components/page/auction-history/AuctionHistoryList";
 import CategorySection from "@/components/commons/Category";
+import CategoryModal from "@/components/commons/CategoryModal";
 import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard";
+import MobileFilterChips from "@/components/page/auction-history/MobileFilterChips";
+import MobileFilterModal from "@/components/page/auction-history/MobileFilterModal";
+import MobileSearchModal from "@/components/page/auction-history/MobileSearchModal";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
 import { useAuctionHistory } from "@/hooks/useAuctionHistory";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
+import { ActiveFilter } from "@/types/search-filter";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +25,19 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [isClientMounted, setIsClientMounted] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isMobileSearchModalOpen, setIsMobileSearchModalOpen] = useState(false);
+
+  // Mobile filter states
+  const [mobileFilterType, setMobileFilterType] = useState<
+    "price" | "date" | "options" | null
+  >(null);
+  const [mobilePriceMin, setMobilePriceMin] = useState("");
+  const [mobilePriceMax, setMobilePriceMax] = useState("");
+  const [mobileDateFrom, setMobileDateFrom] = useState("");
+  const [mobileDateTo, setMobileDateTo] = useState("");
+  const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>([]);
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
@@ -130,6 +148,97 @@ export default function Page() {
     setCurrentPage(1); // Reset to first page when filters change
   };
 
+  const handleMobileFilterApply = (data: {
+    priceMin?: string;
+    priceMax?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    activeFilters?: ActiveFilter[];
+  }) => {
+    // Update mobile filter states
+    if (data.priceMin !== undefined) setMobilePriceMin(data.priceMin);
+    if (data.priceMax !== undefined) setMobilePriceMax(data.priceMax);
+    if (data.dateFrom !== undefined) setMobileDateFrom(data.dateFrom);
+    if (data.dateTo !== undefined) setMobileDateTo(data.dateTo);
+    if (data.activeFilters !== undefined)
+      setMobileActiveFilters(data.activeFilters);
+
+    // Build search params
+    const params: AuctionHistorySearchParams = { ...searchParams };
+
+    // Price
+    if (data.priceMin || data.priceMax || mobilePriceMin || mobilePriceMax) {
+      params.priceSearchRequest = {};
+      const minPrice = data.priceMin !== undefined ? data.priceMin : mobilePriceMin;
+      const maxPrice = data.priceMax !== undefined ? data.priceMax : mobilePriceMax;
+      if (minPrice) params.priceSearchRequest.priceFrom = Number(minPrice);
+      if (maxPrice) params.priceSearchRequest.priceTo = Number(maxPrice);
+    }
+
+    // Date
+    if (data.dateFrom || data.dateTo || mobileDateFrom || mobileDateTo) {
+      params.dateAuctionBuyRequest = {};
+      const from = data.dateFrom !== undefined ? data.dateFrom : mobileDateFrom;
+      const to = data.dateTo !== undefined ? data.dateTo : mobileDateTo;
+      if (from) params.dateAuctionBuyRequest.dateAuctionBuyFrom = from;
+      if (to) params.dateAuctionBuyRequest.dateAuctionBuyTo = to;
+    }
+
+    // Options
+    const filters =
+      data.activeFilters !== undefined
+        ? data.activeFilters
+        : mobileActiveFilters;
+    if (filters.length > 0) {
+      params.itemOptionSearchRequest = {};
+
+      filters.forEach((filter) => {
+        const conditionKeys = Object.keys(filter.searchCondition);
+        Object.entries(filter.values).forEach(([key, value]) => {
+          if (value === undefined || value === "") return;
+
+          let optionSearchKey: string;
+          if (key.endsWith("From") || key.endsWith("To")) {
+            const baseName = key.replace(/(From|To)$/, "");
+            optionSearchKey = `${baseName}Search`;
+          } else if (key.endsWith("Standard")) {
+            const baseName = key.replace(/Standard$/, "");
+            optionSearchKey = `${baseName}Search`;
+          } else if (key === "wearingRestrictions") {
+            optionSearchKey = "wearingRestrictionsSearch";
+          } else if (key === "ergRank") {
+            optionSearchKey = "ergRankSearch";
+          } else {
+            optionSearchKey = `${key}Search`;
+          }
+
+          if (
+            !params.itemOptionSearchRequest![
+              optionSearchKey as keyof typeof params.itemOptionSearchRequest
+            ]
+          ) {
+            (
+              params.itemOptionSearchRequest as Record<
+                string,
+                Record<string, unknown>
+              >
+            )[optionSearchKey] = {};
+          }
+
+          (
+            params.itemOptionSearchRequest as Record<
+              string,
+              Record<string, unknown>
+            >
+          )[optionSearchKey][key] = value;
+        });
+      });
+    }
+
+    setSearchParams(params);
+    setCurrentPage(1);
+  };
+
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -152,8 +261,8 @@ export default function Page() {
 
   return (
     <div className="select-none absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Fixed Floating Category Sidebar */}
-      <div className="fixed left-24 top-32 bottom-8 w-56 z-40 lg:block hidden">
+      {/* Fixed Floating Category Sidebar - Only visible on xl+ screens */}
+      <div className="fixed left-24 top-32 bottom-8 w-56 z-40 hidden xl:block">
         <CategorySection
           selectedId={selectedCategory}
           onSelect={handleCategorySelect}
@@ -163,34 +272,61 @@ export default function Page() {
         />
       </div>
 
+      {/* Category Modal - Visible on lg and below */}
+      <CategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        selectedId={selectedCategory}
+        onSelect={handleCategorySelect}
+        expandedIds={expandedIds}
+        onToggleExpand={handleToggleExpand}
+        categories={categories}
+      />
+
       {/* Centered Main Content Container */}
       <div className="h-full overflow-auto flex justify-center [scrollbar-gutter:stable]">
-        <div className="w-full max-w-4xl px-6 py-8">
+        <div className="w-full max-w-4xl px-4 md:px-6 py-4 md:py-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               경매장 거래 내역
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm md:text-base text-gray-600">
               마비노기 경매장 아이템 거래 내역을 검색해보세요
             </p>
           </div>
 
-          {/* Search Section */}
-          <div className="mb-6">
+          {/* Mobile Filter Chips - Only visible on lg and below */}
+          <div className="mb-4 lg:hidden">
+            <MobileFilterChips
+              activeFilters={{
+                hasPrice: !!(mobilePriceMin || mobilePriceMax),
+                hasDate: !!(mobileDateFrom || mobileDateTo),
+                hasOptions: mobileActiveFilters.length > 0,
+              }}
+              onPriceClick={() => setMobileFilterType("price")}
+              onDateClick={() => setMobileFilterType("date")}
+              onOptionsClick={() => setMobileFilterType("options")}
+              onSearchClick={() => setIsMobileSearchModalOpen(true)}
+            />
+          </div>
+
+          {/* Search Section - Only visible on lg+ screens */}
+          <div className="mb-6 hidden lg:block">
             <SearchSection
               path={categoryPath}
               onCategorySelect={handleCategorySelect}
               itemName={itemName}
               setItemName={setItemName}
               onSearch={handleSearch}
+              onCategoryMenuClick={() => setIsCategoryModalOpen(true)}
             />
           </div>
 
           {/* Results Section */}
           <div>
             {data?.items && (
-              <div className="mb-4 text-sm text-gray-600">
+              <div className="mb-4 text-xs md:text-sm text-gray-600">
                 총{" "}
                 <span className="font-semibold">{data.meta.totalElements}</span>
                 개의 거래 내역 ({data.meta.currentPage} / {data.meta.totalPages}{" "}
@@ -210,18 +346,18 @@ export default function Page() {
                   variant="outline"
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
-                  className="rounded-xl"
+                  className="rounded-xl text-sm md:text-base"
                 >
                   이전
                 </Button>
-                <span className="text-gray-700">
+                <span className="text-gray-700 text-sm md:text-base">
                   {currentPage} / {data.meta.totalPages}
                 </span>
                 <Button
                   variant="outline"
                   onClick={handleNextPage}
                   disabled={currentPage === data.meta.totalPages}
-                  className="rounded-xl"
+                  className="rounded-xl text-sm md:text-base"
                 >
                   다음
                 </Button>
@@ -231,9 +367,42 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Fixed Floating Filter Card - Right Side */}
+      {/* Fixed Floating Filter Card - Right Side - Only visible on lg+ screens */}
       <div className="hidden lg:block">
-        <SearchFilterCard onFilterApply={handleFilterApply} />
+        <SearchFilterCard
+          onFilterApply={handleFilterApply}
+          isModal={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+        />
+      </div>
+
+      {/* Mobile Filter Modal - Only visible on lg and below when chip is clicked */}
+      <div className="lg:hidden">
+        <MobileFilterModal
+          isOpen={mobileFilterType !== null}
+          onClose={() => setMobileFilterType(null)}
+          filterType={mobileFilterType || "price"}
+          initialData={{
+            priceMin: mobilePriceMin,
+            priceMax: mobilePriceMax,
+            dateFrom: mobileDateFrom,
+            dateTo: mobileDateTo,
+            activeFilters: mobileActiveFilters,
+          }}
+          onApply={handleMobileFilterApply}
+        />
+      </div>
+
+      {/* Mobile Search Modal - Only visible on lg and below */}
+      <div className="lg:hidden">
+        <MobileSearchModal
+          isOpen={isMobileSearchModalOpen}
+          onClose={() => setIsMobileSearchModalOpen(false)}
+          itemName={itemName}
+          setItemName={setItemName}
+          onSearch={handleSearch}
+          onCategorySelect={handleCategorySelect}
+        />
       </div>
     </div>
   );

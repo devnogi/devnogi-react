@@ -8,6 +8,7 @@ import { ItemCategory } from "@/data/item-category";
 import React, { useRef, useState, useMemo } from "react";
 import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
 import Autocomplete from "@/components/commons/Autocomplete";
+import { Menu } from "lucide-react";
 
 export default function SearchSection({
   path,
@@ -15,12 +16,14 @@ export default function SearchSection({
   itemName,
   setItemName,
   onSearch,
+  onCategoryMenuClick,
 }: {
   path: ItemCategory[];
   onCategorySelect: (categoryId: string) => void;
   itemName: string;
   setItemName: (name: string) => void;
   onSearch?: () => void;
+  onCategoryMenuClick?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: itemInfos = [], isLoading } = useItemInfos();
@@ -127,6 +130,16 @@ export default function SearchSection({
       {/* Breadcrumb */}
       {path.length > 0 && (
         <div className="flex items-center gap-2 mb-4 text-sm flex-wrap">
+          {/* Category Menu Button - Hidden on xl+ screens */}
+          {onCategoryMenuClick && (
+            <button
+              onClick={onCategoryMenuClick}
+              className="xl:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="카테고리 메뉴 열기"
+            >
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+          )}
           {path.map((p, index) => (
             <React.Fragment key={p.id}>
               {index > 0 && <span className="text-gray-400">›</span>}
