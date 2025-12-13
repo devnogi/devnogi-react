@@ -148,7 +148,7 @@ export default function MobileSearchModal({
 
         {/* Search Button */}
         <Button
-          className="w-full h-12 mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
+          className="w-full h-12 mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold transition-all"
           onClick={handleSearchClick}
         >
           검색

@@ -29,7 +29,7 @@ export default function MobileFilterChips({
         onClick={onPriceClick}
         className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all whitespace-nowrap ${
           activeFilters.hasPrice
-            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-md"
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent"
             : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
         }`}
       >
@@ -47,7 +47,7 @@ export default function MobileFilterChips({
         onClick={onDateClick}
         className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all whitespace-nowrap ${
           activeFilters.hasDate
-            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-md"
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent"
             : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
         }`}
       >
@@ -65,7 +65,7 @@ export default function MobileFilterChips({
         onClick={onOptionsClick}
         className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all whitespace-nowrap ${
           activeFilters.hasOptions
-            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-md"
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent"
             : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
         }`}
       >

@@ -285,7 +285,7 @@ export default function MobileFilterModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col animate-slide-up">
+      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col animate-slide-up">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-bold text-gray-900">{titles[filterType]}</h3>
@@ -370,7 +370,7 @@ export default function MobileFilterModal({
                 </Button>
 
                 {showAddFilterDropdown && availableOptions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 max-h-60 overflow-auto z-50">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-gray-200 max-h-60 overflow-auto z-50">
                     {availableOptions.map((option) => (
                       <button
                         key={option.id}

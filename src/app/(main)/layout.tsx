@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="h-screen flex bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="h-screen flex bg-white">
       {/* Left Sidebar - Hidden on mobile (md and below) */}
       <div className="hidden md:block">
         <Sidebar />

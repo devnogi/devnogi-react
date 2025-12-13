@@ -10,11 +10,10 @@ import MobileFilterModal from "@/components/page/auction-history/MobileFilterMod
 import MobileSearchModal from "@/components/page/auction-history/MobileSearchModal";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
-import { useAuctionHistory } from "@/hooks/useAuctionHistory";
+import { useInfiniteAuctionHistory } from "@/hooks/useInfiniteAuctionHistory";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { ActiveFilter } from "@/types/search-filter";
-import { useState, useEffect, useMemo } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 
 export default function Page() {
   const [itemName, setItemName] = useState<string>("");
@@ -22,8 +21,8 @@ export default function Page() {
   const [searchParams, setSearchParams] = useState<AuctionHistorySearchParams>(
     {},
   );
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const [isClientMounted, setIsClientMounted] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -42,11 +41,21 @@ export default function Page() {
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
 
-  const { data, isLoading } = useAuctionHistory({
-    ...searchParams,
-    page: currentPage,
-    size: 20,
-  });
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteAuctionHistory(searchParams);
+
+  // Flatten all pages into a single array
+  const allItems = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data],
+  );
+
+  const totalElements = data?.pages[0]?.meta.totalElements ?? 0;
 
   const findCategoryPath = (
     categories: ItemCategory[],
@@ -78,10 +87,17 @@ export default function Page() {
   );
 
   useEffect(() => {
+    const idsToExpand = categoryPath.slice(0, -1).map((c) => c.id);
+
     setExpandedIds((prev) => {
-      const next = new Set(prev);
-      categoryPath.slice(0, -1).forEach((c) => next.add(c.id));
-      return next;
+      // Check if all IDs are already in the set
+      const allAlreadyExpanded = idsToExpand.every((id) => prev.has(id));
+      if (allAlreadyExpanded && prev.size === idsToExpand.length) {
+        return prev; // Return same reference to prevent re-render
+      }
+
+      // Only create new Set if there are changes
+      return new Set(idsToExpand);
     });
   }, [categoryPath]);
 
@@ -92,6 +108,30 @@ export default function Page() {
       setSelectedCategory(saved);
     }
   }, []);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -134,7 +174,6 @@ export default function Page() {
     }
 
     setSearchParams(params);
-    setCurrentPage(1);
   };
 
   const handleFilterApply = (filters: AuctionHistorySearchParams) => {
@@ -145,7 +184,6 @@ export default function Page() {
     };
 
     setSearchParams(params);
-    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const handleMobileFilterApply = (data: {
@@ -236,19 +274,6 @@ export default function Page() {
     }
 
     setSearchParams(params);
-    setCurrentPage(1);
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (data?.meta && currentPage < data.meta.totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
   };
 
   if (isCategoriesLoading) {
@@ -260,7 +285,7 @@ export default function Page() {
   }
 
   return (
-    <div className="select-none absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="select-none absolute inset-0 bg-white">
       {/* Fixed Floating Category Sidebar - Only visible on xl+ screens */}
       <div className="fixed left-24 top-32 bottom-8 w-56 z-40 hidden xl:block">
         <CategorySection
@@ -325,44 +350,21 @@ export default function Page() {
 
           {/* Results Section */}
           <div>
-            {data?.items && (
+            {totalElements > 0 && (
               <div className="mb-4 text-xs md:text-sm text-gray-600">
-                총{" "}
-                <span className="font-semibold">{data.meta.totalElements}</span>
-                개의 거래 내역 ({data.meta.currentPage} / {data.meta.totalPages}{" "}
-                페이지)
+                총 <span className="font-semibold">{totalElements}</span>개의
+                거래 내역
               </div>
             )}
 
-            <AuctionHistoryList
-              items={data?.items || []}
-              isLoading={isLoading}
-            />
+            <AuctionHistoryList items={allItems} isLoading={isLoading} />
 
-            {/* Pagination */}
-            {data?.meta && data.meta.totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-8 mb-24 md:mb-8">
-                <Button
-                  variant="outline"
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                  className="rounded-xl text-sm md:text-base"
-                >
-                  이전
-                </Button>
-                <span className="text-gray-700 text-sm md:text-base">
-                  {currentPage} / {data.meta.totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={handleNextPage}
-                  disabled={currentPage === data.meta.totalPages}
-                  className="rounded-xl text-sm md:text-base"
-                >
-                  다음
-                </Button>
-              </div>
-            )}
+            {/* Infinite Scroll Trigger */}
+            <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+              {isFetchingNextPage && (
+                <div className="text-sm text-gray-500">로딩 중...</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
