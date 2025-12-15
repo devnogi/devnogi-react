@@ -84,8 +84,8 @@ jobs:
           echo "SSH key written successfully ($(wc -l < ~/.ssh/my-key.pem) lines)"
 
           # Add server to known_hosts
-          echo "Adding ${{ secrets.PROD_SERVER_HOST }} to known_hosts..."
-          ssh-keyscan -H ${{ secrets.PROD_SERVER_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
+          echo "Adding ${{ secrets.PROD_SERVER_HOST }}:${{ secrets.PROD_SSH_PORT }} to known_hosts..."
+          ssh-keyscan -p ${{ secrets.PROD_SSH_PORT }} -H ${{ secrets.PROD_SERVER_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
             echo "Warning: ssh-keyscan failed, but continuing..."
             echo "You may need to manually verify the host key on first connection"
           }
@@ -103,16 +103,16 @@ jobs:
 
       - name: Create app directory on server
         run: |
-          ssh -i ~/.ssh/my-key.pem ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} "sudo mkdir -p /opt/app/nextjs && sudo chown ${{ secrets.PROD_SERVER_USER }}:${{ secrets.PROD_SERVER_USER }} /opt/app/nextjs"
+          ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} "sudo mkdir -p /opt/app/nextjs && sudo chown ${{ secrets.PROD_SERVER_USER }}:${{ secrets.PROD_SERVER_USER }} /opt/app/nextjs"
 
       - name: Copy deployment files to server
         run: |
-          scp -i ~/.ssh/my-key.pem docker-compose-prod.yaml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:/opt/app/nextjs/
-          scp -i ~/.ssh/my-key.pem nginx.conf ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:/opt/app/nextjs/
+          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yaml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:/opt/app/nextjs/
+          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} nginx.conf ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:/opt/app/nextjs/
 
       - name: Deploy to Production Server
         run: |
-          ssh -i ~/.ssh/my-key.pem ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+          ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
             cd /opt/app/nextjs
 
             # Write .env content from GitHub Secret
@@ -135,7 +135,7 @@ jobs:
       # ========================================
       - name: Comprehensive Health Check
         run: |
-          ssh -i ~/.ssh/my-key.pem ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+          ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
             echo "=== Starting Production Health Check ==="
 
             # 1. Check if Next.js container is running
