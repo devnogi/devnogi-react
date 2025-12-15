@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         console.error("에러 상태:", axiosError.response.status);
         console.error("에러 데이터:", axiosError.response.data);
         console.error("에러 헤더:", axiosError.response.headers);
-        console.error("요청 URL:", axiosError.config?.baseURL + axiosError.config?.url);
+        console.error("요청 URL:", (axiosError.config?.baseURL || "") + (axiosError.config?.url || ""));
 
         return NextResponse.json(
           {

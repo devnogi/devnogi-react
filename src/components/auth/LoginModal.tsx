@@ -36,7 +36,7 @@ const loginSchema = z.object({
     .string()
     .min(6, { message: "비밀번호는 6자 이상 입력해주세요" })
     .max(50, { message: "비밀번호는 50자 이하로 입력해주세요" }),
-  rememberMe: z.boolean().default(false),
+  rememberMe: z.boolean(),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;

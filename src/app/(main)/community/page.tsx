@@ -45,7 +45,7 @@ function CommunityPage() {
       </div>
 
       {/* Post List */}
-      <PostList boardId={selectedBoardId} sort={sortOption} />
+      <PostList boardId={selectedBoardId} />
 
       {/* Post Create Modal */}
       <PostCreateModal

@@ -18,7 +18,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoginModal from "@/components/auth/LoginModal";
 
 // TODO: 실제 API 연동 시 교체
-const mockUserData = {
+interface ExtendedUser {
+  userId?: number;
+  id?: number;
+  email: string;
+  nickname: string;
+  profileImageUrl: string | null;
+  status?: string;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  lastLoginAt?: string;
+}
+
+const mockUserData: ExtendedUser = {
   id: 1,
   email: "user@example.com",
   nickname: "데브노기유저",
@@ -36,7 +49,7 @@ export default function MyPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // authUser가 있으면 authUser 사용, 없으면 mockData 사용 (개발 편의상)
-  const user = authUser || mockUserData;
+  const user: ExtendedUser = authUser || mockUserData;
 
   useEffect(() => {
     // 로딩이 끝나고 인증되지 않은 경우 로그인 모달 표시
@@ -153,7 +166,7 @@ export default function MyPage() {
               <h1 className="text-2xl font-bold text-gray-900">
                 {authUser?.nickname || user.nickname}
               </h1>
-              {getStatusBadge(user.status)}
+              {getStatusBadge(user.status || "ACTIVE")}
             </div>
             <p className="text-gray-600 flex items-center gap-2 mb-4">
               <Mail className="w-4 h-4" />
@@ -192,7 +205,7 @@ export default function MyPage() {
           <InfoRow
             icon={<Shield className="w-5 h-5 text-gray-400" />}
             label="권한"
-            value={user.role === "USER" ? "일반 회원" : "관리자"}
+            value={(user.role || "USER") === "USER" ? "일반 회원" : "관리자"}
           />
           {user.createdAt && (
             <InfoRow

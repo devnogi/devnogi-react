@@ -92,7 +92,7 @@ export default function ItemCategorySection({
   categories: ItemCategory[];
 }) {
   const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = () => {
