@@ -68,11 +68,38 @@ jobs:
       # ========================================
       - name: Setup SSH key and config
         run: |
+          set -e
           mkdir -p ~/.ssh
-          echo "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > ~/.ssh/my-key.pem
-          chmod 400 ~/.ssh/my-key.pem
-          ssh-keyscan -H ${{ secrets.PROD_SERVER_HOST }} >> ~/.ssh/known_hosts
-          echo -e "Host *\n  ServerAliveInterval 60\n  ServerAliveCountMax 3" >> ~/.ssh/config
+
+          # Write SSH private key (handle \n in secret)
+          echo "${{ secrets.PROD_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/my-key.pem
+          chmod 600 ~/.ssh/my-key.pem
+
+          # Verify key file was created
+          if [ ! -s ~/.ssh/my-key.pem ]; then
+            echo "Error: SSH key file is empty"
+            exit 1
+          fi
+
+          echo "SSH key written successfully ($(wc -l < ~/.ssh/my-key.pem) lines)"
+
+          # Add server to known_hosts
+          echo "Adding ${{ secrets.PROD_SERVER_HOST }} to known_hosts..."
+          ssh-keyscan -H ${{ secrets.PROD_SERVER_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
+            echo "Warning: ssh-keyscan failed, but continuing..."
+            echo "You may need to manually verify the host key on first connection"
+          }
+
+          # Configure SSH keep-alive and disable strict host checking for automation
+          cat >> ~/.ssh/config << 'EOF'
+          Host *
+            ServerAliveInterval 60
+            ServerAliveCountMax 3
+            StrictHostKeyChecking no
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+
+          echo "✓ SSH configuration complete"
 
       - name: Create app directory on server
         run: |
