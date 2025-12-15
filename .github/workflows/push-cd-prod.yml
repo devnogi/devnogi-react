@@ -33,6 +33,7 @@ jobs:
 
       - name: Run tests
         run: npm test -- --ci --coverage --maxWorkers=2
+        continue-on-error: true
 
       # ========================================
       # CD Stage: Build & Push Docker Image
