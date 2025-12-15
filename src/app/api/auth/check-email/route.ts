@@ -24,23 +24,26 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json(response.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("이메일 중복 체크 API 에러:", error);
 
     // 에러 응답 상세 로깅
-    if (error.response) {
-      console.error("에러 상태:", error.response.status);
-      console.error("에러 데이터:", error.response.data);
-      console.error("에러 헤더:", error.response.headers);
-      console.error("요청 URL:", error.config?.baseURL + error.config?.url);
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as { response?: { status: number; data?: { message?: string }; headers?: unknown }; config?: { baseURL?: string; url?: string } };
+      if (axiosError.response) {
+        console.error("에러 상태:", axiosError.response.status);
+        console.error("에러 데이터:", axiosError.response.data);
+        console.error("에러 헤더:", axiosError.response.headers);
+        console.error("요청 URL:", axiosError.config?.baseURL + axiosError.config?.url);
 
-      return NextResponse.json(
-        {
-          success: false,
-          message: error.response.data?.message || "이메일 확인에 실패했습니다",
-        },
-        { status: error.response.status }
-      );
+        return NextResponse.json(
+          {
+            success: false,
+            message: axiosError.response.data?.message || "이메일 확인에 실패했습니다",
+          },
+          { status: axiosError.response.status }
+        );
+      }
     }
 
     return NextResponse.json(

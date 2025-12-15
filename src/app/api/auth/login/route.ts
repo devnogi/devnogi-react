@@ -30,18 +30,21 @@ export async function POST(request: NextRequest) {
     }
 
     return nextResponse;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("로그인 API 에러:", error);
 
     // Axios 에러인 경우
-    if (error.response) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: error.response.data?.message || "로그인에 실패했습니다",
-        },
-        { status: error.response.status }
-      );
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+      if (axiosError.response) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: axiosError.response.data?.message || "로그인에 실패했습니다",
+          },
+          { status: axiosError.response.status }
+        );
+      }
     }
 
     // 일반 에러

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuctionHistorySearchParams } from "@/types/auction-history";
 
 interface ItemOption {
   id: string;

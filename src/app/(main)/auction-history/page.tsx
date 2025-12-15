@@ -57,33 +57,36 @@ export default function Page() {
 
   const totalElements = data?.pages[0]?.meta.totalElements ?? 0;
 
-  const findCategoryPath = (
-    categories: ItemCategory[],
-    targetId: string,
-    currentPath: ItemCategory[] = [],
-  ): ItemCategory[] => {
-    for (const category of categories) {
-      const newPath = [...currentPath, category];
-      if (category.id === targetId) {
-        return newPath;
-      }
-      if (category.children) {
-        const foundPath = findCategoryPath(
-          category.children,
-          targetId,
-          newPath,
-        );
-        if (foundPath.length > 0) {
-          return foundPath;
+  const findCategoryPath = useCallback(
+    (
+      categories: ItemCategory[],
+      targetId: string,
+      currentPath: ItemCategory[] = [],
+    ): ItemCategory[] => {
+      for (const category of categories) {
+        const newPath = [...currentPath, category];
+        if (category.id === targetId) {
+          return newPath;
+        }
+        if (category.children) {
+          const foundPath = findCategoryPath(
+            category.children,
+            targetId,
+            newPath,
+          );
+          if (foundPath.length > 0) {
+            return foundPath;
+          }
         }
       }
-    }
-    return [];
-  };
+      return [];
+    },
+    [],
+  );
 
   const categoryPath = useMemo(
     () => findCategoryPath(categories, selectedCategory),
-    [selectedCategory, categories],
+    [selectedCategory, categories, findCategoryPath],
   );
 
   useEffect(() => {
@@ -231,7 +234,6 @@ export default function Page() {
       params.itemOptionSearchRequest = {};
 
       filters.forEach((filter) => {
-        const conditionKeys = Object.keys(filter.searchCondition);
         Object.entries(filter.values).forEach(([key, value]) => {
           if (value === undefined || value === "") return;
 

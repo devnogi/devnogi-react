@@ -295,7 +295,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           <span className="text-gray-300">|</span>
           <button
             type="button"
-            onClick={() => console.log("아이디/비밀번호 찾기")}
+            onClick={() => {}}
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
             아이디/비밀번호 찾기

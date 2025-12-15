@@ -226,13 +226,13 @@ export default function MyPage() {
             icon={<Key className="w-5 h-5" />}
             label="비밀번호 변경"
             description="정기적인 비밀번호 변경으로 계정을 안전하게 보호하세요"
-            onClick={() => console.log("비밀번호 변경")}
+            onClick={() => {}}
           />
           <ActionButton
             icon={<Shield className="w-5 h-5" />}
             label="2단계 인증"
             description="추가 보안 계층으로 계정을 보호하세요"
-            onClick={() => console.log("2단계 인증")}
+            onClick={() => {}}
             badge="준비중"
           />
         </div>
@@ -247,7 +247,7 @@ export default function MyPage() {
         <Button
           variant="outline"
           className="border-red-300 text-red-700 hover:bg-red-100 rounded-xl"
-          onClick={() => console.log("계정 삭제")}
+          onClick={() => {}}
         >
           계정 삭제
         </Button>
@@ -337,7 +337,6 @@ function EditProfileModal({
 
   const handleSave = () => {
     // TODO: API 호출
-    console.log("저장:", { nickname, email });
     onClose();
   };
 

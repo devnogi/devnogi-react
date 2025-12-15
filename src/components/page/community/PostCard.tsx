@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, MessageCircle, Share2, Eye } from "lucide-react";
+import { Heart, MessageCircle, Eye } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";

@@ -91,14 +91,6 @@ export default function PostWriteView() {
 
   const handleSubmit = () => {
     // TODO: Implement post submission
-    console.log({
-      board: selectedBoard,
-      title,
-      content,
-      images,
-      tags,
-      visibility,
-    });
   };
 
   const currentVisibility = visibilityOptions.find(

@@ -14,7 +14,6 @@ import { useSearchOptions } from "@/hooks/useSearchOptions";
 import {
   SearchOptionMetadata,
   FieldMetadata,
-  FilterValue,
   ActiveFilter,
 } from "@/types/search-filter";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
@@ -134,10 +133,6 @@ export default function SearchFilterCard({
         // filter.values에는 실제 값들이 있음
         Object.entries(filter.values).forEach(([key, value]) => {
           if (value === undefined || value === "") return;
-
-          // searchCondition의 key를 통해 어떤 타입의 검색인지 확인
-          // 예: balance -> balanceSearch, critical -> criticalSearch
-          const searchKey = conditionKeys[0]; // 첫 번째 키 (예: "balance")
 
           // 옵션 타입 결정 (예: balanceSearch)
           let optionSearchKey: string;

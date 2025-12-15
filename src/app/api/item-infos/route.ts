@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // 6시간 간격 캐싱 (0, 6, 12, 18시)
 // 다음 캐시 갱신 시간까지의 초를 계산하는 함수

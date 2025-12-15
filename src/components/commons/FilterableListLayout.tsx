@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import AuctionCategory from "@/components/commons/Category";
 import AuctionSearch from "@/components/commons/Search";
 import { ItemCategory } from "@/data/item-category";
@@ -26,29 +26,32 @@ export default function FilterableListLayout({
 
   const { data: categories, isLoading } = useItemCategories();
 
-  const findCategoryPath = (
-    categories: ItemCategory[],
-    targetId: string,
-    currentPath: ItemCategory[] = [],
-  ): ItemCategory[] => {
-    for (const category of categories) {
-      const newPath = [...currentPath, category];
-      if (category.id === targetId) {
-        return newPath;
-      }
-      if (category.children) {
-        const foundPath = findCategoryPath(
-          category.children,
-          targetId,
-          newPath,
-        );
-        if (foundPath.length > 0) {
-          return foundPath;
+  const findCategoryPath = useCallback(
+    (
+      categories: ItemCategory[],
+      targetId: string,
+      currentPath: ItemCategory[] = [],
+    ): ItemCategory[] => {
+      for (const category of categories) {
+        const newPath = [...currentPath, category];
+        if (category.id === targetId) {
+          return newPath;
+        }
+        if (category.children) {
+          const foundPath = findCategoryPath(
+            category.children,
+            targetId,
+            newPath,
+          );
+          if (foundPath.length > 0) {
+            return foundPath;
+          }
         }
       }
-    }
-    return [];
-  };
+      return [];
+    },
+    [],
+  );
 
   const handleCategorySelect = (id: string) => {
     setSelectedCategory(id);
@@ -71,7 +74,7 @@ export default function FilterableListLayout({
 
   const categoryPath = useMemo(
     () => findCategoryPath(categories || [], selectedCategory),
-    [selectedCategory, categories],
+    [selectedCategory, categories, findCategoryPath],
   );
 
   useEffect(() => {
@@ -88,7 +91,7 @@ export default function FilterableListLayout({
     if (saved) {
       setSelectedCategory(saved);
     }
-  }, []);
+  }, [categoryStorageKey, setSelectedCategory]);
 
   if (isLoading) {
     return (

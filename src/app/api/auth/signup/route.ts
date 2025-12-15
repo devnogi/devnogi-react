@@ -16,19 +16,22 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(response.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("회원가입 API 에러:", error);
 
     // Axios 에러인 경우
-    if (error.response) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: error.response.data?.message || "회원가입에 실패했습니다",
-          code: error.response.data?.code || "SIGNUP_FAILED",
-        },
-        { status: error.response.status }
-      );
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as { response?: { status: number; data?: { message?: string; code?: string } } };
+      if (axiosError.response) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: axiosError.response.data?.message || "회원가입에 실패했습니다",
+            code: axiosError.response.data?.code || "SIGNUP_FAILED",
+          },
+          { status: axiosError.response.status }
+        );
+      }
     }
 
     // 일반 에러

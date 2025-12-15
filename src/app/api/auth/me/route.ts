@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
           profileImageUrl: null,
         },
       });
-    } catch (decodeError) {
+    } catch {
       return NextResponse.json(
         {
           success: false,

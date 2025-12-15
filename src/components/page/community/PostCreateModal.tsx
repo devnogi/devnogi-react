@@ -101,13 +101,6 @@ export default function PostCreateModal({
 
   const handleSubmit = () => {
     // TODO: Implement post submission
-    console.log({
-      board: selectedBoard,
-      content,
-      images,
-      tags,
-      visibility,
-    });
     onClose();
   };
 

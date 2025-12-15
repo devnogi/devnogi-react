@@ -86,8 +86,6 @@ export default function SocialCallbackPage() {
   }, [searchParams, router, refreshUser]);
 
   const handleSignUpSuccess = async (userId: number) => {
-    console.log("소셜 회원가입 성공:", userId);
-
     // 회원가입 후 자동 로그인 (백엔드에서 JWT 발급 필요)
     await refreshUser();
 
