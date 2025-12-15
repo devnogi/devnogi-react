@@ -126,11 +126,6 @@ export default function SearchFilterCard({
 
       activeFilters.forEach((filter) => {
         // Map filter values to nested structure
-        // searchCondition의 key로부터 옵션 타입을 추출
-        const conditionKeys = Object.keys(filter.searchCondition);
-
-        // 각 필터는 하나의 옵션 타입을 가짐 (예: balanceSearch, criticalSearch 등)
-        // filter.values에는 실제 값들이 있음
         Object.entries(filter.values).forEach(([key, value]) => {
           if (value === undefined || value === "") return;
 

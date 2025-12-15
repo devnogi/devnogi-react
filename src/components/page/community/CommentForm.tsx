@@ -12,7 +12,6 @@ interface CommentFormProps {
 }
 
 export default function CommentForm({
-  postId: _postId,
   parentCommentId,
   onSuccess,
   onCancel,
