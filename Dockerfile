@@ -46,6 +46,9 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
+# Install wget for Docker healthcheck
+RUN apk add --no-cache wget
+
 # Copy built assets from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
