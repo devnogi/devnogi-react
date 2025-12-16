@@ -159,7 +159,7 @@ SSH로 서버에 접속하여 수동으로 배포할 수 있습니다:
 ssh -i your-key.pem user@your-server-ip
 
 # 2. 앱 디렉토리로 이동
-cd /opt/app/nextjs
+cd ~/devnogi-react
 
 # 3. 최신 이미지 Pull
 docker pull your-username/devnogi-react:prod
@@ -216,7 +216,7 @@ docker logs nginx-proxy-prod --tail 50
 ssh -i your-key.pem user@your-server-ip
 
 # 2. 앱 디렉토리로 이동
-cd /opt/app/nextjs
+cd ~/devnogi-react
 
 # 3. 이전 버전 이미지 Pull
 docker pull your-username/devnogi-react:prod-<previous-commit-sha>
