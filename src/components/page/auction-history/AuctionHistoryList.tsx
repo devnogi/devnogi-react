@@ -39,7 +39,27 @@ export default function AuctionHistoryList({
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ko-KR").format(price);
+    if (price === 0) return "0";
+
+    const eok = Math.floor(price / 100000000); // 억
+    const man = Math.floor((price % 100000000) / 10000); // 만
+    const rest = price % 10000; // 나머지
+
+    const parts: string[] = [];
+
+    if (eok > 0) {
+      parts.push(`${eok}억`);
+    }
+
+    if (man > 0) {
+      parts.push(`${man.toLocaleString("ko-KR")}만`);
+    }
+
+    if (rest > 0 || parts.length === 0) {
+      parts.push(rest.toLocaleString("ko-KR"));
+    }
+
+    return parts.join(" ");
   };
 
   const formatDate = (dateString: string) => {
@@ -65,56 +85,57 @@ export default function AuctionHistoryList({
 
   return (
     <>
-      {/* Mobile Card Layout */}
-      <div className="md:hidden space-y-3">
-        {items.map((item, index) => (
-          <Popover key={`${item.auctionBuyId}-${index}`}>
-            <PopoverTrigger asChild>
-              <div className="bg-white rounded-xl p-4 border border-gray-200 hover:border-blue-300 transition-all cursor-pointer">
-                {/* Top Section: Item Name & Price */}
-                <div className="flex justify-between items-start gap-3 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate text-base">
-                      {item.itemDisplayName}
-                    </h3>
-                    {item.itemName !== item.itemDisplayName && (
-                      <p className="text-xs text-gray-500 mt-0.5 truncate">
-                        ({item.itemName})
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end flex-shrink-0">
-                    <div className="flex items-baseline">
-                      <span className="font-bold text-blue-600 text-lg">
-                        {formatPrice(item.auctionPricePerUnit)}
-                      </span>
-                      <span className="text-sm text-gray-500 ml-1">G</span>
+      {/* Mobile List Layout */}
+      <div className="md:hidden">
+        <div className="divide-y divide-gray-200">
+          {items.map((item, index) => (
+            <Popover key={`${item.auctionBuyId}-${index}`}>
+              <PopoverTrigger asChild>
+                <div className="p-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
+                  {/* Top Section: Item Name & Price */}
+                  <div className="flex justify-between items-start gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate text-base">
+                        {item.itemDisplayName}
+                      </h3>
+                      {item.itemName !== item.itemDisplayName && (
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">
+                          ({item.itemName})
+                        </p>
+                      )}
                     </div>
-                    {item.itemCount > 1 && (
-                      <span className="text-xs text-gray-500 mt-0.5">
-                        ×{item.itemCount}
-                      </span>
-                    )}
+                    <div className="flex flex-col items-end flex-shrink-0">
+                      <div className="flex items-baseline">
+                        <span className="font-bold text-blue-600 text-lg">
+                          {formatPrice(item.auctionPricePerUnit)}
+                        </span>
+                        <span className="text-sm text-gray-500 ml-1">G</span>
+                      </div>
+                      {item.itemCount > 1 && (
+                        <span className="text-xs text-gray-500 mt-0.5">
+                          ×{item.itemCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Section: Date & Category */}
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {formatDateShort(item.dateAuctionBuy)}
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className="rounded-md bg-blue-50 text-blue-700 border-0 text-xs px-2 py-0.5"
+                    >
+                      {item.itemSubCategory}
+                    </Badge>
                   </div>
                 </div>
-
-                {/* Bottom Section: Date & Category */}
-                <div className="flex justify-between items-center text-xs text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    {formatDateShort(item.dateAuctionBuy)}
-                  </span>
-                  <Badge
-                    variant="secondary"
-                    className="rounded-md bg-blue-50 text-blue-700 border-0 text-xs px-2 py-0.5"
-                  >
-                    {item.itemSubCategory}
-                  </Badge>
-                </div>
-              </div>
-            </PopoverTrigger>
+              </PopoverTrigger>
 
             <PopoverContent
               className="w-96 p-0 border-2 border-gray-300"
@@ -216,7 +237,8 @@ export default function AuctionHistoryList({
               </div>
             </PopoverContent>
           </Popover>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Desktop Table Layout */}
