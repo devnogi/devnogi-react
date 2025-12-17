@@ -27,6 +27,14 @@ export default function Page() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isMobileSearchModalOpen, setIsMobileSearchModalOpen] = useState(false);
+  const [isViewTypeDropdownOpen, setIsViewTypeDropdownOpen] = useState(false);
+  const [viewType, setViewType] = useState<"거래 내역" | "실시간 경매장" | "경매장 통계">("거래 내역");
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const [sortOption, setSortOption] = useState<{
+    label: string;
+    sortBy: string;
+    direction: string;
+  }>({ label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "DESC" });
 
   // Mobile filter states
   const [mobileFilterType, setMobileFilterType] = useState<
@@ -315,12 +323,42 @@ export default function Page() {
         <div className="w-full max-w-4xl px-4 md:px-6 py-4 md:py-8">
           {/* Header */}
           <div className="mb-6 md:mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              경매장 거래 내역
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">
-              마비노기 경매장 아이템 거래 내역을 검색해보세요
-            </p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                경매장 {viewType}
+              </h1>
+              <div className="relative">
+                <button
+                  onClick={() => setIsViewTypeDropdownOpen(!isViewTypeDropdownOpen)}
+                  className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                  aria-label="보기 유형 선택"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {isViewTypeDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[160px]">
+                    {["거래 내역", "실시간 경매장", "경매장 통계"].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => {
+                          setViewType(type as typeof viewType);
+                          setIsViewTypeDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                          viewType === type
+                            ? "bg-blue-50 text-blue-600 font-semibold"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Mobile Filter Chips - Only visible on lg and below */}
@@ -353,9 +391,60 @@ export default function Page() {
           {/* Results Section */}
           <div>
             {totalElements > 0 && (
-              <div className="mb-4 text-xs md:text-sm text-gray-600">
-                총 <span className="font-semibold">{totalElements}</span>개의
-                거래 내역
+              <div className="mb-4 flex items-center justify-between">
+                <div className="text-xs md:text-sm text-gray-600">
+                  {itemName ? (
+                    <>
+                      <span className="font-semibold text-blue-600">{itemName}</span> 검색결과{" "}
+                      <span className="font-semibold">{totalElements}</span>개
+                    </>
+                  ) : (
+                    <>
+                      검색결과 <span className="font-semibold">{totalElements}</span>개
+                    </>
+                  )}
+                </div>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <span className="font-medium">{sortOption.label}</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {isSortDropdownOpen && (
+                    <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[180px]">
+                      {[
+                        { label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "DESC" },
+                        { label: "거래 오래된순", sortBy: "dateAuctionBuy", direction: "ASC" },
+                        { label: "개당 가격 낮은순", sortBy: "auctionPricePerUnit", direction: "ASC" },
+                        { label: "개당 가격 높은순", sortBy: "auctionPricePerUnit", direction: "DESC" },
+                      ].map((option) => (
+                        <button
+                          key={option.label}
+                          onClick={() => {
+                            setSortOption(option);
+                            setIsSortDropdownOpen(false);
+                            setSearchParams({
+                              ...searchParams,
+                              sortBy: option.sortBy,
+                              direction: option.direction,
+                            });
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                            sortOption.label === option.label
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
