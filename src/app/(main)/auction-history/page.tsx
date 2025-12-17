@@ -38,7 +38,7 @@ export default function Page() {
 
   // Mobile filter states
   const [mobileFilterType, setMobileFilterType] = useState<
-    "price" | "date" | "options" | null
+    "category" | "price" | "date" | "options" | null
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
@@ -198,6 +198,7 @@ export default function Page() {
   };
 
   const handleMobileFilterApply = (data: {
+    selectedCategory?: string;
     priceMin?: string;
     priceMax?: string;
     dateFrom?: string;
@@ -205,6 +206,12 @@ export default function Page() {
     activeFilters?: ActiveFilter[];
   }) => {
     // Update mobile filter states
+    if (data.selectedCategory !== undefined) {
+      setSelectedCategory(data.selectedCategory);
+      if (isClientMounted) {
+        localStorage.setItem("lastSelectedCategoryTradeLog", data.selectedCategory);
+      }
+    }
     if (data.priceMin !== undefined) setMobilePriceMin(data.priceMin);
     if (data.priceMax !== undefined) setMobilePriceMax(data.priceMax);
     if (data.dateFrom !== undefined) setMobileDateFrom(data.dateFrom);
@@ -214,6 +221,24 @@ export default function Page() {
 
     // Build search params
     const params: AuctionHistorySearchParams = { ...searchParams };
+
+    // Category
+    if (data.selectedCategory !== undefined) {
+      const category = data.selectedCategory;
+      if (category !== "all") {
+        const parts = category.split("/");
+        if (parts.length === 1) {
+          params.itemTopCategory = parts[0];
+          delete params.itemSubCategory;
+        } else if (parts.length === 2) {
+          params.itemTopCategory = parts[0];
+          params.itemSubCategory = parts[1];
+        }
+      } else {
+        delete params.itemTopCategory;
+        delete params.itemSubCategory;
+      }
+    }
 
     // Price
     if (data.priceMin || data.priceMax || mobilePriceMin || mobilePriceMax) {
@@ -323,41 +348,54 @@ export default function Page() {
         <div className="w-full max-w-4xl px-4 md:px-6 py-4 md:py-8">
           {/* Header */}
           <div className="mb-6 md:mb-8">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                경매장 {viewType}
-              </h1>
-              <div className="relative">
-                <button
-                  onClick={() => setIsViewTypeDropdownOpen(!isViewTypeDropdownOpen)}
-                  className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-                  aria-label="보기 유형 선택"
-                >
-                  <svg className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {isViewTypeDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[160px]">
-                    {["거래 내역", "실시간 경매장", "경매장 통계"].map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => {
-                          setViewType(type as typeof viewType);
-                          setIsViewTypeDropdownOpen(false);
-                        }}
-                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                          viewType === type
-                            ? "bg-blue-50 text-blue-600 font-semibold"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                  경매장 {viewType}
+                </h1>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsViewTypeDropdownOpen(!isViewTypeDropdownOpen)}
+                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="보기 유형 선택"
+                  >
+                    <svg className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {isViewTypeDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[160px]">
+                      {["거래 내역", "실시간 경매장", "경매장 통계"].map((type) => (
+                        <button
+                          key={type}
+                          onClick={() => {
+                            setViewType(type as typeof viewType);
+                            setIsViewTypeDropdownOpen(false);
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                            viewType === type
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Search Button - Only visible on lg and below */}
+              <button
+                onClick={() => setIsMobileSearchModalOpen(true)}
+                className="lg:hidden flex items-center justify-center w-10 h-10 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="아이템 검색"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -365,14 +403,15 @@ export default function Page() {
           <div className="mb-4 lg:hidden">
             <MobileFilterChips
               activeFilters={{
+                hasCategory: selectedCategory !== "all",
                 hasPrice: !!(mobilePriceMin || mobilePriceMax),
                 hasDate: !!(mobileDateFrom || mobileDateTo),
                 hasOptions: mobileActiveFilters.length > 0,
               }}
+              onCategoryClick={() => setMobileFilterType("category")}
               onPriceClick={() => setMobileFilterType("price")}
               onDateClick={() => setMobileFilterType("date")}
               onOptionsClick={() => setMobileFilterType("options")}
-              onSearchClick={() => setIsMobileSearchModalOpen(true)}
             />
           </div>
 
@@ -474,14 +513,18 @@ export default function Page() {
         <MobileFilterModal
           isOpen={mobileFilterType !== null}
           onClose={() => setMobileFilterType(null)}
-          filterType={mobileFilterType || "price"}
+          filterType={mobileFilterType || "category"}
           initialData={{
+            selectedCategory: selectedCategory,
             priceMin: mobilePriceMin,
             priceMax: mobilePriceMax,
             dateFrom: mobileDateFrom,
             dateTo: mobileDateTo,
             activeFilters: mobileActiveFilters,
           }}
+          categories={categories}
+          expandedIds={expandedIds}
+          onToggleExpand={handleToggleExpand}
           onApply={handleMobileFilterApply}
         />
       </div>

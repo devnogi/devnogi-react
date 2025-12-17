@@ -17,19 +17,100 @@ import {
   FieldMetadata,
   ActiveFilter,
 } from "@/types/search-filter";
+import { ItemCategory } from "@/data/item-category";
+import clsx from "clsx";
+
+const RecursiveCategoryItem = ({
+  category,
+  selectedId,
+  onSelect,
+  expandedIds,
+  onToggleExpand,
+}: {
+  category: ItemCategory;
+  selectedId: string;
+  onSelect: (id: string) => void;
+  expandedIds: Set<string>;
+  onToggleExpand: (id: string) => void;
+}) => {
+  const hasChildren = category.children && category.children.length > 0;
+  const isExpanded = expandedIds.has(category.id);
+  const isSelected = category.id === selectedId;
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (hasChildren) {
+      onToggleExpand(category.id);
+    }
+  };
+
+  const handleSelect = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSelect(category.id);
+    handleToggle(e);
+  };
+
+  return (
+    <li>
+      <span
+        className={clsx(
+          "px-2 py-2 cursor-pointer text-sm rounded-lg flex items-center transition-colors",
+          isSelected
+            ? "bg-blue-50 text-blue-700 font-semibold"
+            : "text-gray-700 hover:bg-gray-100",
+        )}
+        onClick={handleSelect}
+      >
+        {hasChildren && (
+          <span
+            className={clsx(
+              "w-5 flex-shrink-0 text-center text-xs font-bold transition-transform",
+              isExpanded && "rotate-0",
+              !isExpanded && "-rotate-90",
+            )}
+            onClick={handleToggle}
+          >
+            ▼
+          </span>
+        )}
+        <span className={clsx(!hasChildren && "ml-5")}>{category.name}</span>
+      </span>
+
+      {isExpanded && hasChildren && (
+        <ul className="pl-3 mt-1 space-y-1">
+          {category.children!.map((child) => (
+            <RecursiveCategoryItem
+              key={child.id}
+              category={child}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              expandedIds={expandedIds}
+              onToggleExpand={onToggleExpand}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
 
 interface MobileFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  filterType: "price" | "date" | "options";
+  filterType: "category" | "price" | "date" | "options";
   initialData?: {
+    selectedCategory?: string;
     priceMin?: string;
     priceMax?: string;
     dateFrom?: string;
     dateTo?: string;
     activeFilters?: ActiveFilter[];
   };
+  categories?: ItemCategory[];
+  expandedIds?: Set<string>;
+  onToggleExpand?: (id: string) => void;
   onApply: (data: {
+    selectedCategory?: string;
     priceMin?: string;
     priceMax?: string;
     dateFrom?: string;
@@ -41,11 +122,16 @@ interface MobileFilterModalProps {
 export default function MobileFilterModal({
   isOpen,
   onClose,
-  filterType,
+  filterType: initialFilterType,
   initialData,
+  categories = [],
+  expandedIds = new Set(),
+  onToggleExpand = () => {},
   onApply,
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
+  const [currentTab, setCurrentTab] = useState<"category" | "price" | "date" | "options">(initialFilterType);
+  const [selectedCategory, setSelectedCategory] = useState(initialData?.selectedCategory || "all");
   const [priceMin, setPriceMin] = useState(initialData?.priceMin || "");
   const [priceMax, setPriceMax] = useState(initialData?.priceMax || "");
   const [dateFrom, setDateFrom] = useState(initialData?.dateFrom || "");
@@ -56,10 +142,12 @@ export default function MobileFilterModal({
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
 
   const handleReset = () => {
-    if (filterType === "price") {
+    if (currentTab === "category") {
+      setSelectedCategory("all");
+    } else if (currentTab === "price") {
       setPriceMin("");
       setPriceMax("");
-    } else if (filterType === "date") {
+    } else if (currentTab === "date") {
       setDateFrom("");
       setDateTo("");
     } else {
@@ -68,9 +156,11 @@ export default function MobileFilterModal({
   };
 
   const handleApply = () => {
-    if (filterType === "price") {
+    if (currentTab === "category") {
+      onApply({ selectedCategory });
+    } else if (currentTab === "price") {
       onApply({ priceMin, priceMax });
-    } else if (filterType === "date") {
+    } else if (currentTab === "date") {
       onApply({ dateFrom, dateTo });
     } else {
       onApply({ activeFilters });
@@ -270,11 +360,12 @@ export default function MobileFilterModal({
 
   if (!isOpen) return null;
 
-  const titles = {
-    price: "💰 금액 필터",
-    date: "📅 날짜 필터",
-    options: "⚙️ 옵션 필터",
-  };
+  const tabs = [
+    { id: "category" as const, label: "카테고리", icon: "📁" },
+    { id: "price" as const, label: "금액", icon: "💰" },
+    { id: "date" as const, label: "날짜", icon: "📅" },
+    { id: "options" as const, label: "옵션", icon: "⚙️" },
+  ];
 
   return (
     <>
@@ -286,9 +377,9 @@ export default function MobileFilterModal({
 
       {/* Modal */}
       <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col animate-slide-up pb-16">
-        {/* Header */}
+        {/* Header with Close Button */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900">{titles[filterType]}</h3>
+          <h3 className="text-lg font-bold text-gray-900">필터</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -297,9 +388,44 @@ export default function MobileFilterModal({
           </button>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-2 px-6 py-3 overflow-x-auto border-b border-gray-200 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentTab(tab.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
+                currentTab === tab.id
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <span>{tab.icon}</span>
+              <span className="text-sm">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
-          {filterType === "price" && (
+          {currentTab === "category" && (
+            <div className="space-y-2">
+              <ul className="space-y-1">
+                {categories.map((category) => (
+                  <RecursiveCategoryItem
+                    key={category.id}
+                    category={category}
+                    selectedId={selectedCategory}
+                    onSelect={setSelectedCategory}
+                    expandedIds={expandedIds}
+                    onToggleExpand={onToggleExpand}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {currentTab === "price" && (
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">
@@ -328,7 +454,7 @@ export default function MobileFilterModal({
             </div>
           )}
 
-          {filterType === "date" && (
+          {currentTab === "date" && (
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">
@@ -355,7 +481,7 @@ export default function MobileFilterModal({
             </div>
           )}
 
-          {filterType === "options" && (
+          {currentTab === "options" && (
             <div className="space-y-3">
               {/* Add Filter Button */}
               <div className="relative">

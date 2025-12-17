@@ -1,29 +1,48 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Calendar, Settings, Search } from "lucide-react";
+import { DollarSign, Calendar, Settings, FolderTree } from "lucide-react";
 
 interface MobileFilterChipsProps {
   activeFilters: {
+    hasCategory: boolean;
     hasPrice: boolean;
     hasDate: boolean;
     hasOptions: boolean;
   };
+  onCategoryClick: () => void;
   onPriceClick: () => void;
   onDateClick: () => void;
   onOptionsClick: () => void;
-  onSearchClick: () => void;
 }
 
 export default function MobileFilterChips({
   activeFilters,
+  onCategoryClick,
   onPriceClick,
   onDateClick,
   onOptionsClick,
-  onSearchClick,
 }: MobileFilterChipsProps) {
   return (
     <div className="flex items-center gap-1.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Category Filter Chip */}
+      <button
+        onClick={onCategoryClick}
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap ${
+          activeFilters.hasCategory
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent"
+            : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
+        }`}
+      >
+        <FolderTree className="w-3.5 h-3.5" />
+        <span className="text-xs font-medium">카테고리</span>
+        {activeFilters.hasCategory && (
+          <Badge className="ml-0.5 bg-white/20 text-white border-0 h-4 px-1 text-[10px]">
+            설정됨
+          </Badge>
+        )}
+      </button>
+
       {/* Price Filter Chip */}
       <button
         onClick={onPriceClick}
@@ -76,15 +95,6 @@ export default function MobileFilterChips({
             설정됨
           </Badge>
         )}
-      </button>
-
-      {/* Search Icon Button */}
-      <button
-        onClick={onSearchClick}
-        className="ml-auto flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all"
-        aria-label="아이템 검색"
-      >
-        <Search className="w-4 h-4 text-gray-700" />
       </button>
     </div>
   );
