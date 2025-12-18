@@ -10,7 +10,7 @@ interface MobileSearchModalProps {
   onClose: () => void;
   itemName: string;
   setItemName: (name: string) => void;
-  onSearch: (overrides?: { itemName?: string }) => void;
+  onSearch: (overrides?: { itemName?: string; categoryId?: string }) => void;
   onCategorySelect: (categoryId: string) => void;
 }
 
@@ -82,9 +82,9 @@ export default function MobileSearchModal({
     const categoryId = `${item.topCategory}/${item.subCategory}`;
     onCategorySelect(categoryId);
 
-    // 검색 실행 - 클릭한 아이템 이름으로 검색
+    // 검색 실행 - 클릭한 아이템 이름과 카테고리 정보로 검색
     setTimeout(() => {
-      onSearch({ itemName: item.name });
+      onSearch({ itemName: item.name, categoryId });
       onClose();
     }, 100);
   };

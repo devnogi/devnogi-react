@@ -20,80 +20,6 @@ import {
 import { ItemCategory } from "@/data/item-category";
 import clsx from "clsx";
 
-const RecursiveCategoryItem = ({
-  category,
-  selectedId,
-  onSelect,
-  expandedIds,
-  onToggleExpand,
-}: {
-  category: ItemCategory;
-  selectedId: string;
-  onSelect: (id: string) => void;
-  expandedIds: Set<string>;
-  onToggleExpand: (id: string) => void;
-}) => {
-  const hasChildren = category.children && category.children.length > 0;
-  const isExpanded = expandedIds.has(category.id);
-  const isSelected = category.id === selectedId;
-
-  const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (hasChildren) {
-      onToggleExpand(category.id);
-    }
-  };
-
-  const handleSelect = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect(category.id);
-    handleToggle(e);
-  };
-
-  return (
-    <li>
-      <span
-        className={clsx(
-          "px-2 py-2 cursor-pointer text-sm rounded-lg flex items-center transition-colors",
-          isSelected
-            ? "bg-blue-50 text-blue-700 font-semibold"
-            : "text-gray-700 hover:bg-gray-100",
-        )}
-        onClick={handleSelect}
-      >
-        {hasChildren && (
-          <span
-            className={clsx(
-              "w-5 flex-shrink-0 text-center text-xs font-bold transition-transform",
-              isExpanded && "rotate-0",
-              !isExpanded && "-rotate-90",
-            )}
-            onClick={handleToggle}
-          >
-            ▼
-          </span>
-        )}
-        <span className={clsx(!hasChildren && "ml-5")}>{category.name}</span>
-      </span>
-
-      {isExpanded && hasChildren && (
-        <ul className="pl-3 mt-1 space-y-1">
-          {category.children!.map((child) => (
-            <RecursiveCategoryItem
-              key={child.id}
-              category={child}
-              selectedId={selectedId}
-              onSelect={onSelect}
-              expandedIds={expandedIds}
-              onToggleExpand={onToggleExpand}
-            />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-};
-
 interface MobileFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -107,8 +33,6 @@ interface MobileFilterModalProps {
     activeFilters?: ActiveFilter[];
   };
   categories?: ItemCategory[];
-  expandedIds?: Set<string>;
-  onToggleExpand?: (id: string) => void;
   onApply: (data: {
     selectedCategory?: string;
     priceMin?: string;
@@ -125,8 +49,6 @@ export default function MobileFilterModal({
   filterType: initialFilterType,
   initialData,
   categories = [],
-  expandedIds = new Set(),
-  onToggleExpand = () => {},
   onApply,
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
@@ -140,6 +62,7 @@ export default function MobileFilterModal({
     initialData?.activeFilters || []
   );
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
+  const [selectedTopCategory, setSelectedTopCategory] = useState<string | null>(null);
 
   const handleReset = () => {
     if (currentTab === "category") {
@@ -409,19 +332,70 @@ export default function MobileFilterModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {currentTab === "category" && (
-            <div className="space-y-2">
-              <ul className="space-y-1">
-                {categories.map((category) => (
-                  <RecursiveCategoryItem
-                    key={category.id}
-                    category={category}
-                    selectedId={selectedCategory}
-                    onSelect={setSelectedCategory}
-                    expandedIds={expandedIds}
-                    onToggleExpand={onToggleExpand}
-                  />
-                ))}
-              </ul>
+            <div className="grid grid-cols-2 gap-3 h-full">
+              {/* 왼쪽: 상위 카테고리 */}
+              <div className="space-y-1 border-r border-gray-200 pr-3">
+                <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">상위 카테고리</h4>
+                {categories.map((category) => {
+                  // 상위 카테고리만 선택했는지 (하위 선택 안 함)
+                  const isTopOnlySelected = selectedCategory === category.id;
+                  // 하위 카테고리를 선택했는지 확인 (selectedCategory가 "topId/subId" 형태)
+                  const hasSubSelected = selectedCategory.startsWith(`${category.id}/`);
+
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setSelectedTopCategory(category.id);
+                        setSelectedCategory(category.id);
+                      }}
+                      className={clsx(
+                        "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                        (isTopOnlySelected || hasSubSelected)
+                          ? "bg-blue-50 text-blue-700 font-semibold"
+                          : "text-gray-700 hover:bg-gray-100"
+                      )}
+                    >
+                      {category.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 오른쪽: 하위 카테고리 */}
+              <div className="space-y-1 pl-3">
+                <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">하위 카테고리 (선택)</h4>
+                {selectedTopCategory ? (
+                  <>
+                    {categories
+                      .find((cat) => cat.id === selectedTopCategory)
+                      ?.children?.map((subCategory) => {
+                        // "topId/subId" 형태로 비교
+                        const fullId = `${selectedTopCategory}/${subCategory.id}`;
+                        const isSelected = selectedCategory === fullId;
+
+                        return (
+                          <button
+                            key={subCategory.id}
+                            onClick={() => setSelectedCategory(fullId)}
+                            className={clsx(
+                              "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                              isSelected
+                                ? "bg-blue-50 text-blue-700 font-semibold"
+                                : "text-gray-700 hover:bg-gray-100"
+                            )}
+                          >
+                            {subCategory.name}
+                          </button>
+                        );
+                      })}
+                  </>
+                ) : (
+                  <div className="text-center py-8 text-gray-400 text-sm">
+                    상위 카테고리를 선택하세요
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

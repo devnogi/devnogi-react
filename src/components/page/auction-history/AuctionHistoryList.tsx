@@ -92,19 +92,16 @@ export default function AuctionHistoryList({
             <Popover key={`${item.auctionBuyId}-${index}`}>
               <PopoverTrigger asChild>
                 <div className="py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
-                  {/* Top Section: Item Name & Price */}
-                  <div className="flex justify-between items-start gap-3 mb-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate text-base">
-                        {item.itemDisplayName}
-                      </h3>
-                      {item.itemName !== item.itemDisplayName && (
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">
-                          ({item.itemName})
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-end flex-shrink-0">
+                  {/* Top Section: Item Name (Left aligned) */}
+                  <div className="mb-3">
+                    <h3 className="font-semibold text-gray-900 text-base">
+                      {item.itemDisplayName}
+                    </h3>
+                  </div>
+
+                  {/* Bottom Section: Price (Left) & Date (Right) */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col items-start flex-shrink-0">
                       <div className="flex items-baseline">
                         <span className="font-bold text-blue-600 text-lg">
                           {formatPrice(item.auctionPricePerUnit)}
@@ -117,22 +114,12 @@ export default function AuctionHistoryList({
                         </span>
                       )}
                     </div>
-                  </div>
-
-                  {/* Bottom Section: Date & Category */}
-                  <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 text-xs text-gray-500">
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {formatDateShort(item.dateAuctionBuy)}
                     </span>
-                    <Badge
-                      variant="secondary"
-                      className="rounded-md bg-blue-50 text-blue-700 border-0 text-xs px-2 py-0.5"
-                    >
-                      {item.itemSubCategory}
-                    </Badge>
                   </div>
                 </div>
               </PopoverTrigger>

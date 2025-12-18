@@ -163,7 +163,7 @@ export default function Page() {
     });
   };
 
-  const handleSearch = (overrides?: { itemName?: string }) => {
+  const handleSearch = (overrides?: { itemName?: string; categoryId?: string }) => {
     const params: AuctionHistorySearchParams = {};
 
     // Add item name if provided
@@ -173,8 +173,9 @@ export default function Page() {
     }
 
     // Add category filters if not "all"
-    if (selectedCategory !== "all") {
-      const parts = selectedCategory.split("/");
+    const categoryToUse = overrides?.categoryId ?? selectedCategory;
+    if (categoryToUse !== "all") {
+      const parts = categoryToUse.split("/");
       if (parts.length === 1) {
         // Top category only
         params.itemTopCategory = parts[0];
@@ -524,8 +525,6 @@ export default function Page() {
             activeFilters: mobileActiveFilters,
           }}
           categories={categories}
-          expandedIds={expandedIds}
-          onToggleExpand={handleToggleExpand}
           onApply={handleMobileFilterApply}
         />
       </div>

@@ -22,7 +22,7 @@ export default function SearchSection({
   onCategorySelect: (categoryId: string) => void;
   itemName: string;
   setItemName: (name: string) => void;
-  onSearch?: () => void;
+  onSearch?: (overrides?: { itemName?: string; categoryId?: string }) => void;
   onCategoryMenuClick?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +57,9 @@ export default function SearchSection({
 
     // 입력창 포커스 해제
     inputRef.current?.blur();
+
+    // 검색 실행 - 선택한 아이템 이름과 카테고리 정보로 검색
+    onSearch?.({ itemName: item.name, categoryId });
   };
 
   const handleReset = () => {
@@ -192,7 +195,7 @@ export default function SearchSection({
       <div className="flex gap-3 mt-4">
         <Button
           className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
-          onClick={onSearch}
+          onClick={() => onSearch?.()}
         >
           찾기
         </Button>
