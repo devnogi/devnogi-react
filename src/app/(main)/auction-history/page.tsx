@@ -163,12 +163,13 @@ export default function Page() {
     });
   };
 
-  const handleSearch = () => {
+  const handleSearch = (overrides?: { itemName?: string }) => {
     const params: AuctionHistorySearchParams = {};
 
     // Add item name if provided
-    if (itemName.trim()) {
-      params.itemName = itemName.trim();
+    const searchItemName = overrides?.itemName ?? itemName;
+    if (searchItemName.trim()) {
+      params.itemName = searchItemName.trim();
     }
 
     // Add category filters if not "all"

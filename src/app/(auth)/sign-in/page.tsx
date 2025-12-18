@@ -129,8 +129,8 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="w-full max-w-md p-8">
+    <div className="min-h-screen flex items-center justify-center bg-white md:bg-gradient-to-br md:from-blue-50 md:via-white md:to-purple-50">
+      <div className="w-full max-w-md p-6 md:p-8">
         {/* Header */}
         <div className="text-center mb-8">
           <Link
@@ -147,7 +147,7 @@ export default function Page() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+        <div className="bg-white md:rounded-2xl md:shadow-xl md:border md:border-gray-100 p-6 md:p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField

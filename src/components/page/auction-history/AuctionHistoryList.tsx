@@ -91,7 +91,7 @@ export default function AuctionHistoryList({
           {items.map((item, index) => (
             <Popover key={`${item.auctionBuyId}-${index}`}>
               <PopoverTrigger asChild>
-                <div className="p-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
+                <div className="py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
                   {/* Top Section: Item Name & Price */}
                   <div className="flex justify-between items-start gap-3 mb-3">
                     <div className="flex-1 min-w-0">
