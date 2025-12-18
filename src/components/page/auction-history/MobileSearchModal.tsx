@@ -1,8 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { X, Search, ArrowLeft, XCircle } from "lucide-react";
+import { ArrowLeft, XCircle } from "lucide-react";
 import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
 import { useState, useRef, useEffect, useMemo } from "react";
 
@@ -149,14 +148,6 @@ export default function MobileSearchModal({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setItemName(e.target.value);
     setSelectedIndex(-1);
-  };
-
-  const handleSearchClick = () => {
-    if (itemName.trim()) {
-      addRecentSearch(itemName.trim());
-    }
-    onSearch();
-    onClose();
   };
 
   if (!isOpen) return null;
