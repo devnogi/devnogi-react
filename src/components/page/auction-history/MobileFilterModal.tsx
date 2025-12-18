@@ -67,6 +67,7 @@ export default function MobileFilterModal({
   const handleReset = () => {
     if (currentTab === "category") {
       setSelectedCategory("all");
+      setSelectedTopCategory(null);
     } else if (currentTab === "price") {
       setPriceMin("");
       setPriceMax("");
