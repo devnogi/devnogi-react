@@ -33,8 +33,8 @@ export default function Page() {
   const [sortOption, setSortOption] = useState<{
     label: string;
     sortBy: string;
-    direction: string;
-  }>({ label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "DESC" });
+    direction: "asc" | "desc";
+  }>({ label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "desc" });
 
   // Mobile filter states
   const [mobileFilterType, setMobileFilterType] = useState<
@@ -456,10 +456,10 @@ export default function Page() {
                   {isSortDropdownOpen && (
                     <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[180px]">
                       {[
-                        { label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "DESC" },
-                        { label: "거래 오래된순", sortBy: "dateAuctionBuy", direction: "ASC" },
-                        { label: "개당 가격 낮은순", sortBy: "auctionPricePerUnit", direction: "ASC" },
-                        { label: "개당 가격 높은순", sortBy: "auctionPricePerUnit", direction: "DESC" },
+                        { label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "desc" as const },
+                        { label: "거래 오래된순", sortBy: "dateAuctionBuy", direction: "asc" as const },
+                        { label: "개당 가격 낮은순", sortBy: "auctionPricePerUnit", direction: "asc" as const },
+                        { label: "개당 가격 높은순", sortBy: "auctionPricePerUnit", direction: "desc" as const },
                       ].map((option) => (
                         <button
                           key={option.label}
