@@ -18,17 +18,38 @@ interface MobileSearchModalProps {
 const RECENT_SEARCHES_KEY = "auction_recent_searches";
 const MAX_RECENT_SEARCHES = 10;
 
-const getRecentSearches = (): string[] => {
+// 최근 검색어 타입 (카테고리 정보 포함)
+interface RecentSearch {
+  itemName: string;
+  topCategory?: string;
+  subCategory?: string;
+}
+
+const getRecentSearches = (): RecentSearch[] => {
   if (typeof window === "undefined") return [];
   const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
-  return stored ? JSON.parse(stored) : [];
+  if (!stored) return [];
+
+  try {
+    const parsed = JSON.parse(stored);
+    // 기존 string[] 형식 데이터 마이그레이션
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      if (typeof parsed[0] === "string") {
+        return parsed.map((s) => ({ itemName: s }));
+      }
+      return parsed as RecentSearch[];
+    }
+    return [];
+  } catch {
+    return [];
+  }
 };
 
-const addRecentSearch = (searchTerm: string) => {
-  if (!searchTerm.trim()) return;
+const addRecentSearch = (search: RecentSearch) => {
+  if (!search.itemName.trim()) return;
   const searches = getRecentSearches();
-  const filtered = searches.filter((s) => s !== searchTerm);
-  const updated = [searchTerm, ...filtered].slice(0, MAX_RECENT_SEARCHES);
+  const filtered = searches.filter((s) => s.itemName !== search.itemName);
+  const updated = [search, ...filtered].slice(0, MAX_RECENT_SEARCHES);
   localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
 };
 
@@ -47,7 +68,7 @@ export default function MobileSearchModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: itemInfos = [], isLoading } = useItemInfos();
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
 
   // 모달이 열릴 때 입력창에 포커스 및 최근 검색어 로드
   useEffect(() => {
@@ -75,8 +96,12 @@ export default function MobileSearchModal({
     // 아이템 이름 설정
     setItemName(item.name);
 
-    // 최근 검색어에 추가
-    addRecentSearch(item.name);
+    // 최근 검색어에 카테고리 정보와 함께 추가
+    addRecentSearch({
+      itemName: item.name,
+      topCategory: item.topCategory,
+      subCategory: item.subCategory,
+    });
 
     // 해당 아이템의 카테고리를 찾아서 선택
     const categoryId = `${item.topCategory}/${item.subCategory}`;
@@ -89,10 +114,24 @@ export default function MobileSearchModal({
     }, 100);
   };
 
-  const handleRecentSearchClick = (searchTerm: string) => {
-    setItemName(searchTerm);
-    addRecentSearch(searchTerm);
-    onSearch({ itemName: searchTerm });
+  const handleRecentSearchClick = (recentSearch: RecentSearch) => {
+    setItemName(recentSearch.itemName);
+    addRecentSearch(recentSearch);
+
+    // 카테고리 정보가 있으면 함께 사용
+    const categoryId =
+      recentSearch.topCategory && recentSearch.subCategory
+        ? `${recentSearch.topCategory}/${recentSearch.subCategory}`
+        : undefined;
+
+    if (categoryId) {
+      onCategorySelect(categoryId);
+    }
+
+    onSearch({
+      itemName: recentSearch.itemName,
+      categoryId,
+    });
     onClose();
   };
 
@@ -246,11 +285,16 @@ export default function MobileSearchModal({
                 <div className="flex flex-wrap gap-2">
                   {recentSearches.map((search, index) => (
                     <button
-                      key={`${search}-${index}`}
+                      key={`${search.itemName}-${index}`}
                       onClick={() => handleRecentSearchClick(search)}
                       className="px-3 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm text-gray-700 transition-colors"
                     >
-                      {search}
+                      <div>{search.itemName}</div>
+                      {search.topCategory && search.subCategory && (
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {search.topCategory} › {search.subCategory}
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>

@@ -83,6 +83,25 @@ export default function AuctionHistoryList({
     }).format(date);
   };
 
+  // Extract enchant prefix from display name (축복받은|신성한 + 접두/접미 인챈트)
+  const getEnchantPrefix = (displayName: string, itemName: string) => {
+    // Remove itemName from displayName to get the enchant prefix
+    const prefix = displayName.replace(itemName, "").trim();
+    return prefix || null;
+  };
+
+  // Extract pure item name without parentheses and their content
+  const getItemNameWithoutAttributes = (itemName: string) => {
+    return itemName.replace(/\s*\([^)]*\)/g, "").trim();
+  };
+
+  // Extract attributes from parentheses in item name
+  const getItemAttributes = (itemName: string) => {
+    const matches = itemName.match(/\(([^)]+)\)/g);
+    if (!matches) return [];
+    return matches.map((match) => match.replace(/[()]/g, "").trim());
+  };
+
   return (
     <>
       {/* Mobile List Layout */}
@@ -92,34 +111,50 @@ export default function AuctionHistoryList({
             <Popover key={`${item.auctionBuyId}-${index}`}>
               <PopoverTrigger asChild>
                 <div className="py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
-                  {/* Top Section: Item Name (Left aligned) */}
-                  <div className="mb-3">
-                    <h3 className="font-semibold text-gray-900 text-base">
-                      {item.itemDisplayName}
-                    </h3>
+                  {/* 1st Line: Enchants (축복받은/신성한 + 접두/접미 인챈트) - 항상 공간 유지 */}
+                  <div className="text-[10px] text-gray-600 mb-1 min-h-[14px]">
+                    {getEnchantPrefix(item.itemDisplayName, item.itemName) || '\u00A0'}
                   </div>
 
-                  {/* Bottom Section: Price (Left) & Date (Right) */}
+                  {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
+                  <div className="flex justify-between items-center mb-1.5">
+                    <h3 className="font-semibold text-gray-900 text-lg flex-1 mr-2">
+                      {getItemNameWithoutAttributes(item.itemName)}
+                    </h3>
+                    <div className="flex items-center flex-shrink-0">
+                      <span className="font-bold text-blue-600 text-lg">
+                        {formatPrice(item.auctionPricePerUnit)}
+                      </span>
+                      <span className="text-sm text-gray-500 ml-1">G</span>
+                    </div>
+                  </div>
+
+                  {/* 3rd Line: Attribute Tags (Left) + Date (Right) */}
                   <div className="flex justify-between items-center">
-                    <div className="flex flex-col items-start flex-shrink-0">
-                      <div className="flex items-baseline">
-                        <span className="font-bold text-blue-600 text-lg">
-                          {formatPrice(item.auctionPricePerUnit)}
-                        </span>
-                        <span className="text-sm text-gray-500 ml-1">G</span>
-                      </div>
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      {getItemAttributes(item.itemName).length > 0 ? (
+                        getItemAttributes(item.itemName).map((attr, idx) => (
+                          <span key={idx} className="text-xs text-gray-600">
+                            #{attr}
+                          </span>
+                        ))
+                      ) : (
+                        <span></span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {item.itemCount > 1 && (
-                        <span className="text-xs text-gray-500 mt-0.5">
+                        <span className="text-xs text-gray-500">
                           ×{item.itemCount}
                         </span>
                       )}
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {formatDateShort(item.dateAuctionBuy)}
+                      </span>
                     </div>
-                    <span className="flex items-center gap-1 text-xs text-gray-500">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {formatDateShort(item.dateAuctionBuy)}
-                    </span>
                   </div>
                 </div>
               </PopoverTrigger>
@@ -130,11 +165,22 @@ export default function AuctionHistoryList({
               align="center"
             >
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 border-b-2 border-gray-300">
-                <h4 className="font-bold text-gray-900 text-lg mb-1">
-                  {item.itemDisplayName}
+                {getEnchantPrefix(item.itemDisplayName, item.itemName) && (
+                  <p className="text-sm text-gray-600 mb-1.5">
+                    {getEnchantPrefix(item.itemDisplayName, item.itemName)}
+                  </p>
+                )}
+                <h4 className="font-bold text-gray-900 text-lg mb-2">
+                  {getItemNameWithoutAttributes(item.itemName)}
                 </h4>
-                {item.itemName !== item.itemDisplayName && (
-                  <p className="text-sm text-gray-600">({item.itemName})</p>
+                {getItemAttributes(item.itemName).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {getItemAttributes(item.itemName).map((attr, idx) => (
+                      <span key={idx} className="text-xs text-gray-600">
+                        #{attr}
+                      </span>
+                    ))}
+                  </div>
                 )}
                 <div className="flex items-center gap-2 mt-2">
                   <Badge className="rounded-md bg-blue-100 text-blue-800 border-0">
@@ -305,11 +351,22 @@ export default function AuctionHistoryList({
               align="start"
             >
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 border-b-2 border-gray-300">
-                <h4 className="font-bold text-gray-900 text-lg mb-1">
-                  {item.itemDisplayName}
+                {getEnchantPrefix(item.itemDisplayName, item.itemName) && (
+                  <p className="text-sm text-gray-600 mb-1.5">
+                    {getEnchantPrefix(item.itemDisplayName, item.itemName)}
+                  </p>
+                )}
+                <h4 className="font-bold text-gray-900 text-lg mb-2">
+                  {getItemNameWithoutAttributes(item.itemName)}
                 </h4>
-                {item.itemName !== item.itemDisplayName && (
-                  <p className="text-sm text-gray-600">({item.itemName})</p>
+                {getItemAttributes(item.itemName).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {getItemAttributes(item.itemName).map((attr, idx) => (
+                      <span key={idx} className="text-xs text-gray-600">
+                        #{attr}
+                      </span>
+                    ))}
+                  </div>
                 )}
                 <div className="flex items-center gap-2 mt-2">
                   <Badge className="rounded-md bg-blue-100 text-blue-800 border-0">
