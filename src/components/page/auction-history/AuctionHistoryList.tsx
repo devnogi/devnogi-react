@@ -118,11 +118,11 @@ export default function AuctionHistoryList({
 
                   {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
                   <div className="flex justify-between items-center mb-1.5">
-                    <h3 className="font-semibold text-gray-900 text-lg flex-1 mr-2">
+                    <h3 className="font-semibold text-gray-900 text-[0.96rem] flex-1 mr-2">
                       {getItemNameWithoutAttributes(item.itemName)}
                     </h3>
                     <div className="flex items-center flex-shrink-0">
-                      <span className="font-bold text-blue-600 text-lg">
+                      <span className="font-bold text-blue-600 text-[0.96rem]">
                         {formatPrice(item.auctionPricePerUnit)}
                       </span>
                       <span className="text-sm text-gray-500 ml-1">G</span>
@@ -304,7 +304,7 @@ export default function AuctionHistoryList({
                   {/* Item Name */}
                   <div className="col-span-5 flex items-center">
                     <div className="truncate">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 text-[0.85rem]">
                         {item.itemDisplayName}
                       </span>
                       {item.itemName !== item.itemDisplayName && (
@@ -327,7 +327,7 @@ export default function AuctionHistoryList({
 
                   {/* Price */}
                   <div className="col-span-2 flex items-center justify-end">
-                    <span className="font-bold text-blue-600">
+                    <span className="font-bold text-blue-600 text-[0.85rem]">
                       {formatPrice(item.auctionPricePerUnit)}
                     </span>
                     <span className="text-sm text-gray-500 ml-1">G</span>

@@ -53,7 +53,23 @@ export default function MobileFilterModal({
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
   const [currentTab, setCurrentTab] = useState<"category" | "price" | "date" | "options">(initialFilterType);
-  const [selectedCategory, setSelectedCategory] = useState(initialData?.selectedCategory || "all");
+
+  // Parse initialData.selectedCategory to extract top and sub category
+  const parseSelectedCategory = (selected: string) => {
+    if (!selected || selected === "all") {
+      return { top: "all", sub: "all" };
+    }
+    const parts = selected.split("/");
+    if (parts.length === 1) {
+      return { top: parts[0], sub: "all" };
+    }
+    return { top: parts[0], sub: parts[1] };
+  };
+
+  const parsed = parseSelectedCategory(initialData?.selectedCategory || "all");
+  const [selectedTopCategory, setSelectedTopCategory] = useState<string>(parsed.top);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>(parsed.sub);
+
   const [priceMin, setPriceMin] = useState(initialData?.priceMin || "");
   const [priceMax, setPriceMax] = useState(initialData?.priceMax || "");
   const [dateFrom, setDateFrom] = useState(initialData?.dateFrom || "");
@@ -62,12 +78,11 @@ export default function MobileFilterModal({
     initialData?.activeFilters || []
   );
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
-  const [selectedTopCategory, setSelectedTopCategory] = useState<string | null>(null);
 
   const handleReset = () => {
     if (currentTab === "category") {
-      setSelectedCategory("all");
-      setSelectedTopCategory(null);
+      setSelectedTopCategory("all");
+      setSelectedSubCategory("all");
     } else if (currentTab === "price") {
       setPriceMin("");
       setPriceMax("");
@@ -81,6 +96,15 @@ export default function MobileFilterModal({
 
   const handleApply = () => {
     if (currentTab === "category") {
+      // Convert back to selectedCategory format
+      let selectedCategory: string;
+      if (selectedTopCategory === "all") {
+        selectedCategory = "all";
+      } else if (selectedSubCategory === "all") {
+        selectedCategory = selectedTopCategory;
+      } else {
+        selectedCategory = `${selectedTopCategory}/${selectedSubCategory}`;
+      }
       onApply({ selectedCategory });
     } else if (currentTab === "price") {
       onApply({ priceMin, priceMax });
@@ -337,22 +361,35 @@ export default function MobileFilterModal({
               {/* 왼쪽: 상위 카테고리 */}
               <div className="space-y-1 border-r border-gray-200 pr-3">
                 <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">상위 카테고리</h4>
-                {categories.map((category) => {
-                  // 상위 카테고리만 선택했는지 (하위 선택 안 함)
-                  const isTopOnlySelected = selectedCategory === category.id;
-                  // 하위 카테고리를 선택했는지 확인 (selectedCategory가 "topId/subId" 형태)
-                  const hasSubSelected = selectedCategory.startsWith(`${category.id}/`);
+                {/* 전체 옵션 */}
+                <button
+                  onClick={() => {
+                    setSelectedTopCategory("all");
+                    setSelectedSubCategory("all");
+                  }}
+                  className={clsx(
+                    "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                    selectedTopCategory === "all"
+                      ? "bg-blue-50 text-blue-700 font-semibold"
+                      : "text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  전체
+                </button>
+                {/* topCategory 리스트 (전체 제외) */}
+                {categories.filter((cat) => cat.id !== "all").map((category) => {
+                  const isSelected = selectedTopCategory === category.id;
 
                   return (
                     <button
                       key={category.id}
                       onClick={() => {
                         setSelectedTopCategory(category.id);
-                        setSelectedCategory(category.id);
+                        setSelectedSubCategory("all");
                       }}
                       className={clsx(
                         "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
-                        (isTopOnlySelected || hasSubSelected)
+                        isSelected
                           ? "bg-blue-50 text-blue-700 font-semibold"
                           : "text-gray-700 hover:bg-gray-100"
                       )}
@@ -365,20 +402,31 @@ export default function MobileFilterModal({
 
               {/* 오른쪽: 하위 카테고리 */}
               <div className="space-y-1 pl-3">
-                <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">하위 카테고리 (선택)</h4>
-                {selectedTopCategory ? (
+                <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">하위 카테고리</h4>
+                {selectedTopCategory !== "all" ? (
                   <>
+                    {/* 전체 옵션 */}
+                    <button
+                      onClick={() => setSelectedSubCategory("all")}
+                      className={clsx(
+                        "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                        selectedSubCategory === "all"
+                          ? "bg-blue-50 text-blue-700 font-semibold"
+                          : "text-gray-700 hover:bg-gray-100"
+                      )}
+                    >
+                      전체
+                    </button>
+                    {/* subCategory 리스트 */}
                     {categories
                       .find((cat) => cat.id === selectedTopCategory)
                       ?.children?.map((subCategory) => {
-                        // "topId/subId" 형태로 비교
-                        const fullId = `${selectedTopCategory}/${subCategory.id}`;
-                        const isSelected = selectedCategory === fullId;
+                        const isSelected = selectedSubCategory === subCategory.id;
 
                         return (
                           <button
                             key={subCategory.id}
-                            onClick={() => setSelectedCategory(fullId)}
+                            onClick={() => setSelectedSubCategory(subCategory.id)}
                             className={clsx(
                               "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                               isSelected
@@ -393,7 +441,7 @@ export default function MobileFilterModal({
                   </>
                 ) : (
                   <div className="text-center py-8 text-gray-400 text-sm">
-                    상위 카테고리를 선택하세요
+                    왼쪽에서 상위 카테고리를 선택하세요
                   </div>
                 )}
               </div>
@@ -431,27 +479,72 @@ export default function MobileFilterModal({
 
           {currentTab === "date" && (
             <div className="space-y-4">
+              {/* 날짜 입력 - 한 줄 배치 */}
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  시작 날짜
+                  기간 선택
                 </label>
-                <Input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="h-12 rounded-xl text-base"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="h-12 rounded-xl text-base flex-1"
+                    placeholder="시작일"
+                  />
+                  <span className="text-gray-400">~</span>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="h-12 rounded-xl text-base flex-1"
+                    placeholder="종료일"
+                  />
+                </div>
               </div>
+
+              {/* 빠른 선택 버튼 */}
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  종료 날짜
+                  빠른 선택
                 </label>
-                <Input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="h-12 rounded-xl text-base"
-                />
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const todayStr = today.toISOString().split('T')[0];
+                      setDateFrom(todayStr);
+                      setDateTo(todayStr);
+                    }}
+                    className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                  >
+                    오늘
+                  </button>
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const weekAgo = new Date(today);
+                      weekAgo.setDate(weekAgo.getDate() - 7);
+                      setDateFrom(weekAgo.toISOString().split('T')[0]);
+                      setDateTo(today.toISOString().split('T')[0]);
+                    }}
+                    className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                  >
+                    최근 일주일
+                  </button>
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const monthAgo = new Date(today);
+                      monthAgo.setDate(monthAgo.getDate() - 30);
+                      setDateFrom(monthAgo.toISOString().split('T')[0]);
+                      setDateTo(today.toISOString().split('T')[0]);
+                    }}
+                    className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                  >
+                    최근 한달
+                  </button>
+                </div>
               </div>
             </div>
           )}

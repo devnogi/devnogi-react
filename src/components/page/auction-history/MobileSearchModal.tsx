@@ -269,8 +269,8 @@ export default function MobileSearchModal({
             {recentSearches.length > 0 && (
               <>
                 {/* 최근 검색어 헤더 */}
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-gray-900">
+                <div className="flex items-center justify-between mb-2 px-2">
+                  <span className="text-xs text-gray-500">
                     최근 검색어
                   </span>
                   <button
@@ -282,16 +282,16 @@ export default function MobileSearchModal({
                 </div>
 
                 {/* 최근 검색어 목록 */}
-                <div className="flex flex-wrap gap-2">
+                <div className="space-y-1">
                   {recentSearches.map((search, index) => (
                     <button
                       key={`${search.itemName}-${index}`}
                       onClick={() => handleRecentSearchClick(search)}
-                      className="px-3 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm text-gray-700 transition-colors"
+                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-900 transition-colors"
                     >
-                      <div>{search.itemName}</div>
+                      <div className="font-medium">{search.itemName}</div>
                       {search.topCategory && search.subCategory && (
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs text-gray-500 mt-1">
                           {search.topCategory} › {search.subCategory}
                         </div>
                       )}

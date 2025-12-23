@@ -352,7 +352,7 @@ export default function Page() {
           <div className="mb-6 md:mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                <h1 className="text-[1.35rem] md:text-[1.7rem] font-bold text-gray-900">
                   경매장 {viewType}
                 </h1>
                 <div className="relative">
