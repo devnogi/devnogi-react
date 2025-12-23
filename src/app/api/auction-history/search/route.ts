@@ -92,13 +92,25 @@ export async function GET(request: NextRequest) {
     // Extract pagination parameters
     const page = searchParams.get("page") || "1";
     const size = searchParams.get("size") || "20";
-    const sortBy = searchParams.get("sortBy") || "DATE_AUCTION_BUY"; // enum value
-    const direction = searchParams.get("direction") || "DESC"; // enum value
+    const sortBy = searchParams.get("sortBy") || "dateAuctionBuy";
+    const direction = searchParams.get("direction") || "desc";
+
+    // Map frontend values to backend enum names
+    const sortByMap: Record<string, string> = {
+      dateAuctionBuy: "DATE_AUCTION_BUY",
+      auctionPricePerUnit: "AUCTION_PRICE_PER_UNIT",
+      itemName: "ITEM_NAME",
+    };
+
+    const directionMap: Record<string, string> = {
+      asc: "ASC",
+      desc: "DESC",
+    };
 
     pageParams.page = page;
     pageParams.size = size;
-    pageParams.sortBy = sortBy;
-    pageParams.direction = direction;
+    pageParams.sortBy = sortByMap[sortBy] || "DATE_AUCTION_BUY";
+    pageParams.direction = directionMap[direction.toLowerCase()] || "DESC";
 
     // Extract basic search parameters
     const itemName = searchParams.get("itemName");

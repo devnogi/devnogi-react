@@ -26,7 +26,7 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <Link href={`/community/${post.id}`} className="block">
-      <article className="bg-white rounded-lg p-4 sm:p-6 border border-gray-200 hover:border-gray-300 transition-colors">
+      <article className="py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
         {/* Post Content */}
         <div className="mb-3">
           <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">

@@ -133,11 +133,11 @@ export default function SearchSection({
       {/* Breadcrumb */}
       {path.length > 0 && (
         <div className="flex items-center gap-2 mb-4 text-sm flex-wrap">
-          {/* Category Menu Button - Hidden on xl+ screens */}
+          {/* Category Menu Button - Hidden on 2xl+ screens (1536px+) */}
           {onCategoryMenuClick && (
             <button
               onClick={onCategoryMenuClick}
-              className="xl:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
+              className="2xl:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="카테고리 메뉴 열기"
             >
               <Menu className="w-5 h-5 text-gray-600" />
