@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicAuthServerAxios } from "@/lib/api/server";
+import { AUTH_ENDPOINT } from "@/lib/api/constants";
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     // 로컬 게이트웨이(localhost:8099)를 통해 /das/**로 라우팅됩니다
     const serverAxios = createPublicAuthServerAxios();
     const response = await serverAxios.get(
-      `/das/api/auth/check-email?email=${encodeURIComponent(email)}`
+      `${AUTH_ENDPOINT}/check-email?email=${encodeURIComponent(email)}`
     );
 
     return NextResponse.json(response.data);
