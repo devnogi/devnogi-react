@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicAuthServerAxios } from "@/lib/api/server";
+import { AUTH_ENDPOINT } from "@/lib/api/constants";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,13 +9,25 @@ export async function POST(request: NextRequest) {
 
     // Auth Server로 소셜 회원가입 요청
     const serverAxios = createPublicAuthServerAxios();
-    const response = await serverAxios.post("/das/api/auth/signup/social", formData, {
+    const response = await serverAxios.post(`${AUTH_ENDPOINT}/signup/social`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
 
-    return NextResponse.json(response.data);
+    const nextResponse = NextResponse.json(response.data);
+
+    const cookies = response.headers["set-cookie"];
+    if (cookies) {
+      if (Array.isArray(cookies)) {
+        cookies.forEach((cookie) => nextResponse.headers.append("Set-Cookie", cookie));
+      } else {
+        nextResponse.headers.set("Set-Cookie", cookies);
+      }
+    }
+
+    return nextResponse;
+
   } catch (error: unknown) {
     console.error("소셜 회원가입 API 에러:", error);
 

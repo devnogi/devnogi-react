@@ -1,7 +1,17 @@
+import { USER_ENDPOINT } from "@/lib/api/constants";
+import { createAuthServerAxios } from "@/lib/api/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
+    const serverAxios = createAuthServerAxios(request);
+    const response = await serverAxios.get(`${USER_ENDPOINT}/info`);
+
+    console.log("User info response:", response.data);
+
+    return NextResponse.json(response.data);
+
+    /*
     // 쿠키에서 access_token 확인
     const accessToken = request.cookies.get("access_token")?.value;
 
@@ -28,7 +38,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: {
-          userId: payload.userId,
           email: payload.sub,
           nickname: payload.nickname || "사용자",
           profileImageUrl: null,
@@ -43,6 +52,7 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+    */
   } catch (error) {
     console.error("사용자 정보 조회 API 에러:", error);
     return NextResponse.json(

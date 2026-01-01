@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicAuthServerAxios } from "@/lib/api/server";
+import { AUTH_ENDPOINT } from "@/lib/api/constants";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,13 +10,25 @@ export async function POST(request: NextRequest) {
     // 로컬 게이트웨이(localhost:8099)를 통해 /das/**로 라우팅됩니다
     // multipart/form-data로 전송
     const serverAxios = createPublicAuthServerAxios();
-    const response = await serverAxios.post("/das/api/auth/signup", formData, {
+    const response = await serverAxios.post(`${AUTH_ENDPOINT}/signup`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
 
-    return NextResponse.json(response.data);
+    const nextResponse = NextResponse.json(response.data);
+
+    const cookies = response.headers["set-cookie"];
+    if (cookies) {
+      if (Array.isArray(cookies)) {
+        cookies.forEach((cookie) => nextResponse.headers.append("Set-Cookie", cookie));
+      } else {
+        nextResponse.headers.set("Set-Cookie", cookies);
+      }
+    }
+
+    return nextResponse;
+
   } catch (error: unknown) {
     console.error("회원가입 API 에러:", error);
 

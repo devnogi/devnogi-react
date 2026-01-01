@@ -208,19 +208,24 @@ export default function SocialSignUpForm({
                 <FormControl>
                   <div className="flex flex-col items-center gap-4">
                     {previewUrl ? (
-                      <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
-                        <Image
-                          src={previewUrl}
-                          alt="Profile preview"
-                          fill
-                          className="object-cover"
-                        />
+                      <div className="relative w-32 h-32">
+
+                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-200 shadow-sm relative">
+                          <Image
+                            src={previewUrl}
+                            alt="Profile preview"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+
                         <button
                           type="button"
                           onClick={removeImage}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                          className="absolute top-1 right-1 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all shadow-lg z-10 border-2 border-white"
+                          title="이미지 삭제"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-5 h-5" />
                         </button>
                       </div>
                     ) : (
@@ -228,6 +233,7 @@ export default function SocialSignUpForm({
                         <User className="w-12 h-12 text-gray-400" />
                       </div>
                     )}
+
                     <label className="cursor-pointer">
                       <input
                         type="file"
