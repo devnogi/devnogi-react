@@ -41,75 +41,139 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Clover Green - Primary (마비노기 자연/숲 테마) */
+  --color-clover-50: #f0fdf4;
+  --color-clover-100: #dcfce7;
+  --color-clover-200: #bbf7d0;
+  --color-clover-300: #86efac;
+  --color-clover-400: #4ade80;
+  --color-clover-500: #22c55e;
+  --color-clover-600: #16a34a;
+  --color-clover-700: #15803d;
+  --color-clover-800: #166534;
+  --color-clover-900: #14532d;
+
+  /* Cream - Secondary (따뜻하고 아늑한 느낌) */
+  --color-cream-50: #fefdfb;
+  --color-cream-100: #fdf8f3;
+  --color-cream-200: #f5ebe0;
+  --color-cream-300: #e9dcc9;
+  --color-cream-400: #d4c4a8;
+  --color-cream-500: #b8a589;
+  --color-cream-600: #9a8b73;
+  --color-cream-700: #7a6f5d;
+  --color-cream-800: #5c5347;
+  --color-cream-900: #3d382f;
+
+  /* Sunset Coral - Accent (노을빛 포인트 컬러) */
+  --color-sunset-50: #fff7ed;
+  --color-sunset-100: #ffedd5;
+  --color-sunset-200: #fed7aa;
+  --color-sunset-300: #fdba74;
+  --color-sunset-400: #fb923c;
+  --color-sunset-500: #f97316;
+  --color-sunset-600: #ea580c;
+  --color-sunset-700: #c2410c;
+  --color-sunset-800: #9a3412;
+  --color-sunset-900: #7c2d12;
+
+  /* Design System Colors - 경매장 거래 내역 페이지 */
+  --color-ds-background: #FFFFFF;
+  --color-ds-primary: #4BB5FF;
+  --color-ds-primary-hover: #1F609A;
+  --color-ds-neutral-tone: #E7D8C3;
+  --color-ds-ornamental: #3E2B20;
+  --color-ds-gold: #D9B655;
+  --color-ds-card: #F7F7F7;
+  --color-ds-text: #1A1A1A;
+  --color-ds-danger: #E63946;
+  --color-ds-disabled: #A8A8A8;
+
+  /* Design System 50/100 shades for hover/active states */
+  --color-ds-primary-50: #EBF7FF;
+  --color-ds-primary-100: #D6EFFF;
+  --color-ds-neutral-50: #FAF8F5;
+  --color-ds-neutral-100: #F5F0E9;
+  --color-ds-gold-50: #FBF8F0;
+  --color-ds-gold-100: #F7F1E0;
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+  /* 따뜻한 베이지 배경 */
+  --background: #fefdfb;
+  --foreground: #3d382f;
+  --card: #ffffff;
+  --card-foreground: #3d382f;
+  --popover: #ffffff;
+  --popover-foreground: #3d382f;
+  /* Primary - Clover Green */
+  --primary: #22c55e;
+  --primary-foreground: #ffffff;
+  /* Secondary - Cream */
+  --secondary: #f5ebe0;
+  --secondary-foreground: #5c5347;
+  --muted: #f5ebe0;
+  --muted-foreground: #7a6f5d;
+  /* Accent - Sunset Coral */
+  --accent: #fff7ed;
+  --accent-foreground: #9a3412;
+  --destructive: #ef4444;
+  --border: #e9dcc9;
+  --input: #e9dcc9;
+  --ring: #22c55e;
+  --chart-1: #22c55e;
+  --chart-2: #f97316;
+  --chart-3: #b8a589;
+  --chart-4: #4ade80;
+  --chart-5: #fb923c;
+  --sidebar: #fdf8f3;
+  --sidebar-foreground: #3d382f;
+  --sidebar-primary: #22c55e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0fdf4;
+  --sidebar-accent-foreground: #166534;
+  --sidebar-border: #e9dcc9;
+  --sidebar-ring: #22c55e;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* 따뜻한 다크 배경 */
+  --background: #1a1814;
+  --foreground: #fdf8f3;
+  --card: #252219;
+  --card-foreground: #fdf8f3;
+  --popover: #252219;
+  --popover-foreground: #fdf8f3;
+  /* Primary - Clover Green (다크 모드) */
+  --primary: #4ade80;
+  --primary-foreground: #14532d;
+  /* Secondary - Cream (다크 모드) */
+  --secondary: #3d382f;
+  --secondary-foreground: #fdf8f3;
+  --muted: #3d382f;
+  --muted-foreground: #b8a589;
+  /* Accent - Sunset Coral (다크 모드) */
+  --accent: #3d382f;
+  --accent-foreground: #fb923c;
+  --destructive: #f87171;
+  --border: #3d382f;
+  --input: #3d382f;
+  --ring: #4ade80;
+  --chart-1: #4ade80;
+  --chart-2: #fb923c;
+  --chart-3: #d4c4a8;
+  --chart-4: #86efac;
+  --chart-5: #fdba74;
+  --sidebar: #252219;
+  --sidebar-foreground: #fdf8f3;
+  --sidebar-primary: #4ade80;
+  --sidebar-primary-foreground: #14532d;
+  --sidebar-accent: #2d2a23;
+  --sidebar-accent-foreground: #86efac;
+  --sidebar-border: #3d382f;
+  --sidebar-ring: #4ade80;
 }
 
 @layer base {

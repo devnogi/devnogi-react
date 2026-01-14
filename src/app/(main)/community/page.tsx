@@ -30,7 +30,7 @@ function CommunityPage() {
         <select
           value={sortOption}
           onChange={(e) => setSortOption(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-warm-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500/20 focus:border-forest-500 bg-white text-warm-700"
         >
           <option value="latest">최신순</option>
           <option value="popular">인기순</option>
@@ -38,7 +38,7 @@ function CommunityPage() {
           <option value="views">조회순</option>
         </select>
 
-        <Button className="gap-2" onClick={() => setIsModalOpen(true)}>
+        <Button className="gap-2 bg-forest-500 hover:bg-forest-600 rounded-xl" onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4" />
           글쓰기
         </Button>

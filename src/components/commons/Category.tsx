@@ -38,10 +38,10 @@ const RecursiveCategoryItem = ({
     <li>
       <span
         className={clsx(
-          "px-2 py-2 cursor-pointer text-sm rounded-lg flex items-center transition-colors",
+          "px-2 py-2 cursor-pointer text-sm rounded-xl flex items-center transition-colors",
           isSelected
-            ? "bg-blue-50 text-blue-700 font-semibold"
-            : "text-gray-700 hover:bg-gray-100",
+            ? "bg-clover-50 text-clover-700 font-semibold"
+            : "text-cream-700 hover:bg-cream-100",
         )}
         onClick={handleSelect}
       >
@@ -116,9 +116,9 @@ export default function ItemCategorySection({
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl border border-gray-200 shadow-xl">
-      <div className="text-center border-b border-gray-200 py-3 px-4 bg-gray-50 rounded-t-2xl">
-        <h3 className="font-semibold text-gray-900">카테고리</h3>
+    <div className="flex flex-col h-full bg-white rounded-[20px] border border-cream-200 shadow-[0_8px_24px_rgba(61,56,47,0.08)]">
+      <div className="text-center border-b border-cream-200 py-3 px-4 bg-cream-50 rounded-t-[20px]">
+        <h3 className="font-semibold text-cream-900">카테고리</h3>
       </div>
       <div
         ref={containerRef}

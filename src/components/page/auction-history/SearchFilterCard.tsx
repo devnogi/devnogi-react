@@ -212,7 +212,7 @@ export default function SearchFilterCard({
               }
               className="h-9 rounded-lg text-sm"
             />
-            <span className="text-gray-400 text-sm">~</span>
+            <span className="text-[var(--color-ds-disabled)] text-sm">~</span>
             <Input
               type="number"
               placeholder="최대"
@@ -257,13 +257,13 @@ export default function SearchFilterCard({
                   isUp ? "DOWN" : "UP",
                 )
               }
-              className="h-9 w-9 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              className="h-9 w-9 rounded-lg border border-[var(--color-ds-neutral-tone)] flex items-center justify-center hover:bg-[var(--color-ds-neutral-50)] transition-colors"
               title={isUp ? "이상 (클릭하면 이하)" : "이하 (클릭하면 이상)"}
             >
               {isUp ? (
-                <ArrowUp className="w-4 h-4 text-blue-600" />
+                <ArrowUp className="w-4 h-4 text-[var(--color-ds-primary)]" />
               ) : (
-                <ArrowDown className="w-4 h-4 text-purple-600" />
+                <ArrowDown className="w-4 h-4 text-[var(--color-ds-primary-hover)]" />
               )}
             </button>
           </div>
@@ -324,8 +324,8 @@ export default function SearchFilterCard({
 
   if (isLoading) {
     const loadingContent = (
-      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-4 flex items-center justify-center">
-        <div className="text-gray-500 text-sm">로딩 중...</div>
+      <div className="bg-white rounded-xl shadow-xl border border-[var(--color-ds-neutral-tone)] p-4 flex items-center justify-center">
+        <div className="text-[var(--color-ds-disabled)] text-sm">로딩 중...</div>
       </div>
     );
 
@@ -350,15 +350,15 @@ export default function SearchFilterCard({
   const filterContent = (
     <div className="space-y-3">
       {/* Header - Compact */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 py-3 px-4">
+      <div className="bg-white rounded-xl shadow-lg border border-[var(--color-ds-neutral-tone)] py-3 px-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-gray-900">
+          <h2 className="text-base font-bold text-[var(--color-ds-text)]">
             검색 필터
           </h2>
           {isModal && onClose && (
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -367,10 +367,10 @@ export default function SearchFilterCard({
       </div>
 
       {/* Price & Date Combined Filter */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-xl shadow-lg border border-[var(--color-ds-neutral-tone)] p-4">
         {/* Price Section */}
         <div className="mb-3">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">
+          <h3 className="text-sm font-semibold text-[var(--color-ds-text)] mb-2">
             💰 금액 (골드)
           </h3>
           <div className="flex items-center gap-2">
@@ -383,7 +383,7 @@ export default function SearchFilterCard({
               }
               className="h-9 rounded-lg text-sm"
             />
-            <span className="text-gray-400 text-sm">~</span>
+            <span className="text-[var(--color-ds-disabled)] text-sm">~</span>
             <Input
               type="number"
               placeholder="최대"
@@ -397,14 +397,14 @@ export default function SearchFilterCard({
         </div>
 
         {/* Date Section - Collapsible */}
-        <div className="border-t border-gray-100 pt-3">
+        <div className="border-t border-[var(--color-ds-neutral-100)] pt-3">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">
+            <h3 className="text-sm font-semibold text-[var(--color-ds-text)]">
               📅 거래 일자
             </h3>
             <button
               onClick={() => setIsDateCollapsed(!isDateCollapsed)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
             >
               {isDateCollapsed ? (
                 <ChevronDown className="w-4 h-4" />
@@ -434,7 +434,7 @@ export default function SearchFilterCard({
               />
             </div>
           ) : (
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-[var(--color-ds-disabled)] mt-1">
               {basicFilters.dateFrom || basicFilters.dateTo ? (
                 <div className="flex items-center gap-1">
                   <span>{basicFilters.dateFrom || "시작일"}</span>
@@ -442,7 +442,7 @@ export default function SearchFilterCard({
                   <span>{basicFilters.dateTo || "종료일"}</span>
                 </div>
               ) : (
-                <span className="text-gray-400">일자 미선택</span>
+                <span className="text-[var(--color-ds-disabled)]">일자 미선택</span>
               )}
             </div>
           )}
@@ -450,7 +450,7 @@ export default function SearchFilterCard({
       </div>
 
       {/* Add Filter Button */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
+      <div className="bg-white rounded-xl shadow-lg border border-[var(--color-ds-neutral-tone)] p-3">
         <div className="relative">
           <Button
             variant="outline"
@@ -463,12 +463,12 @@ export default function SearchFilterCard({
           </Button>
 
           {showAddFilterDropdown && availableOptions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-56 overflow-auto z-50">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-[var(--color-ds-neutral-tone)] max-h-56 overflow-auto z-50">
               {availableOptions.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => handleAddFilter(option)}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-[var(--color-ds-neutral-50)] transition-colors"
                 >
                   {option.searchOptionName}
                 </button>
@@ -482,15 +482,15 @@ export default function SearchFilterCard({
       {activeFilters.map((filter) => (
         <div
           key={filter.id}
-          className="bg-white rounded-xl shadow-lg border border-gray-200 p-4"
+          className="bg-white rounded-xl shadow-lg border border-[var(--color-ds-neutral-tone)] p-4"
         >
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">
+            <h3 className="text-sm font-semibold text-[var(--color-ds-text)]">
               {filter.searchOptionName}
             </h3>
             <button
               onClick={() => handleRemoveFilter(filter.id)}
-              className="text-gray-400 hover:text-red-500 transition-colors"
+              className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-danger)] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -500,7 +500,7 @@ export default function SearchFilterCard({
       ))}
 
       {/* Action Buttons */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3">
+      <div className="bg-white rounded-xl shadow-lg border border-[var(--color-ds-neutral-tone)] p-3">
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -512,7 +512,7 @@ export default function SearchFilterCard({
           </Button>
           <Button
             onClick={handleApply}
-            className="flex-1 h-9 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 text-sm"
+            className="flex-1 h-9 rounded-lg bg-[var(--color-ds-primary)] text-white hover:bg-[var(--color-ds-primary-hover)] text-sm"
           >
             검색 적용
           </Button>

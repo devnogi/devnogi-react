@@ -129,7 +129,7 @@ export default function SearchSection({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-6">
+    <div className="bg-white rounded-[20px] border border-cream-200 shadow-[0_8px_24px_rgba(61,56,47,0.08)] p-6">
       {/* Breadcrumb */}
       {path.length > 0 && (
         <div className="flex items-center gap-2 mb-4 text-sm flex-wrap">
@@ -137,17 +137,17 @@ export default function SearchSection({
           {onCategoryMenuClick && (
             <button
               onClick={onCategoryMenuClick}
-              className="2xl:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors"
+              className="2xl:hidden flex items-center justify-center w-8 h-8 rounded-xl hover:bg-cream-100 transition-colors"
               aria-label="카테고리 메뉴 열기"
             >
-              <Menu className="w-5 h-5 text-gray-600" />
+              <Menu className="w-5 h-5 text-cream-600" />
             </button>
           )}
           {path.map((p, index) => (
             <React.Fragment key={p.id}>
-              {index > 0 && <span className="text-gray-400">›</span>}
+              {index > 0 && <span className="text-cream-400">›</span>}
               <Badge
-                className="rounded-lg cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 font-medium"
+                className="rounded-full cursor-pointer bg-clover-50 text-clover-700 hover:bg-clover-100 border-0 font-medium"
                 onClick={() => onCategorySelect(p.id)}
               >
                 {p.name}
@@ -162,7 +162,7 @@ export default function SearchSection({
         <div className="flex-1 relative">
           <Label
             htmlFor="item-search"
-            className="text-sm font-semibold text-gray-700 mb-2 block"
+            className="text-sm font-semibold text-cream-800 mb-2 block"
           >
             아이템 검색
           </Label>
@@ -171,7 +171,7 @@ export default function SearchSection({
             id="item-search"
             type="text"
             placeholder="아이템 이름을 입력하세요"
-            className="h-12 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+            className="h-12 rounded-xl border-cream-300 focus:border-clover-500 focus:ring-2 focus:ring-clover-500/20 transition-all"
             value={itemName}
             onChange={handleInputChange}
             onKeyDown={handleInputKeyDown}
@@ -194,14 +194,14 @@ export default function SearchSection({
       {/* Action Buttons */}
       <div className="flex gap-3 mt-4">
         <Button
-          className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
+          className="flex-1 h-12 bg-clover-500 hover:bg-clover-600 text-white rounded-xl font-semibold shadow-[0_2px_8px_rgba(34,197,94,0.2)] hover:shadow-[0_4px_16px_rgba(34,197,94,0.3)] transition-all"
           onClick={() => onSearch?.()}
         >
           찾기
         </Button>
         <Button
           variant="outline"
-          className="h-12 px-6 rounded-xl border-gray-300 hover:bg-gray-50 transition-all"
+          className="h-12 px-6 rounded-xl border-cream-300 hover:bg-cream-50 transition-all"
           onClick={handleReset}
         >
           초기화

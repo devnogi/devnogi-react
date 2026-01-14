@@ -198,7 +198,7 @@ export default function MobileFilterModal({
               }
               className="h-10 rounded-lg text-sm"
             />
-            <span className="text-gray-400 text-sm">~</span>
+            <span className="text-[var(--color-ds-disabled)] text-sm">~</span>
             <Input
               type="number"
               placeholder="최대"
@@ -243,12 +243,12 @@ export default function MobileFilterModal({
                   isUp ? "DOWN" : "UP"
                 )
               }
-              className="h-10 w-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              className="h-10 w-10 rounded-lg border border-[var(--color-ds-neutral-tone)] flex items-center justify-center hover:bg-[var(--color-ds-neutral-50)] transition-colors"
             >
               {isUp ? (
-                <ArrowUp className="w-5 h-5 text-blue-600" />
+                <ArrowUp className="w-5 h-5 text-[var(--color-ds-primary)]" />
               ) : (
-                <ArrowDown className="w-5 h-5 text-purple-600" />
+                <ArrowDown className="w-5 h-5 text-[var(--color-ds-primary-hover)]" />
               )}
             </button>
           </div>
@@ -326,26 +326,26 @@ export default function MobileFilterModal({
       {/* Modal */}
       <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col animate-slide-up pb-16">
         {/* Header with Close Button */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900">필터</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-ds-neutral-tone)]">
+          <h3 className="text-lg font-bold text-[var(--color-ds-text)]">필터</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 px-6 py-3 overflow-x-auto border-b border-gray-200 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex gap-2 px-6 py-3 overflow-x-auto border-b border-[var(--color-ds-neutral-tone)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setCurrentTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
                 currentTab === tab.id
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-[var(--color-ds-primary)] text-white font-semibold"
+                  : "bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
               }`}
             >
               <span>{tab.icon}</span>
@@ -359,8 +359,8 @@ export default function MobileFilterModal({
           {currentTab === "category" && (
             <div className="grid grid-cols-2 gap-3 h-full">
               {/* 왼쪽: 상위 카테고리 */}
-              <div className="space-y-1 border-r border-gray-200 pr-3">
-                <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">상위 카테고리</h4>
+              <div className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3">
+                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">상위 카테고리</h4>
                 {/* 전체 옵션 */}
                 <button
                   onClick={() => {
@@ -370,8 +370,8 @@ export default function MobileFilterModal({
                   className={clsx(
                     "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                     selectedTopCategory === "all"
-                      ? "bg-blue-50 text-blue-700 font-semibold"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                      : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                   )}
                 >
                   전체
@@ -390,8 +390,8 @@ export default function MobileFilterModal({
                       className={clsx(
                         "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                         isSelected
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                       )}
                     >
                       {category.name}
@@ -402,7 +402,7 @@ export default function MobileFilterModal({
 
               {/* 오른쪽: 하위 카테고리 */}
               <div className="space-y-1 pl-3">
-                <h4 className="text-xs font-semibold text-gray-500 mb-2 px-2">하위 카테고리</h4>
+                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">하위 카테고리</h4>
                 {selectedTopCategory !== "all" ? (
                   <>
                     {/* 전체 옵션 */}
@@ -411,8 +411,8 @@ export default function MobileFilterModal({
                       className={clsx(
                         "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                         selectedSubCategory === "all"
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                       )}
                     >
                       전체
@@ -430,8 +430,8 @@ export default function MobileFilterModal({
                             className={clsx(
                               "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                               isSelected
-                                ? "bg-blue-50 text-blue-700 font-semibold"
-                                : "text-gray-700 hover:bg-gray-100"
+                                ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                                : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                             )}
                           >
                             {subCategory.name}
@@ -440,7 +440,7 @@ export default function MobileFilterModal({
                       })}
                   </>
                 ) : (
-                  <div className="text-center py-8 text-gray-400 text-sm">
+                  <div className="text-center py-8 text-[var(--color-ds-disabled)] text-sm">
                     왼쪽에서 상위 카테고리를 선택하세요
                   </div>
                 )}
@@ -451,7 +451,7 @@ export default function MobileFilterModal({
           {currentTab === "price" && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
                   최소 금액 (골드)
                 </label>
                 <Input
@@ -463,7 +463,7 @@ export default function MobileFilterModal({
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
                   최대 금액 (골드)
                 </label>
                 <Input
@@ -481,7 +481,7 @@ export default function MobileFilterModal({
             <div className="space-y-4">
               {/* 날짜 입력 - 한 줄 배치 */}
               <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
                   기간 선택
                 </label>
                 <div className="flex items-center gap-2">
@@ -492,7 +492,7 @@ export default function MobileFilterModal({
                     className="h-12 rounded-xl text-base flex-1"
                     placeholder="시작일"
                   />
-                  <span className="text-gray-400">~</span>
+                  <span className="text-[var(--color-ds-disabled)]">~</span>
                   <Input
                     type="date"
                     value={dateTo}
@@ -505,7 +505,7 @@ export default function MobileFilterModal({
 
               {/* 빠른 선택 버튼 */}
               <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
                   빠른 선택
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -516,7 +516,7 @@ export default function MobileFilterModal({
                       setDateFrom(todayStr);
                       setDateTo(todayStr);
                     }}
-                    className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                    className="px-4 py-2.5 rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white hover:bg-[var(--color-ds-neutral-50)] text-sm font-medium text-[var(--color-ds-text)] transition-colors"
                   >
                     오늘
                   </button>
@@ -528,7 +528,7 @@ export default function MobileFilterModal({
                       setDateFrom(weekAgo.toISOString().split('T')[0]);
                       setDateTo(today.toISOString().split('T')[0]);
                     }}
-                    className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                    className="px-4 py-2.5 rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white hover:bg-[var(--color-ds-neutral-50)] text-sm font-medium text-[var(--color-ds-text)] transition-colors"
                   >
                     최근 일주일
                   </button>
@@ -540,7 +540,7 @@ export default function MobileFilterModal({
                       setDateFrom(monthAgo.toISOString().split('T')[0]);
                       setDateTo(today.toISOString().split('T')[0]);
                     }}
-                    className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                    className="px-4 py-2.5 rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white hover:bg-[var(--color-ds-neutral-50)] text-sm font-medium text-[var(--color-ds-text)] transition-colors"
                   >
                     최근 한달
                   </button>
@@ -564,12 +564,12 @@ export default function MobileFilterModal({
                 </Button>
 
                 {showAddFilterDropdown && availableOptions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-gray-200 max-h-60 overflow-auto z-50">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] max-h-60 overflow-auto z-50">
                     {availableOptions.map((option) => (
                       <button
                         key={option.id}
                         onClick={() => handleAddFilter(option)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                        className="w-full px-4 py-3 text-left hover:bg-[var(--color-ds-neutral-50)] transition-colors"
                       >
                         {option.searchOptionName}
                       </button>
@@ -582,15 +582,15 @@ export default function MobileFilterModal({
               {activeFilters.map((filter) => (
                 <div
                   key={filter.id}
-                  className="bg-gray-50 rounded-xl border border-gray-200 p-4"
+                  className="bg-[var(--color-ds-card)] rounded-xl border border-[var(--color-ds-neutral-tone)] p-4"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-gray-700">
+                    <h4 className="text-sm font-semibold text-[var(--color-ds-text)]">
                       {filter.searchOptionName}
                     </h4>
                     <button
                       onClick={() => handleRemoveFilter(filter.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-danger)] transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -600,7 +600,7 @@ export default function MobileFilterModal({
               ))}
 
               {activeFilters.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-[var(--color-ds-disabled)]">
                   추가된 옵션 필터가 없습니다
                 </div>
               )}
@@ -609,7 +609,7 @@ export default function MobileFilterModal({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 px-6 py-4 bg-white">
+        <div className="border-t border-[var(--color-ds-neutral-tone)] px-6 py-4 bg-white">
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -621,7 +621,7 @@ export default function MobileFilterModal({
             </Button>
             <Button
               onClick={handleApply}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold"
+              className="flex-1 h-12 rounded-xl bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-white font-semibold"
             >
               적용하기
             </Button>

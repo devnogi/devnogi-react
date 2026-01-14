@@ -316,13 +316,13 @@ export default function Page() {
   if (isCategoriesLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-gray-500">로딩 중...</div>
+        <div className="text-[var(--color-ds-disabled)]">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="select-none absolute inset-0 bg-white">
+    <div className="select-none absolute inset-0 bg-[var(--color-ds-background)]">
       {/* Fixed Floating Category Sidebar - Only visible on 2xl+ screens (1536px+) */}
       <div className="fixed left-4 top-24 bottom-8 w-56 z-40 hidden 2xl:block">
         <CategorySection
@@ -352,21 +352,21 @@ export default function Page() {
           <div className="mb-6 md:mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h1 className="text-[1.35rem] md:text-[1.7rem] font-bold text-gray-900">
+                <h1 className="text-[1.35rem] md:text-[1.7rem] font-bold text-[var(--color-ds-ornamental)]">
                   경매장 {viewType}
                 </h1>
                 <div className="relative">
                   <button
                     onClick={() => setIsViewTypeDropdownOpen(!isViewTypeDropdownOpen)}
-                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-1 hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
                     aria-label="보기 유형 선택"
                   >
-                    <svg className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-6 h-6 text-[var(--color-ds-ornamental)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                   {isViewTypeDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[160px]">
+                    <div className="absolute top-full left-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] shadow-[0_8px_24px_rgba(62,43,32,0.08)] py-2 z-50 min-w-[160px]">
                       {["거래 내역", "실시간 경매장", "경매장 통계"].map((type) => (
                         <button
                           key={type}
@@ -376,8 +376,8 @@ export default function Page() {
                           }}
                           className={`w-full px-4 py-2 text-left text-sm transition-colors ${
                             viewType === type
-                              ? "bg-blue-50 text-blue-600 font-semibold"
-                              : "text-gray-700 hover:bg-gray-50"
+                              ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                              : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                           }`}
                         >
                           {type}
@@ -391,7 +391,7 @@ export default function Page() {
               {/* Search Button - Only visible on lg and below */}
               <button
                 onClick={() => setIsMobileSearchModalOpen(true)}
-                className="lg:hidden flex items-center justify-center w-10 h-10 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="lg:hidden flex items-center justify-center w-10 h-10 text-[var(--color-ds-ornamental)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
                 aria-label="아이템 검색"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -433,10 +433,10 @@ export default function Page() {
           <div>
             {totalElements > 0 && (
               <div className="mb-4 flex items-center justify-between">
-                <div className="text-xs md:text-sm text-gray-600">
+                <div className="text-xs md:text-sm text-[var(--color-ds-disabled)]">
                   {itemName ? (
                     <>
-                      <span className="font-semibold text-blue-600">{itemName}</span> 검색결과{" "}
+                      <span className="font-semibold text-[var(--color-ds-primary)]">{itemName}</span> 검색결과{" "}
                       <span className="font-semibold">{totalElements}</span>개
                     </>
                   ) : (
@@ -448,7 +448,7 @@ export default function Page() {
                 <div className="relative">
                   <button
                     onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
                   >
                     <span className="font-medium">{sortOption.label}</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -456,7 +456,7 @@ export default function Page() {
                     </svg>
                   </button>
                   {isSortDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-lg py-2 z-50 min-w-[180px]">
+                    <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] shadow-[0_8px_24px_rgba(62,43,32,0.08)] py-2 z-50 min-w-[180px]">
                       {[
                         { label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "desc" as const },
                         { label: "거래 오래된순", sortBy: "dateAuctionBuy", direction: "asc" as const },
@@ -476,8 +476,8 @@ export default function Page() {
                           }}
                           className={`w-full px-4 py-2 text-left text-sm transition-colors ${
                             sortOption.label === option.label
-                              ? "bg-blue-50 text-blue-600 font-semibold"
-                              : "text-gray-700 hover:bg-gray-50"
+                              ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                              : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                           }`}
                         >
                           {option.label}
@@ -494,7 +494,7 @@ export default function Page() {
             {/* Infinite Scroll Trigger */}
             <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
               {isFetchingNextPage && (
-                <div className="text-sm text-gray-500">로딩 중...</div>
+                <div className="text-sm text-[var(--color-ds-disabled)]">로딩 중...</div>
               )}
             </div>
           </div>

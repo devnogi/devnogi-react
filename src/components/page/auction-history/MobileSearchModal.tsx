@@ -197,7 +197,7 @@ export default function MobileSearchModal({
       <div className="px-4 py-4 flex items-center gap-3">
         <button
           onClick={onClose}
-          className="flex-shrink-0 text-gray-700 hover:text-gray-900 transition-colors"
+          className="flex-shrink-0 text-[var(--color-ds-text)] hover:text-[var(--color-ds-ornamental)] transition-colors"
           aria-label="닫기"
         >
           <ArrowLeft className="w-6 h-6" />
@@ -216,7 +216,7 @@ export default function MobileSearchModal({
           {itemName.trim().length > 0 && (
             <button
               onClick={handleClearInput}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
               aria-label="입력 내용 지우기"
             >
               <XCircle className="w-5 h-5" />
@@ -232,16 +232,16 @@ export default function MobileSearchModal({
         {itemName.trim().length > 0 ? (
           <div className="px-4">
             {isLoading ? (
-              <div className="py-8 text-center text-gray-500 text-sm">
+              <div className="py-8 text-center text-[var(--color-ds-disabled)] text-sm">
                 로딩 중...
               </div>
             ) : filteredItems.length === 0 ? (
-              <div className="py-8 text-center text-gray-500 text-sm">
+              <div className="py-8 text-center text-[var(--color-ds-disabled)] text-sm">
                 검색 결과가 없습니다
               </div>
             ) : (
               <div className="space-y-1">
-                <div className="text-xs text-gray-500 mb-2 px-2">
+                <div className="text-xs text-[var(--color-ds-disabled)] mb-2 px-2">
                   {filteredItems.length}개의 아이템
                 </div>
                 {filteredItems.map((item, index) => (
@@ -250,12 +250,12 @@ export default function MobileSearchModal({
                     onClick={() => handleItemSelect(item)}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       selectedIndex === index
-                        ? "bg-blue-50 text-blue-700"
-                        : "hover:bg-gray-50 text-gray-900"
+                        ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]"
+                        : "hover:bg-[var(--color-ds-neutral-50)] text-[var(--color-ds-text)]"
                     }`}
                   >
                     <div className="font-medium">{item.name}</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-[var(--color-ds-disabled)] mt-1">
                       {item.topCategory} › {item.subCategory}
                     </div>
                   </button>
@@ -270,12 +270,12 @@ export default function MobileSearchModal({
               <>
                 {/* 최근 검색어 헤더 */}
                 <div className="flex items-center justify-between mb-2 px-2">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-[var(--color-ds-disabled)]">
                     최근 검색어
                   </span>
                   <button
                     onClick={handleClearAllRecentSearches}
-                    className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                    className="text-xs text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
                   >
                     전체삭제
                   </button>
@@ -287,11 +287,11 @@ export default function MobileSearchModal({
                     <button
                       key={`${search.itemName}-${index}`}
                       onClick={() => handleRecentSearchClick(search)}
-                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-900 transition-colors"
+                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-[var(--color-ds-neutral-50)] text-[var(--color-ds-text)] transition-colors"
                     >
                       <div className="font-medium">{search.itemName}</div>
                       {search.topCategory && search.subCategory && (
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-[var(--color-ds-disabled)] mt-1">
                           {search.topCategory} › {search.subCategory}
                         </div>
                       )}
