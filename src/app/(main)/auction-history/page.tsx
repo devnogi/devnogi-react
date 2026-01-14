@@ -27,8 +27,6 @@ export default function Page() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isMobileSearchModalOpen, setIsMobileSearchModalOpen] = useState(false);
-  const [isViewTypeDropdownOpen, setIsViewTypeDropdownOpen] = useState(false);
-  const [viewType, setViewType] = useState<"거래 내역" | "실시간 경매장" | "경매장 통계">("거래 내역");
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [sortOption, setSortOption] = useState<{
     label: string;
@@ -347,63 +345,11 @@ export default function Page() {
 
       {/* Centered Main Content Container */}
       <div className="h-full overflow-auto flex justify-center [scrollbar-gutter:stable]">
-        <div className="w-full max-w-4xl px-4 md:px-6 py-4 md:py-8">
-          {/* Header */}
-          <div className="mb-6 md:mb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h1 className="text-[1.35rem] md:text-[1.7rem] font-bold text-[var(--color-ds-ornamental)]">
-                  경매장 {viewType}
-                </h1>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsViewTypeDropdownOpen(!isViewTypeDropdownOpen)}
-                    className="p-1 hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
-                    aria-label="보기 유형 선택"
-                  >
-                    <svg className="w-6 h-6 text-[var(--color-ds-ornamental)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  {isViewTypeDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] shadow-[0_8px_24px_rgba(62,43,32,0.08)] py-2 z-50 min-w-[160px]">
-                      {["거래 내역", "실시간 경매장", "경매장 통계"].map((type) => (
-                        <button
-                          key={type}
-                          onClick={() => {
-                            setViewType(type as typeof viewType);
-                            setIsViewTypeDropdownOpen(false);
-                          }}
-                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                            viewType === type
-                              ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                              : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
-                          }`}
-                        >
-                          {type}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Search Button - Only visible on lg and below */}
-              <button
-                onClick={() => setIsMobileSearchModalOpen(true)}
-                className="lg:hidden flex items-center justify-center w-10 h-10 text-[var(--color-ds-ornamental)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
-                aria-label="아이템 검색"
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Filter Chips - Only visible on lg and below */}
-          <div className="mb-4 lg:hidden">
-            <MobileFilterChips
+        <div className="w-full max-w-4xl px-4 md:px-6 pt-16 md:pt-20 pb-4 md:pb-8">
+          {/* Mobile Filter Chips & Search Button - Only visible on lg and below */}
+          <div className="mb-4 lg:hidden flex items-center gap-2">
+            <div className="flex-1">
+              <MobileFilterChips
               activeFilters={{
                 hasCategory: selectedCategory !== "all",
                 hasPrice: !!(mobilePriceMin || mobilePriceMax),
@@ -415,6 +361,17 @@ export default function Page() {
               onDateClick={() => setMobileFilterType("date")}
               onOptionsClick={() => setMobileFilterType("options")}
             />
+            </div>
+            {/* Search Button */}
+            <button
+              onClick={() => setIsMobileSearchModalOpen(true)}
+              className="flex-shrink-0 flex items-center justify-center w-10 h-10 text-[var(--color-ds-ornamental)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
+              aria-label="아이템 검색"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
           </div>
 
           {/* Search Section - Only visible on lg+ screens */}
