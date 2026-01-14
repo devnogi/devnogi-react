@@ -341,7 +341,7 @@ export default function SearchFilterCard({
     }
 
     return (
-      <div className="fixed right-24 top-32 bottom-8 w-72">
+      <div className="fixed right-4 top-24 bottom-8 w-72">
         {loadingContent}
       </div>
     );
@@ -538,7 +538,7 @@ export default function SearchFilterCard({
   }
 
   return (
-    <div className="fixed right-24 top-32 bottom-8 w-72 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="fixed right-4 top-24 bottom-8 w-72 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {filterContent}
     </div>
   );

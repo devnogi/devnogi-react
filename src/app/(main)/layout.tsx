@@ -1,5 +1,6 @@
-import Sidebar from "@/components/sidebar";
+import TopNav from "@/components/top-nav";
 import BottomNav from "@/components/bottom-nav";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -7,14 +8,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="h-screen flex bg-white">
-      {/* Left Sidebar - Hidden on mobile (md and below) */}
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
+    <div className="h-screen flex flex-col bg-white">
+      {/* Top Navigation - Hidden on mobile (md and below) */}
+      <TopNav />
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-20 overflow-auto pb-16 md:pb-0">
+      <main className="flex-1 md:pt-16 overflow-auto pb-14 md:pb-0">
         <div className="max-w-7xl w-full mx-auto h-full px-6 py-8">
           {children}
         </div>
@@ -24,6 +23,9 @@ export default function RootLayout({
       <div className="md:hidden">
         <BottomNav />
       </div>
+
+      {/* Toast notifications */}
+      <Toaster position="top-center" richColors />
     </div>
   );
 }

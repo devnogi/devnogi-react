@@ -324,7 +324,7 @@ export default function Page() {
   return (
     <div className="select-none absolute inset-0 bg-white">
       {/* Fixed Floating Category Sidebar - Only visible on 2xl+ screens (1536px+) */}
-      <div className="fixed left-24 top-32 bottom-8 w-56 z-40 hidden 2xl:block">
+      <div className="fixed left-4 top-24 bottom-8 w-56 z-40 hidden 2xl:block">
         <CategorySection
           selectedId={selectedCategory}
           onSelect={handleCategorySelect}
