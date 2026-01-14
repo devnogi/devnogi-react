@@ -53,6 +53,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64  # Multi-architecture build
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod
@@ -228,3 +229,4 @@ jobs:
           echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod-<previous-sha>"
           echo "  docker compose -f docker-compose-prod.yaml down"
           echo "  docker compose -f docker-compose-prod.yaml up -d"
+
