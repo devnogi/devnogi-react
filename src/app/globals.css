@@ -42,138 +42,199 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Clover Green - Primary (마비노기 자연/숲 테마) */
-  --color-clover-50: #f0fdf4;
-  --color-clover-100: #dcfce7;
-  --color-clover-200: #bbf7d0;
-  --color-clover-300: #86efac;
-  --color-clover-400: #4ade80;
-  --color-clover-500: #22c55e;
-  --color-clover-600: #16a34a;
-  --color-clover-700: #15803d;
-  --color-clover-800: #166534;
-  --color-clover-900: #14532d;
+  /* =============================================
+     NEW COLOR SYSTEM (60-30-10 Rule)
+     - Background: 60-70% (Gray)
+     - Primary: 20-30% (Blaanid Blue)
+     - Accent: 5-10% (Gold)
+     ============================================= */
 
-  /* Cream - Secondary (따뜻하고 아늑한 느낌) */
-  --color-cream-50: #fefdfb;
-  --color-cream-100: #fdf8f3;
-  --color-cream-200: #f5ebe0;
-  --color-cream-300: #e9dcc9;
-  --color-cream-400: #d4c4a8;
-  --color-cream-500: #b8a589;
-  --color-cream-600: #9a8b73;
-  --color-cream-700: #7a6f5d;
-  --color-cream-800: #5c5347;
-  --color-cream-900: #3d382f;
+  /* Gray - Background Colors (배경 색상) */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F5F6F8;   /* Main Gray - 메인 배경 */
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
 
-  /* Sunset Coral - Accent (노을빛 포인트 컬러) */
-  --color-sunset-50: #fff7ed;
-  --color-sunset-100: #ffedd5;
-  --color-sunset-200: #fed7aa;
-  --color-sunset-300: #fdba74;
-  --color-sunset-400: #fb923c;
-  --color-sunset-500: #f97316;
-  --color-sunset-600: #ea580c;
-  --color-sunset-700: #c2410c;
-  --color-sunset-800: #9a3412;
-  --color-sunset-900: #7c2d12;
+  /* Blaanid Blue - Primary Colors (주요 색상) */
+  --color-blaanid-50: #EFF6FF;
+  --color-blaanid-100: #DBEAFE;
+  --color-blaanid-200: #BFDBFE;
+  --color-blaanid-300: #93C5FD;
+  --color-blaanid-400: #7FB4FA;   /* Main Primary - 메인 청색 */
+  --color-blaanid-500: #60A5FA;
+  --color-blaanid-600: #3B82F6;
+  --color-blaanid-700: #2563EB;
+  --color-blaanid-800: #1D4ED8;
+  --color-blaanid-900: #1E40AF;
 
-  /* Design System Colors - 경매장 거래 내역 페이지 */
-  --color-ds-background: #FFFFFF;
-  --color-ds-primary: #4BB5FF;
-  --color-ds-primary-hover: #1F609A;
-  --color-ds-neutral-tone: #E7D8C3;
-  --color-ds-ornamental: #3E2B20;
-  --color-ds-gold: #D9B655;
-  --color-ds-card: #F7F7F7;
-  --color-ds-text: #1A1A1A;
-  --color-ds-danger: #E63946;
-  --color-ds-disabled: #A8A8A8;
+  /* Gold - Accent Colors (강조 색상) */
+  --color-gold-50: #FFFBEB;
+  --color-gold-100: #FEF3C7;
+  --color-gold-200: #FDE68A;
+  --color-gold-300: #FCD34D;
+  --color-gold-400: #EEB233;   /* Main Accent - 메인 금색 */
+  --color-gold-500: #F59E0B;
+  --color-gold-600: #D97706;
+  --color-gold-700: #B45309;
+  --color-gold-800: #92400E;
+  --color-gold-900: #78350F;
 
-  /* Design System 50/100 shades for hover/active states */
-  --color-ds-primary-50: #EBF7FF;
-  --color-ds-primary-100: #D6EFFF;
-  --color-ds-neutral-50: #FAF8F5;
-  --color-ds-neutral-100: #F5F0E9;
-  --color-ds-gold-50: #FBF8F0;
-  --color-ds-gold-100: #F7F1E0;
+  /* Legacy: Keep old color names for backward compatibility */
+  /* Clover Green - mapped to Blaanid for transition */
+  --color-clover-50: #EFF6FF;
+  --color-clover-100: #DBEAFE;
+  --color-clover-200: #BFDBFE;
+  --color-clover-300: #93C5FD;
+  --color-clover-400: #7FB4FA;
+  --color-clover-500: #60A5FA;
+  --color-clover-600: #3B82F6;
+  --color-clover-700: #2563EB;
+  --color-clover-800: #1D4ED8;
+  --color-clover-900: #1E40AF;
+
+  /* Cream - mapped to Gray for transition */
+  --color-cream-50: #F9FAFB;
+  --color-cream-100: #F5F6F8;
+  --color-cream-200: #E5E7EB;
+  --color-cream-300: #D1D5DB;
+  --color-cream-400: #9CA3AF;
+  --color-cream-500: #6B7280;
+  --color-cream-600: #4B5563;
+  --color-cream-700: #374151;
+  --color-cream-800: #1F2937;
+  --color-cream-900: #111827;
+
+  /* Sunset - mapped to Gold for transition */
+  --color-sunset-50: #FFFBEB;
+  --color-sunset-100: #FEF3C7;
+  --color-sunset-200: #FDE68A;
+  --color-sunset-300: #FCD34D;
+  --color-sunset-400: #EEB233;
+  --color-sunset-500: #F59E0B;
+  --color-sunset-600: #D97706;
+  --color-sunset-700: #B45309;
+  --color-sunset-800: #92400E;
+  --color-sunset-900: #78350F;
+
+  /* Design System Colors - Updated to new palette */
+  --color-ds-background: #F5F6F8;   /* Main Gray */
+  --color-ds-card: #FFFFFF;          /* White for cards */
+  --color-ds-primary: #7FB4FA;       /* Blaanid Blue */
+  --color-ds-primary-hover: #3B82F6;
+  --color-ds-gold: #EEB233;          /* Gold Accent */
+  --color-ds-text: #111827;          /* Gray-900 */
+  --color-ds-danger: #EF4444;
+  --color-ds-disabled: #9CA3AF;      /* Gray-400 */
+  --color-ds-neutral-tone: #E5E7EB;  /* Gray-200 */
+  --color-ds-ornamental: #374151;    /* Gray-700 */
+
+  /* Design System shades for hover/active states */
+  --color-ds-primary-50: #EFF6FF;
+  --color-ds-primary-100: #DBEAFE;
+  --color-ds-neutral-50: #F9FAFB;
+  --color-ds-neutral-100: #F5F6F8;
+  --color-ds-gold-50: #FFFBEB;
+  --color-ds-gold-100: #FEF3C7;
 }
 
 :root {
   --radius: 0.75rem;
-  /* 따뜻한 베이지 배경 */
-  --background: #fefdfb;
-  --foreground: #3d382f;
-  --card: #ffffff;
-  --card-foreground: #3d382f;
-  --popover: #ffffff;
-  --popover-foreground: #3d382f;
-  /* Primary - Clover Green */
-  --primary: #22c55e;
-  --primary-foreground: #ffffff;
-  /* Secondary - Cream */
-  --secondary: #f5ebe0;
-  --secondary-foreground: #5c5347;
-  --muted: #f5ebe0;
-  --muted-foreground: #7a6f5d;
-  /* Accent - Sunset Coral */
-  --accent: #fff7ed;
-  --accent-foreground: #9a3412;
-  --destructive: #ef4444;
-  --border: #e9dcc9;
-  --input: #e9dcc9;
-  --ring: #22c55e;
-  --chart-1: #22c55e;
-  --chart-2: #f97316;
-  --chart-3: #b8a589;
-  --chart-4: #4ade80;
-  --chart-5: #fb923c;
-  --sidebar: #fdf8f3;
-  --sidebar-foreground: #3d382f;
-  --sidebar-primary: #22c55e;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0fdf4;
-  --sidebar-accent-foreground: #166534;
-  --sidebar-border: #e9dcc9;
-  --sidebar-ring: #22c55e;
+
+  /* 배경 - Main Gray (#F5F6F8) 기본, White for cards */
+  --background: #F5F6F8;        /* Main Gray - 메인 배경 */
+  --foreground: #111827;        /* Gray-900 - 텍스트 */
+  --card: #FFFFFF;              /* White - 카드 배경 */
+  --card-foreground: #111827;   /* Gray-900 */
+  --popover: #FFFFFF;           /* White - 팝오버 배경 */
+  --popover-foreground: #111827;
+
+  /* Primary - Blaanid Blue */
+  --primary: #7FB4FA;           /* Blaanid-400 */
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary - Gray */
+  --secondary: #E5E7EB;         /* Gray-200 */
+  --secondary-foreground: #374151; /* Gray-700 */
+  --muted: #E5E7EB;             /* Gray-200 */
+  --muted-foreground: #6B7280;  /* Gray-500 */
+
+  /* Accent - Gold */
+  --accent: #FFFBEB;            /* Gold-50 */
+  --accent-foreground: #92400E; /* Gold-800 */
+
+  --destructive: #EF4444;
+  --border: #E5E7EB;            /* Gray-200 */
+  --input: #E5E7EB;             /* Gray-200 */
+  --ring: #7FB4FA;              /* Blaanid-400 */
+
+  /* Charts - Using new palette */
+  --chart-1: #7FB4FA;           /* Blaanid-400 */
+  --chart-2: #EEB233;           /* Gold-400 */
+  --chart-3: #6B7280;           /* Gray-500 */
+  --chart-4: #93C5FD;           /* Blaanid-300 */
+  --chart-5: #FCD34D;           /* Gold-300 */
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;           /* White */
+  --sidebar-foreground: #111827; /* Gray-900 */
+  --sidebar-primary: #7FB4FA;   /* Blaanid-400 */
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EFF6FF;    /* Blaanid-50 */
+  --sidebar-accent-foreground: #1D4ED8; /* Blaanid-800 */
+  --sidebar-border: #E5E7EB;    /* Gray-200 */
+  --sidebar-ring: #7FB4FA;      /* Blaanid-400 */
 }
 
 .dark {
-  /* 따뜻한 다크 배경 */
-  --background: #1a1814;
-  --foreground: #fdf8f3;
-  --card: #252219;
-  --card-foreground: #fdf8f3;
-  --popover: #252219;
-  --popover-foreground: #fdf8f3;
-  /* Primary - Clover Green (다크 모드) */
-  --primary: #4ade80;
-  --primary-foreground: #14532d;
-  /* Secondary - Cream (다크 모드) */
-  --secondary: #3d382f;
-  --secondary-foreground: #fdf8f3;
-  --muted: #3d382f;
-  --muted-foreground: #b8a589;
-  /* Accent - Sunset Coral (다크 모드) */
-  --accent: #3d382f;
-  --accent-foreground: #fb923c;
-  --destructive: #f87171;
-  --border: #3d382f;
-  --input: #3d382f;
-  --ring: #4ade80;
-  --chart-1: #4ade80;
-  --chart-2: #fb923c;
-  --chart-3: #d4c4a8;
-  --chart-4: #86efac;
-  --chart-5: #fdba74;
-  --sidebar: #252219;
-  --sidebar-foreground: #fdf8f3;
-  --sidebar-primary: #4ade80;
-  --sidebar-primary-foreground: #14532d;
-  --sidebar-accent: #2d2a23;
-  --sidebar-accent-foreground: #86efac;
-  --sidebar-border: #3d382f;
-  --sidebar-ring: #4ade80;
+  /* 배경 - 어두운 Gray 톤 */
+  --background: #111827;        /* Gray-900 - 메인 배경 */
+  --foreground: #F9FAFB;        /* Gray-50 - 텍스트 */
+  --card: #1F2937;              /* Gray-800 - 카드 배경 */
+  --card-foreground: #F9FAFB;   /* Gray-50 */
+  --popover: #1F2937;           /* Gray-800 */
+  --popover-foreground: #F9FAFB;
+
+  /* Primary - Blaanid Blue (다크 모드) */
+  --primary: #93C5FD;           /* Blaanid-300 */
+  --primary-foreground: #1E40AF; /* Blaanid-900 */
+
+  /* Secondary - Gray (다크 모드) */
+  --secondary: #374151;         /* Gray-700 */
+  --secondary-foreground: #F9FAFB; /* Gray-50 */
+  --muted: #374151;             /* Gray-700 */
+  --muted-foreground: #9CA3AF;  /* Gray-400 */
+
+  /* Accent - Gold (다크 모드) */
+  --accent: #374151;            /* Gray-700 */
+  --accent-foreground: #FCD34D; /* Gold-300 */
+
+  --destructive: #F87171;
+  --border: #374151;            /* Gray-700 */
+  --input: #374151;             /* Gray-700 */
+  --ring: #93C5FD;              /* Blaanid-300 */
+
+  /* Charts - Dark mode */
+  --chart-1: #93C5FD;           /* Blaanid-300 */
+  --chart-2: #FCD34D;           /* Gold-300 */
+  --chart-3: #9CA3AF;           /* Gray-400 */
+  --chart-4: #BFDBFE;           /* Blaanid-200 */
+  --chart-5: #FDE68A;           /* Gold-200 */
+
+  /* Sidebar - Dark mode */
+  --sidebar: #1F2937;           /* Gray-800 */
+  --sidebar-foreground: #F9FAFB; /* Gray-50 */
+  --sidebar-primary: #93C5FD;   /* Blaanid-300 */
+  --sidebar-primary-foreground: #1E40AF; /* Blaanid-900 */
+  --sidebar-accent: #374151;    /* Gray-700 */
+  --sidebar-accent-foreground: #BFDBFE; /* Blaanid-200 */
+  --sidebar-border: #374151;    /* Gray-700 */
+  --sidebar-ring: #93C5FD;      /* Blaanid-300 */
 }
 
 @layer base {
@@ -193,14 +254,10 @@
   }
 
   /* Firefox */
-  &* {
-    scrollbar-width: none;
-  }
+  scrollbar-width: none;
 
   /* IE and Edge */
-  &* {
-    -ms-overflow-style: none;
-  }
+  -ms-overflow-style: none;
 }
 
 /* 카테고리 스크롤바 스타일 */

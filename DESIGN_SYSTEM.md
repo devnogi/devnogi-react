@@ -37,134 +37,208 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 
 ## 2. 색상 팔레트
 
-### 2.1 Primary - Clover Green (클로버 녹색)
+### 2.1 색상 설계 원칙
 
-마비노기의 푸른 초원과 자연을 상징하는 메인 컬러입니다.
+본 팔레트는 UI/UX 가독성, 일관성, 확장성을 고려한 표준 디자인 원칙을 따릅니다.
 
-| Token | HEX | RGB | 용도 |
-|-------|-----|-----|------|
-| `clover-50` | `#f0fdf4` | 240, 253, 244 | 아주 연한 배경 |
-| `clover-100` | `#dcfce7` | 220, 252, 231 | 연한 배경, 호버 |
-| `clover-200` | `#bbf7d0` | 187, 247, 208 | 강조 배경 |
-| `clover-300` | `#86efac` | 134, 239, 172 | 보조 요소 |
-| `clover-400` | `#4ade80` | 74, 222, 128 | 아이콘, 장식 |
-| `clover-500` | `#22c55e` | 34, 197, 94 | **메인 색상** |
-| `clover-600` | `#16a34a` | 22, 163, 74 | 호버, 강조 |
-| `clover-700` | `#15803d` | 21, 128, 61 | 활성 상태 |
-| `clover-800` | `#166534` | 22, 101, 52 | 텍스트 강조 |
-| `clover-900` | `#14532d` | 20, 83, 45 | 진한 텍스트 |
+#### 60-30-10 법칙
 
-### 2.2 Secondary - Cream (크림 베이지)
+| 비율 | 색상 역할 | 용도 |
+|------|----------|------|
+| **60~70%** | Background (배경) | 전체 레이아웃의 기본 바탕 |
+| **20~30%** | Primary (주요) | 핵심 인터랙션, 버튼, 링크 |
+| **5~10%** | Accent (강조) | 알림, 중요 표시, 제한적 CTA |
 
-따뜻하고 포근한 배경과 보조 요소에 사용합니다.
+#### Hue(색상 계열) 제한
 
-| Token | HEX | RGB | 용도 |
-|-------|-----|-----|------|
-| `cream-50` | `#fefdfb` | 254, 253, 251 | 메인 배경 (라이트) |
-| `cream-100` | `#fdf8f3` | 253, 248, 243 | 카드 배경 |
-| `cream-200` | `#f5ebe0` | 245, 235, 224 | 섹션 배경 |
-| `cream-300` | `#e9dcc9` | 233, 220, 201 | 테두리 |
-| `cream-400` | `#d4c4a8` | 212, 196, 168 | 비활성 요소 |
-| `cream-500` | `#b8a589` | 184, 165, 137 | 보조 텍스트 |
-| `cream-600` | `#9a8b73` | 154, 139, 115 | 부제목 |
-| `cream-700` | `#7a6f5d` | 122, 111, 93 | 본문 텍스트 |
-| `cream-800` | `#5c5347` | 92, 83, 71 | 강조 텍스트 |
-| `cream-900` | `#3d382f` | 61, 56, 47 | 제목 텍스트 |
+```
+최대 3종의 색상 계열만 사용:
+├── Background 계열 1종 (Gray)
+├── Primary 계열 1종 (Blue)
+└── Accent 계열 1종 (Gold)
 
-### 2.3 Accent - Sunset Orange (노을빛 주황)
+* 명도/채도 차이는 동일 색상군으로 간주 (추가 색상 아님)
+* 상태 색상(Success, Warning, Error, Info)은 의미 전달용으로만 사용
+  → 브랜드 컬러 개수 제한에 포함하지 않음
+```
 
-알림, 중요 표시, 포인트 컬러로 사용합니다.
+#### 배경 색상 원칙
+
+- 시각적 피로를 줄이기 위해 **순수 흰색 대신 연한 회색**을 기본 배경으로 사용
+- 순수 흰색(`#FFFFFF`)은 **카드, 모달, 강조 영역**에 한정하여 사용
+- 모든 텍스트와 UI 요소는 **WCAG 대비 기준**을 만족해야 함
+
+---
+
+### 2.2 Background - Gray (배경 색상)
 
 | Token | HEX | RGB | 용도 |
 |-------|-----|-----|------|
-| `sunset-50` | `#fff7ed` | 255, 247, 237 | 알림 배경 |
-| `sunset-100` | `#ffedd5` | 255, 237, 213 | 하이라이트 배경 |
-| `sunset-200` | `#fed7aa` | 254, 215, 170 | 배지 배경 |
-| `sunset-300` | `#fdba74` | 253, 186, 116 | 장식 요소 |
-| `sunset-400` | `#fb923c` | 251, 146, 60 | 아이콘 |
-| `sunset-500` | `#f97316` | 249, 115, 22 | **액센트 색상** |
-| `sunset-600` | `#ea580c` | 234, 88, 12 | 호버 상태 |
-| `sunset-700` | `#c2410c` | 194, 65, 12 | 활성 상태 |
-| `sunset-800` | `#9a3412` | 154, 52, 18 | 경고 텍스트 |
-| `sunset-900` | `#7c2d12` | 124, 45, 18 | 진한 경고 |
+| `gray-bg` | `#F5F6F8` | 245, 246, 248 | **메인 배경** - body, 전체 레이아웃 기본 바탕 |
+| `white` | `#FFFFFF` | 255, 255, 255 | **카드/강조 배경** - 카드, 모달, 리스트 아이템 |
 
-### 2.4 Semantic Colors (의미 색상)
+#### 명도 변형 (Gray 계열)
+
+| Token | HEX | RGB | 용도 |
+|-------|-----|-----|------|
+| `gray-50` | `#F9FAFB` | 249, 250, 251 | 가장 연한 배경 |
+| `gray-100` | `#F5F6F8` | 245, 246, 248 | **메인 배경 (Main Gray)** |
+| `gray-200` | `#E5E7EB` | 229, 231, 235 | 섹션 구분, 호버 배경 |
+| `gray-300` | `#D1D5DB` | 209, 213, 219 | 테두리, 구분선 |
+| `gray-400` | `#9CA3AF` | 156, 163, 175 | 비활성 요소, placeholder |
+| `gray-500` | `#6B7280` | 107, 114, 128 | 보조 텍스트 |
+| `gray-600` | `#4B5563` | 75, 85, 99 | 부제목 |
+| `gray-700` | `#374151` | 55, 65, 81 | 본문 텍스트 |
+| `gray-800` | `#1F2937` | 31, 41, 55 | 강조 텍스트 |
+| `gray-900` | `#111827` | 17, 24, 39 | 제목 텍스트 |
+
+---
+
+### 2.3 Primary - Blaanid Blue (청색)
+
+맑고 연한 하늘색 톤의 주요 색상입니다.
+상단 네비게이션, 주요 버튼, 활성 상태, 링크, 선택된 메뉴 등 서비스의 핵심 인터랙션에 사용합니다.
+
+| Token | HEX | RGB | 용도 |
+|-------|-----|-----|------|
+| `blaanid-50` | `#EFF6FF` | 239, 246, 255 | 아주 연한 배경 |
+| `blaanid-100` | `#DBEAFE` | 219, 234, 254 | 연한 배경, 선택 상태 배경 |
+| `blaanid-200` | `#BFDBFE` | 191, 219, 254 | 호버 배경 |
+| `blaanid-300` | `#93C5FD` | 147, 197, 253 | 보조 요소 |
+| `blaanid-400` | `#7FB4FA` | 127, 180, 250 | **메인 색상 (Blaanid Blue)** |
+| `blaanid-500` | `#60A5FA` | 96, 165, 250 | 호버, 강조 |
+| `blaanid-600` | `#3B82F6` | 59, 130, 246 | 활성 상태, 진한 버튼 |
+| `blaanid-700` | `#2563EB` | 37, 99, 235 | 강조 텍스트 |
+| `blaanid-800` | `#1D4ED8` | 29, 78, 216 | 진한 강조 |
+| `blaanid-900` | `#1E40AF` | 30, 64, 175 | 가장 진한 텍스트 |
+
+---
+
+### 2.4 Accent - Gold (금색)
+
+보조 강조 색상(Accent Color)입니다.
+알림 포인트, 강조 아이콘, 중요한 상태 표시, 제한적인 CTA 요소에만 사용합니다.
+
+> **주의**: Accent 색상은 "보이면 중요한 요소"라는 인식이 유지되도록 사용 빈도를 제한합니다.
+
+| Token | HEX | RGB | 용도 |
+|-------|-----|-----|------|
+| `gold-50` | `#FFFBEB` | 255, 251, 235 | 알림 배경 |
+| `gold-100` | `#FEF3C7` | 254, 243, 199 | 하이라이트 배경 |
+| `gold-200` | `#FDE68A` | 253, 230, 138 | 배지 배경 |
+| `gold-300` | `#FCD34D` | 252, 211, 77 | 장식 요소 |
+| `gold-400` | `#EEB233` | 238, 178, 51 | **메인 액센트 (Gold)** |
+| `gold-500` | `#F59E0B` | 245, 158, 11 | 호버 상태 |
+| `gold-600` | `#D97706` | 217, 119, 6 | 활성 상태 |
+| `gold-700` | `#B45309` | 180, 83, 9 | 강조 텍스트 |
+| `gold-800` | `#92400E` | 146, 64, 14 | 진한 강조 |
+| `gold-900` | `#78350F` | 120, 53, 15 | 가장 진한 |
+
+---
+
+### 2.5 Semantic Colors (상태/의미 색상)
+
+상태 색상은 **의미 전달용으로만** 사용하며, 브랜드 컬러 개수 제한에 포함하지 않습니다.
 
 | 용도 | 라이트 모드 | 다크 모드 | 설명 |
 |------|-------------|-----------|------|
-| **Success** | `clover-500` | `clover-400` | 성공, 완료, 긍정 |
-| **Warning** | `sunset-500` | `sunset-400` | 주의, 경고 |
-| **Error** | `#ef4444` | `#f87171` | 오류, 삭제, 부정 |
-| **Info** | `#0ea5e9` | `#38bdf8` | 정보, 안내 |
+| **Success** | `#22C55E` | `#4ADE80` | 성공, 완료, 긍정 |
+| **Warning** | `#EEB233` (gold-400) | `#FCD34D` | 주의, 경고 |
+| **Error** | `#EF4444` | `#F87171` | 오류, 삭제, 부정 |
+| **Info** | `#7FB4FA` (blaanid-400) | `#93C5FD` | 정보, 안내 |
 
-### 2.5 라이트 모드 색상 체계
+---
+
+### 2.6 라이트 모드 색상 체계
 
 ```css
 :root {
   /* 배경 */
-  --bg-primary: #fefdfb;      /* cream-50: 메인 배경 */
-  --bg-secondary: #fdf8f3;    /* cream-100: 카드/섹션 배경 */
-  --bg-tertiary: #f5ebe0;     /* cream-200: 강조 배경 */
-  --bg-elevated: #ffffff;     /* 떠있는 요소 (모달, 드롭다운) */
+  --bg-primary: #F5F6F8;      /* gray-100: 메인 배경 */
+  --bg-secondary: #FFFFFF;    /* white: 카드/섹션 배경 */
+  --bg-tertiary: #E5E7EB;     /* gray-200: 강조 배경 */
+  --bg-elevated: #FFFFFF;     /* 떠있는 요소 (모달, 드롭다운) */
 
   /* 텍스트 */
-  --text-primary: #3d382f;    /* cream-900: 제목 */
-  --text-secondary: #5c5347;  /* cream-800: 본문 */
-  --text-tertiary: #7a6f5d;   /* cream-700: 부제목 */
-  --text-muted: #9a8b73;      /* cream-600: 비활성 */
-  --text-placeholder: #b8a589; /* cream-500: 플레이스홀더 */
+  --text-primary: #111827;    /* gray-900: 제목 */
+  --text-secondary: #374151;  /* gray-700: 본문 */
+  --text-tertiary: #4B5563;   /* gray-600: 부제목 */
+  --text-muted: #6B7280;      /* gray-500: 비활성 */
+  --text-placeholder: #9CA3AF; /* gray-400: 플레이스홀더 */
 
   /* 테두리 */
-  --border-default: #e9dcc9;  /* cream-300 */
-  --border-strong: #d4c4a8;   /* cream-400 */
-  --border-focus: #22c55e;    /* clover-500 */
+  --border-default: #E5E7EB;  /* gray-200 */
+  --border-strong: #D1D5DB;   /* gray-300 */
+  --border-focus: #7FB4FA;    /* blaanid-400 */
 
   /* Primary */
-  --primary: #22c55e;         /* clover-500 */
-  --primary-hover: #16a34a;   /* clover-600 */
-  --primary-active: #15803d;  /* clover-700 */
-  --primary-bg: #f0fdf4;      /* clover-50 */
+  --primary: #7FB4FA;         /* blaanid-400 */
+  --primary-hover: #60A5FA;   /* blaanid-500 */
+  --primary-active: #3B82F6;  /* blaanid-600 */
+  --primary-bg: #EFF6FF;      /* blaanid-50 */
 
   /* Accent */
-  --accent: #f97316;          /* sunset-500 */
-  --accent-hover: #ea580c;    /* sunset-600 */
-  --accent-bg: #fff7ed;       /* sunset-50 */
+  --accent: #EEB233;          /* gold-400 */
+  --accent-hover: #F59E0B;    /* gold-500 */
+  --accent-bg: #FFFBEB;       /* gold-50 */
 }
 ```
 
-### 2.6 다크 모드 색상 체계
+### 2.7 다크 모드 색상 체계
 
 ```css
 .dark {
-  /* 배경 - 따뜻한 다크 톤 */
-  --bg-primary: #1a1814;      /* 메인 배경 */
-  --bg-secondary: #252219;    /* 카드/섹션 배경 */
-  --bg-tertiary: #2d2a23;     /* 강조 배경 */
-  --bg-elevated: #353128;     /* 떠있는 요소 */
+  /* 배경 - 어두운 톤 */
+  --bg-primary: #111827;      /* gray-900: 메인 배경 */
+  --bg-secondary: #1F2937;    /* gray-800: 카드/섹션 배경 */
+  --bg-tertiary: #374151;     /* gray-700: 강조 배경 */
+  --bg-elevated: #1F2937;     /* 떠있는 요소 */
 
   /* 텍스트 */
-  --text-primary: #fdf8f3;    /* cream-100 */
-  --text-secondary: #e9dcc9;  /* cream-300 */
-  --text-tertiary: #d4c4a8;   /* cream-400 */
-  --text-muted: #b8a589;      /* cream-500 */
-  --text-placeholder: #9a8b73; /* cream-600 */
+  --text-primary: #F9FAFB;    /* gray-50 */
+  --text-secondary: #E5E7EB;  /* gray-200 */
+  --text-tertiary: #D1D5DB;   /* gray-300 */
+  --text-muted: #9CA3AF;      /* gray-400 */
+  --text-placeholder: #6B7280; /* gray-500 */
 
   /* 테두리 */
-  --border-default: #3d382f;  /* cream-900 */
-  --border-strong: #4a453b;
-  --border-focus: #4ade80;    /* clover-400 */
+  --border-default: #374151;  /* gray-700 */
+  --border-strong: #4B5563;   /* gray-600 */
+  --border-focus: #93C5FD;    /* blaanid-300 */
 
   /* Primary */
-  --primary: #4ade80;         /* clover-400 */
-  --primary-hover: #22c55e;   /* clover-500 */
-  --primary-active: #16a34a;  /* clover-600 */
-  --primary-bg: rgba(34, 197, 94, 0.1);
+  --primary: #93C5FD;         /* blaanid-300 */
+  --primary-hover: #7FB4FA;   /* blaanid-400 */
+  --primary-active: #60A5FA;  /* blaanid-500 */
+  --primary-bg: rgba(127, 180, 250, 0.1);
 
   /* Accent */
-  --accent: #fb923c;          /* sunset-400 */
-  --accent-hover: #f97316;    /* sunset-500 */
-  --accent-bg: rgba(249, 115, 22, 0.1);
+  --accent: #FCD34D;          /* gold-300 */
+  --accent-hover: #EEB233;    /* gold-400 */
+  --accent-bg: rgba(238, 178, 51, 0.1);
 }
+```
+
+---
+
+### 2.8 색상 사용 규칙
+
+#### DO (권장)
+
+```
+✅ 새로운 색상이 필요할 때 기존 색상의 명도/투명도를 조절하여 변형
+✅ 텍스트 색상은 배경 대비를 최우선으로 고려
+✅ Accent 색상은 시선을 끌어야 하는 요소에만 제한적으로 사용
+✅ 상태 색상은 의미 전달용으로만 사용
+```
+
+#### DON'T (금지)
+
+```
+❌ 새로운 Hue(색상 계열)를 임의로 추가
+❌ 색상 자체로 의미를 전달 (색각 이상 사용자 고려)
+❌ Accent 색상 남용 (중요도 인식 훼손)
+❌ WCAG 대비 기준 미충족 색상 조합 사용
 ```
 
 ---
@@ -175,10 +249,10 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 
 | 종류 | 용도 | 라이트 모드 | 다크 모드 |
 |------|------|-------------|-----------|
-| **Primary** | 주요 액션 (저장, 확인, 검색) | `bg-clover-500` | `bg-clover-500` |
-| **Secondary** | 보조 액션 (취소, 닫기) | `bg-cream-100 border-cream-300` | `bg-cream-800/20 border-cream-700` |
-| **Ghost** | 미니멀한 액션 | `bg-transparent hover:bg-cream-100` | `bg-transparent hover:bg-cream-800/20` |
-| **Accent** | 특별한 액션 (알림, 이벤트) | `bg-sunset-500` | `bg-sunset-500` |
+| **Primary** | 주요 액션 (저장, 확인, 검색) | `bg-blaanid-400` | `bg-blaanid-400` |
+| **Secondary** | 보조 액션 (취소, 닫기) | `bg-gray-100 border-gray-300` | `bg-gray-700 border-gray-600` |
+| **Ghost** | 미니멀한 액션 | `bg-transparent hover:bg-gray-100` | `bg-transparent hover:bg-gray-800` |
+| **Accent** | 특별한 액션 (알림, 이벤트) | `bg-gold-400` | `bg-gold-400` |
 | **Destructive** | 삭제, 위험한 액션 | `bg-red-500` | `bg-red-500` |
 
 ### 3.2 버튼 상태
@@ -188,7 +262,7 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 | **Default** | 기본 색상 |
 | **Hover** | 배경 1단계 진하게 |
 | **Active/Pressed** | 배경 2단계 진하게, `scale-[0.98]` |
-| **Focus** | `ring-2 ring-clover-500/50 ring-offset-2` |
+| **Focus** | `ring-2 ring-blaanid-400/50 ring-offset-2` |
 | **Disabled** | `opacity-50 cursor-not-allowed` |
 | **Loading** | 스피너 아이콘 + 텍스트 |
 
@@ -208,10 +282,10 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 // Primary Button
 <button className="
   h-10 px-5 rounded-xl
-  bg-clover-500 hover:bg-clover-600 active:bg-clover-700
+  bg-blaanid-400 hover:bg-blaanid-500 active:bg-blaanid-600
   text-white font-medium text-sm
   transition-colors duration-200
-  focus:outline-none focus:ring-2 focus:ring-clover-500/50 focus:ring-offset-2
+  focus:outline-none focus:ring-2 focus:ring-blaanid-400/50 focus:ring-offset-2
   disabled:opacity-50 disabled:cursor-not-allowed
 ">
   저장하기
@@ -220,10 +294,10 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 // Secondary Button
 <button className="
   h-10 px-5 rounded-xl
-  bg-cream-100 hover:bg-cream-200 border border-cream-300
-  text-cream-800 font-medium text-sm
+  bg-white hover:bg-gray-50 border border-gray-300
+  text-gray-800 font-medium text-sm
   transition-colors duration-200
-  dark:bg-cream-800/20 dark:border-cream-700 dark:text-cream-200
+  dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200
 ">
   취소
 </button>
@@ -231,8 +305,8 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 // Icon Button (원형)
 <button className="
   w-10 h-10 rounded-full
-  bg-clover-50 hover:bg-clover-100
-  text-clover-600
+  bg-blaanid-50 hover:bg-blaanid-100
+  text-blaanid-600
   flex items-center justify-center
   transition-colors duration-200
 ">
@@ -271,45 +345,45 @@ maple.gg의 깔끔한 정보 구조를 참고하되, 마비노기만의 동글�
 
 ```
 라이트 모드:
-├── Primary (cream-900): 제목, 중요 텍스트
-├── Secondary (cream-800): 본문
-├── Tertiary (cream-700): 부제목, 설명
-├── Muted (cream-600): 비활성, 덜 중요한 정보
-└── Placeholder (cream-500): 입력 힌트
+├── Primary (gray-900): 제목, 중요 텍스트
+├── Secondary (gray-700): 본문
+├── Tertiary (gray-600): 부제목, 설명
+├── Muted (gray-500): 비활성, 덜 중요한 정보
+└── Placeholder (gray-400): 입력 힌트
 
 다크 모드:
-├── Primary (cream-100): 제목, 중요 텍스트
-├── Secondary (cream-300): 본문
-├── Tertiary (cream-400): 부제목, 설명
-├── Muted (cream-500): 비활성
-└── Placeholder (cream-600): 입력 힌트
+├── Primary (gray-50): 제목, 중요 텍스트
+├── Secondary (gray-200): 본문
+├── Tertiary (gray-300): 부제목, 설명
+├── Muted (gray-400): 비활성
+└── Placeholder (gray-500): 입력 힌트
 ```
 
 ### 4.4 텍스트 스타일 예시
 
 ```tsx
 // 페이지 제목
-<h1 className="text-2xl md:text-3xl font-bold text-cream-900 dark:text-cream-100">
+<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50">
   경매장 거래 내역
 </h1>
 
 // 섹션 제목
-<h2 className="text-xl font-semibold text-cream-800 dark:text-cream-200">
+<h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
   최근 거래
 </h2>
 
 // 본문
-<p className="text-sm text-cream-700 dark:text-cream-400 leading-relaxed">
+<p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
   마비노기 경매장의 모든 거래 내역을 확인하세요.
 </p>
 
 // 캡션
-<span className="text-xs text-cream-500 dark:text-cream-500">
+<span className="text-xs text-gray-500 dark:text-gray-400">
   2024년 1월 14일
 </span>
 
 // 강조 텍스트 (링크)
-<a className="text-clover-600 hover:text-clover-700 dark:text-clover-400 font-medium">
+<a className="text-blaanid-600 hover:text-blaanid-700 dark:text-blaanid-300 font-medium">
   더 보기
 </a>
 ```
@@ -340,16 +414,16 @@ rounded        → 기본값 너무 작음 (6px)
 
 ### 5.2 그림자 (Shadows)
 
-부드럽고 따뜻한 톤의 그림자를 사용합니다.
+부드럽고 중립적인 톤의 그림자를 사용합니다.
 
 | Token | 값 | 용도 |
 |-------|-----|------|
-| `soft-sm` | `0 2px 8px rgba(61, 56, 47, 0.06)` | 입력 필드, 작은 버튼 |
-| `soft-md` | `0 4px 16px rgba(61, 56, 47, 0.08)` | 호버 상태, 드롭다운 |
-| `soft-lg` | `0 8px 24px rgba(61, 56, 47, 0.10)` | 카드, 팝오버 |
-| `soft-xl` | `0 12px 32px rgba(61, 56, 47, 0.12)` | 모달, 플로팅 요소 |
-| `glow-clover` | `0 4px 20px rgba(34, 197, 94, 0.25)` | Primary 버튼 호버 |
-| `glow-sunset` | `0 4px 20px rgba(249, 115, 22, 0.25)` | Accent 버튼 호버 |
+| `soft-sm` | `0 2px 8px rgba(0, 0, 0, 0.06)` | 입력 필드, 작은 버튼 |
+| `soft-md` | `0 4px 16px rgba(0, 0, 0, 0.08)` | 호버 상태, 드롭다운 |
+| `soft-lg` | `0 8px 24px rgba(0, 0, 0, 0.10)` | 카드, 팝오버 |
+| `soft-xl` | `0 12px 32px rgba(0, 0, 0, 0.12)` | 모달, 플로팅 요소 |
+| `glow-blaanid` | `0 4px 20px rgba(127, 180, 250, 0.25)` | Primary 버튼 호버 |
+| `glow-gold` | `0 4px 20px rgba(238, 178, 51, 0.25)` | Accent 버튼 호버 |
 
 ### 5.3 네비게이션 바
 
@@ -357,9 +431,9 @@ rounded        → 기본값 너무 작음 (6px)
 // 헤더 네비게이션
 <header className="
   sticky top-0 z-50
-  bg-cream-50/90 dark:bg-[#1a1814]/90
+  bg-white/90 dark:bg-gray-900/90
   backdrop-blur-md
-  border-b border-cream-200 dark:border-cream-800
+  border-b border-gray-200 dark:border-gray-700
 ">
   <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
     {/* 로고 */}
@@ -370,8 +444,8 @@ rounded        → 기본값 너무 작음 (6px)
       <li>
         <a className="
           px-4 py-2 rounded-xl
-          text-sm font-medium text-cream-700 dark:text-cream-300
-          hover:bg-cream-100 dark:hover:bg-cream-800/30
+          text-sm font-medium text-gray-700 dark:text-gray-300
+          hover:bg-gray-100 dark:hover:bg-gray-800
           transition-colors
         ">
           경매장
@@ -382,8 +456,8 @@ rounded        → 기본값 너무 작음 (6px)
         <a className="
           px-4 py-2 rounded-xl
           text-sm font-medium
-          bg-clover-50 text-clover-700
-          dark:bg-clover-900/30 dark:text-clover-400
+          bg-blaanid-50 text-blaanid-700
+          dark:bg-blaanid-900/30 dark:text-blaanid-300
         ">
           커뮤니티
         </a>
@@ -398,10 +472,10 @@ rounded        → 기본값 너무 작음 (6px)
 ```tsx
 // 기본 카드
 <div className="
-  bg-white dark:bg-[#252219]
+  bg-white dark:bg-gray-800
   rounded-[20px]
-  border border-cream-200 dark:border-cream-800
-  shadow-[0_8px_24px_rgba(61,56,47,0.08)]
+  border border-gray-200 dark:border-gray-700
+  shadow-[0_8px_24px_rgba(0,0,0,0.08)]
   dark:shadow-none
   p-5
 ">
@@ -410,12 +484,12 @@ rounded        → 기본값 너무 작음 (6px)
 
 // 인터랙티브 카드 (클릭 가능)
 <div className="
-  bg-white dark:bg-[#252219]
+  bg-white dark:bg-gray-800
   rounded-[20px]
-  border border-cream-200 dark:border-cream-800
-  shadow-[0_4px_16px_rgba(61,56,47,0.06)]
-  hover:shadow-[0_8px_24px_rgba(61,56,47,0.12)]
-  hover:border-cream-300 dark:hover:border-cream-700
+  border border-gray-200 dark:border-gray-700
+  shadow-[0_4px_16px_rgba(0,0,0,0.06)]
+  hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]
+  hover:border-gray-300 dark:hover:border-gray-600
   transition-all duration-200
   cursor-pointer
   p-5
@@ -425,20 +499,20 @@ rounded        → 기본값 너무 작음 (6px)
 
 // 이미지 카드 (게시물, 아이템 등)
 <div className="
-  bg-white dark:bg-[#252219]
+  bg-white dark:bg-gray-800
   rounded-[20px]
-  border border-cream-200 dark:border-cream-800
+  border border-gray-200 dark:border-gray-700
   overflow-hidden
 ">
   {/* 이미지 영역 */}
-  <div className="aspect-video bg-cream-100 dark:bg-cream-900">
+  <div className="aspect-video bg-gray-100 dark:bg-gray-900">
     <img className="w-full h-full object-cover" />
   </div>
 
   {/* 텍스트 영역 */}
   <div className="p-4">
-    <h3 className="font-semibold text-cream-900 dark:text-cream-100">제목</h3>
-    <p className="text-sm text-cream-600 dark:text-cream-400 mt-1">설명</p>
+    <h3 className="font-semibold text-gray-900 dark:text-gray-50">제목</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">설명</p>
   </div>
 </div>
 ```
@@ -449,21 +523,21 @@ rounded        → 기본값 너무 작음 (6px)
 // 기본 입력 필드
 <input className="
   w-full h-11 px-4 rounded-xl
-  bg-white dark:bg-cream-900/50
-  border border-cream-300 dark:border-cream-700
-  text-cream-900 dark:text-cream-100
-  placeholder:text-cream-400 dark:placeholder:text-cream-600
-  focus:outline-none focus:border-clover-500 focus:ring-2 focus:ring-clover-500/20
+  bg-white dark:bg-gray-800
+  border border-gray-300 dark:border-gray-600
+  text-gray-900 dark:text-gray-50
+  placeholder:text-gray-400 dark:placeholder:text-gray-500
+  focus:outline-none focus:border-blaanid-400 focus:ring-2 focus:ring-blaanid-400/20
   transition-all duration-200
 " placeholder="검색어를 입력하세요" />
 
 // 아이콘 포함 입력 필드
 <div className="relative">
-  <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cream-400" />
+  <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
   <input className="
     w-full h-11 pl-11 pr-4 rounded-xl
-    bg-white dark:bg-cream-900/50
-    border border-cream-300 dark:border-cream-700
+    bg-white dark:bg-gray-800
+    border border-gray-300 dark:border-gray-600
     ...
   " />
 </div>
@@ -485,14 +559,14 @@ rounded        → 기본값 너무 작음 (6px)
   <div className="
     fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
     w-full max-w-lg max-h-[90vh]
-    bg-white dark:bg-[#252219]
+    bg-white dark:bg-gray-800
     rounded-[24px]
-    shadow-[0_20px_48px_rgba(61,56,47,0.14)]
+    shadow-[0_20px_48px_rgba(0,0,0,0.14)]
     overflow-hidden
   ">
     {/* 헤더 */}
-    <div className="px-6 py-4 border-b border-cream-200 dark:border-cream-800">
-      <h2 className="text-lg font-bold text-cream-900 dark:text-cream-100">
+    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50">
         모달 제목
       </h2>
     </div>
@@ -503,7 +577,7 @@ rounded        → 기본값 너무 작음 (6px)
     </div>
 
     {/* 푸터 */}
-    <div className="px-6 py-4 border-t border-cream-200 dark:border-cream-800 flex gap-3 justify-end">
+    <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
       <Button variant="secondary">취소</Button>
       <Button variant="primary">확인</Button>
     </div>
@@ -519,19 +593,19 @@ rounded        → 기본값 너무 작음 (6px)
   inline-flex items-center
   px-2.5 py-1 rounded-full
   text-xs font-medium
-  bg-cream-100 text-cream-700
-  dark:bg-cream-800/30 dark:text-cream-300
+  bg-gray-100 text-gray-700
+  dark:bg-gray-700 dark:text-gray-300
 ">
   일반
 </span>
 
 // Primary 배지
-<span className="bg-clover-100 text-clover-700 dark:bg-clover-900/30 dark:text-clover-400 ...">
+<span className="bg-blaanid-100 text-blaanid-700 dark:bg-blaanid-900/30 dark:text-blaanid-300 ...">
   인기
 </span>
 
 // Accent 배지
-<span className="bg-sunset-100 text-sunset-700 dark:bg-sunset-900/30 dark:text-sunset-400 ...">
+<span className="bg-gold-100 text-gold-700 dark:bg-gold-900/30 dark:text-gold-300 ...">
   NEW
 </span>
 
@@ -540,7 +614,7 @@ rounded        → 기본값 너무 작음 (6px)
   inline-flex items-center gap-1.5
   px-3 py-1.5 rounded-full
   text-xs font-medium
-  bg-clover-50 text-clover-700 border border-clover-200
+  bg-blaanid-50 text-blaanid-700 border border-blaanid-200
 ">
   <TagIcon className="w-3.5 h-3.5" />
   무기
@@ -553,13 +627,13 @@ rounded        → 기본값 너무 작음 (6px)
 // 탭 컨테이너
 <div className="
   inline-flex p-1 rounded-xl
-  bg-cream-100 dark:bg-cream-800/30
+  bg-gray-100 dark:bg-gray-800
 ">
   {/* 비활성 탭 */}
   <button className="
     px-4 py-2 rounded-lg
-    text-sm font-medium text-cream-600 dark:text-cream-400
-    hover:text-cream-900 dark:hover:text-cream-200
+    text-sm font-medium text-gray-600 dark:text-gray-400
+    hover:text-gray-900 dark:hover:text-gray-100
     transition-colors
   ">
     전체
@@ -569,8 +643,8 @@ rounded        → 기본값 너무 작음 (6px)
   <button className="
     px-4 py-2 rounded-lg
     text-sm font-medium
-    bg-white dark:bg-[#252219]
-    text-cream-900 dark:text-cream-100
+    bg-white dark:bg-gray-700
+    text-gray-900 dark:text-gray-50
     shadow-sm
   ">
     거래 내역
@@ -585,18 +659,18 @@ rounded        → 기본값 너무 작음 (6px)
 <div className="
   absolute top-full left-0 mt-2
   min-w-[180px]
-  bg-white dark:bg-[#252219]
+  bg-white dark:bg-gray-800
   rounded-xl
-  border border-cream-200 dark:border-cream-800
-  shadow-[0_8px_24px_rgba(61,56,47,0.10)]
+  border border-gray-200 dark:border-gray-700
+  shadow-[0_8px_24px_rgba(0,0,0,0.10)]
   py-2
   z-50
 ">
   {/* 메뉴 아이템 */}
   <button className="
     w-full px-4 py-2 text-left
-    text-sm text-cream-700 dark:text-cream-300
-    hover:bg-cream-50 dark:hover:bg-cream-800/30
+    text-sm text-gray-700 dark:text-gray-300
+    hover:bg-gray-50 dark:hover:bg-gray-700
     transition-colors
   ">
     옵션 1
@@ -606,14 +680,14 @@ rounded        → 기본값 너무 작음 (6px)
   <button className="
     w-full px-4 py-2 text-left
     text-sm font-semibold
-    bg-clover-50 text-clover-700
-    dark:bg-clover-900/30 dark:text-clover-400
+    bg-blaanid-50 text-blaanid-700
+    dark:bg-blaanid-900/30 dark:text-blaanid-300
   ">
     선택됨
   </button>
 
   {/* 구분선 */}
-  <div className="my-2 border-t border-cream-200 dark:border-cream-800" />
+  <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
 </div>
 ```
 
@@ -645,16 +719,16 @@ rounded        → 기본값 너무 작음 (6px)
 
 ```tsx
 // 기본 아이콘
-<Icon className="text-cream-500" />
+<Icon className="text-gray-500" />
 
 // Primary 아이콘
-<Icon className="text-clover-500" />
+<Icon className="text-blaanid-400" />
 
 // Accent 아이콘
-<Icon className="text-sunset-500" />
+<Icon className="text-gold-400" />
 
 // 인터랙티브 아이콘
-<Icon className="text-cream-400 hover:text-cream-600 transition-colors" />
+<Icon className="text-gray-400 hover:text-gray-600 transition-colors" />
 ```
 
 ### 6.4 일러스트 톤 가이드
@@ -664,7 +738,7 @@ rounded        → 기본값 너무 작음 (6px)
 | 항목 | 가이드 |
 |------|--------|
 | **스타일** | 손그림 느낌, 부드러운 선, 동글동글한 형태 |
-| **색감** | 따뜻한 톤 (베이지, 녹색, 주황 계열), 파스텔 |
+| **색감** | 청색/하늘색 기조, 금색 포인트, 부드러운 회색 배경 |
 | **주제** | 자연 (숲, 초원, 꽃), 마을, 캐릭터, 아이템, 펫 |
 | **분위기** | 아기자기함, 평화로움, 판타지 생활 |
 
@@ -685,8 +759,8 @@ rounded        → 기본값 너무 작음 (6px)
 ```
 스타일: 마비노기 스타일, 손그림, 수채화 느낌, 파스텔 톤
 분위기: 따뜻한, 평화로운, 아기자기한, 판타지 라이프
-색상: 베이지, 크림, 녹색, 주황, 파스텔
-배경: 투명 또는 단색 (cream-50, cream-100)
+색상: 하늘색/청색 기조, 금색 포인트, 연한 회색 배경
+배경: 투명 또는 단색 (gray-100, white)
 형태: 동글동글, 부드러운 곡선, 날카로운 모서리 없음
 ```
 
@@ -784,9 +858,9 @@ xl: 1280px  /* 데스크톱 */
 <nav className="
   fixed bottom-0 inset-x-0
   lg:hidden
-  bg-cream-50/90 dark:bg-[#1a1814]/90
+  bg-white/90 dark:bg-gray-900/90
   backdrop-blur-md
-  border-t border-cream-200 dark:border-cream-800
+  border-t border-gray-200 dark:border-gray-700
   px-4 py-2
 ">
   {/* 네비게이션 아이템 */}
@@ -857,9 +931,9 @@ animate-spin
 ```tsx
 className="
   focus:outline-none
-  focus:ring-2 focus:ring-clover-500/50
-  focus:ring-offset-2 focus:ring-offset-cream-50
-  dark:focus:ring-offset-[#1a1814]
+  focus:ring-2 focus:ring-blaanid-400/50
+  focus:ring-offset-2 focus:ring-offset-gray-100
+  dark:focus:ring-offset-gray-900
 "
 ```
 
@@ -875,11 +949,20 @@ className="
 ### Tailwind 클래스 요약
 
 ```tsx
-// 색상
-text-cream-{50-900}    // 텍스트
-bg-cream-{50-900}      // 배경
-text-clover-{50-900}   // Primary
-text-sunset-{50-900}   // Accent
+// 배경 색상
+bg-gray-100            // 메인 배경 (Main Gray)
+bg-white               // 카드/강조 배경
+
+// 텍스트 색상
+text-gray-{50-900}     // 텍스트 (gray-900: 제목, gray-700: 본문)
+
+// Primary 색상
+bg-blaanid-{50-900}    // 배경
+text-blaanid-{50-900}  // 텍스트 (blaanid-400: 메인)
+
+// Accent 색상
+bg-gold-{50-900}       // 배경
+text-gold-{50-900}     // 텍스트 (gold-400: 메인)
 
 // 모서리
 rounded-lg             // 8px - 작은 요소
@@ -890,24 +973,27 @@ rounded-3xl            // 24px - 모달
 rounded-full           // 원형
 
 // 그림자 (커스텀)
-shadow-[0_8px_24px_rgba(61,56,47,0.08)]  // 카드
-shadow-[0_20px_48px_rgba(61,56,47,0.14)] // 모달
+shadow-[0_8px_24px_rgba(0,0,0,0.08)]  // 카드
+shadow-[0_20px_48px_rgba(0,0,0,0.14)] // 모달
 
 // 트랜지션
 transition-colors duration-200
 transition-all duration-200
 ```
 
-### 컴포넌트 체크리스트
+### 색상 비율 체크리스트
 
 새로운 컴포넌트를 만들 때 확인하세요:
 
-- [ ] 따뜻한 색상 사용 (cream, clover, sunset)
+- [ ] **60-30-10 법칙** 준수 (배경 60%, Primary 30%, Accent 10%)
+- [ ] 배경에는 `gray-100` 또는 `white` 사용
+- [ ] Primary 인터랙션에는 `blaanid-400` 사용
+- [ ] Accent는 제한적으로만 사용 (알림, 강조 등)
 - [ ] 충분한 둥글기 적용 (최소 `rounded-lg`)
 - [ ] 부드러운 그림자 사용
 - [ ] 다크 모드 스타일 추가
 - [ ] 호버/포커스 상태 정의
-- [ ] 접근성 고려 (색상 대비, 포커스 표시)
+- [ ] 접근성 고려 (WCAG 색상 대비, 포커스 표시)
 - [ ] 반응형 대응
 
 ---
@@ -918,3 +1004,4 @@ transition-all duration-200
 |------|------|----------|
 | 2024-01-14 | 1.0.0 | 초기 디자인 시스템 작성 |
 | 2024-01-14 | 2.0.0 | 전면 개편 - maple.gg 참고, 일러스트 가이드 추가 |
+| 2025-01-15 | 3.0.0 | 색상 팔레트 전면 개편 - 60-30-10 법칙 적용, Gray/Blaanid Blue/Gold 체계 |

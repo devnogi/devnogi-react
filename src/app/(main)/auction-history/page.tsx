@@ -13,7 +13,30 @@ import { ItemCategory } from "@/data/item-category";
 import { useInfiniteAuctionHistory } from "@/hooks/useInfiniteAuctionHistory";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { ActiveFilter } from "@/types/search-filter";
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+
+// URL params reader component
+function UrlParamsReader({
+  onParamsLoad,
+}: {
+  onParamsLoad: (params: { itemName?: string; category?: string }) => void;
+}) {
+  const urlSearchParams = useSearchParams();
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  useEffect(() => {
+    if (hasLoaded) return;
+    const itemName = urlSearchParams.get("itemName") || undefined;
+    const category = urlSearchParams.get("category") || undefined;
+    if (itemName || category) {
+      onParamsLoad({ itemName, category });
+    }
+    setHasLoaded(true);
+  }, [urlSearchParams, onParamsLoad, hasLoaded]);
+
+  return null;
+}
 
 export default function Page() {
   const [itemName, setItemName] = useState<string>("");
@@ -117,6 +140,32 @@ export default function Page() {
       setSelectedCategory(saved);
     }
   }, []);
+
+  // Callback for URL params initialization
+  const handleUrlParamsLoad = useCallback(
+    (params: { itemName?: string; category?: string }) => {
+      const newSearchParams: AuctionHistorySearchParams = {};
+
+      if (params.itemName) {
+        setItemName(params.itemName);
+        newSearchParams.itemName = params.itemName;
+      }
+
+      if (params.category) {
+        setSelectedCategory(params.category);
+        const parts = params.category.split("/");
+        if (parts.length === 1) {
+          newSearchParams.itemTopCategory = parts[0];
+        } else if (parts.length === 2) {
+          newSearchParams.itemTopCategory = parts[0];
+          newSearchParams.itemSubCategory = parts[1];
+        }
+      }
+
+      setSearchParams(newSearchParams);
+    },
+    []
+  );
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -320,9 +369,14 @@ export default function Page() {
   }
 
   return (
-    <div className="select-none absolute inset-0 bg-[var(--color-ds-background)]">
+    <div className="select-none min-h-full bg-[var(--color-ds-background)] -mx-4 md:-mx-6 -my-6 md:-my-8">
+      {/* URL Params Reader - wrapped in Suspense for SSR compatibility */}
+      <Suspense fallback={null}>
+        <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />
+      </Suspense>
+
       {/* Fixed Floating Category Sidebar - Only visible on 2xl+ screens (1536px+) */}
-      <div className="fixed left-4 top-24 bottom-8 w-56 z-40 hidden 2xl:block">
+      <div className="fixed left-4 top-[158px] bottom-8 w-56 z-40 hidden 2xl:block">
         <CategorySection
           selectedId={selectedCategory}
           onSelect={handleCategorySelect}
@@ -344,8 +398,8 @@ export default function Page() {
       />
 
       {/* Centered Main Content Container */}
-      <div className="h-full overflow-auto flex justify-center [scrollbar-gutter:stable]">
-        <div className="w-full max-w-4xl px-4 md:px-6 pt-16 md:pt-20 pb-4 md:pb-8">
+      <div className="min-h-full flex justify-center [scrollbar-gutter:stable]">
+        <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
           {/* Mobile Filter Chips & Search Button - Only visible on lg and below */}
           <div className="mb-4 lg:hidden flex items-center gap-2">
             <div className="flex-1">
