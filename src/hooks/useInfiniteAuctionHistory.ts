@@ -86,8 +86,7 @@ export function useInfiniteAuctionHistory(
       return lastPage.meta.currentPage + 1;
     },
     initialPageParam: 1,
-    enabled:
-      !!params.itemName || !!params.itemTopCategory || !!params.itemSubCategory,
+    enabled: true, // 초기 진입 시에도 전체 거래 내역 조회 허용
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });

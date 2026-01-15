@@ -7,7 +7,6 @@ import CategoryModal from "@/components/commons/CategoryModal";
 import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard";
 import MobileFilterChips from "@/components/page/auction-history/MobileFilterChips";
 import MobileFilterModal from "@/components/page/auction-history/MobileFilterModal";
-import MobileSearchModal from "@/components/page/auction-history/MobileSearchModal";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
 import { useInfiniteAuctionHistory } from "@/hooks/useInfiniteAuctionHistory";
@@ -16,24 +15,28 @@ import { ActiveFilter } from "@/types/search-filter";
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-// URL params reader component
+// URL params reader component - URL 파라미터 변경 시마다 검색 동작
 function UrlParamsReader({
   onParamsLoad,
 }: {
   onParamsLoad: (params: { itemName?: string; category?: string }) => void;
 }) {
   const urlSearchParams = useSearchParams();
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const prevParamsRef = useRef<string>("");
 
   useEffect(() => {
-    if (hasLoaded) return;
     const itemName = urlSearchParams.get("itemName") || undefined;
     const category = urlSearchParams.get("category") || undefined;
-    if (itemName || category) {
+
+    // 현재 URL 파라미터를 문자열로 직렬화하여 이전 값과 비교
+    const currentParams = JSON.stringify({ itemName, category });
+
+    // 파라미터가 변경되었고, 유효한 검색 조건이 있을 때만 실행
+    if (currentParams !== prevParamsRef.current && (itemName || category)) {
+      prevParamsRef.current = currentParams;
       onParamsLoad({ itemName, category });
     }
-    setHasLoaded(true);
-  }, [urlSearchParams, onParamsLoad, hasLoaded]);
+  }, [urlSearchParams, onParamsLoad]);
 
   return null;
 }
@@ -49,7 +52,6 @@ export default function Page() {
   const [isClientMounted, setIsClientMounted] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [isMobileSearchModalOpen, setIsMobileSearchModalOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [sortOption, setSortOption] = useState<{
     label: string;
@@ -400,10 +402,9 @@ export default function Page() {
       {/* Centered Main Content Container */}
       <div className="min-h-full flex justify-center [scrollbar-gutter:stable]">
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
-          {/* Mobile Filter Chips & Search Button - Only visible on lg and below */}
-          <div className="mb-4 lg:hidden flex items-center gap-2">
-            <div className="flex-1">
-              <MobileFilterChips
+          {/* Mobile Filter Chips - Only visible on lg and below */}
+          <div className="mb-4 lg:hidden">
+            <MobileFilterChips
               activeFilters={{
                 hasCategory: selectedCategory !== "all",
                 hasPrice: !!(mobilePriceMin || mobilePriceMax),
@@ -415,17 +416,6 @@ export default function Page() {
               onDateClick={() => setMobileFilterType("date")}
               onOptionsClick={() => setMobileFilterType("options")}
             />
-            </div>
-            {/* Search Button */}
-            <button
-              onClick={() => setIsMobileSearchModalOpen(true)}
-              className="flex-shrink-0 flex items-center justify-center w-10 h-10 text-[var(--color-ds-ornamental)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
-              aria-label="아이템 검색"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
           </div>
 
           {/* Search Section - Only visible on lg+ screens */}
@@ -540,17 +530,6 @@ export default function Page() {
         />
       </div>
 
-      {/* Mobile Search Modal - Only visible on lg and below */}
-      <div className="lg:hidden">
-        <MobileSearchModal
-          isOpen={isMobileSearchModalOpen}
-          onClose={() => setIsMobileSearchModalOpen(false)}
-          itemName={itemName}
-          setItemName={setItemName}
-          onSearch={handleSearch}
-          onCategorySelect={handleCategorySelect}
-        />
-      </div>
     </div>
   );
 }

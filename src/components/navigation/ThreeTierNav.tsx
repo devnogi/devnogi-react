@@ -175,11 +175,31 @@ export default function ThreeTierNav() {
     if (selectedIndex >= 0 && filteredItems[selectedIndex]) {
       handleItemSelect(filteredItems[selectedIndex]);
     } else if (searchValue.trim()) {
-      addRecentSearch({ itemName: searchValue.trim() });
-      setRecentSearches(getRecentSearches());
-      router.push(
-        `/auction-history?itemName=${encodeURIComponent(searchValue.trim())}`
+      // 입력한 검색어와 정확히 일치하는 아이템이 있는지 확인
+      const matchingItem = itemInfos.find(
+        (item) => item.name.toLowerCase() === searchValue.trim().toLowerCase()
       );
+
+      if (matchingItem) {
+        // 정확히 일치하는 아이템이 있으면 카테고리 정보 포함
+        addRecentSearch({
+          itemName: matchingItem.name,
+          topCategory: matchingItem.topCategory,
+          subCategory: matchingItem.subCategory,
+        });
+        setRecentSearches(getRecentSearches());
+        const categoryId = `${matchingItem.topCategory}/${matchingItem.subCategory}`;
+        router.push(
+          `/auction-history?itemName=${encodeURIComponent(matchingItem.name)}&category=${encodeURIComponent(categoryId)}`
+        );
+      } else {
+        // 일치하는 아이템이 없으면 검색어만 저장
+        addRecentSearch({ itemName: searchValue.trim() });
+        setRecentSearches(getRecentSearches());
+        router.push(
+          `/auction-history?itemName=${encodeURIComponent(searchValue.trim())}`
+        );
+      }
       setIsSearchFocused(false);
     }
   };
@@ -224,6 +244,16 @@ export default function ThreeTierNav() {
     (searchValue.trim().length > 0 ||
       (searchValue.trim().length === 0 && recentSearches.length > 0));
 
+  // URL 경로에 따른 placeholder 분기
+  const searchPlaceholder = useMemo(() => {
+    if (pathname.startsWith("/auction-history")) {
+      return "아이템 검색";
+    } else if (pathname.startsWith("/community")) {
+      return "게시글 제목을 검색해주세요";
+    }
+    return "아이템 이름을 검색하세요";
+  }, [pathname]);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
       {/* Tier 1: Logo + Notification - Hidden on scroll */}
@@ -263,7 +293,7 @@ export default function ThreeTierNav() {
             <Input
               ref={searchInputRef}
               type="text"
-              placeholder="아이템 이름을 검색하세요"
+              placeholder={searchPlaceholder}
               className="h-10 pr-10 rounded-xl border-gray-300 focus:border-blaanid-500 focus:ring-2 focus:ring-blaanid-500/20 transition-all bg-gray-50"
               value={searchValue}
               onChange={handleInputChange}
