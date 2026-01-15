@@ -2,6 +2,8 @@
  * 소셜 로그인/회원가입 유틸리티
  */
 
+import { selectGatewayUrl } from "../api/gateway-selector";
+
 export type SocialProvider = "google" | "kakao" | "naver";
 
 export interface SocialAuthResponse {
@@ -28,8 +30,10 @@ export function initiateSocialLogin(provider: SocialProvider): void {
   const currentUrl = window.location.href;
   sessionStorage.setItem("social_login_return_url", currentUrl);
 
+  const gateWayUrl = selectGatewayUrl("/das");
+
   // 로컬 게이트웨이를 통해 Auth Server의 OAuth2 엔드포인트로 이동
-  const authUrl = `http://localhost:8099/das/oauth2/authorization/${provider}`;
+  const authUrl = `http://${gateWayUrl}/das/oauth2/authorization/${provider}`;
 
   // 새 탭에서 소셜 로그인 팝업 열기 (더 나은 UX)
   const width = 500;
