@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import ItemOptionPopover from "./ItemOptionPopover";
 
 interface AuctionHistoryListProps {
   items: AuctionHistoryItem[];
@@ -62,17 +63,6 @@ export default function AuctionHistoryList({
     }
 
     return parts.join(" ");
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
   };
 
   const formatDateShort = (dateString: string) => {
@@ -163,114 +153,15 @@ export default function AuctionHistoryList({
               </PopoverTrigger>
 
             <PopoverContent
-              className="w-[calc(100vw-2rem)] max-w-96 p-0 border border-[var(--color-ds-neutral-tone)]"
+              className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-lg max-h-[70vh]"
               side="top"
               align="center"
             >
-              <div className="bg-gradient-to-br from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] p-4 border-b-2 border-[var(--color-ds-neutral-tone)]">
-                {getEnchantPrefix(item.itemDisplayName, item.itemName) && (
-                  <p className="text-sm text-[var(--color-ds-disabled)] mb-1.5">
-                    {getEnchantPrefix(item.itemDisplayName, item.itemName)}
-                  </p>
-                )}
-                <h4 className="font-bold text-[var(--color-ds-text)] text-lg mb-2">
-                  {getItemNameWithoutAttributes(item.itemName)}
-                </h4>
-                {getItemAttributes(item.itemName).length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {getItemAttributes(item.itemName).map((attr, idx) => (
-                      <span key={idx} className="text-xs text-[var(--color-ds-disabled)]">
-                        #{attr}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge className="rounded-md bg-[var(--color-ds-primary-100)] text-[var(--color-ds-primary-hover)] border-0">
-                    {item.itemTopCategory}
-                  </Badge>
-                  <span className="text-[var(--color-ds-disabled)]">›</span>
-                  <Badge className="rounded-md bg-[var(--color-ds-gold-100)] text-[var(--color-ds-gold)] border-0">
-                    {item.itemSubCategory}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
-                {/* Price Info */}
-                <div className="bg-[var(--color-ds-primary-50)] rounded-lg p-3 border border-[var(--color-ds-primary-100)]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[var(--color-ds-text)]">
-                      거래 가격
-                    </span>
-                    <div className="text-right">
-                      <span className="text-xl font-bold text-[var(--color-ds-primary)]">
-                        {formatPrice(item.auctionPricePerUnit)}
-                      </span>
-                      <span className="text-sm text-[var(--color-ds-disabled)] ml-1">골드</span>
-                    </div>
-                  </div>
-                  {item.itemCount > 1 && (
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--color-ds-primary-100)]">
-                      <span className="text-xs text-[var(--color-ds-disabled)]">수량</span>
-                      <span className="text-sm font-semibold text-[var(--color-ds-text)]">
-                        {item.itemCount}개
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Date Info */}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-ds-disabled)]">거래일시</span>
-                  <span className="font-medium text-[var(--color-ds-text)]">
-                    {formatDate(item.dateAuctionBuy)}
-                  </span>
-                </div>
-
-                {/* Item Options */}
-                {item.itemOptions.length > 0 && (
-                  <div className="space-y-2">
-                    <h5 className="font-semibold text-[var(--color-ds-text)] text-sm border-b border-[var(--color-ds-neutral-tone)] pb-1">
-                      아이템 옵션
-                    </h5>
-                    <div className="space-y-1.5">
-                      {item.itemOptions
-                        .filter(
-                          (opt) =>
-                            !opt.optionType.includes("색상") &&
-                            opt.optionType !== "아이템 색상",
-                        )
-                        .map((option) => (
-                          <div
-                            key={option.id}
-                            className="flex items-start justify-between text-sm bg-[var(--color-ds-card)] rounded px-2 py-1.5"
-                          >
-                            <span className="font-medium text-[var(--color-ds-text)] flex-shrink-0">
-                              {option.optionType}
-                              {option.optionSubType && (
-                                <span className="text-[var(--color-ds-disabled)] font-normal ml-1">
-                                  ({option.optionSubType})
-                                </span>
-                              )}
-                            </span>
-                            <span className="text-[var(--color-ds-text)] font-semibold ml-2">
-                              {option.optionValue}
-                              {option.optionValue2 && ` ~ ${option.optionValue2}`}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Transaction ID */}
-                <div className="pt-2 border-t border-[var(--color-ds-neutral-tone)]">
-                  <div className="text-xs text-[var(--color-ds-disabled)]">
-                    거래 ID: {item.auctionBuyId}
-                  </div>
-                </div>
-              </div>
+              <ItemOptionPopover
+                itemDisplayName={item.itemDisplayName}
+                itemOptions={item.itemOptions}
+                price={item.auctionPricePerUnit}
+              />
             </PopoverContent>
           </Popover>
           ))}
@@ -350,114 +241,15 @@ export default function AuctionHistoryList({
             </PopoverTrigger>
 
             <PopoverContent
-              className="w-96 p-0 border-2 border-[var(--color-ds-neutral-tone)]"
+              className="w-80 p-3 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-lg max-h-[70vh]"
               side="right"
               align="start"
             >
-              <div className="bg-gradient-to-br from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] p-4 border-b-2 border-[var(--color-ds-neutral-tone)]">
-                {getEnchantPrefix(item.itemDisplayName, item.itemName) && (
-                  <p className="text-sm text-[var(--color-ds-disabled)] mb-1.5">
-                    {getEnchantPrefix(item.itemDisplayName, item.itemName)}
-                  </p>
-                )}
-                <h4 className="font-bold text-[var(--color-ds-text)] text-lg mb-2">
-                  {getItemNameWithoutAttributes(item.itemName)}
-                </h4>
-                {getItemAttributes(item.itemName).length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {getItemAttributes(item.itemName).map((attr, idx) => (
-                      <span key={idx} className="text-xs text-[var(--color-ds-disabled)]">
-                        #{attr}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge className="rounded-md bg-[var(--color-ds-primary-100)] text-[var(--color-ds-primary-hover)] border-0">
-                    {item.itemTopCategory}
-                  </Badge>
-                  <span className="text-[var(--color-ds-disabled)]">›</span>
-                  <Badge className="rounded-md bg-[var(--color-ds-gold-100)] text-[var(--color-ds-gold)] border-0">
-                    {item.itemSubCategory}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
-                {/* Price Info */}
-                <div className="bg-[var(--color-ds-primary-50)] rounded-lg p-3 border border-[var(--color-ds-primary-100)]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[var(--color-ds-text)]">
-                      거래 가격
-                    </span>
-                    <div className="text-right">
-                      <span className="text-xl font-bold text-[var(--color-ds-primary)]">
-                        {formatPrice(item.auctionPricePerUnit)}
-                      </span>
-                      <span className="text-sm text-[var(--color-ds-disabled)] ml-1">골드</span>
-                    </div>
-                  </div>
-                  {item.itemCount > 1 && (
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--color-ds-primary-100)]">
-                      <span className="text-xs text-[var(--color-ds-disabled)]">수량</span>
-                      <span className="text-sm font-semibold text-[var(--color-ds-text)]">
-                        {item.itemCount}개
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Date Info */}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-ds-disabled)]">거래일시</span>
-                  <span className="font-medium text-[var(--color-ds-text)]">
-                    {formatDate(item.dateAuctionBuy)}
-                  </span>
-                </div>
-
-                {/* Item Options */}
-                {item.itemOptions.length > 0 && (
-                  <div className="space-y-2">
-                    <h5 className="font-semibold text-[var(--color-ds-text)] text-sm border-b border-[var(--color-ds-neutral-tone)] pb-1">
-                      아이템 옵션
-                    </h5>
-                    <div className="space-y-1.5">
-                      {item.itemOptions
-                        .filter(
-                          (opt) =>
-                            !opt.optionType.includes("색상") &&
-                            opt.optionType !== "아이템 색상",
-                        )
-                        .map((option) => (
-                          <div
-                            key={option.id}
-                            className="flex items-start justify-between text-sm bg-[var(--color-ds-card)] rounded px-2 py-1.5"
-                          >
-                            <span className="font-medium text-[var(--color-ds-text)] flex-shrink-0">
-                              {option.optionType}
-                              {option.optionSubType && (
-                                <span className="text-[var(--color-ds-disabled)] font-normal ml-1">
-                                  ({option.optionSubType})
-                                </span>
-                              )}
-                            </span>
-                            <span className="text-[var(--color-ds-text)] font-semibold ml-2">
-                              {option.optionValue}
-                              {option.optionValue2 && ` ~ ${option.optionValue2}`}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Transaction ID */}
-                <div className="pt-2 border-t border-[var(--color-ds-neutral-tone)]">
-                  <div className="text-xs text-[var(--color-ds-disabled)]">
-                    거래 ID: {item.auctionBuyId}
-                  </div>
-                </div>
-              </div>
+              <ItemOptionPopover
+                itemDisplayName={item.itemDisplayName}
+                itemOptions={item.itemOptions}
+                price={item.auctionPricePerUnit}
+              />
             </PopoverContent>
           </Popover>
         ))}
