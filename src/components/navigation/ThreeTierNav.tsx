@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import clsx from "clsx";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, Sun, Moon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
 
@@ -254,191 +254,256 @@ export default function ThreeTierNav() {
     return "아이템 이름을 검색하세요";
   }, [pathname]);
 
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
-      {/* Tier 1: Logo + Notification - Hidden on scroll */}
-      <div
-        className={clsx(
-          "transition-all duration-300 overflow-hidden",
-          isScrolled ? "h-0 opacity-0" : "h-12 opacity-100"
-        )}
+  // Search input component (reusable for both layouts)
+  const SearchInput = ({ className = "" }: { className?: string }) => (
+    <div className={clsx("relative", className)}>
+      <Input
+        ref={searchInputRef}
+        type="text"
+        placeholder={searchPlaceholder}
+        className="h-10 pr-10 rounded-xl border-gray-300 focus:border-blaanid-500 focus:ring-2 focus:ring-blaanid-500/20 transition-all bg-gray-50"
+        value={searchValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onFocus={() => {
+          setIsSearchFocused(true);
+          setRecentSearches(getRecentSearches());
+        }}
+        autoComplete="off"
+      />
+      <button
+        onClick={handleSearchSubmit}
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-500 hover:text-blaanid-600 hover:bg-gray-100 transition-colors"
+        aria-label="검색"
       >
-        <div className="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="font-bold text-xl text-gray-900 hover:text-blaanid-600 transition-colors"
-            style={{ fontFamily: "'Bungee', cursive" }}
-          >
-            MEMNOGI
-          </Link>
+        <Search className="w-5 h-5" />
+      </button>
 
-          {/* Notification Bell */}
-          <button
-            className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
-            aria-label="알림"
-          >
-            <Bell className="w-5 h-5 text-gray-700" />
-            {hasUnreadNotification && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Tier 2: Search Bar */}
-      <div className="h-12 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
-          <div className="relative w-full max-w-2xl mx-auto">
-            <Input
-              ref={searchInputRef}
-              type="text"
-              placeholder={searchPlaceholder}
-              className="h-10 pr-10 rounded-xl border-gray-300 focus:border-blaanid-500 focus:ring-2 focus:ring-blaanid-500/20 transition-all bg-gray-50"
-              value={searchValue}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              onFocus={() => {
-                setIsSearchFocused(true);
-                setRecentSearches(getRecentSearches());
-              }}
-              autoComplete="off"
-            />
-            <button
-              onClick={handleSearchSubmit}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-500 hover:text-blaanid-600 hover:bg-gray-100 transition-colors"
-              aria-label="검색"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-
-            {/* Search Dropdown */}
-            {showDropdown && (
-              <div
-                ref={dropdownRef}
-                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-[0_8px_24px_rgba(61,56,47,0.10)] max-h-80 overflow-y-auto z-50"
-              >
-                {searchValue.trim().length > 0 ? (
-                  // Autocomplete results
-                  <>
-                    {isLoading ? (
-                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                        로딩 중...
+      {/* Search Dropdown */}
+      {showDropdown && (
+        <div
+          ref={dropdownRef}
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-[0_8px_24px_rgba(61,56,47,0.10)] max-h-80 overflow-y-auto z-50"
+        >
+          {searchValue.trim().length > 0 ? (
+            // Autocomplete results
+            <>
+              {isLoading ? (
+                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                  로딩 중...
+                </div>
+              ) : filteredItems.length === 0 ? (
+                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                  검색 결과가 없습니다
+                </div>
+              ) : (
+                <>
+                  <div className="px-4 py-2 text-xs text-gray-500">
+                    {filteredItems.length}개의 아이템
+                  </div>
+                  {filteredItems.map((item, index) => (
+                    <button
+                      key={`${item.topCategory}-${item.subCategory}-${item.name}`}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleItemSelect(item);
+                      }}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                      className={clsx(
+                        "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0",
+                        selectedIndex === index
+                          ? "bg-blaanid-50 text-blaanid-700"
+                          : "text-gray-900 hover:bg-gray-50"
+                      )}
+                    >
+                      <div className="font-medium text-sm">{item.name}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {item.topCategory} › {item.subCategory}
                       </div>
-                    ) : filteredItems.length === 0 ? (
-                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                        검색 결과가 없습니다
-                      </div>
-                    ) : (
-                      <>
-                        <div className="px-4 py-2 text-xs text-gray-500">
-                          {filteredItems.length}개의 아이템
-                        </div>
-                        {filteredItems.map((item, index) => (
-                          <button
-                            key={`${item.topCategory}-${item.subCategory}-${item.name}`}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              handleItemSelect(item);
-                            }}
-                            onMouseEnter={() => setSelectedIndex(index)}
-                            className={clsx(
-                              "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0",
-                              selectedIndex === index
-                                ? "bg-blaanid-50 text-blaanid-700"
-                                : "text-gray-900 hover:bg-gray-50"
-                            )}
-                          >
-                            <div className="font-medium text-sm">
-                              {item.name}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {item.topCategory} › {item.subCategory}
-                            </div>
-                          </button>
-                        ))}
-                      </>
-                    )}
-                  </>
-                ) : (
-                  // Recent searches
-                  <>
-                    <div className="flex items-center justify-between px-4 py-2">
-                      <span className="text-xs text-gray-500">
-                        최근 검색어
-                      </span>
-                      <button
-                        onClick={handleClearAllRecentSearches}
-                        className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-                      >
-                        전체삭제
-                      </button>
-                    </div>
-                    {recentSearches.map((search, index) => (
-                      <button
-                        key={`${search.itemName}-${index}`}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          handleRecentSearchClick(search);
-                        }}
-                        onMouseEnter={() => setSelectedIndex(index)}
-                        className={clsx(
-                          "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0",
-                          selectedIndex === index
-                            ? "bg-blaanid-50 text-blaanid-700"
-                            : "text-gray-900 hover:bg-gray-50"
-                        )}
-                      >
-                        <div className="font-medium text-sm">
-                          {search.itemName}
-                        </div>
-                        {search.topCategory && search.subCategory && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {search.topCategory} › {search.subCategory}
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </>
-                )}
+                    </button>
+                  ))}
+                </>
+              )}
+            </>
+          ) : (
+            // Recent searches
+            <>
+              <div className="flex items-center justify-between px-4 py-2">
+                <span className="text-xs text-gray-500">최근 검색어</span>
+                <button
+                  onClick={handleClearAllRecentSearches}
+                  className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  전체삭제
+                </button>
               </div>
-            )}
+              {recentSearches.map((search, index) => (
+                <button
+                  key={`${search.itemName}-${index}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleRecentSearchClick(search);
+                  }}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  className={clsx(
+                    "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0",
+                    selectedIndex === index
+                      ? "bg-blaanid-50 text-blaanid-700"
+                      : "text-gray-900 hover:bg-gray-50"
+                  )}
+                >
+                  <div className="font-medium text-sm">{search.itemName}</div>
+                  {search.topCategory && search.subCategory && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {search.topCategory} › {search.subCategory}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  // Menu navigation component (reusable)
+  const MenuNavigation = () => (
+    <div className="h-11">
+      <div className="max-w-7xl mx-auto px-4 h-full">
+        <div className="h-full overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-1 h-full min-w-max">
+            {navItems.map(({ href, label, ready }) => {
+              const isActive =
+                ready &&
+                (pathname === href || pathname.startsWith(href + "/"));
+
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  onClick={!ready ? handleNotReady : undefined}
+                  className={clsx(
+                    "relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
+                    isActive
+                      ? "text-blaanid-600"
+                      : "text-gray-600 hover:text-gray-900"
+                  )}
+                >
+                  {label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      {/* Tier 3: Menu Navigation */}
-      <div className="h-11">
-        <div className="max-w-7xl mx-auto px-4 h-full">
-          <div className="h-full overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-1 h-full min-w-max">
-              {navItems.map(({ href, label, ready }) => {
-                const isActive =
-                  ready &&
-                  (pathname === href || pathname.startsWith(href + "/"));
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+      {/* ===== DESKTOP/TABLET LAYOUT (md and above) ===== */}
+      <div className="hidden md:block">
+        {/* Tier 1: Logo + Search (center, flexible) + Theme Icons + Notification - Hidden on scroll */}
+        <div
+          className={clsx(
+            "transition-all duration-300 overflow-hidden",
+            isScrolled ? "h-0 opacity-0" : "h-14 opacity-100"
+          )}
+        >
+          <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
+            {/* Logo - Fixed width */}
+            <Link
+              href="/"
+              className="font-bold text-xl text-gray-900 hover:text-blaanid-600 transition-colors flex-shrink-0"
+              style={{ fontFamily: "'Bungee', cursive" }}
+            >
+              MEMNOGI
+            </Link>
 
-                return (
-                  <Link
-                    key={label}
-                    href={href}
-                    onClick={!ready ? handleNotReady : undefined}
-                    className={clsx(
-                      "relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
-                      isActive
-                        ? "text-blaanid-600"
-                        : "text-gray-600 hover:text-gray-900"
-                    )}
-                  >
-                    {label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 rounded-full" />
-                    )}
-                  </Link>
-                );
-              })}
+            {/* Search - Flexible center area */}
+            <SearchInput className="flex-1 max-w-2xl mx-auto" />
+
+            {/* Right Icons - Fixed width */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {/* Light Mode Icon (UI only) */}
+              <button
+                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                aria-label="라이트 모드"
+              >
+                <Sun className="w-5 h-5 text-gray-700" />
+              </button>
+
+              {/* Dark Mode Icon (UI only) */}
+              <button
+                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                aria-label="다크 모드"
+              >
+                <Moon className="w-5 h-5 text-gray-700" />
+              </button>
+
+              {/* Notification Bell */}
+              <button
+                className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                aria-label="알림"
+              >
+                <Bell className="w-5 h-5 text-gray-700" />
+                {hasUnreadNotification && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+                )}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Tier 2: Menu Navigation */}
+        <MenuNavigation />
+      </div>
+
+      {/* ===== MOBILE LAYOUT (below md) ===== */}
+      <div className="md:hidden">
+        {/* Tier 1: Logo + Notification - Hidden on scroll */}
+        <div
+          className={clsx(
+            "transition-all duration-300 overflow-hidden",
+            isScrolled ? "h-0 opacity-0" : "h-12 opacity-100"
+          )}
+        >
+          <div className="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="font-bold text-xl text-gray-900 hover:text-blaanid-600 transition-colors"
+              style={{ fontFamily: "'Bungee', cursive" }}
+            >
+              MEMNOGI
+            </Link>
+
+            {/* Notification Bell */}
+            <button
+              className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
+              aria-label="알림"
+            >
+              <Bell className="w-5 h-5 text-gray-700" />
+              {hasUnreadNotification && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Tier 2: Search Bar */}
+        <div className="h-12 border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
+            <SearchInput className="w-full" />
+          </div>
+        </div>
+
+        {/* Tier 3: Menu Navigation */}
+        <MenuNavigation />
       </div>
     </nav>
   );

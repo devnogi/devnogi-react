@@ -19,15 +19,17 @@ export default function AuctionHistoryList({
 }: AuctionHistoryListProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-[var(--color-ds-disabled)]">로딩 중...</div>
+      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
+        <div className="flex items-center justify-center">
+          <div className="text-[var(--color-ds-disabled)]">로딩 중...</div>
+        </div>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
         <div className="text-center">
           <p className="text-[var(--color-ds-disabled)] text-lg">검색 결과가 없습니다.</p>
           <p className="text-[var(--color-ds-disabled)] text-sm mt-2">
@@ -106,11 +108,12 @@ export default function AuctionHistoryList({
     <>
       {/* Mobile List Layout */}
       <div className="md:hidden">
-        <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
+        <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+          <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item, index) => (
             <Popover key={`${item.auctionBuyId}-${index}`}>
               <PopoverTrigger asChild>
-                <div className="py-4 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
+                <div className="px-4 py-4 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
                   {/* 1st Line: Enchants (축복받은/신성한 + 접두/접미 인챈트) - 항상 공간 유지 */}
                   <div className="text-[10px] text-[var(--color-ds-disabled)] mb-1 min-h-[14px]">
                     {getEnchantPrefix(item.itemDisplayName, item.itemName) || '\u00A0'}
@@ -160,7 +163,7 @@ export default function AuctionHistoryList({
               </PopoverTrigger>
 
             <PopoverContent
-              className="w-96 p-0 border-2 border-[var(--color-ds-neutral-tone)]"
+              className="w-[calc(100vw-2rem)] max-w-96 p-0 border border-[var(--color-ds-neutral-tone)]"
               side="top"
               align="center"
             >
@@ -271,11 +274,12 @@ export default function AuctionHistoryList({
             </PopoverContent>
           </Popover>
           ))}
+          </div>
         </div>
       </div>
 
       {/* Desktop Table Layout */}
-      <div className="hidden md:block bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] shadow-lg overflow-hidden">
+      <div className="hidden md:block bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] border-b-2 border-[var(--color-ds-neutral-tone)]">
           <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">

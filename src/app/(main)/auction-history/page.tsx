@@ -457,7 +457,7 @@ export default function Page() {
                     </svg>
                   </button>
                   {isSortDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] shadow-[0_8px_24px_rgba(62,43,32,0.08)] py-2 z-50 min-w-[180px]">
+                    <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px]">
                       {[
                         { label: "거래 최신순", sortBy: "dateAuctionBuy", direction: "desc" as const },
                         { label: "거래 오래된순", sortBy: "dateAuctionBuy", direction: "asc" as const },
