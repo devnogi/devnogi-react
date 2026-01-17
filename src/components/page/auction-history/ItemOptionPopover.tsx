@@ -37,8 +37,8 @@ export default function ItemOptionPopover({
         {itemDisplayName}
       </div>
 
-      {/* 옵션 그룹 영역 (스크롤 가능) */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(70vh-120px)] space-y-3 pr-1">
+      {/* 옵션 그룹 영역 (스크롤 가능, 스크롤바 숨김) */}
+      <div className="flex-1 overflow-y-auto max-h-[calc(70vh-120px)] space-y-3 pr-1 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {groupedOptions.map((group) => (
           <OptionGroup key={group.categoryId} group={group} />
         ))}
@@ -59,9 +59,9 @@ export default function ItemOptionPopover({
  */
 function OptionGroup({ group }: { group: GroupedOption }) {
   return (
-    <div className="relative border border-white/30 rounded-sm pt-4 pb-2 px-2.5">
+    <div className="relative border border-white/30 rounded-sm pt-5 pb-2 px-2.5 mt-1">
       {/* 카테고리 라벨 (테두리에 겹치는 스타일) */}
-      <span className="absolute -top-2 left-2 px-1.5 bg-[#1a1a1a] text-[#e8a854] text-xs font-semibold">
+      <span className="absolute -top-2.5 left-2 px-1.5 bg-[#1a1a1a] text-[#e8a854] text-xs font-semibold leading-normal">
         {group.categoryLabel}
       </span>
 
@@ -127,6 +127,15 @@ function EnchantItem({ option }: { option: ItemOption }) {
   const enchantType = formatEnchantType(option.optionSubType);
   const hasDesc = option.optionDesc && option.optionDesc.trim().length > 0;
 
+  // optionDesc의 ',' 문자를 개행으로 변환하고 각 줄 앞에 '-' 추가
+  const formatEnchantDesc = (desc: string): string[] => {
+    return desc
+      .split(/[,\n]/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => (line.startsWith("-") ? line : `- ${line}`));
+  };
+
   return (
     <div className="mb-1.5">
       {/* 인챈트 헤더 */}
@@ -139,7 +148,7 @@ function EnchantItem({ option }: { option: ItemOption }) {
       {/* 인챈트 효과 설명 */}
       {hasDesc && (
         <div className="ml-3 mt-0.5">
-          {option.optionDesc?.split("\n").map((line, idx) => (
+          {formatEnchantDesc(option.optionDesc!).map((line, idx) => (
             <EffectLine key={idx} text={line} />
           ))}
         </div>
@@ -219,13 +228,13 @@ function ArtisanOptions({ options }: { options: ItemOption[] }) {
     <>
       {options.map((option) => (
         <div key={option.id} className="mb-1.5 last:mb-0">
-          <div className="text-xs text-[#ccc]">
-            {option.optionSubType && (
-              <span className="text-[#b0b0b0]">{option.optionSubType}</span>
-            )}
-          </div>
-          <div className="text-xs ml-2">
-            <HighlightedValue value={option.optionValue} />
+          {option.optionSubType && (
+            <div className="text-xs text-[#b0b0b0] font-medium">
+              {option.optionSubType}
+            </div>
+          )}
+          <div className="text-xs text-[#ccc] ml-2">
+            {option.optionValue}
           </div>
           {option.optionDesc && (
             <div className="ml-3 mt-0.5">

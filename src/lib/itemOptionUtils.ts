@@ -91,7 +91,12 @@ export interface ValueSegment {
   value: string;
 }
 
-export function parseOptionValue(value: string): ValueSegment[] {
+export function parseOptionValue(value: string | null | undefined): ValueSegment[] {
+  // null/undefined 처리
+  if (value == null) {
+    return [{ type: "text", value: "" }];
+  }
+
   const segments: ValueSegment[] = [];
   // 숫자, 퍼센트, 범위(~) 포함 패턴
   const regex = /([+-]?\d+(?:\.\d+)?%?(?:\s*~\s*[+-]?\d+(?:\.\d+)?%?)?)/g;

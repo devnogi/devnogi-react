@@ -254,8 +254,8 @@ export default function ThreeTierNav() {
     return "아이템 이름을 검색하세요";
   }, [pathname]);
 
-  // Search input component (reusable for both layouts)
-  const SearchInput = ({ className = "" }: { className?: string }) => (
+  // Render search input JSX (not a component to avoid remounting)
+  const renderSearchInput = (className = "") => (
     <div className={clsx("relative", className)}>
       <Input
         ref={searchInputRef}
@@ -425,7 +425,7 @@ export default function ThreeTierNav() {
             </Link>
 
             {/* Search - Flexible center area */}
-            <SearchInput className="flex-1 max-w-2xl mx-auto" />
+            {renderSearchInput("flex-1 max-w-2xl mx-auto")}
 
             {/* Right Icons - Fixed width */}
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -498,7 +498,7 @@ export default function ThreeTierNav() {
         {/* Tier 2: Search Bar */}
         <div className="h-12 border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
-            <SearchInput className="w-full" />
+            {renderSearchInput("w-full")}
           </div>
         </div>
 
