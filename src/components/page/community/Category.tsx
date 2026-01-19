@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Board, ApiResponse, BoardListData } from "@/types/community";
+import CategorySkeleton from "./CategorySkeleton";
+import DataFetchError from "@/components/commons/DataFetchError";
 
 interface CategoryProps {
   selectedBoardId: number | undefined;
@@ -14,49 +16,55 @@ function Category({ selectedBoardId, setSelectedBoardId }: CategoryProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    async function fetchBoards() {
-      try {
-        const response = await fetch("/api/boards");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch boards: ${response.status} ${response.statusText}`);
-        }
-        const apiResponse: ApiResponse<BoardListData> = await response.json();
+  const fetchBoards = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-        // API 응답 구조 확인
-        if (!apiResponse.success) {
-          throw new Error(apiResponse.message || "Failed to fetch boards");
-        }
-
-        // data.boards 배열 추출
-        const boards = apiResponse.data?.boards || [];
-        setCategories(boards);
-      } catch (error) {
-        console.error("Error fetching boards:", error);
-        setError(error as Error);
-      } finally {
-        setLoading(false);
+    try {
+      const response = await fetch("/api/boards");
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch boards: ${response.status} ${response.statusText}`,
+        );
       }
-    }
+      const apiResponse: ApiResponse<BoardListData> = await response.json();
 
-    fetchBoards();
+      // API 응답 구조 확인
+      if (!apiResponse.success) {
+        throw new Error(apiResponse.message || "Failed to fetch boards");
+      }
+
+      // data.boards 배열 추출
+      const boards = apiResponse.data?.boards || [];
+      setCategories(boards);
+    } catch (err) {
+      const fetchError =
+        err instanceof Error ? err : new Error("Unknown error");
+      setError(fetchError);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchBoards();
+  }, [fetchBoards]);
+
+  // 로딩 중일 때 Skeleton UI 표시
   if (loading) {
-    return (
-      <div className="flex gap-2">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="h-9 w-20 bg-gray-200 rounded animate-pulse"
-          />
-        ))}
-      </div>
-    );
+    return <CategorySkeleton />;
   }
 
+  // 에러 발생 시 DataFetchError 표시
   if (error) {
-    return <div className="text-red-500">카테고리를 불러올 수 없습니다.</div>;
+    return (
+      <DataFetchError
+        message="카테고리 데이터를 받아오지 못 하였습니다"
+        onRetry={fetchBoards}
+        showRetry={true}
+        className="py-4"
+      />
+    );
   }
 
   return (

@@ -81,7 +81,16 @@ export function selectGatewayUrl(path: string): string {
 /**
  * 서버 사이드에서 게이트웨이 URL 선택
  * 클라이언트 환경 변수를 사용할 수 없으므로 별도 함수 제공
+ *
+ * @throws {GatewayConfigError} 환경변수가 설정되지 않은 경우
  */
+export class GatewayConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GatewayConfigError";
+  }
+}
+
 export function selectServerGatewayUrl(path: string): string {
   const localUrl = process.env.GATEWAY_LOCAL_URL;
   const devUrl = process.env.GATEWAY_DEV_URL;
@@ -92,7 +101,21 @@ export function selectServerGatewayUrl(path: string): string {
     // fallback to legacy env var
     const legacyUrl = process.env.GATEWAY_BASE_URL;
     if (!legacyUrl) {
-      throw new Error("GATEWAY_DEV_URL 또는 GATEWAY_BASE_URL 환경 변수가 설정되지 않았습니다.");
+      // NEXT_PUBLIC_ 환경변수도 fallback으로 확인 (빌드 타임에 인라인된 경우)
+      const publicDevUrl = process.env.NEXT_PUBLIC_GATEWAY_DEV_URL;
+      if (publicDevUrl) {
+        console.warn(
+          "[gateway-selector] GATEWAY_DEV_URL 또는 GATEWAY_BASE_URL이 없어 " +
+            "NEXT_PUBLIC_GATEWAY_DEV_URL을 사용합니다. 서버사이드 환경변수를 설정하세요."
+        );
+        return publicDevUrl;
+      }
+
+      const errorMsg =
+        "게이트웨이 환경 변수가 설정되지 않았습니다. " +
+        "GATEWAY_DEV_URL 또는 GATEWAY_BASE_URL을 .env 파일에 추가하세요.";
+      console.error("[gateway-selector]", errorMsg);
+      throw new GatewayConfigError(errorMsg);
     }
     return legacyUrl;
   }

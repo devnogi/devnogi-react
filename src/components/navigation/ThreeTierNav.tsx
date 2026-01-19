@@ -5,9 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import clsx from "clsx";
-import { Bell, Search, Sun, Moon } from "lucide-react";
+import { Bell, Search, Sun, Moon, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Navigation menu items
 const navItems = [
@@ -62,8 +63,10 @@ const clearRecentSearches = () => {
 export default function ThreeTierNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated, user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [hasUnreadNotification] = useState(true); // Mock for now
+  const [isDarkMode, setIsDarkMode] = useState(false); // UI only toggle
 
   // Search states
   const [searchValue, setSearchValue] = useState("");
@@ -429,32 +432,57 @@ export default function ThreeTierNav() {
 
             {/* Right Icons - Fixed width */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Light Mode Icon (UI only) */}
+              {/* Theme Toggle Icon (UI only) */}
               <button
                 className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                aria-label="라이트 모드"
+                aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+                onClick={() => setIsDarkMode(!isDarkMode)}
               >
-                <Sun className="w-5 h-5 text-gray-700" />
-              </button>
-
-              {/* Dark Mode Icon (UI only) */}
-              <button
-                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                aria-label="다크 모드"
-              >
-                <Moon className="w-5 h-5 text-gray-700" />
-              </button>
-
-              {/* Notification Bell */}
-              <button
-                className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                aria-label="알림"
-              >
-                <Bell className="w-5 h-5 text-gray-700" />
-                {hasUnreadNotification && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+                {isDarkMode ? (
+                  <Moon className="w-5 h-5 text-gray-700" />
+                ) : (
+                  <Sun className="w-5 h-5 text-gray-700" />
                 )}
               </button>
+
+              {/* Notification Bell - Only shown when authenticated */}
+              {isAuthenticated && (
+                <button
+                  className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  aria-label="알림"
+                >
+                  <Bell className="w-5 h-5 text-gray-700" />
+                  {hasUnreadNotification && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+                  )}
+                </button>
+              )}
+
+              {/* Login / Profile */}
+              {isAuthenticated ? (
+                <Link
+                  href="/profile"
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  aria-label="프로필"
+                >
+                  {user?.profileImageUrl ? (
+                    <img
+                      src={user.profileImageUrl}
+                      alt="프로필"
+                      className="w-5 h-5 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-gray-700" />
+                  )}
+                </Link>
+              ) : (
+                <Link
+                  href="/sign-in"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 rounded-lg transition-colors"
+                >
+                  로그인
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -465,7 +493,7 @@ export default function ThreeTierNav() {
 
       {/* ===== MOBILE LAYOUT (below md) ===== */}
       <div className="md:hidden">
-        {/* Tier 1: Logo + Notification - Hidden on scroll */}
+        {/* Tier 1: Logo + Icons - Hidden on scroll */}
         <div
           className={clsx(
             "transition-all duration-300 overflow-hidden",
@@ -482,16 +510,60 @@ export default function ThreeTierNav() {
               MEMNOGI
             </Link>
 
-            {/* Notification Bell */}
-            <button
-              className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
-              aria-label="알림"
-            >
-              <Bell className="w-5 h-5 text-gray-700" />
-              {hasUnreadNotification && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+            {/* Right Icons */}
+            <div className="flex items-center gap-1">
+              {/* Theme Toggle Icon (UI only) */}
+              <button
+                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+                onClick={() => setIsDarkMode(!isDarkMode)}
+              >
+                {isDarkMode ? (
+                  <Moon className="w-5 h-5 text-gray-700" />
+                ) : (
+                  <Sun className="w-5 h-5 text-gray-700" />
+                )}
+              </button>
+
+              {/* Notification Bell - Only shown when authenticated */}
+              {isAuthenticated && (
+                <button
+                  className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  aria-label="알림"
+                >
+                  <Bell className="w-5 h-5 text-gray-700" />
+                  {hasUnreadNotification && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+                  )}
+                </button>
               )}
-            </button>
+
+              {/* Login / Profile */}
+              {isAuthenticated ? (
+                <Link
+                  href="/profile"
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  aria-label="프로필"
+                >
+                  {user?.profileImageUrl ? (
+                    <img
+                      src={user.profileImageUrl}
+                      alt="프로필"
+                      className="w-5 h-5 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-gray-700" />
+                  )}
+                </Link>
+              ) : (
+                <Link
+                  href="/sign-in"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 rounded-lg transition-colors"
+                >
+                  로그인
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 

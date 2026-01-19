@@ -25,31 +25,36 @@ export default function PostCard({ post }: PostCardProps) {
   });
 
   return (
-    <Link href={`/community/${post.id}`} className="block">
-      <article className="py-4 hover:bg-blue-50/50 transition-colors cursor-pointer">
-        {/* Post Content */}
-        <div className="mb-3">
-          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-            {post.title}
-          </h3>
-          <div className="text-sm text-gray-500">
-            {relativeTime}
-          </div>
-        </div>
+    <Link href={`/community/${post.id}`} className="block h-full">
+      <article className="h-full bg-white rounded-[20px] border border-gray-200 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:border-gray-300 transition-all duration-200 cursor-pointer p-5 flex flex-col">
+        {/* Post Title */}
+        <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1 min-h-[48px]">
+          {post.title}
+        </h3>
 
-        {/* Post Stats */}
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-1.5">
-            <Eye className="w-4 h-4" />
-            <span>{post.viewCount.toLocaleString()}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Heart className="w-4 h-4" />
-            <span>{post.likeCount.toLocaleString()}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <MessageCircle className="w-4 h-4" />
-            <span>{post.commentCount.toLocaleString()}</span>
+        {/* Post Stats & Time */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between">
+            {/* Stats */}
+            <div className="flex items-center gap-3 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <Eye className="w-4 h-4" />
+                <span>{post.viewCount.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Heart className="w-4 h-4" />
+                <span>{post.likeCount.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <MessageCircle className="w-4 h-4" />
+                <span>{post.commentCount.toLocaleString()}</span>
+              </div>
+            </div>
+
+            {/* Time */}
+            <span className="text-xs text-gray-400">
+              {relativeTime}
+            </span>
           </div>
         </div>
       </article>
