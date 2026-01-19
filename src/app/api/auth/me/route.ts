@@ -7,8 +7,6 @@ export async function GET(request: NextRequest) {
     const serverAxios = createAuthServerAxios(request);
     const response = await serverAxios.get(`${USER_ENDPOINT}/info`);
 
-    console.log("User info response:", response.data);
-
     return NextResponse.json(response.data);
 
     /*
