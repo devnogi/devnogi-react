@@ -92,9 +92,9 @@ export class GatewayConfigError extends Error {
 }
 
 export function selectServerGatewayUrl(path: string): string {
-  const localUrl = process.env.GATEWAY_LOCAL_URL;
-  const devUrl = process.env.GATEWAY_DEV_URL;
-  const useLocalFor = process.env.USE_LOCAL_GATEWAY_FOR || "";
+  const localUrl = process.env.NEXT_PUBLIC_GATEWAY_LOCAL_URL;
+  const devUrl = process.env.NEXT_PUBLIC_GATEWAY_DEV_URL;
+  const useLocalFor = process.env.NEXT_PUBLIC_USE_LOCAL_GATEWAY_FOR || "";
 
   // 기본값: 개발 서버 게이트웨이
   if (!devUrl) {
