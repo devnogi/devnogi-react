@@ -1,4 +1,5 @@
 import ThreeTierNav from "@/components/navigation/ThreeTierNav";
+import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
 
 export default function RootLayout({
@@ -19,6 +20,9 @@ export default function RootLayout({
           {children}
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Toast notifications */}
       <Toaster position="top-center" richColors />

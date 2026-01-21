@@ -17,12 +17,15 @@ import {
   ActiveFilter,
 } from "@/types/search-filter";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
+import { LayoutMode } from "@/hooks/useAuctionHistoryLayout";
 import { Plus, X, RotateCcw, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react";
 
 interface SearchFilterCardProps {
   onFilterApply: (filters: AuctionHistorySearchParams) => void;
   isModal?: boolean;
   onClose?: () => void;
+  /** 현재 레이아웃 모드 - 데스크탑/태블릿에 따라 위치 조정 */
+  layoutMode?: LayoutMode;
 }
 
 interface BasicFilters {
@@ -36,7 +39,15 @@ export default function SearchFilterCard({
   onFilterApply,
   isModal = false,
   onClose,
+  layoutMode = "desktop",
 }: SearchFilterCardProps) {
+  // 레이아웃 모드에 따른 필터 카드 위치 계산
+  // 데스크탑(3-column): 간격 6px → 50% - 448 - 6 - 256 = 50% - 710px
+  // 태블릿(2-column): 간격 24px → 50% - 448 - 24 - 256 = 50% - 728px
+  const filterRightPosition =
+    layoutMode === "desktop"
+      ? "max(16px, calc(50% - 710px))"
+      : "max(16px, calc(50% - 728px))";
   const { data: searchOptions = [], isLoading } = useSearchOptions();
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
   const [basicFilters, setBasicFilters] = useState<BasicFilters>({
@@ -340,8 +351,14 @@ export default function SearchFilterCard({
       );
     }
 
+    // 메인 콘텐츠 기준 오른쪽에 배치
+    // 데스크탑: 간격 12px → 50% - 716px
+    // 태블릿: 간격 24px → 50% - 728px
     return (
-      <div className="fixed right-4 top-[140px] bottom-8 w-64">
+      <div
+        className="fixed top-[140px] bottom-8 w-64"
+        style={{ right: filterRightPosition }}
+      >
         {loadingContent}
       </div>
     );
@@ -534,8 +551,14 @@ export default function SearchFilterCard({
     );
   }
 
+  // 메인 콘텐츠 기준 오른쪽에 배치
+  // 데스크탑: 간격 12px → 50% - 716px
+  // 태블릿: 간격 24px → 50% - 728px
   return (
-    <div className="fixed right-4 top-[140px] bottom-8 w-64 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div
+      className="fixed top-[140px] bottom-8 w-64 overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      style={{ right: filterRightPosition }}
+    >
       {filterContent}
     </div>
   );

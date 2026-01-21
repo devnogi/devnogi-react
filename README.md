@@ -30,28 +30,79 @@
 ```
 devnogi-front/
 ├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── (auth)/         # 인증 관련 페이지 (sign-in)
-│   │   ├── (main)/         # 메인 애플리케이션 (auction, auction-history, community)
-│   │   ├── api/            # BFF API 라우트 (게이트웨이로 프록시)
-│   │   └── fonts/          # 폰트 파일 (Pretendard, Mabinogi Classic)
+│   ├── app/                    # Next.js App Router
+│   │   ├── (auth)/             # 인증 페이지 그룹
+│   │   │   ├── sign-in/          # 로그인 페이지
+│   │   │   ├── sign-up/          # 회원가입 페이지
+│   │   │   └── social-callback/  # 소셜 로그인 콜백
+│   │   ├── (main)/             # 메인 애플리케이션 (NavBar 포함)
+│   │   │   ├── auction/          # 경매장 페이지
+│   │   │   ├── auction-history/  # 거래 내역 페이지
+│   │   │   ├── community/        # 커뮤니티 페이지
+│   │   │   │   ├── [id]/           # 상세 페이지
+│   │   │   │   └── write/          # 글쓰기 페이지
+│   │   │   └── mypage/           # 마이페이지
+│   │   ├── api/                # BFF API 라우트
+│   │   │   ├── auth/             # 인증 API
+│   │   │   ├── posts/            # 게시글 API
+│   │   │   ├── comments/         # 댓글 API
+│   │   │   ├── boards/           # 게시판 API
+│   │   │   ├── auction-history/  # 경매 내역 API
+│   │   │   └── item-categories/  # 아이템 카테고리 API
+│   │   └── fonts/              # 폰트 파일
 │   ├── components/
-│   │   ├── page/           # 페이지별 컴포넌트
-│   │   │   ├── auction/      # 경매장 관련
-│   │   │   ├── auction-history/ # 거래 내역 관련
-│   │   │   └── community/    # 커뮤니티 관련
-│   │   └── ui/             # Shadcn UI 컴포넌트
+│   │   ├── page/               # 페이지별 컴포넌트
+│   │   │   ├── auction/          # 경매장 관련
+│   │   │   ├── auction-history/  # 거래 내역 관련
+│   │   │   ├── community/        # 커뮤니티 관련
+│   │   │   └── auth/             # 인증 관련
+│   │   ├── commons/            # 공용 컴포넌트
+│   │   ├── navigation/         # 네비게이션 컴포넌트
+│   │   ├── errors/             # 에러 페이지 컴포넌트
+│   │   └── ui/                 # Shadcn UI 컴포넌트
+│   ├── hooks/                  # 커스텀 React Hooks
+│   ├── types/                  # TypeScript 타입 정의
+│   ├── contexts/               # React Context
 │   ├── lib/
-│   │   └── api/            # API 클라이언트 & 서버 설정
-│   │       ├── clients.ts    # clientAxios, TanStack Query 설정
-│   │       └── server.ts     # createServerAxios, MSW 초기화
-│   ├── mocks/              # MSW 모킹 설정
-│   │   ├── data/           # Mock JSON 데이터
-│   │   ├── server.ts       # MSW 핸들러
-│   │   └── initServer.ts   # MSW 서버 초기화
-│   └── utils/            # 공통 유틸리티 함수
-└── public/              # 정적 파일
+│   │   ├── api/                # API 클라이언트 & 서버 설정
+│   │   │   ├── clients.ts        # clientAxios, TanStack Query 설정
+│   │   │   ├── server.ts         # createServerAxios, MSW 초기화
+│   │   │   └── gateway-selector.ts # 게이트웨이 URL 선택
+│   │   └── auth/               # 인증 관련 유틸
+│   ├── mocks/                  # MSW 모킹 설정
+│   │   ├── data/                 # Mock JSON 데이터
+│   │   ├── server.ts             # MSW 핸들러
+│   │   └── initServer.ts         # MSW 서버 초기화
+│   └── utils/                  # 공통 유틸리티 함수
+├── public/                     # 정적 파일
+├── Dockerfile                  # Docker 멀티 스테이지 빌드
+└── docker-compose-*.yml        # Docker Compose 설정
 ```
+
+## 주요 기능
+
+### 인증 시스템
+- **이메일 로그인**: 이메일/비밀번호 기반 로그인
+- **소셜 로그인**: 구글, 카카오, 네이버 OAuth 연동
+- **회원가입**: 이메일/닉네임 중복 체크, 약관 동의
+- **세션 관리**: 쿠키 기반 인증 상태 유지
+
+### 커뮤니티
+- **게시글 목록**: 카드 형태 UI, 무한 스크롤
+- **카테고리 필터**: 게시판별 분류
+- **정렬 옵션**: 최신순, 인기순, 댓글순, 조회순
+- **게시글 상세**: 댓글 작성 및 조회
+- **글쓰기**: 모달 기반 게시글 작성
+
+### 경매 내역
+- **무한 스크롤**: TanStack Query 기반 페이지네이션
+- **검색 기능**: 아이템 이름 검색
+- **필터링**: 카테고리, 가격 범위, 날짜 범위, 아이템 옵션
+- **정렬**: 거래 최신순, 가격순 등
+- **반응형 UI**: 데스크톱 사이드바 / 모바일 모달 필터
+
+### 마이페이지
+- 사용자 정보 조회 및 프로필 편집
 
 ## 아키텍처
 
@@ -94,6 +145,18 @@ Backend Services
 - `staleTime: 200ms`
 - 윈도우 포커스, 재연결, 마운트 시 자동 refetch 비활성화
 
+### 커스텀 Hooks
+
+| Hook | 용도 |
+|------|------|
+| `useInfiniteAuctionHistory` | 경매 내역 무한 스크롤 |
+| `useAuctionHistory` | 경매 내역 단일 페이지 조회 |
+| `useInfinitePosts` | 게시글 무한 스크롤 |
+| `usePostDetail` | 게시글 상세 조회 |
+| `useItemCategories` | 아이템 카테고리 트리 조회 |
+| `useSearchOptions` | 검색 옵션 조회 |
+| `useItemInfos` | 아이템 정보 조회 |
+
 ### API 모킹 (MSW)
 
 **활성화 조건:**
@@ -122,6 +185,7 @@ http://168.107.43.221:8080/
 |--------|--------|---------|-----------|
 | OPEN API BATCH | `/oab` | [Swagger UI](http://138.2.126.248:8080/swagger-ui/index.html) | 경매장, 거래 내역 |
 | 커뮤니티 서버 | `/dcs/api` | [Swagger UI](http://3.39.119.27/swagger-ui/index.html) | 게시판, 게시글, 댓글 |
+| Auth 서버 | `/das/api` | - | 인증, 회원가입, 소셜 로그인 |
 
 **커뮤니티 API 응답 구조:**
 ```typescript
@@ -132,6 +196,38 @@ http://168.107.43.221:8080/
   data: T,
   timestamp: string
 }
+```
+
+### API 라우트 목록
+
+**인증 API (`/api/auth/*`)**
+```
+POST   /api/auth/login              # 로그인
+POST   /api/auth/signup             # 회원가입
+POST   /api/auth/signup/social      # 소셜 회원가입
+POST   /api/auth/logout             # 로그아웃
+GET    /api/auth/me                 # 현재 사용자 정보
+POST   /api/auth/check-email        # 이메일 중복 체크
+POST   /api/auth/check-nickname     # 닉네임 중복 체크
+```
+
+**커뮤니티 API (`/api/posts/*`, `/api/comments/*`)**
+```
+GET    /api/posts                   # 전체 게시글 조회
+GET    /api/posts/[id]              # 게시판별 게시글 조회
+GET    /api/posts/details/[id]      # 게시글 상세 조회
+GET    /api/comments/[postId]       # 댓글 조회
+POST   /api/comments/[postId]       # 댓글 작성
+GET    /api/boards                  # 게시판 목록 조회
+```
+
+**경매 API (`/api/auction-history/*`)**
+```
+GET    /api/auction-history         # 경매 내역 조회
+POST   /api/auction-history/search  # 상세 검색
+GET    /api/item-categories         # 아이템 카테고리 조회
+GET    /api/item-infos              # 아이템 정보 조회
+GET    /api/search-option           # 검색 옵션 조회
 ```
 
 ### Slash Commands
@@ -314,6 +410,31 @@ npm run lint
 # 테스트 실행
 npm test
 ```
+
+## Docker 배포
+
+### 로컬 개발
+
+```bash
+# 개발 환경 실행
+docker-compose -f docker-compose-dev.yml up
+
+# 로컬 환경 실행
+docker-compose -f docker-compose-local.yml up
+```
+
+### 프로덕션 배포
+
+```bash
+# 프로덕션 빌드 및 실행
+docker-compose -f docker-compose-prod.yaml up -d
+```
+
+**Docker 설정:**
+- 멀티 스테이지 빌드 (node:20-alpine)
+- Next.js standalone 출력 모드
+- 기본 포트: 3010
+- 보안 사용자(nextjs)로 실행
 
 ## 디자인 시스템
 

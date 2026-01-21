@@ -10,6 +10,7 @@ import MobileFilterModal from "@/components/page/auction-history/MobileFilterMod
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
 import { useInfiniteAuctionHistory } from "@/hooks/useInfiniteAuctionHistory";
+import { useAuctionHistoryLayout } from "@/hooks/useAuctionHistoryLayout";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { ActiveFilter } from "@/types/search-filter";
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
@@ -71,6 +72,14 @@ export default function Page() {
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
+
+  // 레이아웃 모드 관리 - 화면 크기에 따라 자동 전환
+  const {
+    layoutMode,
+    showCategorySidebar,
+    showFilterSidebar,
+    showMobileFilter,
+  } = useAuctionHistoryLayout();
 
   const {
     data,
@@ -377,16 +386,24 @@ export default function Page() {
         <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />
       </Suspense>
 
-      {/* Fixed Floating Category Sidebar - Only visible on 2xl+ screens (1536px+) */}
-      <div className="fixed left-4 top-[158px] bottom-8 w-56 z-40 hidden 2xl:block">
-        <CategorySection
-          selectedId={selectedCategory}
-          onSelect={handleCategorySelect}
-          expandedIds={expandedIds}
-          onToggleExpand={handleToggleExpand}
-          categories={categories}
-        />
-      </div>
+      {/* Fixed Floating Category Sidebar - 메인 콘텐츠 기준 왼쪽에 배치
+          위치 계산: 중앙(50%) - 메인콘텐츠반(448px) - 간격(6px) - 카테고리너비(224px) = 50% - 678px
+          최소값 보장: max(16px, calc(50% - 678px))
+          상단 위치: 검색 필터 컴포넌트와 동일한 140px로 정렬 */}
+      {showCategorySidebar && (
+        <div
+          className="fixed top-[140px] bottom-8 w-56 z-40"
+          style={{ left: "max(16px, calc(50% - 678px))" }}
+        >
+          <CategorySection
+            selectedId={selectedCategory}
+            onSelect={handleCategorySelect}
+            expandedIds={expandedIds}
+            onToggleExpand={handleToggleExpand}
+            categories={categories}
+          />
+        </div>
+      )}
 
       {/* Category Modal - Visible on lg and below */}
       <CategoryModal
@@ -399,11 +416,24 @@ export default function Page() {
         categories={categories}
       />
 
-      {/* Centered Main Content Container */}
-      <div className="min-h-full flex justify-center [scrollbar-gutter:stable]">
+      {/* Centered Main Content Container
+          레이아웃 모드에 따라 좌우 패딩 조정:
+          - desktop: 양쪽 사이드바 공간 확보 (px-72 = 288px)
+          - tablet: 오른쪽 필터 공간만 확보 (pr-72 = 288px)
+          - mobile: 패딩 없음 */}
+      <div
+        className={`min-h-full flex justify-center [scrollbar-gutter:stable] ${
+          showCategorySidebar
+            ? "px-72"
+            : showFilterSidebar
+              ? "pr-72"
+              : ""
+        }`}
+      >
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
-          {/* Mobile Filter Chips - Only visible on lg and below */}
-          <div className="mb-4 lg:hidden">
+          {/* Mobile Filter Chips - 모바일 뷰에서만 표시 */}
+          {showMobileFilter && (
+            <div className="mb-4">
             <MobileFilterChips
               activeFilters={{
                 hasCategory: selectedCategory !== "all",
@@ -416,10 +446,12 @@ export default function Page() {
               onDateClick={() => setMobileFilterType("date")}
               onOptionsClick={() => setMobileFilterType("options")}
             />
-          </div>
+            </div>
+          )}
 
-          {/* Search Section - Only visible on lg+ screens */}
-          <div className="mb-6 hidden lg:block">
+          {/* Search Section - 필터 사이드바가 표시될 때만 보임 (tablet/desktop) */}
+          {showFilterSidebar && (
+            <div className="mb-6">
             <SearchSection
               path={categoryPath}
               onCategorySelect={handleCategorySelect}
@@ -428,7 +460,8 @@ export default function Page() {
               onSearch={handleSearch}
               onCategoryMenuClick={() => setIsCategoryModalOpen(true)}
             />
-          </div>
+            </div>
+          )}
 
           {/* Results Section */}
           <div>
@@ -502,17 +535,18 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Fixed Floating Filter Card - Right Side - Only visible on lg+ screens */}
-      <div className="hidden lg:block">
+      {/* Fixed Floating Filter Card - 메인 콘텐츠 기준 오른쪽에 배치 */}
+      {showFilterSidebar && (
         <SearchFilterCard
           onFilterApply={handleFilterApply}
           isModal={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
+          layoutMode={layoutMode}
         />
-      </div>
+      )}
 
-      {/* Mobile Filter Modal - Only visible on lg and below when chip is clicked */}
-      <div className="lg:hidden">
+      {/* Mobile Filter Modal - 모바일 뷰에서만 표시 */}
+      {showMobileFilter && (
         <MobileFilterModal
           isOpen={mobileFilterType !== null}
           onClose={() => setMobileFilterType(null)}
@@ -528,7 +562,7 @@ export default function Page() {
           categories={categories}
           onApply={handleMobileFilterApply}
         />
-      </div>
+      )}
 
     </div>
   );

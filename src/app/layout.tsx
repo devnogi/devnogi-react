@@ -3,7 +3,7 @@ import "./globals.css";
 import Providers from "@/app/_providers/Providers";
 
 export const metadata: Metadata = {
-  title: "Devnogi",
+  title: "메모노기 - 마비노기 통계 및 커뮤니티",
   description: "마비노기 정보 커뮤니티",
 };
 
