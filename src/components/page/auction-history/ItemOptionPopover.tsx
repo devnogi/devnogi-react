@@ -61,7 +61,7 @@ function OptionGroup({ group }: { group: GroupedOption }) {
   return (
     <div className="relative border border-white/30 rounded-sm pt-5 pb-2 px-2.5 mt-1">
       {/* 카테고리 라벨 (테두리에 겹치는 스타일) */}
-      <span className="absolute -top-2.5 left-2 px-1.5 bg-[#1a1a1a] text-[#e8a854] text-xs font-semibold leading-normal">
+      <span className="absolute -top-2.5 left-2 px-1.5 bg-[#1a1a1a] text-[#e8a854] text-xs font-semibold leading-normal z-20">
         {group.categoryLabel}
       </span>
 
@@ -75,6 +75,8 @@ function OptionGroup({ group }: { group: GroupedOption }) {
           <ArtisanOptions options={group.options} />
         ) : group.categoryId === "erg" ? (
           <ErgOptions options={group.options} />
+        ) : group.categoryId === "itemColor" ? (
+          <ItemColorOptions options={group.options} />
         ) : (
           <DefaultOptions options={group.options} />
         )}
@@ -222,18 +224,21 @@ function ReforgeItem({ option }: { option: ItemOption }) {
 
 /**
  * 세공 옵션 렌더링
+ * optionSubType ASC 정렬, optionValue만 표시
  */
 function ArtisanOptions({ options }: { options: ItemOption[] }) {
+  // optionSubType ASC 정렬
+  const sortedOptions = [...options].sort((a, b) => {
+    const subTypeA = a.optionSubType || "";
+    const subTypeB = b.optionSubType || "";
+    return subTypeA.localeCompare(subTypeB, "ko");
+  });
+
   return (
     <>
-      {options.map((option) => (
-        <div key={option.id} className="mb-1.5 last:mb-0">
-          {option.optionSubType && (
-            <div className="text-xs text-[#b0b0b0] font-medium">
-              {option.optionSubType}
-            </div>
-          )}
-          <div className="text-xs text-[#ccc] ml-2">
+      {sortedOptions.map((option) => (
+        <div key={option.id} className="mb-1 last:mb-0">
+          <div className="text-xs text-[#ccc]">
             {option.optionValue}
           </div>
           {option.optionDesc && (
@@ -288,6 +293,61 @@ function ErgOptions({ options }: { options: ItemOption[] }) {
           )}
         </div>
       ))}
+    </>
+  );
+}
+
+/**
+ * 아이템 색상 옵션 렌더링
+ * RGB 값을 파싱하여 색상 표시와 함께 렌더링
+ * 형식: ● {option_sub_type} : {option_value}
+ */
+function ItemColorOptions({ options }: { options: ItemOption[] }) {
+  // optionSubType ASC 정렬
+  const sortedOptions = [...options].sort((a, b) => {
+    const subTypeA = a.optionSubType || "";
+    const subTypeB = b.optionSubType || "";
+    return subTypeA.localeCompare(subTypeB, "ko");
+  });
+
+  // RGB 값 파싱 함수: 다양한 형태에서 rgb 추출
+  // 지원 형식: "(255,255,255)", "255,255,255", "255, 255, 255" 등
+  const parseRgbColor = (value: string | null | undefined): string | null => {
+    if (!value) return null;
+    // 괄호 있는 형식: (255,255,255) 또는 (255, 255, 255)
+    const withParenMatch = value.match(/\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\)/);
+    if (withParenMatch) {
+      const [, r, g, b] = withParenMatch;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+    // 괄호 없는 형식: 255,255,255 또는 255, 255, 255
+    const withoutParenMatch = value.match(/^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/);
+    if (withoutParenMatch) {
+      const [, r, g, b] = withoutParenMatch;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+    return null;
+  };
+
+  return (
+    <>
+      {sortedOptions.map((option) => {
+        const rgbColor = parseRgbColor(option.optionValue);
+        return (
+          <div key={option.id} className="text-xs text-[#ccc] leading-relaxed">
+            <span
+              style={{ color: rgbColor || "#ccc" }}
+              className="mr-1"
+            >
+              ●
+            </span>
+            <span className="text-[#a0a0a0]">
+              {option.optionSubType || option.optionType}:
+            </span>{" "}
+            <span>{option.optionValue}</span>
+          </div>
+        );
+      })}
     </>
   );
 }
