@@ -109,7 +109,7 @@ jobs:
 
       - name: Copy deployment files to server
         run: |
-          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yaml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/
+          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/
 
       - name: Deploy to Production Server
         run: |
@@ -123,10 +123,10 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod
 
             # Stop and remove existing containers
-            docker compose -f docker-compose-prod.yaml down
+            docker compose -f docker-compose-prod.yml down
 
             # Start new containers
-            docker compose -f docker-compose-prod.yaml up -d
+            docker compose -f docker-compose-prod.yml up -d
 
             echo "✅ Production deployment complete"
           EOF
@@ -228,6 +228,6 @@ jobs:
           echo "To rollback, SSH to server and run:"
           echo "  cd ~/devnogi-react"
           echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod-<previous-sha>"
-          echo "  docker compose -f docker-compose-prod.yaml down"
-          echo "  docker compose -f docker-compose-prod.yaml up -d"
+          echo "  docker compose -f docker-compose-prod.yml down"
+          echo "  docker compose -f docker-compose-prod.yml up -d"
 
