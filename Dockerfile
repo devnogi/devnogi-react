@@ -17,6 +17,10 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# NEXT_PUBLIC_ 환경 변수는 빌드 시점에 인라인됨
+ARG NEXT_PUBLIC_GATEWAY_PROD_URL
+ENV NEXT_PUBLIC_GATEWAY_PROD_URL=$NEXT_PUBLIC_GATEWAY_PROD_URL
+
 RUN npm run build
 
 # ===================================
