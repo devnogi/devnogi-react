@@ -21,8 +21,7 @@ services:
       PORT: 3010
 
       # === Gateway Configuration ===
-      NEXT_PUBLIC_GATEWAY_PROD_URL: ${NEXT_PUBLIC_GATEWAY_PROD_URL}
-      GATEWAY_BASE_URL: ${GATEWAY_BASE_URL}
+      GATEWAY_URL: ${GATEWAY_URL}
 
       # === API Configuration ===
       API_MOCKING: disabled

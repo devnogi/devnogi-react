@@ -16,9 +16,7 @@ VERCEL_ENV=production
 API_MOCKING=disabled
 
 # === Gateway Configuration ===
-# 운영 게이트웨이 URL (실제 운영 서버 URL로 변경하세요)
-NEXT_PUBLIC_GATEWAY_PROD_URL=http://your-production-gateway-url:8080
-GATEWAY_BASE_URL=http://your-production-gateway-url:8080
+GATEWAY_URL=http://your-production-gateway-url:8080
 
 # === Docker Compose Configuration ===
 # Docker Hub 정보 (GitHub Secrets와 동일한 값)

@@ -22,7 +22,7 @@ npm run dev
 `.env` 파일이 존재하고 다음 변수가 설정되어 있는지 확인:
 
 ```env
-GATEWAY_BASE_URL=http://168.107.43.221:8080
+GATEWAY_URL=http://168.107.43.221:8080
 NODE_ENV=development
 API_MOCKING=disabled
 ```
@@ -419,7 +419,7 @@ const handleFilterApply = (filters: Record<string, string | number>) => {
 - 환경 변수 설정 오류
 
 **해결**:
-- `.env` 파일의 `GATEWAY_BASE_URL` 확인
+- `.env` 파일의 `GATEWAY_URL` 확인
 - curl 명령으로 Gateway 서버 상태 확인:
   ```bash
   curl http://168.107.43.221:8080/oab/api/search-option

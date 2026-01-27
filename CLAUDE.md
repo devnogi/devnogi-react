@@ -126,7 +126,7 @@ The app implements BFF using Next.js API routes in `src/app/api/`:
 - Timeout: 5000ms
 
 **Server-side:** `createServerAxios()` in `server.ts`
-- Base URL: `process.env.GATEWAY_BASE_URL`
+- Base URL: `process.env.GATEWAY_URL`
 - Used in API route handlers
 - Forwards Authorization and Cookie headers
 - Initializes MSW server for mocking
@@ -162,7 +162,7 @@ Create `.env` from `.sample_env`:
 - `NODE_ENV` - Runtime environment
 - `VERCEL_ENV` - Vercel environment (development/preview/production)
 - `API_MOCKING` - Enable/disable MSW (`enabled` | `disabled`)
-- `GATEWAY_BASE_URL` - Backend gateway URL
+- `GATEWAY_URL` - Backend gateway URL
 
 ### Path Aliases
 

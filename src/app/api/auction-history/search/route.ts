@@ -78,9 +78,9 @@ function buildNestedQueryParams(
 
 export async function GET(request: NextRequest) {
   try {
-    const gatewayUrl = process.env.GATEWAY_BASE_URL;
+    const gatewayUrl = process.env.GATEWAY_URL;
     if (!gatewayUrl) {
-      throw new Error("GATEWAY_BASE_URL 환경 변수가 설정되지 않았습니다.");
+      throw new Error("GATEWAY_URL 환경 변수가 설정되지 않았습니다.");
     }
 
     const searchParams = request.nextUrl.searchParams;

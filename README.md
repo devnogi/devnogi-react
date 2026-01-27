@@ -137,7 +137,7 @@ Backend Services
 
 **Server-side (`src/lib/api/server.ts`):**
 - `createServerAxios()`: API 라우트 핸들러에서 사용
-- Base URL: `process.env.GATEWAY_BASE_URL`
+- Base URL: `process.env.GATEWAY_URL`
 - Authorization 및 Cookie 헤더 전달
 - MSW 서버 자동 초기화
 
@@ -262,7 +262,7 @@ cp .sample_env .env
 - `NODE_ENV` - 런타임 환경 (development/production)
 - `VERCEL_ENV` - Vercel 환경 (development/preview/production)
 - `API_MOCKING` - MSW 활성화 여부 (enabled/disabled)
-- `GATEWAY_BASE_URL` - 백엔드 게이트웨이 URL
+- `GATEWAY_URL` - 백엔드 게이트웨이 URL
 
 4. 개발 서버 실행
 ```bash

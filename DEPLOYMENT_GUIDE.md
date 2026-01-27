@@ -78,8 +78,7 @@ VERCEL_ENV=production
 API_MOCKING=disabled
 
 # 실제 운영 게이트웨이 URL로 변경
-NEXT_PUBLIC_GATEWAY_PROD_URL=http://your-production-gateway:8080
-GATEWAY_BASE_URL=http://your-production-gateway:8080
+GATEWAY_URL=http://your-production-gateway:8080
 
 # Docker Hub 정보 (GitHub Secrets와 동일)
 DOCKER_USERNAME=your-dockerhub-username

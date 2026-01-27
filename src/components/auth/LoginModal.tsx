@@ -26,6 +26,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
+import { useConfig } from "@/contexts/ConfigContext";
 
 const loginSchema = z.object({
   email: z
@@ -86,6 +87,7 @@ const NaverIcon = () => (
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
+  const { config, isLoading: isConfigLoading } = useConfig();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -113,9 +115,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   };
 
   const handleSocialLogin = (provider: "google" | "kakao" | "naver") => {
+    if (isConfigLoading || !config) {
+      console.error("Config is not loaded yet");
+      return;
+    }
+
     // 소셜 로그인 시작
     import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
-      initiateSocialLogin(provider);
+      initiateSocialLogin(provider, config.gatewayUrl);
     });
 
     // 소셜 로그인 완료 메시지 수신 대기

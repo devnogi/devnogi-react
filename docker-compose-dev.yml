@@ -27,7 +27,7 @@ services:
       HOSTNAME: "0.0.0.0"
 
       # === Gateway Configuration ===
-      NEXT_PUBLIC_GATEWAY_DEV_URL: ${NEXT_PUBLIC_GATEWAY_DEV_URL:-http://168.107.43.221:8080}
+      GATEWAY_URL: ${GATEWAY_URL:-http://168.107.43.221:8080}
 
       # === API Configuration ===
       API_MOCKING: ${API_MOCKING:-disabled}

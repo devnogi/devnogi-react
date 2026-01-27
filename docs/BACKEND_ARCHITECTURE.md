@@ -196,7 +196,7 @@ export const COMMENTS_ENDPOINT = "/dcs/comments";
 
 ```env
 # Gateway URL (기본값)
-GATEWAY_BASE_URL=http://168.107.43.221:8080
+GATEWAY_URL=http://168.107.43.221:8080
 
 # MSW 모킹 활성화 여부
 API_MOCKING=enabled  # development/preview only
@@ -208,7 +208,7 @@ MSW(Mock Service Worker)를 사용하여 API 모킹:
 
 ```typescript
 // src/mocks/server.ts
-const BASE_URL = `${process.env.GATEWAY_BASE_URL}`;
+const BASE_URL = `${process.env.GATEWAY_URL}`;
 
 export const handlers = [
   http.get(`${BASE_URL}/oab/auction-history`, () => {

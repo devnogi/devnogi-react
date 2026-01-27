@@ -18,6 +18,7 @@ import {
 import { Eye, EyeOff, Lock, ArrowLeft, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
+import { useConfig } from "@/contexts/ConfigContext";
 
 const loginSchema = z.object({
   // TODO: validation 조건 확인
@@ -79,6 +80,7 @@ export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { config, isLoading: isConfigLoading } = useConfig();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -122,9 +124,14 @@ export default function Page() {
   };
 
   const handleSocialLogin = (provider: "google" | "kakao" | "naver") => {
+    if (isConfigLoading || !config) {
+      console.error("Config is not loaded yet");
+      return;
+    }
+
     // 소셜 로그인 시작
     import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
-      initiateSocialLogin(provider);
+      initiateSocialLogin(provider, config.gatewayUrl);
     });
   };
 

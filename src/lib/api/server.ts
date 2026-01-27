@@ -41,11 +41,7 @@ function addLoggingInterceptors(instance: AxiosInstance, label: string): void {
 export function createServerAxios(request: NextRequest): AxiosInstance {
   initMockServer();
 
-  // 요청 경로에서 게이트웨이 URL 선택
-  // 예: /das/auth/login -> auth 서비스이므로 USE_LOCAL_GATEWAY_FOR에 따라 선택
-  const path = new URL(request.url).pathname;
-
-  const gatewayUrl = selectServerGatewayUrl(path);
+  const gatewayUrl = selectServerGatewayUrl();
 
   const instance = axios.create({
     baseURL: gatewayUrl,
@@ -69,8 +65,7 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
 export function createAuthServerAxios(request: NextRequest): AxiosInstance {
   initMockServer();
 
-  // Auth 서비스는 /das 경로 사용
-  const gatewayUrl = selectServerGatewayUrl("/das");
+  const gatewayUrl = selectServerGatewayUrl();
 
   return axios.create({
     baseURL: gatewayUrl,
@@ -91,8 +86,7 @@ export function createAuthServerAxios(request: NextRequest): AxiosInstance {
 export function createPublicAuthServerAxios(): AxiosInstance {
   initMockServer();
 
-  // Auth 서비스는 /das 경로 사용
-  const gatewayUrl = selectServerGatewayUrl("/das");
+  const gatewayUrl = selectServerGatewayUrl();
 
   return axios.create({
     baseURL: gatewayUrl,

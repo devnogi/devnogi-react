@@ -21,9 +21,7 @@ services:
       PORT: ${PORT:-3010}
 
       # === Gateway Configuration ===
-      NEXT_PUBLIC_GATEWAY_LOCAL_URL: ${NEXT_PUBLIC_GATEWAY_LOCAL_URL:-http://localhost:8090}
-      NEXT_PUBLIC_GATEWAY_DEV_URL: ${NEXT_PUBLIC_GATEWAY_DEV_URL:-http://168.107.43.221:8080}
-      NEXT_PUBLIC_USE_LOCAL_GATEWAY_FOR: ${NEXT_PUBLIC_USE_LOCAL_GATEWAY_FOR:-}
+      GATEWAY_URL: ${GATEWAY_URL:-http://localhost:8090}
 
       # === API Configuration ===
       API_MOCKING: ${API_MOCKING:-disabled}

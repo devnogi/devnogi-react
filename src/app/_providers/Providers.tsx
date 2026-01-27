@@ -3,9 +3,12 @@
 
 import TanStackQueryProvider from "@/app/_providers/TanStackQueryProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ConfigProvider } from "@/contexts/ConfigContext";
 import React, { ReactNode } from "react";
 
 const providers = [
+  // ConfigProvider가 가장 먼저 로드되어야 다른 컴포넌트에서 사용 가능
+  (children: ReactNode) => <ConfigProvider>{children}</ConfigProvider>,
   (children: ReactNode) => (
     <TanStackQueryProvider>{children}</TanStackQueryProvider>
   ),

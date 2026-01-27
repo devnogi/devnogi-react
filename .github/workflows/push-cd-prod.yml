@@ -63,7 +63,6 @@ jobs:
           build-args: |
             NODE_ENV=production
             NEXT_TELEMETRY_DISABLED=1
-            NEXT_PUBLIC_GATEWAY_PROD_URL=${{ secrets.NEXT_PUBLIC_GATEWAY_PROD_URL }}
 
       # ========================================
       # Deploy Stage: SSH & Deploy
@@ -116,17 +115,17 @@ jobs:
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
             cd ~/devnogi-react
 
-            # Write .env content from GitHub Secret
-            echo "${{ secrets.ENV_FILE_PROD }}" > .env
+            # Write .env.prod content from GitHub Secret
+            echo "${{ secrets.ENV_FILE_PROD }}" > .env.prod
 
             # Pull latest production image
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod
 
             # Stop and remove existing containers
-            docker compose -f docker-compose-prod.yml down
+            docker compose -f docker-compose-prod.yml --env-file .env.prod down
 
             # Start new containers
-            docker compose -f docker-compose-prod.yml up -d
+            docker compose -f docker-compose-prod.yml --env-file .env.prod up -d
 
             echo "✅ Production deployment complete"
           EOF
@@ -228,6 +227,6 @@ jobs:
           echo "To rollback, SSH to server and run:"
           echo "  cd ~/devnogi-react"
           echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod-<previous-sha>"
-          echo "  docker compose -f docker-compose-prod.yml down"
-          echo "  docker compose -f docker-compose-prod.yml up -d"
+          echo "  docker compose -f docker-compose-prod.yml --env-file .env.prod down"
+          echo "  docker compose -f docker-compose-prod.yml --env-file .env.prod up -d"
 
