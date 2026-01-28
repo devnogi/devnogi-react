@@ -55,8 +55,6 @@ export default function ThreeTierNav() {
   const isAuctionHistoryPage = pathname.startsWith("/auction-history");
   // 뿔피리 페이지인지 확인
   const isHornBuglePage = pathname.startsWith("/horn-bugle");
-  // 검색 기능 활성화 여부
-  const isSearchEnabled = isAuctionHistoryPage || isHornBuglePage;
 
   // Filtered items based on search input
   const filteredItems = useMemo(() => {

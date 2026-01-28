@@ -2,10 +2,9 @@
 
 import AuctionHistoryList from "@/components/page/auction-history/AuctionHistoryList";
 import { Badge } from "@/components/ui/badge";
-import { Menu } from "lucide-react";
 import React from "react";
 import CategorySection from "@/components/commons/Category";
-import CategoryModal from "@/components/commons/CategoryModal";
+import CategoryDropdown from "@/components/commons/CategoryDropdown";
 import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard";
 import MobileFilterChips from "@/components/page/auction-history/MobileFilterChips";
 import MobileFilterModal from "@/components/page/auction-history/MobileFilterModal";
@@ -53,7 +52,7 @@ export default function Page() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [isClientMounted, setIsClientMounted] = useState(false);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [sortOption, setSortOption] = useState<{
@@ -223,32 +222,6 @@ export default function Page() {
     });
   };
 
-  const handleSearch = (overrides?: { itemName?: string; categoryId?: string }) => {
-    const params: AuctionHistorySearchParams = {};
-
-    // Add item name if provided
-    const searchItemName = overrides?.itemName ?? itemName;
-    if (searchItemName.trim()) {
-      params.itemName = searchItemName.trim();
-    }
-
-    // Add category filters if not "all"
-    const categoryToUse = overrides?.categoryId ?? selectedCategory;
-    if (categoryToUse !== "all") {
-      const parts = categoryToUse.split("/");
-      if (parts.length === 1) {
-        // Top category only
-        params.itemTopCategory = parts[0];
-      } else if (parts.length === 2) {
-        // Both top and sub category
-        params.itemTopCategory = parts[0];
-        params.itemSubCategory = parts[1];
-      }
-    }
-
-    setSearchParams(params);
-  };
-
   const handleFilterApply = (filters: AuctionHistorySearchParams) => {
     // Merge existing search params with new filters
     const params: AuctionHistorySearchParams = {
@@ -407,16 +380,6 @@ export default function Page() {
         </div>
       )}
 
-      {/* Category Modal - Visible on lg and below */}
-      <CategoryModal
-        isOpen={isCategoryModalOpen}
-        onClose={() => setIsCategoryModalOpen(false)}
-        selectedId={selectedCategory}
-        onSelect={handleCategorySelect}
-        expandedIds={expandedIds}
-        onToggleExpand={handleToggleExpand}
-        categories={categories}
-      />
 
       {/* Centered Main Content Container
           레이아웃 모드에 따라 좌우 패딩 조정:
@@ -454,14 +417,19 @@ export default function Page() {
           {/* Category Breadcrumb - 필터 사이드바가 표시될 때 보임 (tablet/desktop) */}
           {showFilterSidebar && categoryPath.length > 0 && (
             <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
-              {/* Category Menu Button - 2xl 미만에서만 표시 */}
-              <button
-                onClick={() => setIsCategoryModalOpen(true)}
-                className="2xl:hidden flex items-center justify-center w-8 h-8 rounded-xl hover:bg-cream-100 transition-colors"
-                aria-label="카테고리 메뉴 열기"
-              >
-                <Menu className="w-5 h-5 text-cream-600" />
-              </button>
+              {/* Category Dropdown - 2xl 미만에서만 표시 */}
+              <div className="2xl:hidden">
+                <CategoryDropdown
+                  isOpen={isCategoryDropdownOpen}
+                  onToggle={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  onClose={() => setIsCategoryDropdownOpen(false)}
+                  selectedId={selectedCategory}
+                  onSelect={handleCategorySelect}
+                  expandedIds={expandedIds}
+                  onToggleExpand={handleToggleExpand}
+                  categories={categories}
+                />
+              </div>
               {categoryPath.map((p, index) => (
                 <React.Fragment key={p.id}>
                   {index > 0 && <span className="text-cream-400">›</span>}
