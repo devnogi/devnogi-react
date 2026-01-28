@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # ===================================
 # Stage 1: Build
 # ===================================
@@ -9,15 +11,18 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# devDependencies 포함
-RUN npm ci
+# npm 캐시 마운트로 의존성 설치 속도 향상
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 COPY . .
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+# Next.js 빌드 캐시 마운트로 빌드 속도 향상
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # ===================================
 # Stage 2: Runtime
