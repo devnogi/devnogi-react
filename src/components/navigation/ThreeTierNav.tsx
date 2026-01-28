@@ -18,7 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 // Navigation menu items
 const navItems = [
   { href: "/auction-history", label: "경매장 거래내역", ready: true },
-  { href: "#", label: "경매장 실시간 정보", ready: false },
+  { href: "/auction-realtime", label: "경매장 실시간 정보", ready: true },
   { href: "#", label: "시세 정보", ready: false },
   { href: "/horn-bugle", label: "거대한 뿔피리", ready: true },
   { href: "#", label: "정보 게시판", ready: false },
@@ -53,12 +53,16 @@ export default function ThreeTierNav() {
 
   // 경매장 거래내역 페이지인지 확인
   const isAuctionHistoryPage = pathname.startsWith("/auction-history");
+  // 경매장 실시간 정보 페이지인지 확인
+  const isAuctionRealtimePage = pathname.startsWith("/auction-realtime");
+  // 경매장 관련 페이지인지 확인 (거래내역 또는 실시간)
+  const isAuctionPage = isAuctionHistoryPage || isAuctionRealtimePage;
   // 뿔피리 페이지인지 확인
   const isHornBuglePage = pathname.startsWith("/horn-bugle");
 
   // Filtered items based on search input
   const filteredItems = useMemo(() => {
-    if (!isAuctionHistoryPage) return [];
+    if (!isAuctionPage) return [];
     if (!searchValue || searchValue.trim().length === 0) {
       return [];
     }
@@ -66,7 +70,7 @@ export default function ThreeTierNav() {
     return itemInfos
       .filter((item) => item.name.toLowerCase().includes(searchTerm))
       .slice(0, 10);
-  }, [itemInfos, searchValue, isAuctionHistoryPage]);
+  }, [itemInfos, searchValue, isAuctionPage]);
 
   // Scroll detection for hiding Tier 1
   useEffect(() => {
@@ -119,13 +123,14 @@ export default function ThreeTierNav() {
       setIsSearchFocused(false);
       setSelectedIndex(-1);
 
-      // Navigate to auction history with search params
+      // Navigate to current auction page with search params (history or realtime)
       const categoryId = getCategoryId(item.topCategory, item.subCategory);
+      const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
       router.push(
-        `/auction-history?itemName=${encodeURIComponent(item.name)}&category=${encodeURIComponent(categoryId || "")}`
+        `${basePath}?itemName=${encodeURIComponent(item.name)}&category=${encodeURIComponent(categoryId || "")}`
       );
     },
-    [addRecentSearch, router]
+    [addRecentSearch, router, isAuctionRealtimePage]
   );
 
   const handleRecentSearchClick = useCallback(
@@ -136,18 +141,19 @@ export default function ThreeTierNav() {
       setSelectedIndex(-1);
 
       const categoryId = getCategoryId(search.topCategory, search.subCategory);
+      const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
 
       if (categoryId) {
         router.push(
-          `/auction-history?itemName=${encodeURIComponent(search.itemName)}&category=${encodeURIComponent(categoryId)}`
+          `${basePath}?itemName=${encodeURIComponent(search.itemName)}&category=${encodeURIComponent(categoryId)}`
         );
       } else {
         router.push(
-          `/auction-history?itemName=${encodeURIComponent(search.itemName)}`
+          `${basePath}?itemName=${encodeURIComponent(search.itemName)}`
         );
       }
     },
-    [addRecentSearch, router]
+    [addRecentSearch, router, isAuctionRealtimePage]
   );
 
   const handleClearAllRecentSearches = useCallback(() => {
@@ -179,8 +185,9 @@ export default function ThreeTierNav() {
       } else {
         // 일치하는 아이템이 없으면 검색어만 저장
         addRecentSearch({ itemName: searchValue.trim() });
+        const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
         router.push(
-          `/auction-history?itemName=${encodeURIComponent(searchValue.trim())}`
+          `${basePath}?itemName=${encodeURIComponent(searchValue.trim())}`
         );
         setIsSearchFocused(false);
         setSelectedIndex(-1);
@@ -196,6 +203,7 @@ export default function ThreeTierNav() {
     handleRecentSearchClick,
     addRecentSearch,
     router,
+    isAuctionRealtimePage,
   ]);
 
   // 뿔피리 검색 제출 로직
@@ -223,7 +231,7 @@ export default function ThreeTierNav() {
         return;
       }
 
-      if (!isAuctionHistoryPage) return;
+      if (!isAuctionPage) return;
 
       if (e.key === "Enter") {
         e.preventDefault();
@@ -254,7 +262,7 @@ export default function ThreeTierNav() {
       }
     },
     [
-      isAuctionHistoryPage,
+      isAuctionPage,
       isHornBuglePage,
       searchValue,
       filteredItems,
@@ -284,13 +292,13 @@ export default function ThreeTierNav() {
 
   // 드롭다운 표시 여부: 경매장 페이지에서만 + (입력값이 있거나 최근 검색어가 있을 때)
   const showDropdown =
-    isAuctionHistoryPage &&
+    isAuctionPage &&
     isSearchFocused &&
     (searchValue.trim().length > 0 || recentSearches.length > 0);
 
   // URL 경로에 따른 placeholder 분기
   const searchPlaceholder = useMemo(() => {
-    if (pathname.startsWith("/auction-history")) {
+    if (pathname.startsWith("/auction-history") || pathname.startsWith("/auction-realtime")) {
       return "아이템 검색";
     } else if (pathname.startsWith("/horn-bugle")) {
       return "캐릭터명, 메시지 검색...";
