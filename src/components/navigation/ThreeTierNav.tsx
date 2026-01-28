@@ -53,6 +53,10 @@ export default function ThreeTierNav() {
 
   // 경매장 거래내역 페이지인지 확인
   const isAuctionHistoryPage = pathname.startsWith("/auction-history");
+  // 뿔피리 페이지인지 확인
+  const isHornBuglePage = pathname.startsWith("/horn-bugle");
+  // 검색 기능 활성화 여부
+  const isSearchEnabled = isAuctionHistoryPage || isHornBuglePage;
 
   // Filtered items based on search input
   const filteredItems = useMemo(() => {
@@ -196,8 +200,31 @@ export default function ThreeTierNav() {
     router,
   ]);
 
+  // 뿔피리 검색 제출 로직
+  const handleHornBugleSearchSubmit = useCallback(() => {
+    const trimmed = searchValue.trim();
+    if (trimmed) {
+      router.push(`/horn-bugle?keyword=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/horn-bugle");
+    }
+    setIsSearchFocused(false);
+  }, [searchValue, router]);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // 뿔피리 페이지: Enter 입력 시 검색
+      if (isHornBuglePage) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleHornBugleSearchSubmit();
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          setIsSearchFocused(false);
+        }
+        return;
+      }
+
       if (!isAuctionHistoryPage) return;
 
       if (e.key === "Enter") {
@@ -230,11 +257,13 @@ export default function ThreeTierNav() {
     },
     [
       isAuctionHistoryPage,
+      isHornBuglePage,
       searchValue,
       filteredItems,
       recentSearches,
       selectedIndex,
       handleSearchSubmit,
+      handleHornBugleSearchSubmit,
     ]
   );
 
@@ -265,6 +294,8 @@ export default function ThreeTierNav() {
   const searchPlaceholder = useMemo(() => {
     if (pathname.startsWith("/auction-history")) {
       return "아이템 검색";
+    } else if (pathname.startsWith("/horn-bugle")) {
+      return "캐릭터명, 메시지 검색...";
     } else if (pathname.startsWith("/community")) {
       return "게시글 제목을 검색해주세요";
     }
@@ -297,7 +328,7 @@ export default function ThreeTierNav() {
           </button>
         )}
         <button
-          onClick={handleSearchSubmit}
+          onClick={isHornBuglePage ? handleHornBugleSearchSubmit : handleSearchSubmit}
           className="p-1.5 rounded-lg text-gray-500 hover:text-blaanid-600 hover:bg-gray-100 transition-colors"
           aria-label="검색"
           type="button"

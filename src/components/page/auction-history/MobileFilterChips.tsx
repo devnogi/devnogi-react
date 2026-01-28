@@ -27,7 +27,7 @@ export default function MobileFilterChips({
       {/* Category Filter Chip */}
       <button
         onClick={onCategoryClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasCategory
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -40,7 +40,7 @@ export default function MobileFilterChips({
       {/* Price Filter Chip */}
       <button
         onClick={onPriceClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasPrice
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -53,7 +53,7 @@ export default function MobileFilterChips({
       {/* Date Filter Chip */}
       <button
         onClick={onDateClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasDate
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -66,7 +66,7 @@ export default function MobileFilterChips({
       {/* Options Filter Chip */}
       <button
         onClick={onOptionsClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasOptions
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
