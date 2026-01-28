@@ -8,14 +8,16 @@ import {
   CommentPageResponseItem,
 } from "@/types/community";
 import CommentItem from "./CommentItem";
+import CommentForm from "./CommentForm";
 import { Loader2 } from "lucide-react";
+import { useCallback } from "react";
 
 interface CommentListProps {
   postId: string;
 }
 
 export default function CommentList({ postId }: CommentListProps) {
-  const { data, isLoading, isError, error } = useQuery<
+  const { data, isLoading, isError, error, refetch } = useQuery<
     ApiResponse<BackendCommentsResponse>
   >({
     queryKey: ["comments", postId],
@@ -33,6 +35,10 @@ export default function CommentList({ postId }: CommentListProps) {
       return response.data;
     },
   });
+
+  const handleRefetch = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   if (isLoading) {
     return (
@@ -56,14 +62,6 @@ export default function CommentList({ postId }: CommentListProps) {
   const comments = data?.data?.items || [];
   const totalCount = data?.data?.meta?.totalElements || 0;
 
-  if (comments.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">첫 댓글을 작성해보세요!</p>
-      </div>
-    );
-  }
-
   // 대댓글 구조로 변환
   const topLevelComments = comments.filter((c) => !c.parentComment);
   const repliesMap = comments.reduce(
@@ -80,20 +78,34 @@ export default function CommentList({ postId }: CommentListProps) {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h3 className="text-lg font-semibold text-gray-900">
         댓글 {totalCount}
       </h3>
-      <div className="space-y-4">
-        {topLevelComments.map((comment) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            postId={postId}
-            replies={repliesMap[comment.id] || []}
-          />
-        ))}
+
+      {/* Comment Form */}
+      <div className="pb-4 border-b border-gray-200">
+        <CommentForm postId={postId} onSuccess={handleRefetch} />
       </div>
+
+      {/* Comments */}
+      {comments.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500">첫 댓글을 작성해보세요!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {topLevelComments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              postId={postId}
+              replies={repliesMap[comment.id] || []}
+              onRefetch={handleRefetch}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

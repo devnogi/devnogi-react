@@ -17,7 +17,9 @@ function SocialCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refreshUser } = useAuth();
-  const [status, setStatus] = useState<"loading" | "signup" | "error">("loading");
+  const [status, setStatus] = useState<
+    "loading" | "signup" | "success" | "error"
+  >("loading");
   const [error, setError] = useState<string>("");
   const [socialData, setSocialData] = useState<{
     provider: SocialProvider;
@@ -88,8 +90,6 @@ function SocialCallbackContent() {
   const handleSignUpSuccess = async (userId: number) => {
     // 회원가입 후 자동 로그인 (백엔드에서 JWT 발급 필요)
     await refreshUser();
-
-    const returnUrl = getSocialLoginReturnUrl();
     clearSocialLoginReturnUrl();
 
     // 부모 창에 메시지 전송 (팝업인 경우)
@@ -100,7 +100,28 @@ function SocialCallbackContent() {
       );
       window.close();
     } else {
-      router.push(returnUrl);
+      // 성공 UI 표시 후 메인으로 이동
+      setStatus("success");
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    }
+  };
+
+  const handleSignUpError = (errorMessage: string) => {
+    clearSocialLoginReturnUrl();
+
+    // 부모 창에 메시지 전송 (팝업인 경우)
+    if (window.opener) {
+      window.opener.postMessage(
+        { type: "social_signup_error", error: errorMessage },
+        window.location.origin
+      );
+      window.close();
+    } else {
+      // 실패 UI 표시 후 메인으로 이동
+      setError(errorMessage);
+      setStatus("error");
     }
   };
 
@@ -129,6 +150,42 @@ function SocialCallbackContent() {
     );
   }
 
+  if (status === "success") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            회원가입 완료
+          </h2>
+          <p className="text-gray-600 mb-6">
+            환영합니다! 잠시 후 메인 화면으로 이동합니다.
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
+          >
+            메인으로 이동
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (status === "error") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -149,14 +206,14 @@ function SocialCallbackContent() {
             </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            로그인 실패
+            회원가입 실패
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
-            onClick={handleCancel}
+            onClick={() => router.push("/")}
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
           >
-            돌아가기
+            메인으로 이동
           </button>
         </div>
       </div>
@@ -171,6 +228,7 @@ function SocialCallbackContent() {
           providerUserId={socialData.providerUserId}
           email={socialData.email}
           onSuccess={handleSignUpSuccess}
+          onError={handleSignUpError}
           onCancel={handleCancel}
         />
       </div>

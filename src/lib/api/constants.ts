@@ -2,6 +2,7 @@
 
 // Auction API Endpoints (prefix: /oab)
 export const AUCTION_HISTORY_ENDPOINT = "/oab/auction-history";
+export const HORN_BUGLE_ENDPOINT = "/oab/horn-bugle";
 
 // Community API Endpoints (prefix: /dcs/api)
 export const BOARDS_ENDPOINT = "/dcs/api/boards";

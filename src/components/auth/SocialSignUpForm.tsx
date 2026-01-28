@@ -48,6 +48,7 @@ interface SocialSignUpFormProps {
   providerUserId: string;
   email?: string;
   onSuccess: (userId: number) => void;
+  onError: (errorMessage: string) => void;
   onCancel: () => void;
 }
 
@@ -56,6 +57,7 @@ export default function SocialSignUpForm({
   providerUserId,
   email,
   onSuccess,
+  onError,
   onCancel,
 }: SocialSignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -159,11 +161,11 @@ export default function SocialSignUpForm({
       }
     } catch (error) {
       console.error("소셜 회원가입 실패:", error);
-      alert(
+      const errorMessage =
         error instanceof Error
           ? error.message
-          : "회원가입에 실패했습니다. 다시 시도해주세요."
-      );
+          : "회원가입에 실패했습니다. 다시 시도해주세요.";
+      onError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -7,6 +7,7 @@ export interface User {
   nickname: string;
   email: string;
   profileImageUrl: string | null;
+  role?: "USER" | "ADMIN";
 }
 
 interface AuthContextType {

@@ -1,9 +1,14 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, XCircle } from "lucide-react";
+import { ArrowLeft, XCircle, Clock } from "lucide-react";
 import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
-import { useState, useRef, useEffect, useMemo } from "react";
+import {
+  useRecentSearches,
+  RecentSearch,
+  getCategoryId,
+} from "@/hooks/useRecentSearches";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 
 interface MobileSearchModalProps {
   isOpen: boolean;
@@ -13,49 +18,6 @@ interface MobileSearchModalProps {
   onSearch: (overrides?: { itemName?: string; categoryId?: string }) => void;
   onCategorySelect: (categoryId: string) => void;
 }
-
-// 최근 검색어 관리
-const RECENT_SEARCHES_KEY = "auction_recent_searches";
-const MAX_RECENT_SEARCHES = 10;
-
-// 최근 검색어 타입 (카테고리 정보 포함)
-interface RecentSearch {
-  itemName: string;
-  topCategory?: string;
-  subCategory?: string;
-}
-
-const getRecentSearches = (): RecentSearch[] => {
-  if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
-  if (!stored) return [];
-
-  try {
-    const parsed = JSON.parse(stored);
-    // 기존 string[] 형식 데이터 마이그레이션
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      if (typeof parsed[0] === "string") {
-        return parsed.map((s) => ({ itemName: s }));
-      }
-      return parsed as RecentSearch[];
-    }
-    return [];
-  } catch {
-    return [];
-  }
-};
-
-const addRecentSearch = (search: RecentSearch) => {
-  if (!search.itemName.trim()) return;
-  const searches = getRecentSearches();
-  const filtered = searches.filter((s) => s.itemName !== search.itemName);
-  const updated = [search, ...filtered].slice(0, MAX_RECENT_SEARCHES);
-  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
-};
-
-const clearRecentSearches = () => {
-  localStorage.removeItem(RECENT_SEARCHES_KEY);
-};
 
 export default function MobileSearchModal({
   isOpen,
@@ -68,7 +30,14 @@ export default function MobileSearchModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: itemInfos = [], isLoading } = useItemInfos();
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+
+  // 공유 hook 사용
+  const {
+    recentSearches,
+    addRecentSearch,
+    clearAllRecentSearches,
+    refreshRecentSearches,
+  } = useRecentSearches();
 
   // 모달이 열릴 때 입력창에 포커스 및 최근 검색어 로드
   useEffect(() => {
@@ -76,9 +45,9 @@ export default function MobileSearchModal({
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
-      setRecentSearches(getRecentSearches());
+      refreshRecentSearches();
     }
-  }, [isOpen]);
+  }, [isOpen, refreshRecentSearches]);
 
   // 입력값에 따라 필터링된 아이템 목록
   const filteredItems = useMemo(() => {
@@ -92,102 +61,119 @@ export default function MobileSearchModal({
       .slice(0, 10);
   }, [itemInfos, itemName]);
 
-  const handleItemSelect = (item: ItemInfo) => {
-    // 아이템 이름 설정
-    setItemName(item.name);
+  const handleItemSelect = useCallback(
+    (item: ItemInfo) => {
+      // 아이템 이름 설정
+      setItemName(item.name);
 
-    // 최근 검색어에 카테고리 정보와 함께 추가
-    addRecentSearch({
-      itemName: item.name,
-      topCategory: item.topCategory,
-      subCategory: item.subCategory,
-    });
+      // 최근 검색어에 카테고리 정보와 함께 추가
+      addRecentSearch({
+        itemName: item.name,
+        topCategory: item.topCategory,
+        subCategory: item.subCategory,
+      });
 
-    // 해당 아이템의 카테고리를 찾아서 선택
-    const categoryId = `${item.topCategory}/${item.subCategory}`;
-    onCategorySelect(categoryId);
+      // 해당 아이템의 카테고리를 찾아서 선택
+      const categoryId = getCategoryId(item.topCategory, item.subCategory);
+      if (categoryId) {
+        onCategorySelect(categoryId);
+      }
 
-    // 검색 실행 - 클릭한 아이템 이름과 카테고리 정보로 검색
-    setTimeout(() => {
-      onSearch({ itemName: item.name, categoryId });
+      // 검색 실행 - 클릭한 아이템 이름과 카테고리 정보로 검색
+      setTimeout(() => {
+        onSearch({ itemName: item.name, categoryId });
+        onClose();
+      }, 100);
+    },
+    [setItemName, addRecentSearch, onCategorySelect, onSearch, onClose]
+  );
+
+  const handleRecentSearchClick = useCallback(
+    (search: RecentSearch) => {
+      setItemName(search.itemName);
+      addRecentSearch(search);
+
+      // 카테고리 정보가 있으면 함께 사용
+      const categoryId = getCategoryId(search.topCategory, search.subCategory);
+
+      if (categoryId) {
+        onCategorySelect(categoryId);
+      }
+
+      onSearch({
+        itemName: search.itemName,
+        categoryId,
+      });
       onClose();
-    }, 100);
-  };
+    },
+    [setItemName, addRecentSearch, onCategorySelect, onSearch, onClose]
+  );
 
-  const handleRecentSearchClick = (recentSearch: RecentSearch) => {
-    setItemName(recentSearch.itemName);
-    addRecentSearch(recentSearch);
+  const handleClearAllRecentSearches = useCallback(() => {
+    clearAllRecentSearches();
+  }, [clearAllRecentSearches]);
 
-    // 카테고리 정보가 있으면 함께 사용
-    const categoryId =
-      recentSearch.topCategory && recentSearch.subCategory
-        ? `${recentSearch.topCategory}/${recentSearch.subCategory}`
-        : undefined;
-
-    if (categoryId) {
-      onCategorySelect(categoryId);
-    }
-
-    onSearch({
-      itemName: recentSearch.itemName,
-      categoryId,
-    });
-    onClose();
-  };
-
-  const handleClearAllRecentSearches = () => {
-    clearRecentSearches();
-    setRecentSearches([]);
-  };
-
-  const handleClearInput = () => {
+  const handleClearInput = useCallback(() => {
     setItemName("");
     inputRef.current?.focus();
-  };
+  }, [setItemName]);
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // 엔터키: 선택된 항목이 있으면 자동완성, 없으면 검색 실행
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (selectedIndex >= 0 && filteredItems[selectedIndex]) {
-        handleItemSelect(filteredItems[selectedIndex]);
-      } else {
-        // 선택된 항목이 없으면 검색 실행
-        onSearch();
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // 엔터키: 선택된 항목이 있으면 자동완성, 없으면 검색 실행
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (selectedIndex >= 0 && filteredItems[selectedIndex]) {
+          handleItemSelect(filteredItems[selectedIndex]);
+        } else {
+          // 선택된 항목이 없으면 검색 실행
+          onSearch();
+          onClose();
+        }
+        return;
+      }
+
+      if (itemName.trim().length === 0) return;
+
+      // 아래 화살표: 다음 아이템 선택
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (selectedIndex < filteredItems.length - 1) {
+          setSelectedIndex(selectedIndex + 1);
+        }
+      }
+      // 위 화살표: 이전 아이템 선택
+      else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (selectedIndex > 0) {
+          setSelectedIndex(selectedIndex - 1);
+        } else if (selectedIndex === 0) {
+          setSelectedIndex(-1);
+        }
+      }
+      // Escape: 모달 닫기
+      else if (e.key === "Escape") {
+        e.preventDefault();
         onClose();
       }
-      return;
-    }
+    },
+    [
+      selectedIndex,
+      filteredItems,
+      itemName,
+      handleItemSelect,
+      onSearch,
+      onClose,
+    ]
+  );
 
-    if (itemName.trim().length === 0) return;
-
-    // 아래 화살표: 다음 아이템 선택
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      if (selectedIndex < filteredItems.length - 1) {
-        setSelectedIndex(selectedIndex + 1);
-      }
-    }
-    // 위 화살표: 이전 아이템 선택
-    else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      if (selectedIndex > 0) {
-        setSelectedIndex(selectedIndex - 1);
-      } else if (selectedIndex === 0) {
-        setSelectedIndex(-1);
-      }
-    }
-    // Escape: 모달 닫기
-    else if (e.key === "Escape") {
-      e.preventDefault();
-      onClose();
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setItemName(e.target.value);
-    setSelectedIndex(-1);
-  };
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setItemName(e.target.value);
+      setSelectedIndex(-1);
+    },
+    [setItemName]
+  );
 
   if (!isOpen) return null;
 
@@ -227,7 +213,6 @@ export default function MobileSearchModal({
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto">
-
         {/* Autocomplete List - 텍스트 입력 시 */}
         {itemName.trim().length > 0 ? (
           <div className="px-4">
@@ -287,14 +272,17 @@ export default function MobileSearchModal({
                     <button
                       key={`${search.itemName}-${index}`}
                       onClick={() => handleRecentSearchClick(search)}
-                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-[var(--color-ds-neutral-50)] text-[var(--color-ds-text)] transition-colors"
+                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-[var(--color-ds-neutral-50)] text-[var(--color-ds-text)] transition-colors flex items-start gap-3"
                     >
-                      <div className="font-medium">{search.itemName}</div>
-                      {search.topCategory && search.subCategory && (
-                        <div className="text-xs text-[var(--color-ds-disabled)] mt-1">
-                          {search.topCategory} › {search.subCategory}
-                        </div>
-                      )}
+                      <Clock className="w-4 h-4 text-[var(--color-ds-disabled)] mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">{search.itemName}</div>
+                        {search.topCategory && search.subCategory && (
+                          <div className="text-xs text-[var(--color-ds-disabled)] mt-1">
+                            {search.topCategory} › {search.subCategory}
+                          </div>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>

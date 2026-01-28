@@ -78,12 +78,15 @@ export interface Comment {
 export interface CommentPageResponseItem {
   id: number;
   userId: number;
+  nickname: string;
   parentComment: number | null;
   content: string;
   likeCount: number;
   isDeleted: boolean;
   isBlocked: boolean;
   isLiked: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // 페이지 메타 정보

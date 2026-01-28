@@ -1,7 +1,9 @@
 "use client";
 
-import SearchSection from "@/components/commons/Search";
 import AuctionHistoryList from "@/components/page/auction-history/AuctionHistoryList";
+import { Badge } from "@/components/ui/badge";
+import { Menu } from "lucide-react";
+import React from "react";
 import CategorySection from "@/components/commons/Category";
 import CategoryModal from "@/components/commons/CategoryModal";
 import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard";
@@ -449,17 +451,28 @@ export default function Page() {
             </div>
           )}
 
-          {/* Search Section - 필터 사이드바가 표시될 때만 보임 (tablet/desktop) */}
-          {showFilterSidebar && (
-            <div className="mb-6">
-            <SearchSection
-              path={categoryPath}
-              onCategorySelect={handleCategorySelect}
-              itemName={itemName}
-              setItemName={setItemName}
-              onSearch={handleSearch}
-              onCategoryMenuClick={() => setIsCategoryModalOpen(true)}
-            />
+          {/* Category Breadcrumb - 필터 사이드바가 표시될 때 보임 (tablet/desktop) */}
+          {showFilterSidebar && categoryPath.length > 0 && (
+            <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
+              {/* Category Menu Button - 2xl 미만에서만 표시 */}
+              <button
+                onClick={() => setIsCategoryModalOpen(true)}
+                className="2xl:hidden flex items-center justify-center w-8 h-8 rounded-xl hover:bg-cream-100 transition-colors"
+                aria-label="카테고리 메뉴 열기"
+              >
+                <Menu className="w-5 h-5 text-cream-600" />
+              </button>
+              {categoryPath.map((p, index) => (
+                <React.Fragment key={p.id}>
+                  {index > 0 && <span className="text-cream-400">›</span>}
+                  <Badge
+                    className="rounded-full cursor-pointer bg-clover-50 text-clover-700 hover:bg-clover-100 border-0 font-medium"
+                    onClick={() => handleCategorySelect(p.id)}
+                  >
+                    {p.name}
+                  </Badge>
+                </React.Fragment>
+              ))}
             </div>
           )}
 
