@@ -68,7 +68,7 @@ function Category({ selectedBoardId, setSelectedBoardId }: CategoryProps) {
   }
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-2 scrollbar-hide">
       {/* 전체 버튼 */}
       <Button
         variant={selectedBoardId === undefined ? "default" : "outline"}

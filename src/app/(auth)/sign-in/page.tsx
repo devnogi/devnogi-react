@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,6 +19,7 @@ import { Eye, EyeOff, Lock, ArrowLeft, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import { useConfig } from "@/contexts/ConfigContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
   // TODO: validation 조건 확인
@@ -81,6 +82,36 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { config, isLoading: isConfigLoading } = useConfig();
+  const { refreshUser } = useAuth();
+
+  // 소셜 로그인 성공 메시지 핸들러
+  const handleSocialLoginMessage = useCallback(
+    async (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (
+        event.data.type === "social_login_success" ||
+        event.data.type === "social_signup_success"
+      ) {
+        // 사용자 정보 갱신
+        await refreshUser();
+        // 메인 페이지로 이동
+        router.push("/");
+      }
+      // social_login_cancel은 별도 처리 불필요
+    },
+    [refreshUser, router]
+  );
+
+  // 메시지 리스너 등록
+  useEffect(() => {
+    window.addEventListener("message", handleSocialLoginMessage);
+    return () => {
+      window.removeEventListener("message", handleSocialLoginMessage);
+    };
+  }, [handleSocialLoginMessage]);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

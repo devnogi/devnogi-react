@@ -86,7 +86,7 @@ const NaverIcon = () => (
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  const { login, refreshUser } = useAuth();
   const { config, isLoading: isConfigLoading } = useConfig();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -126,18 +126,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     });
 
     // 소셜 로그인 완료 메시지 수신 대기
-    const messageHandler = (event: MessageEvent) => {
+    const messageHandler = async (event: MessageEvent) => {
       if (event.origin !== window.location.origin) {
         return;
       }
 
       if (event.data.type === "social_login_success") {
-        // 로그인 성공
+        // 로그인 성공 - 사용자 정보 갱신
+        await refreshUser();
         onLoginSuccess?.();
         onClose();
         window.removeEventListener("message", messageHandler);
       } else if (event.data.type === "social_signup_success") {
-        // 회원가입 후 로그인 성공
+        // 회원가입 후 로그인 성공 - 사용자 정보 갱신
+        await refreshUser();
         onLoginSuccess?.();
         onClose();
         window.removeEventListener("message", messageHandler);

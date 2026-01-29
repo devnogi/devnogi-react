@@ -1,8 +1,6 @@
 "use client";
 
 import { HornBugleItem } from "@/types/horn-bugle";
-import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
 import { Megaphone } from "lucide-react";
 
 interface HornBugleListProps {
@@ -50,15 +48,12 @@ export default function HornBugleList({ items, isLoading }: HornBugleListProps) 
     );
   }
 
+  // KST 시간 그대로 표시 (타임존 변환 없음)
   const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), {
-        addSuffix: true,
-        locale: ko,
-      });
-    } catch {
-      return "";
-    }
+    const match = dateString.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (!match) return "";
+    const [, , month, day, hour, minute] = match;
+    return `${month}.${day} ${hour}:${minute}`;
   };
 
   return (

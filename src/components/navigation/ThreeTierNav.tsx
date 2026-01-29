@@ -21,7 +21,7 @@ const navItems = [
   { href: "/auction-realtime", label: "경매장 실시간 정보", ready: true },
   { href: "#", label: "시세 정보", ready: false },
   { href: "/horn-bugle", label: "거대한 뿔피리", ready: true },
-  { href: "#", label: "정보 게시판", ready: false },
+  { href: "/item-info", label: "아이템 정보", ready: true },
   { href: "/community", label: "게시판", ready: true },
 ];
 
@@ -499,8 +499,8 @@ export default function ThreeTierNav() {
         {/* Tier 1: Logo + Search (center, flexible) + Theme Icons + Notification - Hidden on scroll */}
         <div
           className={clsx(
-            "transition-all duration-300 overflow-hidden",
-            isScrolled ? "h-0 opacity-0" : "h-14 opacity-100"
+            "transition-all duration-300",
+            isScrolled ? "h-0 opacity-0 overflow-hidden" : "h-14 opacity-100"
           )}
         >
           <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">

@@ -45,6 +45,7 @@ services:
 
     networks:
       - nextjs-network
+      - gateway-network  # 게이트웨이 컨테이너와 통신
 
     # Health Check
     healthcheck:
@@ -84,3 +85,6 @@ services:
 networks:
   nextjs-network:
     driver: bridge
+  gateway-network:
+    external: true
+    name: devnogi-gateway-server_app-network
