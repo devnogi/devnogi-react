@@ -7,10 +7,10 @@ import { toast } from "sonner";
 
 const navItems = [
   { href: "/auction-history", label: "거래내역", ready: true },
+  { href: "/community", label: "게시판", ready: true },
   { href: "/auction-realtime", label: "실시간", ready: true },
   { href: "/item-info", label: "아이템", ready: true },
   { href: "/horn-bugle", label: "뿔피리", ready: true },
-  { href: "/community", label: "게시판", ready: true },
 ];
 
 export default function BottomNav() {

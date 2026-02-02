@@ -1,6 +1,7 @@
 import ThreeTierNav from "@/components/navigation/ThreeTierNav";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function RootLayout({
   children,
@@ -24,6 +25,9 @@ export default function RootLayout({
       {/* Footer */}
       <Footer />
 
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
+
       {/* Toast notifications */}
       <Toaster
         position="top-center"
@@ -32,7 +36,7 @@ export default function RootLayout({
         toastOptions={{
           classNames: {
             closeButton:
-              "!left-auto !right-1 !top-1 !-translate-y-0 !translate-x-0",
+              "!left-auto !right-0 !top-0 !-translate-y-1/3 !translate-x-1/3",
           },
         }}
       />

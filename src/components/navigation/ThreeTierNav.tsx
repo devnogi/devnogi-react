@@ -18,11 +18,11 @@ import { useAuth } from "@/contexts/AuthContext";
 // Navigation menu items
 const navItems = [
   { href: "/auction-history", label: "경매장 거래내역", ready: true },
+  { href: "/community", label: "게시판", ready: true },
   { href: "/auction-realtime", label: "경매장 실시간 정보", ready: true },
   { href: "#", label: "시세 정보", ready: false },
   { href: "/horn-bugle", label: "거대한 뿔피리", ready: true },
   { href: "/item-info", label: "아이템 정보", ready: true },
-  { href: "/community", label: "게시판", ready: true },
 ];
 
 export default function ThreeTierNav() {

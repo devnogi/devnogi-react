@@ -94,7 +94,7 @@ export default function CommentList({ postId }: CommentListProps) {
           <p className="text-gray-500">첫 댓글을 작성해보세요!</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {topLevelComments.map((comment) => (
             <CommentItem
               key={comment.id}

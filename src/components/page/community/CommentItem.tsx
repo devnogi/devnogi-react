@@ -165,160 +165,156 @@ export default function CommentItem({
   // 삭제되거나 차단된 댓글 표시
   if (comment.isDeleted || comment.isBlocked) {
     return (
-      <div className={`${isReply ? "ml-12" : ""}`}>
-        <div className="flex gap-3">
-          <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-200" />
-          <div className="flex-1">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-gray-400 text-sm italic">
-                {comment.isDeleted
-                  ? "삭제된 댓글입니다."
-                  : "차단된 댓글입니다."}
-              </p>
-            </div>
+      <div className={`${isReply ? "ml-6 pl-3 border-l-2 border-gray-100" : ""}`}>
+        <div className="bg-gray-50 rounded-lg p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200" />
+            <span className="text-gray-400 text-sm">알 수 없음</span>
           </div>
+          <p className="text-gray-400 text-sm italic">
+            {comment.isDeleted
+              ? "삭제된 댓글입니다."
+              : "차단된 댓글입니다."}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`${isReply ? "ml-12" : ""}`}>
-      <div className="flex gap-3">
-        {/* Author Avatar */}
-        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold">
-            {comment.nickname?.[0] || comment.userId.toString()[0]}
-          </div>
-        </div>
-
-        {/* Comment Content */}
-        <div className="flex-1">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900 text-sm">
-                  {comment.nickname || `사용자 ${comment.userId}`}
-                </span>
-                {comment.createdAt && (
-                  <span className="text-gray-400 text-xs">
-                    {formatDate(comment.createdAt)}
-                  </span>
-                )}
+    <div className={`${isReply ? "ml-6 pl-3 border-l-2 border-gray-100" : ""}`}>
+      <div className="bg-gray-50 rounded-lg p-3">
+        {/* Header: Avatar + Nickname + Date + Actions (같은 행) */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            {/* Author Avatar */}
+            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+              <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold">
+                {comment.nickname?.[0] || comment.userId.toString()[0]}
               </div>
-              {/* Edit/Delete Buttons */}
-              {!isEditing && (canEdit || canDelete) && (
-                <div className="flex items-center gap-1">
-                  {canEdit && (
-                    <button
-                      onClick={handleEditStart}
-                      disabled={isSubmitting}
-                      className="p-1 text-gray-400 hover:text-blue-500 transition-colors rounded"
-                      title="수정"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {canDelete && (
-                    <button
-                      onClick={handleDelete}
-                      disabled={isSubmitting}
-                      className="p-1 text-gray-400 hover:text-red-500 transition-colors rounded"
-                      title="삭제"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
-
-            {isEditing ? (
-              <div className="space-y-2">
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
-                  rows={3}
-                  disabled={isSubmitting}
-                  autoFocus
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleEditCancel}
-                    disabled={isSubmitting}
-                    className="h-7 text-xs"
-                  >
-                    <X className="w-3 h-3 mr-1" />
-                    취소
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleEditSubmit}
-                    disabled={isSubmitting || !editContent.trim()}
-                    className="h-7 text-xs"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                    ) : (
-                      <Check className="w-3 h-3 mr-1" />
-                    )}
-                    저장
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-700 text-sm whitespace-pre-wrap">
-                {comment.content}
-              </p>
-            )}
+            {/* Nickname */}
+            <span className="font-semibold text-gray-900 text-sm">
+              {comment.nickname || `사용자 ${comment.userId}`}
+            </span>
           </div>
-
-          {/* Comment Actions */}
-          {!isEditing && (
-            <div className="flex items-center gap-4 mt-2 px-3">
-              <button
-                onClick={handleLike}
-                className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors text-xs"
-              >
-                <Heart
-                  className={`w-3.5 h-3.5 ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
-                />
-                <span>{comment.likeCount}</span>
-              </button>
-              {!isReply && (
+          {/* Edit/Delete Buttons */}
+          {!isEditing && (canEdit || canDelete) && (
+            <div className="flex items-center gap-1">
+              {canEdit && (
                 <button
-                  onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors text-xs"
+                  onClick={handleEditStart}
+                  disabled={isSubmitting}
+                  className="p-1 text-gray-400 hover:text-blue-500 transition-colors rounded"
+                  title="수정"
                 >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>답글</span>
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )}
+              {canDelete && (
+                <button
+                  onClick={handleDelete}
+                  disabled={isSubmitting}
+                  className="p-1 text-gray-400 hover:text-red-500 transition-colors rounded"
+                  title="삭제"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
           )}
-
-          {/* Reply Form */}
-          {showReplyForm && !isReply && (
-            <div className="mt-3">
-              <CommentForm
-                postId={postId}
-                parentCommentId={comment.id}
-                onSuccess={handleReplySuccess}
-                onCancel={() => setShowReplyForm(false)}
-              />
-            </div>
-          )}
         </div>
+
+        {/* Content */}
+        {isEditing ? (
+          <div className="space-y-2">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
+              rows={3}
+              disabled={isSubmitting}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleEditCancel}
+                disabled={isSubmitting}
+                className="h-7 text-xs"
+              >
+                <X className="w-3 h-3 mr-1" />
+                취소
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleEditSubmit}
+                disabled={isSubmitting || !editContent.trim()}
+                className="h-7 text-xs"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                ) : (
+                  <Check className="w-3 h-3 mr-1" />
+                )}
+                저장
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-700 text-sm whitespace-pre-wrap">
+            {comment.content}
+          </p>
+        )}
+
+        {/* Meta: Date + Actions */}
+        {!isEditing && (
+          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-gray-100">
+            {comment.createdAt && (
+              <span className="text-gray-400 text-xs">
+                {formatDate(comment.createdAt)}
+              </span>
+            )}
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors text-xs"
+            >
+              <Heart
+                className={`w-3.5 h-3.5 ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
+              />
+              <span>{comment.likeCount}</span>
+            </button>
+            {!isReply && (
+              <button
+                onClick={() => setShowReplyForm(!showReplyForm)}
+                className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors text-xs"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>답글</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Reply Form */}
+      {showReplyForm && !isReply && (
+        <div className="mt-2 ml-6">
+          <CommentForm
+            postId={postId}
+            parentCommentId={comment.id}
+            onSuccess={handleReplySuccess}
+            onCancel={() => setShowReplyForm(false)}
+          />
+        </div>
+      )}
 
       {/* Replies */}
       {replies && replies.length > 0 && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-2 space-y-2">
           {replies.map((reply) => (
             <CommentItem
               key={reply.id}
