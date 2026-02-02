@@ -14,8 +14,6 @@ interface ItemInfoPaginationProps {
 export default function ItemInfoPagination({
   currentPage,
   totalPages,
-  totalElements,
-  pageSize,
   onPageChange,
 }: ItemInfoPaginationProps) {
   if (totalPages <= 1) return null;
@@ -52,18 +50,8 @@ export default function ItemInfoPagination({
     return pages;
   };
 
-  const startItem = (currentPage - 1) * pageSize + 1;
-  const endItem = Math.min(currentPage * pageSize, totalElements);
-
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-      {/* 페이지 정보 */}
-      <div className="text-sm text-[var(--color-ds-secondary)]">
-        총 <span className="font-semibold text-[var(--color-ds-text)]">{totalElements}</span>개 중{" "}
-        <span className="font-semibold text-[var(--color-ds-text)]">{startItem}</span>-
-        <span className="font-semibold text-[var(--color-ds-text)]">{endItem}</span>번째
-      </div>
-
+    <div className="flex justify-center py-4">
       {/* 페이지 버튼 */}
       <div className="flex items-center gap-1">
         {/* 첫 페이지 */}
@@ -110,9 +98,9 @@ export default function ItemInfoPagination({
               key={page}
               onClick={() => onPageChange(page)}
               className={clsx(
-                "min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors",
+                "min-w-[32px] md:min-w-[36px] h-8 md:h-9 px-2 md:px-3 rounded-lg text-xs md:text-sm font-medium transition-colors",
                 currentPage === page
-                  ? "bg-[var(--color-ds-blaanid)] text-white"
+                  ? "bg-[var(--color-ds-primary)] text-white"
                   : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-100)]",
               )}
             >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,6 +58,27 @@ export default function SearchFilterCard({
   });
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
   const [isDateCollapsed, setIsDateCollapsed] = useState(false);
+  const addFilterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 필터 추가 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        addFilterDropdownRef.current &&
+        !addFilterDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowAddFilterDropdown(false);
+      }
+    };
+
+    if (showAddFilterDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showAddFilterDropdown]);
 
   const handleAddFilter = useCallback(
     (option: SearchOptionMetadata) => {
@@ -468,7 +489,7 @@ export default function SearchFilterCard({
       </div>
 
       {/* Add Filter Button - Compact */}
-      <div className="relative">
+      <div className="relative" ref={addFilterDropdownRef}>
         <Button
           variant="outline"
           onClick={() => setShowAddFilterDropdown(!showAddFilterDropdown)}

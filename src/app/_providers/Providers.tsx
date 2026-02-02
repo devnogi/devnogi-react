@@ -20,7 +20,17 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <>
       {providers.reduce((acc, Provider) => Provider(acc), children as ReactNode)}
-      <Toaster position="top-center" richColors closeButton />
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        toastOptions={{
+          classNames: {
+            closeButton:
+              "!left-auto !right-1 !top-1 !-translate-y-0 !translate-x-0",
+          },
+        }}
+      />
     </>
   );
 }

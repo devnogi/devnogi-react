@@ -18,26 +18,26 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
         onClick={() => setIsExpanded(!isExpanded)}
         className="hover:bg-[var(--color-ds-neutral-50)] cursor-pointer transition-colors border-b border-[var(--color-ds-neutral-100)]"
       >
-        <td className="px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-ds-neutral-100)] flex items-center justify-center">
-              <Package className="w-4 h-4 text-[var(--color-ds-secondary)]" />
+        <td className="px-3 md:px-4 py-3">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-[var(--color-ds-neutral-100)] flex items-center justify-center flex-shrink-0">
+              <Package className="w-3.5 h-3.5 md:w-4 md:h-4 text-[var(--color-ds-secondary)]" />
             </div>
-            <span className="font-medium text-[var(--color-ds-text)]">
+            <span className="font-medium text-[var(--color-ds-text)] text-sm md:text-base truncate">
               {item.name}
             </span>
           </div>
         </td>
-        <td className="px-4 py-3 text-sm text-[var(--color-ds-secondary)]">
+        <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-[var(--color-ds-secondary)]">
           {item.topCategory}
         </td>
-        <td className="px-4 py-3 text-sm text-[var(--color-ds-secondary)]">
+        <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-[var(--color-ds-secondary)]">
           {item.subCategory}
         </td>
-        <td className="px-4 py-3 text-sm text-[var(--color-ds-disabled)] max-w-xs truncate">
+        <td className="hidden md:table-cell px-4 py-3 text-sm text-[var(--color-ds-disabled)] max-w-xs truncate">
           {item.description || "-"}
         </td>
-        <td className="px-4 py-3">
+        <td className="px-2 md:px-4 py-3">
           {isExpanded ? (
             <ChevronUp className="w-4 h-4 text-[var(--color-ds-disabled)]" />
           ) : (
@@ -47,7 +47,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
       </tr>
       {isExpanded && (
         <tr className="bg-[var(--color-ds-neutral-50)]">
-          <td colSpan={5} className="px-4 py-4">
+          <td colSpan={5} className="px-3 md:px-4 py-3 md:py-4">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
               {item.inventoryWidth && item.inventoryHeight && (
                 <div>
@@ -149,19 +149,19 @@ export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) 
         <table className="w-full">
           <thead className="bg-[var(--color-ds-neutral-50)]">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
                 아이템명
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
                 상위 분류
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
                 하위 분류
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
                 설명
               </th>
-              <th className="px-4 py-3 w-10"></th>
+              <th className="px-2 md:px-4 py-3 w-8 md:w-10"></th>
             </tr>
           </thead>
           <tbody>

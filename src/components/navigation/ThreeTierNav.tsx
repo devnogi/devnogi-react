@@ -59,10 +59,14 @@ export default function ThreeTierNav() {
   const isAuctionPage = isAuctionHistoryPage || isAuctionRealtimePage;
   // 뿔피리 페이지인지 확인
   const isHornBuglePage = pathname.startsWith("/horn-bugle");
+  // 아이템 정보 페이지인지 확인
+  const isItemInfoPage = pathname.startsWith("/item-info");
+  // 검색 가능한 페이지 (경매장 + 아이템 정보)
+  const isSearchablePage = isAuctionPage || isItemInfoPage;
 
   // Filtered items based on search input
   const filteredItems = useMemo(() => {
-    if (!isAuctionPage) return [];
+    if (!isSearchablePage) return [];
     if (!searchValue || searchValue.trim().length === 0) {
       return [];
     }
@@ -70,7 +74,7 @@ export default function ThreeTierNav() {
     return itemInfos
       .filter((item) => item.name.toLowerCase().includes(searchTerm))
       .slice(0, 10);
-  }, [itemInfos, searchValue, isAuctionPage]);
+  }, [itemInfos, searchValue, isSearchablePage]);
 
   // Scroll detection for hiding Tier 1
   useEffect(() => {
@@ -123,6 +127,14 @@ export default function ThreeTierNav() {
       setIsSearchFocused(false);
       setSelectedIndex(-1);
 
+      // 아이템 정보 페이지인 경우
+      if (isItemInfoPage) {
+        router.push(
+          `/item-info?name=${encodeURIComponent(item.name)}&topCategory=${encodeURIComponent(item.topCategory)}`
+        );
+        return;
+      }
+
       // Navigate to current auction page with search params (history or realtime)
       const categoryId = getCategoryId(item.topCategory, item.subCategory);
       const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
@@ -130,7 +142,7 @@ export default function ThreeTierNav() {
         `${basePath}?itemName=${encodeURIComponent(item.name)}&category=${encodeURIComponent(categoryId || "")}`
       );
     },
-    [addRecentSearch, router, isAuctionRealtimePage]
+    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage]
   );
 
   const handleRecentSearchClick = useCallback(
@@ -139,6 +151,17 @@ export default function ThreeTierNav() {
       addRecentSearch(search);
       setIsSearchFocused(false);
       setSelectedIndex(-1);
+
+      // 아이템 정보 페이지인 경우
+      if (isItemInfoPage) {
+        const params = new URLSearchParams();
+        params.set("name", search.itemName);
+        if (search.topCategory) {
+          params.set("topCategory", search.topCategory);
+        }
+        router.push(`/item-info?${params.toString()}`);
+        return;
+      }
 
       const categoryId = getCategoryId(search.topCategory, search.subCategory);
       const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
@@ -153,7 +176,7 @@ export default function ThreeTierNav() {
         );
       }
     },
-    [addRecentSearch, router, isAuctionRealtimePage]
+    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage]
   );
 
   const handleClearAllRecentSearches = useCallback(() => {
@@ -185,10 +208,14 @@ export default function ThreeTierNav() {
       } else {
         // 일치하는 아이템이 없으면 검색어만 저장
         addRecentSearch({ itemName: searchValue.trim() });
-        const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
-        router.push(
-          `${basePath}?itemName=${encodeURIComponent(searchValue.trim())}`
-        );
+
+        // 아이템 정보 페이지인 경우
+        if (isItemInfoPage) {
+          router.push(`/item-info?name=${encodeURIComponent(searchValue.trim())}`);
+        } else {
+          const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
+          router.push(`${basePath}?itemName=${encodeURIComponent(searchValue.trim())}`);
+        }
         setIsSearchFocused(false);
         setSelectedIndex(-1);
       }
@@ -204,6 +231,7 @@ export default function ThreeTierNav() {
     addRecentSearch,
     router,
     isAuctionRealtimePage,
+    isItemInfoPage,
   ]);
 
   // 뿔피리 검색 제출 로직
@@ -231,7 +259,7 @@ export default function ThreeTierNav() {
         return;
       }
 
-      if (!isAuctionPage) return;
+      if (!isSearchablePage) return;
 
       if (e.key === "Enter") {
         e.preventDefault();
@@ -262,7 +290,7 @@ export default function ThreeTierNav() {
       }
     },
     [
-      isAuctionPage,
+      isSearchablePage,
       isHornBuglePage,
       searchValue,
       filteredItems,
@@ -290,9 +318,9 @@ export default function ThreeTierNav() {
     searchInputRef.current?.focus();
   }, []);
 
-  // 드롭다운 표시 여부: 경매장 페이지에서만 + (입력값이 있거나 최근 검색어가 있을 때)
+  // 드롭다운 표시 여부: 검색 가능한 페이지에서만 + (입력값이 있거나 최근 검색어가 있을 때)
   const showDropdown =
-    isAuctionPage &&
+    isSearchablePage &&
     isSearchFocused &&
     (searchValue.trim().length > 0 || recentSearches.length > 0);
 
@@ -304,6 +332,8 @@ export default function ThreeTierNav() {
       return "캐릭터명, 메시지 검색...";
     } else if (pathname.startsWith("/community")) {
       return "게시글 제목을 검색해주세요";
+    } else if (pathname.startsWith("/item-info")) {
+      return "아이템 정보 검색";
     }
     return "아이템 이름을 검색하세요";
   }, [pathname]);
@@ -334,7 +364,7 @@ export default function ThreeTierNav() {
           </button>
         )}
         <button
-          onClick={isHornBuglePage ? handleHornBugleSearchSubmit : handleSearchSubmit}
+          onClick={isHornBuglePage ? handleHornBugleSearchSubmit : (isSearchablePage ? handleSearchSubmit : undefined)}
           className="p-1.5 rounded-lg text-gray-500 hover:text-blaanid-600 hover:bg-gray-100 transition-colors"
           aria-label="검색"
           type="button"
@@ -547,19 +577,22 @@ export default function ThreeTierNav() {
               {/* Login / Profile */}
               {isAuthenticated ? (
                 <Link
-                  href="/profile"
-                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                  aria-label="프로필"
+                  href="/mypage"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+                  aria-label="마이페이지"
                 >
                   {user?.profileImageUrl ? (
                     <img
                       src={user.profileImageUrl}
                       alt="프로필"
-                      className="w-5 h-5 rounded-full object-cover"
+                      className="w-6 h-6 rounded-full object-cover"
                     />
                   ) : (
                     <User className="w-5 h-5 text-gray-700" />
                   )}
+                  <span className="text-sm font-medium text-gray-700">
+                    {user?.nickname}
+                  </span>
                 </Link>
               ) : (
                 <Link
@@ -627,9 +660,9 @@ export default function ThreeTierNav() {
               {/* Login / Profile */}
               {isAuthenticated ? (
                 <Link
-                  href="/profile"
+                  href="/mypage"
                   className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                  aria-label="프로필"
+                  aria-label="마이페이지"
                 >
                   {user?.profileImageUrl ? (
                     <img

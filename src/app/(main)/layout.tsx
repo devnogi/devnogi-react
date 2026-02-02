@@ -25,7 +25,17 @@ export default function RootLayout({
       <Footer />
 
       {/* Toast notifications */}
-      <Toaster position="top-center" richColors />
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        toastOptions={{
+          classNames: {
+            closeButton:
+              "!left-auto !right-1 !top-1 !-translate-y-0 !translate-x-0",
+          },
+        }}
+      />
     </div>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useItemInfoDetail } from "@/hooks/useItemInfoDetail";
 import { useItemInfoCategories } from "@/hooks/useItemInfoCategories";
 import { ItemInfoSearchParams } from "@/types/item-info";
-import ItemInfoSearchBar from "./ItemInfoSearchBar";
 import ItemInfoCategoryFilter from "./ItemInfoCategoryFilter";
 import ItemInfoTable from "./ItemInfoTable";
 import ItemInfoPagination from "./ItemInfoPagination";
@@ -12,22 +12,62 @@ import { Info, ArrowUpDown } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
+// URL params reader component
+function UrlParamsReader({
+  onParamsLoad,
+}: {
+  onParamsLoad: (params: { name?: string; topCategory?: string }) => void;
+}) {
+  const urlSearchParams = useSearchParams();
+  const prevParamsRef = useRef<string>("");
+
+  useEffect(() => {
+    const name = urlSearchParams.get("name") || undefined;
+    const topCategory = urlSearchParams.get("topCategory") || undefined;
+
+    const currentParams = JSON.stringify({ name, topCategory });
+
+    if (currentParams !== prevParamsRef.current && (name || topCategory)) {
+      prevParamsRef.current = currentParams;
+      onParamsLoad({ name, topCategory });
+    }
+  }, [urlSearchParams, onParamsLoad]);
+
+  return null;
+}
+
 export default function ItemInfoPage() {
   const { data: categories = [], isLoading: isCategoriesLoading } = useItemInfoCategories();
 
   const [topCategory, setTopCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
-  const [searchName, setSearchName] = useState("");
   const [appliedName, setAppliedName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortDirection, setSortDirection] = useState<"ASC" | "DESC">("ASC");
+  const [initialParamsApplied, setInitialParamsApplied] = useState(false);
 
-  // 카테고리 데이터가 로드되면 첫 번째 카테고리 선택
+  // URL 파라미터 처리 (상단 네비게이션 검색창에서 전달)
+  const handleUrlParamsLoad = useCallback(
+    (params: { name?: string; topCategory?: string }) => {
+      if (params.name) {
+        setAppliedName(params.name);
+      }
+      if (params.topCategory) {
+        setTopCategory(params.topCategory);
+        setSubCategory("");
+      }
+      setCurrentPage(1);
+      setInitialParamsApplied(true);
+    },
+    []
+  );
+
+  // 카테고리 데이터가 로드되면 첫 번째 카테고리 선택 (URL 파라미터가 없는 경우에만)
   useEffect(() => {
-    if (categories.length > 0 && !topCategory) {
+    if (categories.length > 0 && !topCategory && !initialParamsApplied) {
       setTopCategory(categories[0].topCategory);
     }
-  }, [categories, topCategory]);
+  }, [categories, topCategory, initialParamsApplied]);
 
   const searchParams: ItemInfoSearchParams | null = topCategory
     ? {
@@ -41,11 +81,6 @@ export default function ItemInfoPage() {
     : null;
 
   const { data: pageData, isLoading, isFetching } = useItemInfoDetail(searchParams);
-
-  const handleSearch = useCallback(() => {
-    setAppliedName(searchName);
-    setCurrentPage(1);
-  }, [searchName]);
 
   const handleTopCategoryChange = useCallback((category: string) => {
     setTopCategory(category);
@@ -91,27 +126,15 @@ export default function ItemInfoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-ds-background)] py-6 md:py-8 px-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-ds-text)]">
-            아이템 정보
-          </h1>
-          <p className="mt-2 text-sm md:text-base text-[var(--color-ds-secondary)]">
-            마비노기 아이템의 상세 정보를 확인하세요.
-          </p>
-        </div>
+    <div className="min-h-screen bg-[var(--color-ds-background)] -mx-4 md:-mx-6 -my-6 md:-my-8">
+      {/* URL Params Reader */}
+      <Suspense fallback={null}>
+        <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />
+      </Suspense>
 
-        {/* Search */}
-        <ItemInfoSearchBar
-          value={searchName}
-          onChange={setSearchName}
-          onSearch={handleSearch}
-        />
-
-        {/* Category Filter */}
-        <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] p-4 md:p-6">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
+        {/* Category Filter - 모바일: 패딩만, 데스크탑: 카드 스타일 */}
+        <div className="py-1 md:py-0 md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-[0_4px_16px_rgba(0,0,0,0.06)] md:p-6">
           <ItemInfoCategoryFilter
             categories={categories}
             selectedTopCategory={topCategory}
@@ -139,7 +162,7 @@ export default function ItemInfoPage() {
               )}
             </span>
             {isFetching && (
-              <span className="ml-2 text-[var(--color-ds-blaanid)]">로딩 중...</span>
+              <span className="ml-2 text-[var(--color-ds-primary)]">로딩 중...</span>
             )}
           </div>
 

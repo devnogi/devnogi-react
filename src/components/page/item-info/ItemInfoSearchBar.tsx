@@ -32,9 +32,9 @@ export default function ItemInfoSearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="h-12 pl-11 pr-20 rounded-xl border-[var(--color-ds-neutral-tone)] bg-white focus:border-[var(--color-ds-blaanid)] focus:ring-2 focus:ring-[var(--color-ds-blaanid)]/20 transition-all text-base"
+        className="h-10 md:h-12 pl-10 md:pl-11 pr-20 rounded-xl border-[var(--color-ds-neutral-tone)] bg-white focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 transition-all text-sm md:text-base"
       />
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-ds-disabled)]" />
+      <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[var(--color-ds-disabled)]" />
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
         {value && (
           <button
@@ -48,7 +48,7 @@ export default function ItemInfoSearchBar({
         )}
         <button
           onClick={onSearch}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium text-white bg-[var(--color-ds-blaanid)] hover:bg-[var(--color-ds-blaanid-hover)] transition-colors"
+          className="px-3 py-1.5 rounded-lg text-sm font-medium text-white bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] transition-colors"
           type="button"
         >
           검색

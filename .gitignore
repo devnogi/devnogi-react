@@ -45,6 +45,8 @@ next-env.d.ts
 # editor
 .cursor
 GEMINI.md
+.DS_Store
+dev_rules
 
 # json-server
 db.json
