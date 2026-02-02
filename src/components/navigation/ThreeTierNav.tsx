@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import clsx from "clsx";
-import { Bell, Search, Sun, Moon, User, Home, X, Clock } from "lucide-react";
+import { Search, Sun, Moon, User, Home, X, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
 import {
@@ -14,6 +14,7 @@ import {
   getCategoryId,
 } from "@/hooks/useRecentSearches";
 import { useAuth } from "@/contexts/AuthContext";
+import NotificationDropdown from "@/components/notification/NotificationDropdown";
 
 // Navigation menu items
 const navItems = [
@@ -30,8 +31,8 @@ export default function ThreeTierNav() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [hasUnreadNotification] = useState(true); // Mock for now
   const [isDarkMode, setIsDarkMode] = useState(false); // UI only toggle
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   // Search states
   const [searchValue, setSearchValue] = useState("");
@@ -563,15 +564,12 @@ export default function ThreeTierNav() {
 
               {/* Notification Bell - Only shown when authenticated */}
               {isAuthenticated && (
-                <button
-                  className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                  aria-label="알림"
-                >
-                  <Bell className="w-5 h-5 text-gray-700" />
-                  {hasUnreadNotification && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
-                  )}
-                </button>
+                <NotificationDropdown
+                  userId={user?.userId}
+                  isOpen={isNotificationOpen}
+                  onClose={() => setIsNotificationOpen(false)}
+                  onToggle={() => setIsNotificationOpen(!isNotificationOpen)}
+                />
               )}
 
               {/* Login / Profile */}
@@ -646,15 +644,12 @@ export default function ThreeTierNav() {
 
               {/* Notification Bell - Only shown when authenticated */}
               {isAuthenticated && (
-                <button
-                  className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                  aria-label="알림"
-                >
-                  <Bell className="w-5 h-5 text-gray-700" />
-                  {hasUnreadNotification && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
-                  )}
-                </button>
+                <NotificationDropdown
+                  userId={user?.userId}
+                  isOpen={isNotificationOpen}
+                  onClose={() => setIsNotificationOpen(false)}
+                  onToggle={() => setIsNotificationOpen(!isNotificationOpen)}
+                />
               )}
 
               {/* Login / Profile */}

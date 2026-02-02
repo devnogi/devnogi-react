@@ -9,9 +9,11 @@ import { Loader2 } from "lucide-react";
 
 interface PostListProps {
   boardId?: number;
+  keyword?: string;
+  sortType?: "latest" | "popular" | "mostLiked";
 }
 
-export default function PostList({ boardId }: PostListProps) {
+export default function PostList({ boardId, keyword, sortType }: PostListProps) {
   const {
     data,
     fetchNextPage,
@@ -20,7 +22,7 @@ export default function PostList({ boardId }: PostListProps) {
     isLoading,
     isError,
     refetch,
-  } = useInfinitePosts({ boardId });
+  } = useInfinitePosts({ boardId, keyword, sortType });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 

@@ -75,14 +75,22 @@ export default function CommentItem({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [hasUnsavedChanges]);
 
-  const handleLike = useCallback(() => {
+  const handleLike = useCallback(async () => {
     if (!isAuthenticated) {
       toast.warning("로그인 후 사용 가능합니다.");
       return;
     }
-    // TODO: Implement comment like functionality
-    toast.info("좋아요 기능은 준비 중입니다.");
-  }, [isAuthenticated]);
+
+    try {
+      await clientAxios.post("/comments/like", {
+        commentId: comment.id,
+      });
+      onRefetch?.();
+    } catch (error) {
+      console.error("Failed to toggle comment like:", error);
+      toast.error("좋아요 처리에 실패했습니다.");
+    }
+  }, [isAuthenticated, comment.id, onRefetch]);
 
   const handleReplySuccess = useCallback(() => {
     setShowReplyForm(false);

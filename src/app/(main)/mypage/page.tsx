@@ -11,11 +11,16 @@ import {
   Edit,
   Camera,
   Key,
+  Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginModal from "@/components/auth/LoginModal";
+import { clientAxios } from "@/lib/api/clients";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 // TODO: 실제 API 연동 시 교체
 interface ExtendedUser {
@@ -45,8 +50,10 @@ const mockUserData: ExtendedUser = {
 
 export default function MyPage() {
   const { user: authUser, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
+  const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
   // authUser가 있으면 authUser 사용, 없으면 mockData 사용 (개발 편의상)
   const user: ExtendedUser = authUser || mockUserData;
@@ -260,7 +267,7 @@ export default function MyPage() {
         <Button
           variant="outline"
           className="border-red-300 text-red-700 hover:bg-red-100 rounded-xl"
-          onClick={() => {}}
+          onClick={() => setIsWithdrawModalOpen(true)}
         >
           계정 삭제
         </Button>
@@ -271,6 +278,21 @@ export default function MyPage() {
         <EditProfileModal
           user={user}
           onClose={() => setIsEditModalOpen(false)}
+          onSuccess={async () => {
+            await refreshUser();
+            setIsEditModalOpen(false);
+          }}
+        />
+      )}
+
+      {/* Withdraw Modal */}
+      {isWithdrawModalOpen && (
+        <WithdrawModal
+          onClose={() => setIsWithdrawModalOpen(false)}
+          onSuccess={async () => {
+            await logout();
+            router.push("/");
+          }}
         />
       )}
     </div>
@@ -341,21 +363,50 @@ function ActionButton({
 function EditProfileModal({
   user,
   onClose,
+  onSuccess,
 }: {
   user: typeof mockUserData;
   onClose: () => void;
+  onSuccess: () => void;
 }) {
   const [nickname, setNickname] = useState(user.nickname);
-  const [email, setEmail] = useState(user.email);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSave = () => {
-    // TODO: API 호출
-    onClose();
+  const handleSave = async () => {
+    if (!nickname.trim()) {
+      toast.warning("닉네임을 입력해주세요.");
+      return;
+    }
+
+    if (nickname.trim() === user.nickname) {
+      onClose();
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("nickname", nickname.trim());
+
+      await clientAxios.put("/user/info", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("프로필이 수정되었습니다.");
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      toast.error("프로필 수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-white flex items-center justify-center z-50 p-4 md:p-8">
-      <div className="bg-white md:rounded-3xl md:shadow-2xl max-w-md w-full p-6 md:p-8">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 md:p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           프로필 수정
         </h2>
@@ -372,21 +423,22 @@ function EditProfileModal({
               onChange={(e) => setNickname(e.target.value)}
               className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="닉네임을 입력하세요"
+              disabled={isSubmitting}
             />
           </div>
 
-          {/* Email */}
+          {/* Email (읽기 전용) */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               이메일
             </label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="이메일을 입력하세요"
+              value={user.email}
+              className="w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-50 text-gray-500"
+              disabled
             />
+            <p className="text-xs text-gray-500 mt-1">이메일은 변경할 수 없습니다.</p>
           </div>
         </div>
 
@@ -395,14 +447,119 @@ function EditProfileModal({
             onClick={onClose}
             variant="outline"
             className="flex-1 h-12 rounded-xl border-gray-300"
+            disabled={isSubmitting}
           >
             취소
           </Button>
           <Button
             onClick={handleSave}
             className="flex-1 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl"
+            disabled={isSubmitting || !nickname.trim()}
           >
-            저장
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                저장 중...
+              </>
+            ) : (
+              "저장"
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Withdraw Modal
+function WithdrawModal({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [confirmText, setConfirmText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isConfirmed = confirmText === "탈퇴합니다";
+
+  const handleWithdraw = async () => {
+    if (!isConfirmed) return;
+
+    setIsSubmitting(true);
+    try {
+      await clientAxios.patch("/user/withdraw");
+
+      toast.success("회원 탈퇴가 완료되었습니다.");
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to withdraw:", error);
+      toast.error("회원 탈퇴에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 md:p-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+            <AlertTriangle className="w-6 h-6 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            회원 탈퇴
+          </h2>
+        </div>
+
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+          <p className="text-sm text-red-800 font-medium mb-2">
+            정말로 탈퇴하시겠습니까?
+          </p>
+          <ul className="text-sm text-red-700 space-y-1">
+            <li>• 모든 게시글과 댓글이 삭제됩니다.</li>
+            <li>• 계정 정보는 복구할 수 없습니다.</li>
+            <li>• 동일한 이메일로 재가입이 제한될 수 있습니다.</li>
+          </ul>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            확인을 위해 <span className="text-red-600">&quot;탈퇴합니다&quot;</span>를 입력해주세요
+          </label>
+          <input
+            type="text"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            placeholder="탈퇴합니다"
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            onClick={onClose}
+            variant="outline"
+            className="flex-1 h-12 rounded-xl border-gray-300"
+            disabled={isSubmitting}
+          >
+            취소
+          </Button>
+          <Button
+            onClick={handleWithdraw}
+            className="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+            disabled={isSubmitting || !isConfirmed}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                탈퇴 중...
+              </>
+            ) : (
+              "탈퇴하기"
+            )}
           </Button>
         </div>
       </div>

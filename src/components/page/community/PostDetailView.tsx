@@ -1,24 +1,54 @@
 "use client";
 
 import { usePostDetail } from "@/hooks/usePostDetail";
-import { ArrowLeft, Heart, MessageCircle, Share2, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Heart,
+  MessageCircle,
+  Share2,
+  Eye,
+  Pencil,
+  Trash2,
+  MoreVertical,
+  X,
+  Check,
+  Loader2,
+} from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { clientAxios } from "@/lib/api/clients";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface PostDetailViewProps {
   postId: string;
 }
 
 export default function PostDetailView({ postId }: PostDetailViewProps) {
+  const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
   const {
     data: post,
     isLoading,
     isError,
     error,
+    refetch,
   } = usePostDetail(Number(postId));
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isOwner = isAuthenticated && user?.userId === post?.userId;
+  const isAdmin = isAuthenticated && user?.role === "ADMIN";
+  const canEdit = isOwner;
+  const canDelete = isOwner || isAdmin;
 
   if (isLoading) {
     return (
@@ -52,12 +82,87 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     minute: "2-digit",
   });
 
-  const handleLike = () => {
-    // TODO: Implement like functionality
+  const handleLike = async () => {
+    if (!isAuthenticated) {
+      toast.warning("로그인 후 사용 가능합니다.");
+      return;
+    }
+
+    try {
+      await clientAxios.post("/posts/like", {
+        postId: Number(postId),
+      });
+      refetch();
+    } catch (error) {
+      console.error("Failed to toggle post like:", error);
+      toast.error("좋아요 처리에 실패했습니다.");
+    }
   };
 
   const handleShare = () => {
-    // TODO: Implement share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: post?.title,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("링크가 복사되었습니다.");
+    }
+  };
+
+  const handleEditStart = () => {
+    if (!post) return;
+    setEditTitle(post.title);
+    setEditContent(post.content);
+    setIsEditing(true);
+    setShowMenu(false);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editTitle.trim() || !editContent.trim()) {
+      toast.warning("제목과 내용을 입력해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await clientAxios.patch(`/posts/${postId}`, {
+        title: editTitle.trim(),
+        content: editContent.trim(),
+      });
+      toast.success("게시글이 수정되었습니다.");
+      setIsEditing(false);
+      refetch();
+    } catch (error) {
+      console.error("Failed to update post:", error);
+      toast.error("게시글 수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("게시글을 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    setIsSubmitting(true);
+    try {
+      await clientAxios.delete(`/posts/${postId}`);
+      toast.success("게시글이 삭제되었습니다.");
+      router.push("/community");
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      toast.error("게시글 삭제에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,17 +204,94 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 </div>
               </div>
             </div>
+
+            {/* Edit/Delete Menu */}
+            {(canEdit || canDelete) && !isEditing && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <MoreVertical className="w-5 h-5 text-gray-500" />
+                </button>
+                {showMenu && (
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[120px]">
+                    {canEdit && (
+                      <button
+                        onClick={handleEditStart}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        수정
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={handleDelete}
+                        disabled={isSubmitting}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Post Body */}
         <div className="p-6">
-          <h1 className="text-xl font-bold text-gray-900 mb-4">
-            {post.title}
-          </h1>
-          <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {post.content}
-          </div>
+          {isEditing ? (
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="w-full text-xl font-bold text-gray-900 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="제목을 입력하세요"
+              />
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={10}
+                className="w-full text-gray-700 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                placeholder="내용을 입력하세요"
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleEditCancel}
+                  disabled={isSubmitting}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  취소
+                </Button>
+                <Button
+                  onClick={handleEditSubmit}
+                  disabled={isSubmitting || !editTitle.trim() || !editContent.trim()}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4 mr-1" />
+                  )}
+                  저장
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-xl font-bold text-gray-900 mb-4">
+                {post.title}
+              </h1>
+              <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {post.content}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Stats Bar */}

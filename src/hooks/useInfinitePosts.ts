@@ -3,9 +3,13 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { clientAxios } from "@/lib/api/clients";
 
+type SortType = "latest" | "popular" | "mostLiked";
+
 interface UseInfinitePostsParams {
   boardId?: number;
   size?: number;
+  keyword?: string;
+  sortType?: SortType;
 }
 
 interface PostSummary {
@@ -42,19 +46,36 @@ interface ApiResponse<T> {
 export function useInfinitePosts({
   boardId,
   size = 20,
+  keyword,
+  sortType = "latest",
 }: UseInfinitePostsParams = {}) {
   return useInfiniteQuery<PostsData>({
-    queryKey: ["posts", boardId],
+    queryKey: ["posts", boardId, keyword, sortType],
     queryFn: async ({ pageParam = 1 }) => {
-      // boardId가 있으면 게시판별 조회, 없으면 전체 조회
-      const endpoint = boardId
-        ? `/posts/${boardId}`
-        : "/posts";
+      let endpoint: string;
+
+      // 검색어가 있는 경우
+      if (keyword && keyword.trim()) {
+        endpoint = boardId
+          ? `/posts/${boardId}/search`
+          : "/posts/search";
+      }
+      // 인기순/좋아요순인 경우 (boardId 필수)
+      else if (sortType === "popular" && boardId) {
+        endpoint = `/posts/${boardId}/popular`;
+      } else if (sortType === "mostLiked" && boardId) {
+        endpoint = `/posts/${boardId}/mostLiked`;
+      }
+      // 기본: 최신순
+      else {
+        endpoint = boardId ? `/posts/${boardId}` : "/posts";
+      }
 
       const response = await clientAxios.get<ApiResponse<PostsData>>(endpoint, {
         params: {
           page: pageParam as number,
           size,
+          ...(keyword && keyword.trim() ? { keyword: keyword.trim() } : {}),
         },
       });
 

@@ -1,11 +1,54 @@
 import { POSTS_ENDPOINT } from "@/lib/api/constants";
-import { createServerAxios } from "@/lib/api/server";
+import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
 import { GatewayConfigError } from "@/lib/api/gateway-selector";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 // posts 요청 캐싱 기간 5분(초)
 export const revalidate = 300;
+
+// 게시글 생성 (multipart/form-data)
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const axios = createAuthServerAxios(request);
+    // DCS API: POST /api/posts (게시글 생성)
+    const { data, status } = await axios.post(POSTS_ENDPOINT, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return NextResponse.json(data, { status });
+  } catch (error: unknown) {
+    if (error instanceof GatewayConfigError) {
+      console.error("[API POST /posts] GatewayConfigError:", error.message);
+      return NextResponse.json(
+        {
+          success: false,
+          code: "GATEWAY_CONFIG_ERROR",
+          message: "서버 설정 오류가 발생했습니다. 관리자에게 문의하세요.",
+        },
+        { status: 503 }
+      );
+    }
+
+    if ((error as AxiosError).isAxiosError) {
+      const axiosError = error as AxiosError;
+      const status = axiosError.response?.status ?? 500;
+      const payload = axiosError.response?.data ?? {
+        success: false,
+        message: axiosError.message,
+      };
+      return NextResponse.json(payload, { status });
+    }
+
+    const err = error instanceof Error ? error : new Error("Unknown error");
+    return NextResponse.json(
+      { success: false, message: err.message },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

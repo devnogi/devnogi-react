@@ -10,10 +10,15 @@ import {
   Lock,
   Users,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { clientAxios } from "@/lib/api/clients";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type VisibilityOption = "public" | "followers" | "private";
 
@@ -24,6 +29,8 @@ interface ImagePreview {
 }
 
 export default function PostWriteView() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<ImagePreview[]>([]);
@@ -33,12 +40,13 @@ export default function PostWriteView() {
   const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState("자유게시판");
   const [showBoardMenu, setShowBoardMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const boardOptions = [
-    "자유게시판",
-    "공략게시판",
-    "거래게시판",
-    "질문게시판",
+    { name: "자유게시판", id: 1 },
+    { name: "공략게시판", id: 2 },
+    { name: "거래게시판", id: 3 },
+    { name: "질문게시판", id: 4 },
   ];
 
   const visibilityOptions = [
@@ -89,8 +97,63 @@ export default function PostWriteView() {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement post submission
+  const handleSubmit = async () => {
+    if (!isAuthenticated) {
+      toast.warning("로그인 후 사용 가능합니다.");
+      return;
+    }
+
+    if (!title.trim()) {
+      toast.warning("제목을 입력해주세요.");
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.warning("내용을 입력해주세요.");
+      return;
+    }
+
+    const selectedBoardData = boardOptions.find((b) => b.name === selectedBoard);
+    if (!selectedBoardData) {
+      toast.error("게시판을 선택해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+
+      // JSON 데이터를 Blob으로 변환하여 추가
+      const postData = {
+        boardId: selectedBoardData.id,
+        title: title.trim(),
+        content: content.trim(),
+      };
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(postData)], { type: "application/json" })
+      );
+
+      // 이미지 파일 추가
+      images.forEach((image) => {
+        formData.append("files", image.file);
+      });
+
+      await clientAxios.post("/posts", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("게시글이 작성되었습니다.");
+      router.push("/community");
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      toast.error("게시글 작성에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const currentVisibility = visibilityOptions.find(
@@ -113,10 +176,17 @@ export default function PostWriteView() {
           </div>
           <Button
             onClick={handleSubmit}
-            disabled={!content.trim()}
+            disabled={!content.trim() || !title.trim() || isSubmitting}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            게시하기
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                게시 중...
+              </>
+            ) : (
+              "게시하기"
+            )}
           </Button>
         </div>
 
@@ -137,14 +207,14 @@ export default function PostWriteView() {
               <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10 min-w-[150px]">
                 {boardOptions.map((board) => (
                   <button
-                    key={board}
+                    key={board.id}
                     onClick={() => {
-                      setSelectedBoard(board);
+                      setSelectedBoard(board.name);
                       setShowBoardMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
                   >
-                    {board}
+                    {board.name}
                   </button>
                 ))}
               </div>

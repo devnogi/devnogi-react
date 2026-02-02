@@ -126,6 +126,29 @@ export interface CommentFormData {
   parentCommentId?: number;
 }
 
+// 댓글 좋아요 토글 요청 타입
+export interface CommentLikeToggleRequest {
+  commentId: number;
+}
+
+// 게시글 좋아요 토글 요청 타입
+export interface PostLikeToggleRequest {
+  postId: number;
+}
+
+// 게시글 작성 요청 타입
+export interface PostCreateRequest {
+  boardId: number;
+  title: string;
+  content: string;
+}
+
+// 게시글 수정 요청 타입
+export interface PostUpdateRequest {
+  title?: string;
+  content?: string;
+}
+
 // 정렬 옵션
 export type SortOption = "latest" | "popular" | "comments" | "views";
 

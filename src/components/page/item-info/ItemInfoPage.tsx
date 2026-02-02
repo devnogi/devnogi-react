@@ -133,16 +133,14 @@ export default function ItemInfoPage() {
       </Suspense>
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
-        {/* Category Filter - 모바일: 패딩만, 데스크탑: 카드 스타일 */}
-        <div className="py-1 md:py-0 md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-[0_4px_16px_rgba(0,0,0,0.06)] md:p-6">
-          <ItemInfoCategoryFilter
-            categories={categories}
-            selectedTopCategory={topCategory}
-            selectedSubCategory={subCategory}
-            onTopCategoryChange={handleTopCategoryChange}
-            onSubCategoryChange={handleSubCategoryChange}
-          />
-        </div>
+        {/* Category Filter */}
+        <ItemInfoCategoryFilter
+          categories={categories}
+          selectedTopCategory={topCategory}
+          selectedSubCategory={subCategory}
+          onTopCategoryChange={handleTopCategoryChange}
+          onSubCategoryChange={handleSubCategoryChange}
+        />
 
         {/* Results Info & Sort */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
