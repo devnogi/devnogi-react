@@ -101,15 +101,18 @@ export function createAuthServerAxios(request: NextRequest): AxiosInstance {
   const authHeader = request.headers.get("authorization");
   const authorization = authHeader || (accessToken ? `Bearer ${accessToken}` : "");
 
-  return axios.create({
+  const instance = axios.create({
     baseURL: gatewayUrl,
     timeout: 5000,
     headers: {
       "Content-Type": "application/json",
       Authorization: authorization,
-      Cookie: cookieHeader ?? "",
     },
   });
+
+  addLoggingInterceptors(instance, "AuthServerAxios");
+
+  return instance;
 }
 
 /**

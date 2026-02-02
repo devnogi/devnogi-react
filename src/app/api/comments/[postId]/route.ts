@@ -52,9 +52,16 @@ export async function POST(
 ) {
   const { postId } = await params;
 
+  // 디버깅: 쿠키 확인
+  const cookieHeader = request.headers.get("cookie");
+  console.log("[Comments POST] Cookie header:", cookieHeader);
+
   try {
     const body = await request.json();
     const axios = createAuthServerAxios(request);
+
+    // 디버깅: axios 헤더 확인
+    console.log("[Comments POST] Axios headers:", axios.defaults.headers);
     // DCS API: POST /api/comments/{postId} (댓글 작성)
     const { data, status } = await axios.post(
       `/dcs/api/comments/${postId}`,
