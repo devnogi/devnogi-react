@@ -105,7 +105,7 @@ export default function ItemInfoPage() {
 
   if (isCategoriesLoading) {
     return (
-      <div className="min-h-screen bg-[var(--color-ds-background)] py-8 px-4">
+      <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-[var(--color-ds-neutral-100)] rounded-lg w-1/3" />
@@ -126,7 +126,7 @@ export default function ItemInfoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-ds-background)] -mx-4 md:-mx-6 -my-6 md:-my-8">
+    <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
       {/* URL Params Reader */}
       <Suspense fallback={null}>
         <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />

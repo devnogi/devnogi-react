@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import clsx from "clsx";
@@ -14,6 +15,7 @@ import {
   getCategoryId,
 } from "@/hooks/useRecentSearches";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import NotificationDropdown from "@/components/notification/NotificationDropdown";
 
 // Navigation menu items
@@ -30,8 +32,8 @@ export default function ThreeTierNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false); // UI only toggle
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   // Search states
@@ -62,6 +64,8 @@ export default function ThreeTierNav() {
   const isHornBuglePage = pathname.startsWith("/horn-bugle");
   // 아이템 정보 페이지인지 확인
   const isItemInfoPage = pathname.startsWith("/item-info");
+  // 게시판 페이지인지 확인
+  const isCommunityPage = pathname.startsWith("/community");
   // 검색 가능한 페이지 (경매장 + 아이템 정보)
   const isSearchablePage = isAuctionPage || isItemInfoPage;
 
@@ -246,6 +250,17 @@ export default function ThreeTierNav() {
     setIsSearchFocused(false);
   }, [searchValue, router]);
 
+  // 게시판 검색 제출 로직
+  const handleCommunitySearchSubmit = useCallback(() => {
+    const trimmed = searchValue.trim();
+    if (trimmed) {
+      router.push(`/community?q=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/community");
+    }
+    setIsSearchFocused(false);
+  }, [searchValue, router]);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       // 뿔피리 페이지: Enter 입력 시 검색
@@ -253,6 +268,18 @@ export default function ThreeTierNav() {
         if (e.key === "Enter") {
           e.preventDefault();
           handleHornBugleSearchSubmit();
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          setIsSearchFocused(false);
+        }
+        return;
+      }
+
+      // 게시판 페이지: Enter 입력 시 검색
+      if (isCommunityPage) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleCommunitySearchSubmit();
         } else if (e.key === "Escape") {
           e.preventDefault();
           setIsSearchFocused(false);
@@ -293,12 +320,14 @@ export default function ThreeTierNav() {
     [
       isSearchablePage,
       isHornBuglePage,
+      isCommunityPage,
       searchValue,
       filteredItems,
       recentSearches,
       selectedIndex,
       handleSearchSubmit,
       handleHornBugleSearchSubmit,
+      handleCommunitySearchSubmit,
     ]
   );
 
@@ -346,7 +375,7 @@ export default function ThreeTierNav() {
         ref={searchInputRef}
         type="text"
         placeholder={searchPlaceholder}
-        className="h-10 pr-16 rounded-xl border-gray-300 focus:border-blaanid-500 focus:ring-2 focus:ring-blaanid-500/20 transition-all bg-gray-50"
+        className="h-10 pr-16 rounded-xl border-gray-300 dark:border-navy-500 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20 transition-all bg-gray-50 dark:bg-navy-700 dark:text-white dark:placeholder-gray-400"
         value={searchValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -357,7 +386,7 @@ export default function ThreeTierNav() {
         {searchValue && (
           <button
             onClick={handleClearInput}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
             aria-label="입력 내용 지우기"
             type="button"
           >
@@ -365,8 +394,16 @@ export default function ThreeTierNav() {
           </button>
         )}
         <button
-          onClick={isHornBuglePage ? handleHornBugleSearchSubmit : (isSearchablePage ? handleSearchSubmit : undefined)}
-          className="p-1.5 rounded-lg text-gray-500 hover:text-blaanid-600 hover:bg-gray-100 transition-colors"
+          onClick={
+            isHornBuglePage
+              ? handleHornBugleSearchSubmit
+              : isCommunityPage
+                ? handleCommunitySearchSubmit
+                : isSearchablePage
+                  ? handleSearchSubmit
+                  : undefined
+          }
+          className="p-1.5 rounded-lg text-gray-500 dark:text-gray-300 hover:text-blaanid-600 dark:hover:text-coral-400 hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
           aria-label="검색"
           type="button"
         >
@@ -378,22 +415,22 @@ export default function ThreeTierNav() {
       {showDropdown && (
         <div
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-[0_8px_24px_rgba(61,56,47,0.12)] max-h-80 overflow-y-auto z-50"
+          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 shadow-[0_8px_24px_rgba(61,56,47,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] max-h-80 overflow-y-auto z-50"
         >
           {searchValue.trim().length > 0 ? (
             // Autocomplete results
             <>
               {isLoading ? (
-                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                   로딩 중...
                 </div>
               ) : filteredItems.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                   검색 결과가 없습니다
                 </div>
               ) : (
                 <>
-                  <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
+                  <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-navy-600">
                     검색 결과 {filteredItems.length}개
                   </div>
                   {filteredItems.map((item, index) => (
@@ -405,14 +442,14 @@ export default function ThreeTierNav() {
                       }}
                       onMouseEnter={() => setSelectedIndex(index)}
                       className={clsx(
-                        "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0",
+                        "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0",
                         selectedIndex === index
-                          ? "bg-blaanid-50 text-blaanid-700"
-                          : "text-gray-900 hover:bg-gray-50"
+                          ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
+                          : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600"
                       )}
                     >
                       <div className="font-medium text-sm">{item.name}</div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {item.topCategory} › {item.subCategory}
                       </div>
                     </button>
@@ -423,8 +460,8 @@ export default function ThreeTierNav() {
           ) : (
             // Recent searches
             <>
-              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
-                <span className="text-xs font-medium text-gray-500">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-navy-600">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   최근 검색어
                 </span>
                 {recentSearches.length > 0 && (
@@ -433,14 +470,14 @@ export default function ThreeTierNav() {
                       e.preventDefault();
                       handleClearAllRecentSearches();
                     }}
-                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                   >
                     전체삭제
                   </button>
                 )}
               </div>
               {recentSearches.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                   최근 검색어가 없습니다
                 </div>
               ) : (
@@ -453,17 +490,17 @@ export default function ThreeTierNav() {
                     }}
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={clsx(
-                      "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 last:border-b-0 flex items-start gap-3",
+                      "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0 flex items-start gap-3",
                       selectedIndex === index
-                        ? "bg-blaanid-50 text-blaanid-700"
-                        : "text-gray-900 hover:bg-gray-50"
+                        ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
+                        : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600"
                     )}
                   >
                     <Clock className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm">{search.itemName}</div>
                       {search.topCategory && search.subCategory && (
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           {search.topCategory} › {search.subCategory}
                         </div>
                       )}
@@ -486,12 +523,19 @@ export default function ThreeTierNav() {
           <div className="flex items-center gap-1 h-full min-w-max">
             {/* HOME Icon */}
             <Link
-              href="#"
-              onClick={handleNotReady}
-              className="relative px-3 py-2.5 text-gray-600 hover:text-gray-900 transition-colors"
+              href="/home"
+              className={clsx(
+                "relative px-3 py-2.5 transition-colors",
+                pathname === "/home"
+                  ? "text-blaanid-600 dark:text-coral-400"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              )}
               aria-label="홈"
             >
               <Home className="w-5 h-5" />
+              {pathname === "/home" && (
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
+              )}
             </Link>
             {navItems.map(({ href, label, ready }) => {
               const isActive =
@@ -506,13 +550,13 @@ export default function ThreeTierNav() {
                   className={clsx(
                     "relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
                     isActive
-                      ? "text-blaanid-600"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "text-blaanid-600 dark:text-coral-400"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                   )}
                 >
                   {label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 rounded-full" />
+                    <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
                   )}
                 </Link>
               );
@@ -524,7 +568,7 @@ export default function ThreeTierNav() {
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-navy-800 border-b border-gray-200 dark:border-navy-600 transition-colors duration-300">
       {/* ===== DESKTOP/TABLET LAYOUT (md and above) ===== */}
       <div className="hidden md:block">
         {/* Tier 1: Logo + Search (center, flexible) + Theme Icons + Notification - Hidden on scroll */}
@@ -538,7 +582,7 @@ export default function ThreeTierNav() {
             {/* Logo - Fixed width */}
             <Link
               href="/"
-              className="font-bold text-xl text-gray-900 hover:text-blaanid-600 transition-colors flex-shrink-0"
+              className="font-bold text-xl text-gray-900 dark:text-white hover:text-blaanid-600 dark:hover:text-coral-400 transition-colors flex-shrink-0"
               style={{ fontFamily: "'Bungee', cursive" }}
             >
               MEMNOGI
@@ -549,14 +593,14 @@ export default function ThreeTierNav() {
 
             {/* Right Icons - Fixed width */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Theme Toggle Icon (UI only) */}
+              {/* Theme Toggle Icon */}
               <button
-                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
                 aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
-                onClick={() => setIsDarkMode(!isDarkMode)}
+                onClick={toggleTheme}
               >
                 {isDarkMode ? (
-                  <Moon className="w-5 h-5 text-gray-700" />
+                  <Moon className="w-5 h-5 text-coral-400" />
                 ) : (
                   <Sun className="w-5 h-5 text-gray-700" />
                 )}
@@ -576,26 +620,29 @@ export default function ThreeTierNav() {
               {isAuthenticated ? (
                 <Link
                   href="/mypage"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
                   aria-label="마이페이지"
                 >
                   {user?.profileImageUrl ? (
-                    <img
+                    <Image
                       src={user.profileImageUrl}
                       alt="프로필"
+                      width={24}
+                      height={24}
                       className="w-6 h-6 rounded-full object-cover"
+                      unoptimized
                     />
                   ) : (
-                    <User className="w-5 h-5 text-gray-700" />
+                    <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
                   )}
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                     {user?.nickname}
                   </span>
                 </Link>
               ) : (
                 <Link
                   href="/sign-in"
-                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 dark:bg-coral-500 dark:hover:bg-coral-600 rounded-lg transition-colors"
                 >
                   로그인
                 </Link>
@@ -621,7 +668,7 @@ export default function ThreeTierNav() {
             {/* Logo */}
             <Link
               href="/"
-              className="font-bold text-xl text-gray-900 hover:text-blaanid-600 transition-colors"
+              className="font-bold text-xl text-gray-900 dark:text-white hover:text-blaanid-600 dark:hover:text-coral-400 transition-colors"
               style={{ fontFamily: "'Bungee', cursive" }}
             >
               MEMNOGI
@@ -629,14 +676,14 @@ export default function ThreeTierNav() {
 
             {/* Right Icons */}
             <div className="flex items-center gap-1">
-              {/* Theme Toggle Icon (UI only) */}
+              {/* Theme Toggle Icon */}
               <button
-                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
                 aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
-                onClick={() => setIsDarkMode(!isDarkMode)}
+                onClick={toggleTheme}
               >
                 {isDarkMode ? (
-                  <Moon className="w-5 h-5 text-gray-700" />
+                  <Moon className="w-5 h-5 text-coral-400" />
                 ) : (
                   <Sun className="w-5 h-5 text-gray-700" />
                 )}
@@ -656,23 +703,26 @@ export default function ThreeTierNav() {
               {isAuthenticated ? (
                 <Link
                   href="/mypage"
-                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
                   aria-label="마이페이지"
                 >
                   {user?.profileImageUrl ? (
-                    <img
+                    <Image
                       src={user.profileImageUrl}
                       alt="프로필"
+                      width={20}
+                      height={20}
                       className="w-5 h-5 rounded-full object-cover"
+                      unoptimized
                     />
                   ) : (
-                    <User className="w-5 h-5 text-gray-700" />
+                    <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
                   )}
                 </Link>
               ) : (
                 <Link
                   href="/sign-in"
-                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 dark:bg-coral-500 dark:hover:bg-coral-600 rounded-lg transition-colors"
                 >
                   로그인
                 </Link>
@@ -682,7 +732,7 @@ export default function ThreeTierNav() {
         </div>
 
         {/* Tier 2: Search Bar */}
-        <div className="h-12 border-b border-gray-100">
+        <div className="h-12 border-b border-gray-100 dark:border-navy-600">
           <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
             {renderSearchInput("w-full")}
           </div>

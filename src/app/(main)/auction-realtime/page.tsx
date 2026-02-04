@@ -343,7 +343,7 @@ export default function Page() {
   }
 
   return (
-    <div className="select-none min-h-full bg-[var(--color-ds-background)] -mx-4 md:-mx-6 -my-6 md:-my-8">
+    <div className="select-none min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
       {/* URL Params Reader - wrapped in Suspense for SSR compatibility */}
       <Suspense fallback={null}>
         <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -370,7 +370,47 @@ function EditProfileModal({
   onSuccess: () => void;
 }) {
   const [nickname, setNickname] = useState(user.nickname);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(user.profileImageUrl);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 파일 크기 체크 (5MB 제한)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("이미지 크기는 5MB 이하여야 합니다.");
+        return;
+      }
+
+      // 이미지 파일 타입 체크
+      if (!file.type.startsWith("image/")) {
+        toast.error("이미지 파일만 업로드할 수 있습니다.");
+        return;
+      }
+
+      setProfileImage(file);
+      // 미리보기 URL 생성
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSave = async () => {
     if (!nickname.trim()) {
@@ -378,7 +418,12 @@ function EditProfileModal({
       return;
     }
 
-    if (nickname.trim() === user.nickname) {
+    // 변경사항이 없는 경우
+    const nicknameChanged = nickname.trim() !== user.nickname;
+    const imageChanged = profileImage !== null || (previewUrl === null && user.profileImageUrl !== null);
+
+    if (!nicknameChanged && !imageChanged) {
+      toast.info("변경된 내용이 없습니다.");
       onClose();
       return;
     }
@@ -388,6 +433,11 @@ function EditProfileModal({
       const formData = new FormData();
       formData.append("nickname", nickname.trim());
 
+      // 프로필 이미지가 선택된 경우에만 추가
+      if (profileImage) {
+        formData.append("file", profileImage);
+      }
+
       await clientAxios.put("/user/info", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -396,9 +446,28 @@ function EditProfileModal({
 
       toast.success("프로필이 수정되었습니다.");
       onSuccess();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to update profile:", error);
-      toast.error("프로필 수정에 실패했습니다.");
+
+      // 에러 메시지 상세화
+      interface AxiosErrorResponse {
+        response?: {
+          data?: {
+            message?: string;
+          };
+          status?: number;
+        };
+      }
+      const axiosError = error as AxiosErrorResponse;
+      const errorMessage = axiosError.response?.data?.message || "프로필 수정에 실패했습니다.";
+
+      if (axiosError.response?.status === 401) {
+        toast.error("로그인이 필요합니다. 다시 로그인해주세요.");
+      } else if (axiosError.response?.status === 400) {
+        toast.error(errorMessage);
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -412,6 +481,71 @@ function EditProfileModal({
         </h2>
 
         <div className="space-y-5 mb-8">
+          {/* Profile Image */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              프로필 이미지
+            </label>
+            <div className="flex items-center gap-4">
+              <div
+                onClick={handleImageClick}
+                className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
+              >
+                {previewUrl ? (
+                  <Image
+                    src={previewUrl}
+                    alt="Profile Preview"
+                    width={80}
+                    height={80}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  nickname[0] || "?"
+                )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  disabled={isSubmitting}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleImageClick}
+                    disabled={isSubmitting}
+                    className="text-sm"
+                  >
+                    이미지 선택
+                  </Button>
+                  {previewUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      disabled={isSubmitting}
+                      className="text-sm text-red-600 hover:text-red-700"
+                    >
+                      삭제
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  JPG, PNG, GIF (최대 5MB)
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Nickname */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">

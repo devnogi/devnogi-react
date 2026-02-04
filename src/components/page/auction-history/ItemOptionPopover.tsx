@@ -33,7 +33,7 @@ export default function ItemOptionPopover({
   return (
     <div className="flex flex-col">
       {/* 아이템 이름 */}
-      <div className="text-white font-semibold text-sm mb-3 pb-2 border-b border-white/20">
+      <div className="text-gray-900 dark:text-white font-semibold text-sm mb-3 pb-2 border-b border-gray-200 dark:border-white/20">
         {itemDisplayName}
       </div>
 
@@ -45,8 +45,8 @@ export default function ItemOptionPopover({
       </div>
 
       {/* 가격 정보 (하단 고정) */}
-      <div className="mt-3 pt-2 border-t border-white/20">
-        <div className="text-xs text-[#ffcc00] font-semibold">
+      <div className="mt-3 pt-2 border-t border-gray-200 dark:border-white/20">
+        <div className="text-xs text-amber-600 dark:text-[#ffcc00] font-semibold">
           가격 : {formatPrice(price)} Gold
         </div>
       </div>
@@ -59,9 +59,9 @@ export default function ItemOptionPopover({
  */
 function OptionGroup({ group }: { group: GroupedOption }) {
   return (
-    <div className="relative border border-white/30 rounded-sm pt-5 pb-2 px-2.5 mt-1">
+    <div className="relative border border-gray-300 dark:border-white/30 rounded-sm pt-5 pb-2 px-2.5 mt-1">
       {/* 카테고리 라벨 (테두리에 겹치는 스타일) */}
-      <span className="absolute -top-2.5 left-2 px-1.5 bg-[#1a1a1a] text-[#e8a854] text-xs font-semibold leading-normal z-20">
+      <span className="absolute -top-2.5 left-2 px-1.5 bg-white dark:bg-navy-800 text-amber-600 dark:text-[#e8a854] text-xs font-semibold leading-normal z-20">
         {group.categoryLabel}
       </span>
 
@@ -141,11 +141,11 @@ function EnchantItem({ option }: { option: ItemOption }) {
   return (
     <div className="mb-1.5">
       {/* 인챈트 헤더 */}
-      <div className="text-xs text-[#ccc]">
+      <div className="text-xs text-gray-600 dark:text-[#ccc]">
         {enchantType && (
-          <span className="text-[#7cb3ff] mr-1">{enchantType}</span>
+          <span className="text-blue-500 dark:text-[#7cb3ff] mr-1">{enchantType}</span>
         )}
-        <span className="text-white">{option.optionValue}</span>
+        <span className="text-gray-900 dark:text-white">{option.optionValue}</span>
       </div>
       {/* 인챈트 효과 설명 */}
       {hasDesc && (
@@ -184,7 +184,7 @@ function ReforgeOptions({ options }: { options: ItemOption[] }) {
         return (
           <div key={type} className="mb-2 last:mb-0">
             {/* 개조 타입 소제목 */}
-            <div className="text-xs text-[#b0b0b0] font-medium mb-0.5">
+            <div className="text-xs text-gray-500 dark:text-[#b0b0b0] font-medium mb-0.5">
               {type}
             </div>
             {/* 개조 효과 목록 */}
@@ -205,9 +205,9 @@ function ReforgeItem({ option }: { option: ItemOption }) {
 
   return (
     <div className="mb-1 last:mb-0">
-      <div className="text-xs text-[#ccc]">
+      <div className="text-xs text-gray-600 dark:text-[#ccc]">
         {option.optionSubType && (
-          <span className="text-[#a0a0a0] mr-1">{option.optionSubType}:</span>
+          <span className="text-gray-500 dark:text-[#a0a0a0] mr-1">{option.optionSubType}:</span>
         )}
         <HighlightedValue value={option.optionValue} />
       </div>
@@ -238,7 +238,7 @@ function ArtisanOptions({ options }: { options: ItemOption[] }) {
     <>
       {sortedOptions.map((option) => (
         <div key={option.id} className="mb-1 last:mb-0">
-          <div className="text-xs text-[#ccc]">
+          <div className="text-xs text-gray-600 dark:text-[#ccc]">
             {option.optionValue}
           </div>
           {option.optionDesc && (
@@ -266,9 +266,9 @@ function ErgOptions({ options }: { options: ItemOption[] }) {
     <>
       {/* 에르그 등급 */}
       {gradeOption && (
-        <div className="text-xs text-[#ccc] mb-1">
-          <span className="text-[#b0b0b0]">등급: </span>
-          <span className="text-[#7cb3ff] font-medium">
+        <div className="text-xs text-gray-600 dark:text-[#ccc] mb-1">
+          <span className="text-gray-500 dark:text-[#b0b0b0]">등급: </span>
+          <span className="text-blue-500 dark:text-[#7cb3ff] font-medium">
             {gradeOption.optionValue}
           </span>
         </div>
@@ -277,7 +277,7 @@ function ErgOptions({ options }: { options: ItemOption[] }) {
       {effectOptions.map((option) => (
         <div key={option.id} className="mb-1.5 last:mb-0">
           {option.optionSubType && (
-            <div className="text-xs text-[#b0b0b0] font-medium">
+            <div className="text-xs text-gray-500 dark:text-[#b0b0b0] font-medium">
               {option.optionSubType}
             </div>
           )}
@@ -334,14 +334,14 @@ function ItemColorOptions({ options }: { options: ItemOption[] }) {
       {sortedOptions.map((option) => {
         const rgbColor = parseRgbColor(option.optionValue);
         return (
-          <div key={option.id} className="text-xs text-[#ccc] leading-relaxed">
+          <div key={option.id} className="text-xs text-gray-600 dark:text-[#ccc] leading-relaxed">
             <span
-              style={{ color: rgbColor || "#ccc" }}
-              className="mr-1"
+              style={{ color: rgbColor || undefined }}
+              className="mr-1 text-gray-400 dark:text-[#ccc]"
             >
               ●
             </span>
-            <span className="text-[#a0a0a0]">
+            <span className="text-gray-500 dark:text-[#a0a0a0]">
               {option.optionSubType || option.optionType}:
             </span>{" "}
             <span>{option.optionValue}</span>
@@ -361,8 +361,8 @@ function OptionLine({ option }: { option: ItemOption }) {
     : option.optionValue;
 
   return (
-    <div className="text-xs text-[#ccc] leading-relaxed">
-      <span className="text-[#a0a0a0]">{option.optionType}: </span>
+    <div className="text-xs text-gray-600 dark:text-[#ccc] leading-relaxed">
+      <span className="text-gray-500 dark:text-[#a0a0a0]">{option.optionType}: </span>
       <HighlightedValue value={value} />
     </div>
   );
@@ -383,7 +383,7 @@ function EffectLine({ text }: { text: string }) {
   return (
     <div
       className={`text-xs leading-relaxed ${
-        isPenalty ? "text-[#cc6666]" : "text-[#ccc]"
+        isPenalty ? "text-red-500 dark:text-[#cc6666]" : "text-gray-600 dark:text-[#ccc]"
       } ${isSubItem ? "ml-1" : ""}`}
     >
       <HighlightedValue value={trimmedText} isPenalty={isPenalty} />
@@ -410,7 +410,7 @@ function HighlightedValue({
           return (
             <span
               key={idx}
-              className={isPenalty ? "text-[#cc6666]" : "text-[#7cb3ff]"}
+              className={isPenalty ? "text-red-500 dark:text-[#cc6666]" : "text-blue-500 dark:text-[#7cb3ff]"}
             >
               {segment.value}
             </span>

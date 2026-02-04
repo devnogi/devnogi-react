@@ -116,7 +116,7 @@ export default function ItemOptionInfoPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--color-ds-background)] py-8 px-4">
+      <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-[var(--color-ds-neutral-100)] rounded-lg w-1/3" />
@@ -138,7 +138,7 @@ export default function ItemOptionInfoPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[var(--color-ds-background)] py-8 px-4">
+      <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center">
             <p className="text-rose-700 font-medium">
@@ -154,7 +154,7 @@ export default function ItemOptionInfoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-ds-background)] py-6 md:py-8 px-4">
+    <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 py-6 md:py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div>

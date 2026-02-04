@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import clsx from "clsx";
 import { Board, ApiResponse, BoardListData } from "@/types/community";
 import CategorySkeleton from "./CategorySkeleton";
 import DataFetchError from "@/components/commons/DataFetchError";
@@ -70,33 +70,41 @@ function Category({ selectedBoardId, setSelectedBoardId }: CategoryProps) {
   return (
     <div className="flex flex-nowrap gap-2 overflow-x-auto pb-2 scrollbar-hide">
       {/* 전체 버튼 */}
-      <Button
-        variant={selectedBoardId === undefined ? "default" : "outline"}
+      <button
         onClick={() => setSelectedBoardId(undefined)}
-        className="flex-shrink-0"
+        className={clsx(
+          "px-4 py-2 rounded-xl text-sm font-medium transition-all flex-shrink-0",
+          selectedBoardId === undefined
+            ? "bg-[var(--color-ds-primary)] text-white shadow-md"
+            : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
+        )}
       >
         전체
-      </Button>
+      </button>
 
       {/* 카테고리별 게시판 */}
       {categories.map((category) => (
-        <Button
+        <button
           key={category.id}
-          variant={selectedBoardId === category.id ? "default" : "outline"}
           onClick={() => setSelectedBoardId(category.id)}
-          className="flex-shrink-0 relative group"
+          className={clsx(
+            "px-4 py-2 rounded-xl text-sm font-medium transition-all flex-shrink-0 relative group",
+            selectedBoardId === category.id
+              ? "bg-[var(--color-ds-primary)] text-white shadow-md"
+              : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
+          )}
         >
           <span>{category.name}</span>
           {/* 툴팁 */}
-          <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10">
+          <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap z-10 shadow-lg">
             <div>{category.description}</div>
             <div className="text-gray-400 text-[10px] mt-1">
               {category.topCategory} &gt; {category.subCategory}
             </div>
             {/* 화살표 */}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900" />
+            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800" />
           </div>
-        </Button>
+        </button>
       ))}
     </div>
   );

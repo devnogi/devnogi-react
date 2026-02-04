@@ -9,3 +9,10 @@ API_MOCKING=enabled
 
 # === Gateway Configuration ===
 GATEWAY_URL=http://168.107.43.221:8080
+
+# === Logging Configuration ===
+# DEBUG: 모든 로그 (디버깅용 - JWT, 요청 URL, 응답 데이터 등 상세 정보)
+# INFO: 기본 정보 로그 (API 요청/응답 요약)
+# WARN: 경고 이상
+# ERROR: 에러만 (운영 환경 권장)
+LOG_LEVEL=INFO

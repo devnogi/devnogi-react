@@ -60,6 +60,32 @@ const config: Config = {
           800: "#6b21a8",
           900: "#581c87",
         },
+        // Coral Pink - Dark Mode Primary
+        coral: {
+          50: "#FFF0F3",
+          100: "#FFE0E8",
+          200: "#FFCCD9",
+          300: "#FFB3C6",
+          400: "#FF8FB3",
+          500: "#FF6B9D", // Primary Coral Pink
+          600: "#E6527D",
+          700: "#CC3D5E",
+          800: "#B32D47",
+          900: "#991F33",
+        },
+        // Navy - Dark Mode Background
+        navy: {
+          50: "#E8E8F0",
+          100: "#C4C4D4",
+          200: "#9E9EB8",
+          300: "#6B6B8C",
+          400: "#4A4A6A",
+          500: "#2a2a45",
+          600: "#252540",
+          700: "#1a1a2e",
+          800: "#12121f",
+          900: "#0f0f1a", // Main Background
+        },
       },
     },
   },

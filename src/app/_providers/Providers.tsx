@@ -4,11 +4,14 @@
 import TanStackQueryProvider from "@/app/_providers/TanStackQueryProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ConfigProvider } from "@/contexts/ConfigContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import React, { ReactNode } from "react";
 import { Toaster } from "sonner";
 
 const providers = [
-  // ConfigProvider가 가장 먼저 로드되어야 다른 컴포넌트에서 사용 가능
+  // ThemeProvider가 가장 먼저 로드되어야 다크모드가 즉시 적용됨
+  (children: ReactNode) => <ThemeProvider>{children}</ThemeProvider>,
+  // ConfigProvider는 다른 컴포넌트에서 사용 가능
   (children: ReactNode) => <ConfigProvider>{children}</ConfigProvider>,
   (children: ReactNode) => (
     <TanStackQueryProvider>{children}</TanStackQueryProvider>

@@ -56,7 +56,7 @@ function HornBugleContent() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div className="min-h-full bg-[var(--color-ds-background)] -mx-4 md:-mx-6 -my-6 md:-my-8">
+    <div className="min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
       <div className="max-w-3xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-8">
         {/* 서버 탭 */}
         <div className="mb-6">
@@ -109,7 +109,7 @@ export default function HornBuglePage() {
 
 function HornBugleLoadingFallback() {
   return (
-    <div className="min-h-full bg-[var(--color-ds-background)] -mx-4 md:-mx-6 -my-6 md:-my-8">
+    <div className="min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
       <div className="max-w-3xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-8">
         {/* 서버 탭 스켈레톤 */}
         <div className="mb-6">

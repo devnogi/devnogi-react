@@ -118,7 +118,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
 export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+      <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
         <div className="animate-pulse">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
@@ -133,7 +133,7 @@ export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) 
 
   if (items.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] p-8 text-center">
+      <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] p-8 text-center">
         <Package className="w-12 h-12 text-[var(--color-ds-disabled)] mx-auto mb-3" />
         <p className="text-[var(--color-ds-disabled)]">검색 결과가 없습니다.</p>
         <p className="text-sm text-[var(--color-ds-disabled)] mt-1">
@@ -144,7 +144,7 @@ export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) 
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+    <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[var(--color-ds-neutral-50)]">

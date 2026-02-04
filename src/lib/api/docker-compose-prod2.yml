@@ -1,0 +1,87 @@
+
+# 운영 서버 환경용 Docker Compose 설정
+# 사용법: docker-compose -f docker-compose-prod.yaml --env-file .env.prod up -d
+# Nginx 프록시를 통한 프로덕션 배포
+
+services:
+  # Next.js Application
+  nextjs-app:
+    # Docker Hub에서 pull한 이미지 사용 (GitHub Actions에서 빌드된 이미지)
+    image: ${DOCKER_USERNAME}/${DOCKER_REPO}:prod
+    platform: linux/amd64  # Apple Silicon에서 AMD64 이미지 사용 (에뮬레이션)
+    container_name: nextjs-app-prod
+    # host 네트워크 모드: 컨테이너가 호스트의 네트워크 스택을 직접 사용
+    # network_mode: "host"
+    env_file:
+      - .env.prod2  # 운영 환경 변수 파일 (GitHub Actions에서 생성)
+    labels:
+      autoheal: "true"
+    ports:
+      - "3010:3010"
+    environment:
+      # === Application Configuration ===
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3010
+
+      # === Gateway Configuration ===
+      GATEWAY_URL: ${GATEWAY_URL}
+
+      # === API Configuration ===
+      API_MOCKING: disabled
+      VERCEL_ENV: production
+
+    networks:
+      - devnogi-gateway_app-network
+
+    restart: always
+
+    # 운영 서버용 리소스 제한
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_CPU_LIMIT:-2.0}"
+          memory: ${DOCKER_MEMORY_LIMIT:-2g}
+        reservations:
+          cpus: "${DOCKER_CPU_RESERVATION:-1.0}"
+          memory: ${DOCKER_MEMORY_RESERVATION:-1g}
+
+    # Health Check
+    # wget을 사용한 안정적인 health check (node http.get은 비동기로 동작하여 불안정)
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-50m}
+        max-file: "${LOGGING_MAX_FILE:-10}"
+
+  # Autoheal: unhealthy 컨테이너 자동 재시작
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal-nextjs-prod
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_INTERVAL: ${AUTOHEAL_INTERVAL:-60}
+      AUTOHEAL_START_PERIOD: ${AUTOHEAL_START_PERIOD:-300}
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: ${AUTOHEAL_DEFAULT_STOP_TIMEOUT:-30}
+      DOCKER_SOCK: /var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - devnogi-gateway_app-network
+    deploy:
+      resources:
+        limits:
+          memory: ${AUTOHEAL_MEMORY_LIMIT:-50m}
+        reservations:
+          memory: ${AUTOHEAL_MEMORY_RESERVATION:-20m}
+
+networks:
+  devnogi-gateway_app-network:
+    external: true 

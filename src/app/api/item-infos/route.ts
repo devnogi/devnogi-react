@@ -85,40 +85,49 @@ export async function GET() {
     // 2. 각 카테고리별로 summary API 호출
     const summaryPromises = categoriesApiResponse.data.map(
       async ({ topCategory, subCategory }) => {
-        const params = new URLSearchParams({
-          topCategory,
-          subCategory,
-        });
+        try {
+          const params = new URLSearchParams({
+            topCategory,
+            subCategory,
+          });
 
-        const response = await fetch(
-          `${gatewayUrl}/oab/api/item-infos/summary?${params.toString()}`,
-          {
-            next: { revalidate: secondsUntilNextUpdate },
-          },
-        );
+          const response = await fetch(
+            `${gatewayUrl}/oab/api/item-infos/summary?${params.toString()}`,
+            {
+              next: { revalidate: secondsUntilNextUpdate },
+            },
+          );
 
-        if (!response.ok) {
+          if (!response.ok) {
+            console.error(
+              `[item-infos] Summary API 호출 실패 (${topCategory}/${subCategory}): ${response.status}`,
+            );
+            return [];
+          }
+
+          const apiResponse: ApiResponse<ItemInfoSummaryResponse[]> =
+            await response.json();
+
+          if (!apiResponse.success) {
+            console.error(
+              `[item-infos] Summary API 실패 (${topCategory}/${subCategory}): ${apiResponse.message}`,
+            );
+            return [];
+          }
+
+          return apiResponse.data;
+        } catch (fetchError) {
+          // 개별 fetch 에러를 잡아서 전체 Promise.all이 실패하지 않도록 함
           console.error(
-            `Summary API 호출 실패 (${topCategory}/${subCategory}): ${response.status}`,
+            `[item-infos] Summary API fetch 에러 (${topCategory}/${subCategory}):`,
+            fetchError instanceof Error ? fetchError.message : fetchError,
           );
           return [];
         }
-
-        const apiResponse: ApiResponse<ItemInfoSummaryResponse[]> =
-          await response.json();
-
-        if (!apiResponse.success) {
-          console.error(
-            `Summary API 실패 (${topCategory}/${subCategory}): ${apiResponse.message}`,
-          );
-          return [];
-        }
-
-        return apiResponse.data;
       },
     );
 
-    // 3. 모든 요청을 병렬로 처리하고 결과를 합침
+    // 3. 모든 요청을 병렬로 처리하고 결과를 합침 (Promise.allSettled로 개별 실패 허용)
     const summaryResults = await Promise.all(summaryPromises);
     const allItemInfos = summaryResults.flat();
 

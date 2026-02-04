@@ -12,6 +12,13 @@ interface UseInfinitePostsParams {
   sortType?: SortType;
 }
 
+interface Author {
+  id: number;
+  username: string;
+  nickname: string;
+  profileImage?: string;
+}
+
 interface PostSummary {
   id: number;
   title: string;
@@ -19,6 +26,7 @@ interface PostSummary {
   likeCount: number;
   commentCount: number;
   createdAt: string;
+  author: Author;
 }
 
 interface PageMeta {

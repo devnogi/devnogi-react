@@ -85,6 +85,30 @@
   --color-gold-800: #92400E;
   --color-gold-900: #78350F;
 
+  /* Coral Pink - Dark Mode Primary Colors (다크 모드 주요 색상) */
+  --color-coral-50: #FFF0F3;
+  --color-coral-100: #FFE0E8;
+  --color-coral-200: #FFCCD9;
+  --color-coral-300: #FFB3C6;
+  --color-coral-400: #FF8FB3;
+  --color-coral-500: #FF6B9D;   /* Main Coral - 메인 코랄 핑크 */
+  --color-coral-600: #E6527D;
+  --color-coral-700: #CC3D5E;
+  --color-coral-800: #B32D47;
+  --color-coral-900: #991F33;
+
+  /* Navy - Dark Mode Background Colors (다크 모드 배경 색상) */
+  --color-navy-50: #E8E8F0;
+  --color-navy-100: #C4C4D4;
+  --color-navy-200: #9E9EB8;
+  --color-navy-300: #6B6B8C;
+  --color-navy-400: #4A4A6A;
+  --color-navy-500: #2a2a45;
+  --color-navy-600: #252540;
+  --color-navy-700: #1a1a2e;   /* Card Background */
+  --color-navy-800: #12121f;
+  --color-navy-900: #0f0f1a;   /* Main Background - 진한 남색 */
+
   /* Legacy: Keep old color names for backward compatibility */
   /* Clover Green - mapped to Blaanid for transition */
   --color-clover-50: #EFF6FF;
@@ -192,49 +216,75 @@
 }
 
 .dark {
-  /* 배경 - 어두운 Gray 톤 */
-  --background: #111827;        /* Gray-900 - 메인 배경 */
+  /* =============================================
+     DARK MODE - 진한 남색 배경 + 코랄 핑크 프라이머리
+     - Background: #0f0f1a (진한 남색)
+     - Primary: #FF6B9D (코랄 핑크)
+     ============================================= */
+
+  /* Design System Colors - Dark Mode Override */
+  --color-ds-background: #0f0f1a;   /* Deep Navy */
+  --color-ds-card: #1a1a2e;         /* Navy Dark */
+  --color-ds-primary: #FF6B9D;      /* Coral Pink */
+  --color-ds-primary-hover: #FF8FB3;
+  --color-ds-gold: #FCD34D;         /* Brighter Gold */
+  --color-ds-text: #F9FAFB;         /* Gray-50 - 밝은 텍스트 */
+  --color-ds-danger: #F87171;
+  --color-ds-disabled: #9CA3AF;     /* Gray-400 */
+  --color-ds-neutral-tone: #2a2a45; /* Navy Border */
+  --color-ds-ornamental: #D1D5DB;   /* Gray-300 - 밝게 */
+
+  /* Design System shades for hover/active states - Dark Mode */
+  --color-ds-primary-50: #2a2a45;   /* Navy Accent */
+  --color-ds-primary-100: #252540;  /* Navy Medium */
+  --color-ds-neutral-50: #1a1a2e;   /* Navy Dark */
+  --color-ds-neutral-100: #12121f;  /* Navy Darker */
+  --color-ds-gold-50: #2a2a45;
+  --color-ds-gold-100: #252540;
+
+  /* 배경 - 진한 남색 톤 */
+  --background: #0f0f1a;        /* Deep Navy - 메인 배경 */
   --foreground: #F9FAFB;        /* Gray-50 - 텍스트 */
-  --card: #1F2937;              /* Gray-800 - 카드 배경 */
+  --card: #1a1a2e;              /* Navy Dark - 카드 배경 */
   --card-foreground: #F9FAFB;   /* Gray-50 */
-  --popover: #1F2937;           /* Gray-800 */
+  --popover: #1a1a2e;           /* Navy Dark */
   --popover-foreground: #F9FAFB;
 
-  /* Primary - Blaanid Blue (다크 모드) */
-  --primary: #93C5FD;           /* Blaanid-300 */
-  --primary-foreground: #1E40AF; /* Blaanid-900 */
+  /* Primary - Coral Pink (다크 모드) */
+  --primary: #FF6B9D;           /* Coral Pink - 메인 */
+  --primary-foreground: #FFFFFF; /* White */
 
-  /* Secondary - Gray (다크 모드) */
-  --secondary: #374151;         /* Gray-700 */
+  /* Secondary - Navy 톤 (다크 모드) */
+  --secondary: #252540;         /* Navy Medium */
   --secondary-foreground: #F9FAFB; /* Gray-50 */
-  --muted: #374151;             /* Gray-700 */
+  --muted: #252540;             /* Navy Medium */
   --muted-foreground: #9CA3AF;  /* Gray-400 */
 
-  /* Accent - Gold (다크 모드) */
-  --accent: #374151;            /* Gray-700 */
-  --accent-foreground: #FCD34D; /* Gold-300 */
+  /* Accent - Coral Pink 톤 (다크 모드) */
+  --accent: #2a2a45;            /* Navy Accent */
+  --accent-foreground: #FFB3C6; /* Light Coral Pink */
 
   --destructive: #F87171;
-  --border: #374151;            /* Gray-700 */
-  --input: #374151;             /* Gray-700 */
-  --ring: #93C5FD;              /* Blaanid-300 */
+  --border: #2a2a45;            /* Navy Border */
+  --input: #252540;             /* Navy Medium */
+  --ring: #FF6B9D;              /* Coral Pink */
 
-  /* Charts - Dark mode */
-  --chart-1: #93C5FD;           /* Blaanid-300 */
-  --chart-2: #FCD34D;           /* Gold-300 */
+  /* Charts - Dark mode (코랄 핑크 계열) */
+  --chart-1: #FF6B9D;           /* Coral Pink */
+  --chart-2: #FFB3C6;           /* Light Coral */
   --chart-3: #9CA3AF;           /* Gray-400 */
-  --chart-4: #BFDBFE;           /* Blaanid-200 */
-  --chart-5: #FDE68A;           /* Gold-200 */
+  --chart-4: #FF8FB3;           /* Medium Coral */
+  --chart-5: #FFCCD9;           /* Pale Coral */
 
   /* Sidebar - Dark mode */
-  --sidebar: #1F2937;           /* Gray-800 */
+  --sidebar: #1a1a2e;           /* Navy Dark */
   --sidebar-foreground: #F9FAFB; /* Gray-50 */
-  --sidebar-primary: #93C5FD;   /* Blaanid-300 */
-  --sidebar-primary-foreground: #1E40AF; /* Blaanid-900 */
-  --sidebar-accent: #374151;    /* Gray-700 */
-  --sidebar-accent-foreground: #BFDBFE; /* Blaanid-200 */
-  --sidebar-border: #374151;    /* Gray-700 */
-  --sidebar-ring: #93C5FD;      /* Blaanid-300 */
+  --sidebar-primary: #FF6B9D;   /* Coral Pink */
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #252540;    /* Navy Medium */
+  --sidebar-accent-foreground: #FFB3C6; /* Light Coral Pink */
+  --sidebar-border: #2a2a45;    /* Navy Border */
+  --sidebar-ring: #FF6B9D;      /* Coral Pink */
 }
 
 @layer base {

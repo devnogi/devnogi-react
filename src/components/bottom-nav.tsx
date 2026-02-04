@@ -24,7 +24,7 @@ export default function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-navy-800 border-t border-gray-200 dark:border-navy-700 safe-area-inset-bottom">
       <div className="flex items-center justify-around h-14">
         {navItems.map(({ href, label, ready }) => {
           const isActive =
@@ -40,8 +40,8 @@ export default function BottomNav() {
               className={clsx(
                 "relative flex items-center justify-center flex-1 h-full transition-all duration-200",
                 isActive
-                  ? "text-blue-600"
-                  : "text-gray-500 hover:text-gray-700",
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200",
               )}
             >
               <span
@@ -53,7 +53,7 @@ export default function BottomNav() {
                 {label}
               </span>
               {isActive && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-blue-600 rounded-full" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full" />
               )}
             </Link>
           );

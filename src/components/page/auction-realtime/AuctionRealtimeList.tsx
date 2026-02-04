@@ -20,7 +20,7 @@ export default function AuctionRealtimeList({
 }: AuctionRealtimeListProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
+      <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
         <div className="flex items-center justify-center">
           <div className="text-[var(--color-ds-disabled)]">로딩 중...</div>
         </div>
@@ -30,7 +30,7 @@ export default function AuctionRealtimeList({
 
   if (items.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
+      <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
         <div className="text-center">
           <p className="text-[var(--color-ds-disabled)] text-lg">검색 결과가 없습니다.</p>
           <p className="text-[var(--color-ds-disabled)] text-sm mt-2">
@@ -98,7 +98,7 @@ export default function AuctionRealtimeList({
     <>
       {/* Mobile List Layout */}
       <div className="md:hidden">
-        <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+        <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
           <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item, index) => (
             <Popover key={`${item.auctionId}-${index}`}>
@@ -153,7 +153,7 @@ export default function AuctionRealtimeList({
               </PopoverTrigger>
 
             <PopoverContent
-              className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-lg max-h-[70vh]"
+              className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
               side="top"
               align="center"
             >
@@ -170,7 +170,7 @@ export default function AuctionRealtimeList({
       </div>
 
       {/* Desktop Table Layout */}
-      <div className="hidden md:block bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] border-b-2 border-[var(--color-ds-neutral-tone)]">
           <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">
@@ -241,7 +241,7 @@ export default function AuctionRealtimeList({
             </PopoverTrigger>
 
             <PopoverContent
-              className="w-80 p-3 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-lg max-h-[70vh]"
+              className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
               side="right"
               align="start"
             >

@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // Note: instrumentation.ts는 Next.js 15에서 기본적으로 지원됨
 };
 
 export default nextConfig;

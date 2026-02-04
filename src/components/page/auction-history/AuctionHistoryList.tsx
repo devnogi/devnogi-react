@@ -23,24 +23,24 @@ export default function AuctionHistoryList({
       <>
         {/* Mobile Skeleton */}
         <div className="md:hidden">
-          <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+          <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
             <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
               {Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="px-4 py-4 animate-pulse">
                   {/* 1st Line: Enchant skeleton */}
-                  <div className="h-3 w-24 bg-gray-200 rounded mb-2" />
+                  <div className="h-3 w-24 bg-gray-200 dark:bg-navy-600 rounded mb-2" />
                   {/* 2nd Line: Item name + price */}
                   <div className="flex justify-between items-center mb-2">
-                    <div className="h-5 w-40 bg-gray-200 rounded" />
-                    <div className="h-5 w-20 bg-gray-200 rounded" />
+                    <div className="h-5 w-40 bg-gray-200 dark:bg-navy-600 rounded" />
+                    <div className="h-5 w-20 bg-gray-200 dark:bg-navy-600 rounded" />
                   </div>
                   {/* 3rd Line: Tags + date */}
                   <div className="flex justify-between items-center">
                     <div className="flex gap-2">
-                      <div className="h-4 w-12 bg-gray-100 rounded" />
-                      <div className="h-4 w-16 bg-gray-100 rounded" />
+                      <div className="h-4 w-12 bg-gray-100 dark:bg-navy-600 rounded" />
+                      <div className="h-4 w-16 bg-gray-100 dark:bg-navy-600 rounded" />
                     </div>
-                    <div className="h-4 w-24 bg-gray-100 rounded" />
+                    <div className="h-4 w-24 bg-gray-100 dark:bg-navy-600 rounded" />
                   </div>
                 </div>
               ))}
@@ -49,7 +49,7 @@ export default function AuctionHistoryList({
         </div>
 
         {/* Desktop Skeleton */}
-        <div className="hidden md:block bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+        <div className="hidden md:block bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] border-b-2 border-[var(--color-ds-neutral-tone)]">
             <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">아이템 이름</div>
@@ -63,19 +63,19 @@ export default function AuctionHistoryList({
             {Array.from({ length: 8 }).map((_, index) => (
               <div key={index} className="grid grid-cols-12 gap-4 px-6 py-4 animate-pulse">
                 <div className="col-span-5 flex items-center">
-                  <div className="h-4 w-48 bg-gray-200 rounded" />
+                  <div className="h-4 w-48 bg-gray-200 dark:bg-navy-600 rounded" />
                 </div>
                 <div className="col-span-2 flex items-center justify-center">
-                  <div className="h-6 w-16 bg-gray-100 rounded-md" />
+                  <div className="h-6 w-16 bg-gray-100 dark:bg-navy-600 rounded-md" />
                 </div>
                 <div className="col-span-2 flex items-center justify-end">
-                  <div className="h-4 w-20 bg-gray-200 rounded" />
+                  <div className="h-4 w-20 bg-gray-200 dark:bg-navy-600 rounded" />
                 </div>
                 <div className="col-span-2 flex items-center justify-center">
-                  <div className="h-4 w-24 bg-gray-100 rounded" />
+                  <div className="h-4 w-24 bg-gray-100 dark:bg-navy-600 rounded" />
                 </div>
                 <div className="col-span-1 flex items-center justify-center">
-                  <div className="h-4 w-6 bg-gray-100 rounded" />
+                  <div className="h-4 w-6 bg-gray-100 dark:bg-navy-600 rounded" />
                 </div>
               </div>
             ))}
@@ -87,7 +87,7 @@ export default function AuctionHistoryList({
 
   if (items.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
+      <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
         <div className="text-center">
           <p className="text-[var(--color-ds-disabled)] text-lg">검색 결과가 없습니다.</p>
           <p className="text-[var(--color-ds-disabled)] text-sm mt-2">
@@ -155,7 +155,7 @@ export default function AuctionHistoryList({
     <>
       {/* Mobile List Layout */}
       <div className="md:hidden">
-        <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+        <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
           <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item, index) => (
             <Popover key={`${item.auctionBuyId}-${index}`}>
@@ -210,7 +210,7 @@ export default function AuctionHistoryList({
               </PopoverTrigger>
 
             <PopoverContent
-              className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-lg max-h-[70vh]"
+              className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
               side="top"
               align="center"
             >
@@ -227,7 +227,7 @@ export default function AuctionHistoryList({
       </div>
 
       {/* Desktop Table Layout */}
-      <div className="hidden md:block bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] border-b-2 border-[var(--color-ds-neutral-tone)]">
           <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">
@@ -298,7 +298,7 @@ export default function AuctionHistoryList({
             </PopoverTrigger>
 
             <PopoverContent
-              className="w-80 p-3 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-lg max-h-[70vh]"
+              className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
               side="right"
               align="start"
             >

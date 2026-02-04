@@ -28,9 +28,9 @@ export default function ScrollToTopButton() {
       onClick={scrollToTop}
       className={clsx(
         "fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full",
-        "bg-white border border-gray-200 shadow-lg",
+        "bg-white dark:bg-navy-700 border border-gray-200 dark:border-navy-500 shadow-lg dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
         "flex items-center justify-center",
-        "text-gray-600 hover:text-blue-600 hover:border-blue-300",
+        "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-coral-400 hover:border-blue-300 dark:hover:border-coral-500",
         "transition-all duration-300 transform",
         isVisible
           ? "translate-y-0 opacity-100"

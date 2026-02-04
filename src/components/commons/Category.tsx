@@ -40,15 +40,15 @@ const RecursiveCategoryItem = ({
         className={clsx(
           "px-2 py-2 cursor-pointer text-sm rounded-xl flex items-center transition-colors",
           isSelected
-            ? "bg-clover-50 text-clover-700 font-semibold"
-            : "text-cream-700 hover:bg-cream-100",
+            ? "bg-clover-50 dark:bg-coral-500/20 text-clover-700 dark:text-coral-300 font-semibold"
+            : "text-cream-700 dark:text-gray-300 hover:bg-cream-100 dark:hover:bg-navy-600",
         )}
         onClick={handleSelect}
       >
         {hasChildren && (
           <span
             className={clsx(
-              "w-5 flex-shrink-0 text-center text-xs font-bold transition-transform",
+              "w-5 flex-shrink-0 text-center text-xs font-bold transition-transform dark:text-gray-400",
               isExpanded && "rotate-0",
               !isExpanded && "-rotate-90",
             )}
@@ -116,9 +116,9 @@ export default function ItemCategorySection({
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-[20px] border border-cream-200 shadow-[0_8px_24px_rgba(61,56,47,0.08)]">
-      <div className="text-center border-b border-cream-200 py-3 px-4 bg-cream-50 rounded-t-[20px]">
-        <h3 className="font-semibold text-cream-900">카테고리</h3>
+    <div className="flex flex-col h-full bg-white dark:bg-navy-700 rounded-[20px] border border-cream-200 dark:border-navy-500 shadow-[0_8px_24px_rgba(61,56,47,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-colors duration-300">
+      <div className="text-center border-b border-cream-200 dark:border-navy-600 py-3 px-4 bg-cream-50 dark:bg-navy-800 rounded-t-[20px]">
+        <h3 className="font-semibold text-cream-900 dark:text-white">카테고리</h3>
       </div>
       <div
         ref={containerRef}
