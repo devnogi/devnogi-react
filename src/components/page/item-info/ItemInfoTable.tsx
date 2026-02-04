@@ -28,14 +28,11 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
             </span>
           </div>
         </td>
-        <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-[var(--color-ds-secondary)]">
+        <td className="hidden md:table-cell px-4 py-3 text-sm text-[var(--color-ds-secondary)]">
           {item.topCategory}
         </td>
         <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-[var(--color-ds-secondary)]">
           {item.subCategory}
-        </td>
-        <td className="hidden md:table-cell px-4 py-3 text-sm text-[var(--color-ds-disabled)] max-w-xs truncate">
-          {item.description || "-"}
         </td>
         <td className="px-2 md:px-4 py-3">
           {isExpanded ? (
@@ -47,7 +44,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
       </tr>
       {isExpanded && (
         <tr className="bg-[var(--color-ds-neutral-50)]">
-          <td colSpan={5} className="px-3 md:px-4 py-3 md:py-4">
+          <td colSpan={4} className="px-3 md:px-4 py-3 md:py-4">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
               {item.inventoryWidth && item.inventoryHeight && (
                 <div>
@@ -152,14 +149,11 @@ export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) 
               <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
                 아이템명
               </th>
-              <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
                 상위 분류
               </th>
               <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
                 하위 분류
-              </th>
-              <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold text-[var(--color-ds-text)]">
-                설명
               </th>
               <th className="px-2 md:px-4 py-3 w-8 md:w-10"></th>
             </tr>
