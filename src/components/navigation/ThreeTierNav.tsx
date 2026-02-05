@@ -585,7 +585,7 @@ export default function ThreeTierNav() {
               className="font-bold text-xl text-gray-900 dark:text-white hover:text-blaanid-600 dark:hover:text-coral-400 transition-colors flex-shrink-0"
               style={{ fontFamily: "'Bungee', cursive" }}
             >
-              MEMNOGI
+              MEMONOGI
             </Link>
 
             {/* Search - Flexible center area */}
@@ -671,7 +671,7 @@ export default function ThreeTierNav() {
               className="font-bold text-xl text-gray-900 dark:text-white hover:text-blaanid-600 dark:hover:text-coral-400 transition-colors"
               style={{ fontFamily: "'Bungee', cursive" }}
             >
-              MEMNOGI
+              MEMONOGI
             </Link>
 
             {/* Right Icons */}
