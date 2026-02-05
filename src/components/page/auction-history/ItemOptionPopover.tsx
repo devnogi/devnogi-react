@@ -33,12 +33,12 @@ export default function ItemOptionPopover({
   return (
     <div className="flex flex-col">
       {/* 아이템 이름 */}
-      <div className="text-gray-900 dark:text-white font-semibold text-sm mb-3 pb-2 border-b border-gray-200 dark:border-white/20">
+      <div className="text-gray-900 dark:text-white font-semibold text-sm mb-2 pb-2 border-b border-gray-200 dark:border-white/20">
         {itemDisplayName}
       </div>
 
       {/* 옵션 그룹 영역 (스크롤 가능, 스크롤바 숨김) */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(70vh-120px)] space-y-3 pr-1 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="pt-1 flex-1 overflow-y-auto max-h-[calc(70vh-120px)] space-y-3 pr-1 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {groupedOptions.map((group) => (
           <OptionGroup key={group.categoryId} group={group} />
         ))}
@@ -275,23 +275,28 @@ function ErgOptions({ options }: { options: ItemOption[] }) {
       )}
       {/* 에르그 효과 */}
       {effectOptions.map((option) => (
-        <div key={option.id} className="mb-1.5 last:mb-0">
-          {option.optionSubType && (
-            <div className="text-xs text-gray-500 dark:text-[#b0b0b0] font-medium">
-              {option.optionSubType}
-            </div>
-          )}
-          <div className="text-xs ml-2">
-            <HighlightedValue value={option.optionValue} />
-          </div>
-          {option.optionDesc && (
-            <div className="ml-3 mt-0.5">
-              {option.optionDesc.split("\n").map((line, idx) => (
-                <EffectLine key={idx} text={line} />
-              ))}
-            </div>
-          )}
-        </div>
+<div key={option.id} className="mb-1.5 last:mb-0">
+  <div className="flex items-center text-xs whitespace-nowrap">
+    {option.optionSubType && (
+      <span className="text-gray-500 dark:text-[#b0b0b0] font-medium">
+        {option.optionSubType}
+      </span>
+    )}
+
+    <span className="ml-2">
+      <HighlightedValue value={option.optionValue} />
+    </span>
+  </div>
+
+  {option.optionDesc && (
+    <div className="ml-3 mt-0.5">
+      {option.optionDesc.split("\n").map((line, idx) => (
+        <EffectLine key={idx} text={line} />
+      ))}
+    </div>
+  )}
+</div>
+
       ))}
     </>
   );
