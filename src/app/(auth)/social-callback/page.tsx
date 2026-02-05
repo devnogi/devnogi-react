@@ -28,63 +28,67 @@ function SocialCallbackContent() {
   } | null>(null);
 
   useEffect(() => {
-    // URL에서 response 데이터 파싱 (백엔드가 리다이렉트할 때 추가한 쿼리 파라미터)
-    const responseData = searchParams.get("data");
-    const errorMsg = searchParams.get("error");
+    const processCallback = async () => {
+      // URL에서 response 데이터 파싱 (백엔드가 리다이렉트할 때 추가한 쿼리 파라미터)
+      const responseData = searchParams.get("data");
+      const errorMsg = searchParams.get("error");
 
-    if (errorMsg) {
-      setStatus("error");
-      setError(decodeURIComponent(errorMsg));
-      return;
-    }
-
-    if (!responseData) {
-      setStatus("error");
-      setError("소셜 로그인 응답 데이터가 없습니다");
-      return;
-    }
-
-    try {
-      const response: SocialAuthResponse = JSON.parse(
-        decodeURIComponent(responseData)
-      );
-      const result = handleSocialLoginCallback(response);
-
-      if (result.type === "login") {
-        // 기존 사용자 로그인 성공
-        refreshUser();
-        const returnUrl = getSocialLoginReturnUrl();
-        clearSocialLoginReturnUrl();
-
-        // 부모 창에 메시지 전송 (팝업인 경우)
-        if (window.opener) {
-          window.opener.postMessage(
-            { type: "social_login_success", data: response.data },
-            window.location.origin
-          );
-          window.close();
-        } else {
-          router.push(returnUrl);
-        }
-      } else if (result.type === "signup") {
-        // 신규 사용자 - 회원가입 폼 표시
-        setStatus("signup");
-        setSocialData({
-          provider: (result.data.data?.provider?.toLowerCase() ||
-            "google") as SocialProvider,
-          providerUserId: result.data.data?.providerUserId || "",
-          email: result.data.data?.email,
-        });
+      if (errorMsg) {
+        setStatus("error");
+        setError(decodeURIComponent(errorMsg));
+        return;
       }
-    } catch (error) {
-      console.error("소셜 로그인 콜백 처리 실패:", error);
-      setStatus("error");
-      setError(
-        error instanceof Error
-          ? error.message
-          : "소셜 로그인 처리 중 오류가 발생했습니다"
-      );
-    }
+
+      if (!responseData) {
+        setStatus("error");
+        setError("소셜 로그인 응답 데이터가 없습니다");
+        return;
+      }
+
+      try {
+        const response: SocialAuthResponse = JSON.parse(
+          decodeURIComponent(responseData)
+        );
+        const result = handleSocialLoginCallback(response);
+
+        if (result.type === "login") {
+          // 기존 사용자 로그인 성공 - refreshUser 완료 후 리다이렉트
+          await refreshUser();
+          const returnUrl = getSocialLoginReturnUrl();
+          clearSocialLoginReturnUrl();
+
+          // 부모 창에 메시지 전송 (팝업인 경우)
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: "social_login_success", data: response.data },
+              window.location.origin
+            );
+            window.close();
+          } else {
+            router.push(returnUrl);
+          }
+        } else if (result.type === "signup") {
+          // 신규 사용자 - 회원가입 폼 표시
+          setStatus("signup");
+          setSocialData({
+            provider: (result.data.data?.provider?.toLowerCase() ||
+              "google") as SocialProvider,
+            providerUserId: result.data.data?.providerUserId || "",
+            email: result.data.data?.email,
+          });
+        }
+      } catch (error) {
+        console.error("소셜 로그인 콜백 처리 실패:", error);
+        setStatus("error");
+        setError(
+          error instanceof Error
+            ? error.message
+            : "소셜 로그인 처리 중 오류가 발생했습니다"
+        );
+      }
+    };
+
+    processCallback();
   }, [searchParams, router, refreshUser]);
 
   const handleSignUpSuccess = async (userId: number) => {
