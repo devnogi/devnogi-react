@@ -268,6 +268,7 @@ export function createAuthServerAxios(request: NextRequest): AxiosInstance {
     headers: {
       "Content-Type": "application/json",
       Authorization: authorization,
+      Cookie: cookieHeader ?? "",
     },
   });
 
