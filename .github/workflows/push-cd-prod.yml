@@ -53,12 +53,13 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          no-cache: true  # Force fresh build to ensure latest code
           platforms: linux/amd64,linux/arm64  # Multi-architecture build
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
             NEXT_TELEMETRY_DISABLED=1
@@ -170,11 +171,14 @@ jobs:
               fi
             done
 
-            # 3. Check Next.js health endpoint directly (using wget like docker-compose healthcheck)
+            # 3. Check Next.js health endpoint directly
             echo "Checking health endpoint (port 3010)..."
             for i in {1..30}; do
-              if wget --no-verbose --tries=1 --spider http://localhost:3010/api/health 2>/dev/null; then
+              HEALTH_RESPONSE=$(curl -s http://localhost:3010/api/health || echo "")
+
+              if echo "$HEALTH_RESPONSE" | grep -q '"status":"ok"'; then
                 echo "✅ Application health check passed"
+                echo "Health response: $HEALTH_RESPONSE"
                 break
               fi
 
@@ -183,17 +187,19 @@ jobs:
 
               if [ $i -eq 30 ]; then
                 echo "❌ Application health check failed after 5 minutes"
+                echo "Last response: $HEALTH_RESPONSE"
                 docker logs nextjs-app-prod --tail 100
                 exit 1
               fi
             done
 
-            # 4. Smoke test: Check if Next.js responds (using wget like docker-compose healthcheck)
+            # 4. Smoke test: Check if Next.js responds
             echo "Running smoke test..."
-            if wget --no-verbose --tries=1 --spider http://localhost:3010/api/health 2>/dev/null; then
-              echo "✅ Smoke test passed"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3010/api/health)
+            if [ "$HTTP_CODE" == "200" ]; then
+              echo "✅ Smoke test passed (HTTP $HTTP_CODE)"
             else
-              echo "❌ Smoke test failed"
+              echo "❌ Smoke test failed (HTTP $HTTP_CODE)"
               exit 1
             fi
 
@@ -223,4 +229,3 @@ jobs:
           echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod-<previous-sha>"
           echo "  docker compose -f docker-compose-prod.yml --env-file .env.prod down"
           echo "  docker compose -f docker-compose-prod.yml --env-file .env.prod up -d"
-

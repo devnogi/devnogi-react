@@ -20,7 +20,9 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+# Next.js 빌드 캐시 마운트로 빌드 속도 향상
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 # ===================================
 # Stage 2: Runtime
