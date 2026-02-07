@@ -179,21 +179,23 @@ export default function MyPage() {
               <Mail className="w-4 h-4" />
               {authUser?.email || user.email}
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <Button
                 onClick={() => setIsEditModalOpen(true)}
-                className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6 h-10"
+                className="bg-gray-900 hover:bg-gray-800 dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 text-white rounded-xl h-10 px-3 sm:px-6"
+                title="프로필 수정"
               >
-                <Edit className="w-4 h-4 mr-2" />
-                프로필 수정
+                <Edit className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">프로필 수정</span>
               </Button>
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="rounded-xl px-6 h-10 border-gray-300 hover:bg-gray-50"
+                className="rounded-xl h-10 px-3 sm:px-6 border-gray-300 hover:bg-gray-50 dark:border-navy-400 dark:hover:bg-navy-600 dark:text-gray-300"
+                title="로그아웃"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                로그아웃
+                <LogOut className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">로그아웃</span>
               </Button>
             </div>
           </div>
