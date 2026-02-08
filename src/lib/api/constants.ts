@@ -16,6 +16,14 @@ export const BOARDS_ENDPOINT = "/dcs/api/boards";
 export const POSTS_ENDPOINT = "/dcs/api/posts";
 export const COMMENTS_ENDPOINT = "/dcs/api/comments";
 
+// Statistics API Endpoints (prefix: /oab)
+export const STATISTICS_DAILY_ITEMS_ENDPOINT = "/oab/statistics/daily/items";
+export const STATISTICS_WEEKLY_ITEMS_ENDPOINT = "/oab/statistics/weekly/items";
+export const STATISTICS_DAILY_SUBCATEGORIES_ENDPOINT = "/oab/statistics/daily/subcategories";
+export const STATISTICS_WEEKLY_SUBCATEGORIES_ENDPOINT = "/oab/statistics/weekly/subcategories";
+export const STATISTICS_DAILY_TOP_CATEGORIES_ENDPOINT = "/oab/statistics/daily/top-categories";
+export const STATISTICS_WEEKLY_TOP_CATEGORIES_ENDPOINT = "/oab/statistics/weekly/top-categories";
+
 // Auth API Endpoints (prefix: /das/api)
 export const AUTH_ENDPOINT = "/das/api/auth";
 export const USER_ENDPOINT = "/das/api/user";

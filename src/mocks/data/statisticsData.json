@@ -1,0 +1,80 @@
+{
+  "itemDaily": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-01", "minPrice": 40000000, "maxPrice": 200000000, "avgPrice": 145000000, "totalVolume": 870000000, "totalQuantity": 6 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-02", "minPrice": 45000000, "maxPrice": 190000000, "avgPrice": 140000000, "totalVolume": 700000000, "totalQuantity": 5 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-03", "minPrice": 50000000, "maxPrice": 210000000, "avgPrice": 155000000, "totalVolume": 930000000, "totalQuantity": 6 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-04", "minPrice": 42000000, "maxPrice": 195000000, "avgPrice": 138000000, "totalVolume": 552000000, "totalQuantity": 4 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-05", "minPrice": 48000000, "maxPrice": 205000000, "avgPrice": 150000000, "totalVolume": 1050000000, "totalQuantity": 7 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-06", "minPrice": 55000000, "maxPrice": 220000000, "avgPrice": 160000000, "totalVolume": 480000000, "totalQuantity": 3 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-07", "minPrice": 38000000, "maxPrice": 185000000, "avgPrice": 132000000, "totalVolume": 660000000, "totalQuantity": 5 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-08", "minPrice": 46000000, "maxPrice": 198000000, "avgPrice": 148000000, "totalVolume": 888000000, "totalQuantity": 6 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-09", "minPrice": 52000000, "maxPrice": 215000000, "avgPrice": 158000000, "totalVolume": 790000000, "totalQuantity": 5 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "date": "2025-07-10", "minPrice": 44000000, "maxPrice": 192000000, "avgPrice": 142000000, "totalVolume": 710000000, "totalQuantity": 5 }
+    ]
+  },
+  "itemWeekly": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "weekStart": "2025-06-16", "weekEnd": "2025-06-22", "minPrice": 35000000, "maxPrice": 195000000, "avgPrice": 135000000, "totalVolume": 4050000000, "totalQuantity": 30 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "weekStart": "2025-06-23", "weekEnd": "2025-06-29", "minPrice": 40000000, "maxPrice": 210000000, "avgPrice": 148000000, "totalVolume": 5180000000, "totalQuantity": 35 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "weekStart": "2025-06-30", "weekEnd": "2025-07-06", "minPrice": 38000000, "maxPrice": 220000000, "avgPrice": 155000000, "totalVolume": 4960000000, "totalQuantity": 32 },
+      { "itemName": "페러시우스 타이탄 블레이드", "itemTopCategory": "근거리 장비", "itemSubCategory": "검", "weekStart": "2025-07-07", "weekEnd": "2025-07-13", "minPrice": 42000000, "maxPrice": 215000000, "avgPrice": 150000000, "totalVolume": 5250000000, "totalQuantity": 35 }
+    ]
+  },
+  "subcategoryDaily": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-01", "minPrice": 1000000, "maxPrice": 500000000, "avgPrice": 85000000, "totalVolume": 8500000000, "totalQuantity": 100 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-02", "minPrice": 1200000, "maxPrice": 480000000, "avgPrice": 82000000, "totalVolume": 7380000000, "totalQuantity": 90 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-03", "minPrice": 900000, "maxPrice": 520000000, "avgPrice": 88000000, "totalVolume": 9680000000, "totalQuantity": 110 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-04", "minPrice": 1100000, "maxPrice": 490000000, "avgPrice": 84000000, "totalVolume": 7140000000, "totalQuantity": 85 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-05", "minPrice": 800000, "maxPrice": 510000000, "avgPrice": 90000000, "totalVolume": 10800000000, "totalQuantity": 120 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-06", "minPrice": 1500000, "maxPrice": 530000000, "avgPrice": 92000000, "totalVolume": 6440000000, "totalQuantity": 70 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "date": "2025-07-07", "minPrice": 950000, "maxPrice": 475000000, "avgPrice": 80000000, "totalVolume": 8000000000, "totalQuantity": 100 }
+    ]
+  },
+  "subcategoryWeekly": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      { "topCategory": "근거리 장비", "subCategory": "검", "weekStart": "2025-06-16", "weekEnd": "2025-06-22", "minPrice": 800000, "maxPrice": 500000000, "avgPrice": 83000000, "totalVolume": 58100000000, "totalQuantity": 700 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "weekStart": "2025-06-23", "weekEnd": "2025-06-29", "minPrice": 900000, "maxPrice": 520000000, "avgPrice": 87000000, "totalVolume": 65250000000, "totalQuantity": 750 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "weekStart": "2025-06-30", "weekEnd": "2025-07-06", "minPrice": 800000, "maxPrice": 530000000, "avgPrice": 86000000, "totalVolume": 60200000000, "totalQuantity": 700 },
+      { "topCategory": "근거리 장비", "subCategory": "검", "weekStart": "2025-07-07", "weekEnd": "2025-07-13", "minPrice": 950000, "maxPrice": 515000000, "avgPrice": 89000000, "totalVolume": 62300000000, "totalQuantity": 700 }
+    ]
+  },
+  "topCategoryDaily": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      { "topCategory": "근거리 장비", "date": "2025-07-01", "minPrice": 500000, "maxPrice": 800000000, "avgPrice": 65000000, "totalVolume": 32500000000, "totalQuantity": 500 },
+      { "topCategory": "근거리 장비", "date": "2025-07-02", "minPrice": 450000, "maxPrice": 750000000, "avgPrice": 62000000, "totalVolume": 27900000000, "totalQuantity": 450 },
+      { "topCategory": "근거리 장비", "date": "2025-07-03", "minPrice": 600000, "maxPrice": 820000000, "avgPrice": 68000000, "totalVolume": 37400000000, "totalQuantity": 550 },
+      { "topCategory": "근거리 장비", "date": "2025-07-04", "minPrice": 480000, "maxPrice": 780000000, "avgPrice": 64000000, "totalVolume": 25600000000, "totalQuantity": 400 },
+      { "topCategory": "근거리 장비", "date": "2025-07-05", "minPrice": 550000, "maxPrice": 850000000, "avgPrice": 70000000, "totalVolume": 42000000000, "totalQuantity": 600 },
+      { "topCategory": "근거리 장비", "date": "2025-07-06", "minPrice": 700000, "maxPrice": 900000000, "avgPrice": 72000000, "totalVolume": 21600000000, "totalQuantity": 300 },
+      { "topCategory": "근거리 장비", "date": "2025-07-07", "minPrice": 520000, "maxPrice": 790000000, "avgPrice": 66000000, "totalVolume": 33000000000, "totalQuantity": 500 }
+    ]
+  },
+  "topCategoryWeekly": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      { "topCategory": "근거리 장비", "weekStart": "2025-06-16", "weekEnd": "2025-06-22", "minPrice": 400000, "maxPrice": 850000000, "avgPrice": 63000000, "totalVolume": 220500000000, "totalQuantity": 3500 },
+      { "topCategory": "근거리 장비", "weekStart": "2025-06-23", "weekEnd": "2025-06-29", "minPrice": 450000, "maxPrice": 880000000, "avgPrice": 67000000, "totalVolume": 241200000000, "totalQuantity": 3600 },
+      { "topCategory": "근거리 장비", "weekStart": "2025-06-30", "weekEnd": "2025-07-06", "minPrice": 450000, "maxPrice": 900000000, "avgPrice": 67000000, "totalVolume": 234500000000, "totalQuantity": 3500 },
+      { "topCategory": "근거리 장비", "weekStart": "2025-07-07", "weekEnd": "2025-07-13", "minPrice": 500000, "maxPrice": 870000000, "avgPrice": 69000000, "totalVolume": 248400000000, "totalQuantity": 3600 }
+    ]
+  }
+}
