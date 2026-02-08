@@ -32,7 +32,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      // TODO: /api/auth/me 엔드포인트 호출하여 현재 사용자 정보 가져오기
       // JWT 토큰이 쿠키에 있으면 자동으로 전송됨
       const response = await fetch("/api/auth/me", {
         credentials: "include",
@@ -41,6 +40,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         setUser(data.data);
+      } else if (response.status === 401) {
+        // access_token 만료 시 refresh 시도
+        const refreshResponse = await fetch("/api/auth/refresh", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (refreshResponse.ok) {
+          // refresh 성공 → 새 토큰으로 다시 사용자 정보 조회
+          const retryResponse = await fetch("/api/auth/me", {
+            credentials: "include",
+          });
+
+          if (retryResponse.ok) {
+            const data = await retryResponse.json();
+            setUser(data.data);
+          } else {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       } else {
         setUser(null);
       }

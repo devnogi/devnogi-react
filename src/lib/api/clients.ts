@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { QueryClient } from "@tanstack/react-query";
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 /**
  * 클라이언트 사이드 API 요청 로깅 인터셉터 추가
@@ -122,6 +122,73 @@ export const clientAxios: AxiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// 401 자동 갱신 인터셉터
+let isRefreshing = false;
+let refreshSubscribers: Array<(error?: Error) => void> = [];
+
+function onRefreshSuccess() {
+  refreshSubscribers.forEach((cb) => cb());
+  refreshSubscribers = [];
+}
+
+function onRefreshFailure(error: Error) {
+  refreshSubscribers.forEach((cb) => cb(error));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(callback: (error?: Error) => void) {
+  refreshSubscribers.push(callback);
+}
+
+clientAxios.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // 401이 아니거나, 이미 재시도한 요청이면 그대로 reject
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    // refresh 요청 자체가 401이면 무한 루프 방지
+    if (originalRequest.url === "/auth/refresh") {
+      return Promise.reject(error);
+    }
+
+    // 이미 refresh 진행 중이면 대기 큐에 추가
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        addRefreshSubscriber((err?: Error) => {
+          if (err) {
+            reject(err);
+          } else {
+            originalRequest._retry = true;
+            resolve(clientAxios(originalRequest));
+          }
+        });
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      await axios.post("/api/auth/refresh", {}, { withCredentials: true });
+      onRefreshSuccess();
+      return clientAxios(originalRequest);
+    } catch (refreshError) {
+      onRefreshFailure(refreshError instanceof Error ? refreshError : new Error("Token refresh failed"));
+      // refresh 실패 시 로그인 페이지로 리다이렉트
+      if (typeof window !== "undefined") {
+        window.location.href = "/sign-in";
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);
 
 // 클라이언트 사이드에서만 로깅 인터셉터 추가
 if (typeof window !== "undefined") {
