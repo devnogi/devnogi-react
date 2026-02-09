@@ -151,6 +151,10 @@ export async function DELETE(
     logger.info(`DELETE /posts/${id} - 성공 (${status}) [${duration}ms]`);
     logger.debug(`Response data:`, data);
 
+    if (status === 204) {
+      return new Response(null, { status: 204 });
+    }
+
     return NextResponse.json(data, { status });
   } catch (error: unknown) {
     const duration = Date.now() - startTime;

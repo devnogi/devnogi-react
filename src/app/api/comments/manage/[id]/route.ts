@@ -83,6 +83,10 @@ export async function DELETE(
     const duration = Date.now() - startTime;
     logger.info(`DELETE /comments/manage/${id} - 성공 (${status}) [${duration}ms]`);
 
+    if (status === 204) {
+      return new Response(null, { status: 204 });
+    }
+
     return NextResponse.json({ success: true }, { status });
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
