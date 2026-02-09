@@ -30,7 +30,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         toastOptions={{
           classNames: {
             closeButton:
-              "!left-auto !right-0 !top-0 !-translate-y-1/3 !translate-x-1/3",
+              "!left-auto !right-0 !top-0 !-translate-y-[-10%] !translate-x-[55%]",
           },
         }}
       />
