@@ -39,7 +39,7 @@ export default function CommentForm({
     try {
       await clientAxios.post(`/comments/${postId}`, {
         content: content.trim(),
-        parentCommentId: parentCommentId ?? null,
+        parentComment: parentCommentId ?? null,
       });
 
       setContent("");
