@@ -11,9 +11,10 @@ interface PostListProps {
   boardId?: number;
   keyword?: string;
   sortType?: "latest" | "popular" | "mostLiked";
+  userId?: number;
 }
 
-export default function PostList({ boardId, keyword, sortType }: PostListProps) {
+export default function PostList({ boardId, keyword, sortType, userId }: PostListProps) {
   const {
     data,
     fetchNextPage,
@@ -22,7 +23,7 @@ export default function PostList({ boardId, keyword, sortType }: PostListProps) 
     isLoading,
     isError,
     refetch,
-  } = useInfinitePosts({ boardId, keyword, sortType });
+  } = useInfinitePosts({ boardId, keyword, sortType, userId });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -70,10 +71,14 @@ export default function PostList({ boardId, keyword, sortType }: PostListProps) 
     return (
       <div className="bg-white dark:bg-navy-700 rounded-[20px] border border-gray-200 dark:border-navy-600 shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] py-12">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-lg">게시글이 없습니다.</p>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
-            첫 번째 게시글을 작성해보세요.
+          <p className="text-gray-500 dark:text-gray-400 text-lg">
+            {userId ? "작성한 게시글이 없습니다." : "게시글이 없습니다."}
           </p>
+          {!userId && (
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+              첫 번째 게시글을 작성해보세요.
+            </p>
+          )}
         </div>
       </div>
     );

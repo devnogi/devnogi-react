@@ -10,6 +10,7 @@ interface UseInfinitePostsParams {
   size?: number;
   keyword?: string;
   sortType?: SortType;
+  userId?: number;
 }
 
 interface Author {
@@ -56,14 +57,19 @@ export function useInfinitePosts({
   size = 20,
   keyword,
   sortType = "latest",
+  userId,
 }: UseInfinitePostsParams = {}) {
   return useInfiniteQuery<PostsData>({
-    queryKey: ["posts", boardId, keyword, sortType],
+    queryKey: ["posts", boardId, keyword, sortType, userId],
     queryFn: async ({ pageParam = 1 }) => {
       let endpoint: string;
 
+      // userId가 있으면 사용자별 게시글 엔드포인트 사용
+      if (userId) {
+        endpoint = `/posts/user/${userId}`;
+      }
       // 검색어가 있는 경우
-      if (keyword && keyword.trim()) {
+      else if (keyword && keyword.trim()) {
         endpoint = boardId
           ? `/posts/${boardId}/search`
           : "/posts/search";
@@ -83,7 +89,7 @@ export function useInfinitePosts({
         params: {
           page: pageParam as number,
           size,
-          ...(keyword && keyword.trim() ? { keyword: keyword.trim() } : {}),
+          ...(!userId && keyword && keyword.trim() ? { keyword: keyword.trim() } : {}),
         },
       });
 

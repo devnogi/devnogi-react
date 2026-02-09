@@ -14,6 +14,7 @@ import {
   Loader2,
   AlertTriangle,
   Bell,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -24,6 +25,7 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import NotificationList from "@/components/page/mypage/NotificationList";
+import PostList from "@/components/page/community/PostList";
 import { useUnreadNoticeCount } from "@/hooks/useNotices";
 
 // TODO: 실제 API 연동 시 교체
@@ -173,6 +175,7 @@ function MyPageContent() {
 
   const tabs = [
     { key: "profile", label: "내 정보", icon: User },
+    { key: "posts", label: "내 게시글", icon: FileText },
     { key: "notifications", label: "알림", icon: Bell, badge: unreadCount },
   ];
 
@@ -216,7 +219,9 @@ function MyPageContent() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "notifications" ? (
+      {activeTab === "posts" ? (
+        <PostList userId={userId} />
+      ) : activeTab === "notifications" ? (
         <NotificationList userId={userId} />
       ) : (
         <>
