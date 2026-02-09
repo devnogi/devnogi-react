@@ -18,6 +18,13 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { clientAxios } from "@/lib/api/clients";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -39,7 +46,6 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     refetch,
   } = usePostDetail(Number(postId));
 
-  const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
@@ -52,8 +58,42 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      <div className="w-full py-4 md:py-6">
+        <div className="mb-6">
+          <Skeleton className="h-8 w-24" />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200">
+          {/* Author skeleton */}
+          <div className="p-4 md:p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-3 w-40" />
+              </div>
+            </div>
+          </div>
+          {/* Body skeleton */}
+          <div className="p-4 md:p-6 space-y-3">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+          {/* Stats skeleton */}
+          <div className="px-4 py-3 md:px-6 md:py-4 border-t border-gray-100">
+            <div className="flex gap-6">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-12" />
+            </div>
+          </div>
+          {/* Actions skeleton */}
+          <div className="px-4 py-3 md:px-6 border-t border-gray-100 flex gap-2">
+            <Skeleton className="h-10 flex-1 rounded-lg" />
+            <Skeleton className="h-10 flex-1 rounded-lg" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -116,7 +156,6 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     setEditTitle(post.title);
     setEditContent(post.content);
     setIsEditing(true);
-    setShowMenu(false);
   };
 
   const handleEditCancel = () => {
@@ -166,7 +205,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   };
 
   return (
-    <div className="w-full px-4 py-6">
+    <div className="w-full py-4 md:py-6">
       {/* Header */}
       <div className="mb-6">
         <Link href="/community">
@@ -180,7 +219,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
       {/* Post Content - Threads Style */}
       <article className="bg-white rounded-xl border border-gray-200">
         {/* Author Section */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-4 md:p-6 border-b border-gray-100">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               {/* Profile Image */}
@@ -207,43 +246,37 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
 
             {/* Edit/Delete Menu */}
             {(canEdit || canDelete) && !isEditing && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <MoreVertical className="w-5 h-5 text-gray-500" />
-                </button>
-                {showMenu && (
-                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[120px]">
-                    {canEdit && (
-                      <button
-                        onClick={handleEditStart}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        수정
-                      </button>
-                    )}
-                    {canDelete && (
-                      <button
-                        onClick={handleDelete}
-                        disabled={isSubmitting}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        삭제
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <MoreVertical className="w-5 h-5 text-gray-500" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[120px]">
+                  {canEdit && (
+                    <DropdownMenuItem onClick={handleEditStart}>
+                      <Pencil className="w-4 h-4 mr-2" />
+                      수정
+                    </DropdownMenuItem>
+                  )}
+                  {canDelete && (
+                    <DropdownMenuItem
+                      onClick={handleDelete}
+                      disabled={isSubmitting}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      삭제
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
 
         {/* Post Body */}
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {isEditing ? (
             <div className="space-y-4">
               <input
@@ -295,7 +328,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         </div>
 
         {/* Stats Bar */}
-        <div className="px-6 py-4 border-t border-gray-100">
+        <div className="px-4 py-3 md:px-6 md:py-4 border-t border-gray-100">
           <div className="flex items-center gap-6 text-sm text-gray-600">
             <div className="flex items-center gap-1.5">
               <Eye className="w-4 h-4" />
@@ -315,7 +348,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="px-6 py-3 border-t border-gray-100 flex items-center gap-2">
+        <div className="px-4 py-3 md:px-6 border-t border-gray-100 flex items-center gap-2">
           <button
             onClick={handleLike}
             className={`flex-1 py-2.5 rounded-lg font-medium transition-colors ${

@@ -173,7 +173,7 @@ export default function CommentItem({
   // 삭제되거나 차단된 댓글 표시
   if (comment.isDeleted || comment.isBlocked) {
     return (
-      <div className={`${isReply ? "ml-6 pl-3 border-l-2 border-gray-100" : ""}`}>
+      <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-gray-100" : ""}`}>
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200" />
@@ -190,7 +190,7 @@ export default function CommentItem({
   }
 
   return (
-    <div className={`${isReply ? "ml-6 pl-3 border-l-2 border-gray-100" : ""}`}>
+    <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-gray-100" : ""}`}>
       <div className="bg-gray-50 rounded-lg p-3">
         {/* Header: Avatar + Nickname + Date + Actions (같은 행) */}
         <div className="flex items-center justify-between mb-2">
@@ -213,20 +213,20 @@ export default function CommentItem({
                 <button
                   onClick={handleEditStart}
                   disabled={isSubmitting}
-                  className="p-1 text-gray-400 hover:text-blue-500 transition-colors rounded"
+                  className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded"
                   title="수정"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <Pencil className="w-4 h-4" />
                 </button>
               )}
               {canDelete && (
                 <button
                   onClick={handleDelete}
                   disabled={isSubmitting}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors rounded"
+                  className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded"
                   title="삭제"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -310,7 +310,7 @@ export default function CommentItem({
 
       {/* Reply Form */}
       {showReplyForm && !isReply && (
-        <div className="mt-2 ml-6">
+        <div className="mt-2 ml-3 md:ml-6">
           <CommentForm
             postId={postId}
             parentCommentId={comment.id}
