@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -13,6 +13,7 @@ import {
   Key,
   Loader2,
   AlertTriangle,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -20,7 +21,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoginModal from "@/components/auth/LoginModal";
 import { clientAxios } from "@/lib/api/clients";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import clsx from "clsx";
+import NotificationList from "@/components/page/mypage/NotificationList";
+import { useUnreadNoticeCount } from "@/hooks/useNotices";
 
 // TODO: 실제 API 연동 시 교체
 interface ExtendedUser {
@@ -49,11 +53,33 @@ const mockUserData: ExtendedUser = {
 };
 
 export default function MyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">로딩 중...</p>
+          </div>
+        </div>
+      }
+    >
+      <MyPageContent />
+    </Suspense>
+  );
+}
+
+function MyPageContent() {
   const { user: authUser, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") || "profile";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+
+  const userId = authUser?.userId;
+  const unreadCount = useUnreadNoticeCount(userId);
 
   // authUser가 있으면 authUser 사용, 없으면 mockData 사용 (개발 편의상)
   const user: ExtendedUser = authUser || mockUserData;
@@ -72,6 +98,10 @@ export default function MyPage() {
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleTabChange = (tab: string) => {
+    router.push(`/mypage?tab=${tab}`);
   };
 
   // 로딩 중
@@ -141,161 +171,209 @@ export default function MyPage() {
     );
   };
 
+  const tabs = [
+    { key: "profile", label: "내 정보", icon: User },
+    { key: "notifications", label: "알림", icon: Bell, badge: unreadCount },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Profile Header Card */}
-      <div className="bg-white rounded-3xl border border-gray-200 p-8">
-        <div className="flex items-start gap-6">
-          {/* Profile Image */}
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
-              {authUser?.profileImageUrl || user.profileImageUrl ? (
-                <Image
-                  src={authUser?.profileImageUrl || user.profileImageUrl!}
-                  alt="Profile"
-                  width={96}
-                  height={96}
-                  className="object-cover"
+      {/* Tab Navigation */}
+      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-1.5">
+        <div className="flex gap-1">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => handleTabChange(tab.key)}
+                className={clsx(
+                  "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-200",
+                  isActive
+                    ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 shadow-sm"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-700"
+                )}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+                {tab.badge !== undefined && tab.badge > 0 && (
+                  <span
+                    className={clsx(
+                      "min-w-[20px] h-5 px-1.5 flex items-center justify-center text-xs font-semibold rounded-full",
+                      isActive
+                        ? "bg-red-500 text-white"
+                        : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                    )}
+                  >
+                    {tab.badge > 99 ? "99+" : tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "notifications" ? (
+        <NotificationList userId={userId} />
+      ) : (
+        <>
+          {/* Profile Header Card */}
+          <div className="bg-white rounded-3xl border border-gray-200 p-8">
+            <div className="flex items-start gap-6">
+              {/* Profile Image */}
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                  {authUser?.profileImageUrl || user.profileImageUrl ? (
+                    <Image
+                      src={authUser?.profileImageUrl || user.profileImageUrl!}
+                      alt="Profile"
+                      width={96}
+                      height={96}
+                      className="object-cover"
+                    />
+                  ) : (
+                    (authUser?.nickname || user.nickname)[0]
+                  )}
+                </div>
+                <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
+                  <Camera className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
+
+              {/* User Info */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {authUser?.nickname || user.nickname}
+                  </h1>
+                  {getStatusBadge(user.status || "ACTIVE")}
+                </div>
+                <p className="text-gray-600 flex items-center gap-2 mb-4">
+                  <Mail className="w-4 h-4" />
+                  {authUser?.email || user.email}
+                </p>
+                <div className="flex gap-2 sm:gap-3">
+                  <Button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="bg-gray-900 hover:bg-gray-800 dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 text-white rounded-xl h-10 px-3 sm:px-6"
+                    title="프로필 수정"
+                  >
+                    <Edit className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">프로필 수정</span>
+                  </Button>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="rounded-xl h-10 px-3 sm:px-6 border-gray-300 hover:bg-gray-50 dark:border-navy-400 dark:hover:bg-navy-600 dark:text-gray-300"
+                    title="로그아웃"
+                  >
+                    <LogOut className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">로그아웃</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Information */}
+          <div className="bg-white rounded-3xl border border-gray-200 p-8">
+            <h2 className="text-lg font-bold text-gray-900 mb-6">계정 정보</h2>
+            <div className="space-y-4">
+              <InfoRow
+                icon={<User className="w-5 h-5 text-gray-400" />}
+                label="회원 ID"
+                value={`#${authUser?.userId || user.id}`}
+              />
+              <InfoRow
+                icon={<Shield className="w-5 h-5 text-gray-400" />}
+                label="권한"
+                value={(user.role || "USER") === "USER" ? "일반 회원" : "관리자"}
+              />
+              {user.createdAt && (
+                <InfoRow
+                  icon={<Calendar className="w-5 h-5 text-gray-400" />}
+                  label="가입일"
+                  value={formatDate(user.createdAt)}
                 />
-              ) : (
-                (authUser?.nickname || user.nickname)[0]
+              )}
+              {user.lastLoginAt && (
+                <InfoRow
+                  icon={<Clock className="w-5 h-5 text-gray-400" />}
+                  label="마지막 로그인"
+                  value={formatDate(user.lastLoginAt)}
+                />
+              )}
+              {user.updatedAt && (
+                <InfoRow
+                  icon={<Calendar className="w-5 h-5 text-gray-400" />}
+                  label="정보 수정일"
+                  value={formatDate(user.updatedAt)}
+                />
               )}
             </div>
-            <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
-              <Camera className="w-4 h-4 text-gray-600" />
-            </button>
           </div>
 
-          {/* User Info */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">
-                {authUser?.nickname || user.nickname}
-              </h1>
-              {getStatusBadge(user.status || "ACTIVE")}
+          {/* Security Settings */}
+          <div className="bg-white rounded-3xl border border-gray-200 p-8">
+            <h2 className="text-lg font-bold text-gray-900 mb-6">보안 설정</h2>
+            <div className="space-y-3">
+              <ActionButton
+                icon={<Key className="w-5 h-5" />}
+                label="비밀번호 변경"
+                description="정기적인 비밀번호 변경으로 계정을 안전하게 보호하세요"
+                onClick={() => {}}
+              />
+              <ActionButton
+                icon={<Shield className="w-5 h-5" />}
+                label="2단계 인증"
+                description="추가 보안 계층으로 계정을 보호하세요"
+                onClick={() => {}}
+                badge="준비중"
+              />
             </div>
-            <p className="text-gray-600 flex items-center gap-2 mb-4">
-              <Mail className="w-4 h-4" />
-              {authUser?.email || user.email}
+          </div>
+
+          {/* Danger Zone */}
+          <div className="bg-red-50 rounded-3xl border border-red-200 p-8">
+            <h2 className="text-lg font-bold text-red-900 mb-2">위험 구역</h2>
+            <p className="text-sm text-red-700 mb-6">
+              이 작업은 되돌릴 수 없습니다. 신중하게 진행해주세요.
             </p>
-            <div className="flex gap-2 sm:gap-3">
-              <Button
-                onClick={() => setIsEditModalOpen(true)}
-                className="bg-gray-900 hover:bg-gray-800 dark:bg-gray-200 dark:hover:bg-gray-300 dark:text-gray-900 text-white rounded-xl h-10 px-3 sm:px-6"
-                title="프로필 수정"
-              >
-                <Edit className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">프로필 수정</span>
-              </Button>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="rounded-xl h-10 px-3 sm:px-6 border-gray-300 hover:bg-gray-50 dark:border-navy-400 dark:hover:bg-navy-600 dark:text-gray-300"
-                title="로그아웃"
-              >
-                <LogOut className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">로그아웃</span>
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-100 rounded-xl"
+              onClick={() => setIsWithdrawModalOpen(true)}
+            >
+              계정 삭제
+            </Button>
           </div>
-        </div>
-      </div>
 
-      {/* Account Information */}
-      <div className="bg-white rounded-3xl border border-gray-200 p-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-6">계정 정보</h2>
-        <div className="space-y-4">
-          <InfoRow
-            icon={<User className="w-5 h-5 text-gray-400" />}
-            label="회원 ID"
-            value={`#${authUser?.userId || user.id}`}
-          />
-          <InfoRow
-            icon={<Shield className="w-5 h-5 text-gray-400" />}
-            label="권한"
-            value={(user.role || "USER") === "USER" ? "일반 회원" : "관리자"}
-          />
-          {user.createdAt && (
-            <InfoRow
-              icon={<Calendar className="w-5 h-5 text-gray-400" />}
-              label="가입일"
-              value={formatDate(user.createdAt)}
+          {/* Edit Profile Modal */}
+          {isEditModalOpen && (
+            <EditProfileModal
+              user={user}
+              onClose={() => setIsEditModalOpen(false)}
+              onSuccess={async () => {
+                await refreshUser();
+                setIsEditModalOpen(false);
+              }}
             />
           )}
-          {user.lastLoginAt && (
-            <InfoRow
-              icon={<Clock className="w-5 h-5 text-gray-400" />}
-              label="마지막 로그인"
-              value={formatDate(user.lastLoginAt)}
+
+          {/* Withdraw Modal */}
+          {isWithdrawModalOpen && (
+            <WithdrawModal
+              onClose={() => setIsWithdrawModalOpen(false)}
+              onSuccess={async () => {
+                await logout();
+                router.push("/");
+              }}
             />
           )}
-          {user.updatedAt && (
-            <InfoRow
-              icon={<Calendar className="w-5 h-5 text-gray-400" />}
-              label="정보 수정일"
-              value={formatDate(user.updatedAt)}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Security Settings */}
-      <div className="bg-white rounded-3xl border border-gray-200 p-8">
-        <h2 className="text-lg font-bold text-gray-900 mb-6">보안 설정</h2>
-        <div className="space-y-3">
-          <ActionButton
-            icon={<Key className="w-5 h-5" />}
-            label="비밀번호 변경"
-            description="정기적인 비밀번호 변경으로 계정을 안전하게 보호하세요"
-            onClick={() => {}}
-          />
-          <ActionButton
-            icon={<Shield className="w-5 h-5" />}
-            label="2단계 인증"
-            description="추가 보안 계층으로 계정을 보호하세요"
-            onClick={() => {}}
-            badge="준비중"
-          />
-        </div>
-      </div>
-
-      {/* Danger Zone */}
-      <div className="bg-red-50 rounded-3xl border border-red-200 p-8">
-        <h2 className="text-lg font-bold text-red-900 mb-2">위험 구역</h2>
-        <p className="text-sm text-red-700 mb-6">
-          이 작업은 되돌릴 수 없습니다. 신중하게 진행해주세요.
-        </p>
-        <Button
-          variant="outline"
-          className="border-red-300 text-red-700 hover:bg-red-100 rounded-xl"
-          onClick={() => setIsWithdrawModalOpen(true)}
-        >
-          계정 삭제
-        </Button>
-      </div>
-
-      {/* Edit Profile Modal */}
-      {isEditModalOpen && (
-        <EditProfileModal
-          user={user}
-          onClose={() => setIsEditModalOpen(false)}
-          onSuccess={async () => {
-            await refreshUser();
-            setIsEditModalOpen(false);
-          }}
-        />
-      )}
-
-      {/* Withdraw Modal */}
-      {isWithdrawModalOpen && (
-        <WithdrawModal
-          onClose={() => setIsWithdrawModalOpen(false)}
-          onSuccess={async () => {
-            await logout();
-            router.push("/");
-          }}
-        />
+        </>
       )}
     </div>
   );

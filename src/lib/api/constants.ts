@@ -15,6 +15,8 @@ export const RANKINGS_CATEGORY_ENDPOINT = "/oab/rankings/category";
 export const BOARDS_ENDPOINT = "/dcs/api/boards";
 export const POSTS_ENDPOINT = "/dcs/api/posts";
 export const COMMENTS_ENDPOINT = "/dcs/api/comments";
+export const NOTICES_ENDPOINT = "/dcs/api/notices";
+export const REPORTS_ENDPOINT = "/dcs/api/reports";
 
 // Statistics API Endpoints (prefix: /oab)
 export const STATISTICS_DAILY_ITEMS_ENDPOINT = "/oab/statistics/daily/items";

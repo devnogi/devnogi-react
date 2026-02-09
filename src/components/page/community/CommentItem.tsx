@@ -1,15 +1,26 @@
 "use client";
 
 import { CommentPageResponseItem } from "@/types/community";
-import { Heart, MessageCircle, Pencil, Trash2, X, Check, Loader2 } from "lucide-react";
+import { Heart, MessageCircle, Pencil, Trash2, X, Check, Loader2, Flag } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import CommentForm from "./CommentForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { clientAxios } from "@/lib/api/clients";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import ReportDialog from "./ReportDialog";
 
 interface CommentItemProps {
   comment: CommentPageResponseItem;
@@ -32,11 +43,15 @@ export default function CommentItem({
   const [editContent, setEditContent] = useState(comment.content);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCancelEditDialog, setShowCancelEditDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   const isOwner = isAuthenticated && user?.userId === comment.userId;
   const isAdmin = isAuthenticated && user?.role === "ADMIN";
   const canEdit = isOwner;
   const canDelete = isOwner || isAdmin;
+  const canReport = isAuthenticated && !isOwner;
 
   // 수정 내용 변경 감지
   useEffect(() => {
@@ -104,12 +119,18 @@ export default function CommentItem({
 
   const handleEditCancel = useCallback(() => {
     if (hasUnsavedChanges) {
-      const confirmCancel = window.confirm("수정 중인 내용이 사라집니다. 취소하시겠습니까?");
-      if (!confirmCancel) return;
+      setShowCancelEditDialog(true);
+      return;
     }
     setIsEditing(false);
     setEditContent(comment.content);
   }, [hasUnsavedChanges, comment.content]);
+
+  const handleEditCancelConfirm = useCallback(() => {
+    setIsEditing(false);
+    setEditContent(comment.content);
+    setShowCancelEditDialog(false);
+  }, [comment.content]);
 
   const handleEditSubmit = useCallback(async () => {
     if (!editContent.trim()) {
@@ -140,10 +161,7 @@ export default function CommentItem({
     }
   }, [editContent, comment.id, comment.content, onRefetch]);
 
-  const handleDelete = useCallback(async () => {
-    const confirmDelete = window.confirm("댓글을 삭제하시겠습니까?");
-    if (!confirmDelete) return;
-
+  const handleDeleteConfirm = useCallback(async () => {
     setIsSubmitting(true);
 
     try {
@@ -156,6 +174,7 @@ export default function CommentItem({
       toast.error("댓글 삭제에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
+      setShowDeleteDialog(false);
     }
   }, [comment.id, onRefetch]);
 
@@ -173,13 +192,13 @@ export default function CommentItem({
   // 삭제되거나 차단된 댓글 표시
   if (comment.isDeleted || comment.isBlocked) {
     return (
-      <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-gray-100" : ""}`}>
-        <div className="bg-gray-50 rounded-lg p-3">
+      <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-border" : ""}`}>
+        <div className="bg-muted rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200" />
-            <span className="text-gray-400 text-sm">알 수 없음</span>
+            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-muted-foreground/20" />
+            <span className="text-muted-foreground text-sm">알 수 없음</span>
           </div>
-          <p className="text-gray-400 text-sm italic">
+          <p className="text-muted-foreground text-sm italic">
             {comment.isDeleted
               ? "삭제된 댓글입니다."
               : "차단된 댓글입니다."}
@@ -190,8 +209,8 @@ export default function CommentItem({
   }
 
   return (
-    <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-gray-100" : ""}`}>
-      <div className="bg-gray-50 rounded-lg p-3">
+    <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-border" : ""}`}>
+      <div className="bg-muted rounded-lg p-3">
         {/* Header: Avatar + Nickname + Date + Actions (같은 행) */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -202,7 +221,7 @@ export default function CommentItem({
               </div>
             </div>
             {/* Nickname */}
-            <span className="font-semibold text-gray-900 text-sm">
+            <span className="font-semibold text-foreground text-sm">
               {comment.nickname || `사용자 ${comment.userId}`}
             </span>
           </div>
@@ -213,7 +232,7 @@ export default function CommentItem({
                 <button
                   onClick={handleEditStart}
                   disabled={isSubmitting}
-                  className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded"
+                  className="p-2 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded"
                   title="수정"
                 >
                   <Pencil className="w-4 h-4" />
@@ -221,9 +240,9 @@ export default function CommentItem({
               )}
               {canDelete && (
                 <button
-                  onClick={handleDelete}
+                  onClick={() => setShowDeleteDialog(true)}
                   disabled={isSubmitting}
-                  className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded"
+                  className="p-2 text-muted-foreground hover:text-red-500 dark:hover:text-red-400 transition-colors rounded"
                   title="삭제"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -239,7 +258,7 @@ export default function CommentItem({
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
+              className="w-full px-3 py-2 bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none text-sm"
               rows={3}
               disabled={isSubmitting}
               autoFocus
@@ -273,22 +292,22 @@ export default function CommentItem({
             </div>
           </div>
         ) : (
-          <p className="text-gray-700 text-sm whitespace-pre-wrap">
+          <p className="text-foreground/80 text-sm whitespace-pre-wrap">
             {comment.content}
           </p>
         )}
 
         {/* Meta: Date + Actions */}
         {!isEditing && (
-          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border">
             {comment.createdAt && (
-              <span className="text-gray-400 text-xs">
+              <span className="text-muted-foreground text-xs">
                 {formatDate(comment.createdAt)}
               </span>
             )}
             <button
               onClick={handleLike}
-              className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors text-xs"
+              className="flex items-center gap-1 text-muted-foreground hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs"
             >
               <Heart
                 className={`w-3.5 h-3.5 ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
@@ -298,10 +317,19 @@ export default function CommentItem({
             {!isReply && (
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors text-xs"
+                className="flex items-center gap-1 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-xs"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>답글</span>
+              </button>
+            )}
+            {canReport && (
+              <button
+                onClick={() => setShowReportDialog(true)}
+                className="flex items-center gap-1 text-muted-foreground hover:text-orange-500 dark:hover:text-orange-400 transition-colors text-xs"
+              >
+                <Flag className="w-3.5 h-3.5" />
+                <span>신고</span>
               </button>
             )}
           </div>
@@ -334,6 +362,62 @@ export default function CommentItem({
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>댓글 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              댓글을 삭제하시겠습니까? 삭제된 댓글은 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting}>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+              variant="destructive"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  삭제 중...
+                </>
+              ) : (
+                "삭제"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Edit Confirmation Dialog */}
+      <AlertDialog open={showCancelEditDialog} onOpenChange={setShowCancelEditDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>수정 취소</AlertDialogTitle>
+            <AlertDialogDescription>
+              수정 중인 내용이 사라집니다. 취소하시겠습니까?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>계속 수정</AlertDialogCancel>
+            <AlertDialogAction onClick={handleEditCancelConfirm}>
+              취소
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Report Dialog */}
+      <ReportDialog
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        targetType="COMMENT"
+        targetId={comment.id}
+        targetUserId={comment.userId}
+      />
     </div>
   );
 }

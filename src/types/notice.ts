@@ -18,6 +18,7 @@ export interface Notice {
   url: string;
   createdAt: string; // "yyyy-MM-dd HH:mm:ss" 형식
   isRead: boolean;
+  noticeType?: NoticeType;
 }
 
 export interface NoticeListParams {

@@ -1,0 +1,126 @@
+{
+  "list": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": [
+      {
+        "id": 1,
+        "userId": 1,
+        "title": "내 게시글에 댓글이 달렸습니다",
+        "contents": "\"마비노기 초보 질문입니다\" 에 새 댓글이 달렸습니다.",
+        "url": "/api/posts/details/10",
+        "createdAt": "2026-02-09 10:30:00",
+        "isRead": false,
+        "noticeType": "POST_COMMENT"
+      },
+      {
+        "id": 2,
+        "userId": 1,
+        "title": "내 게시글에 좋아요가 눌렸습니다",
+        "contents": "\"경매장 꿀팁 공유\" 게시글에 좋아요가 눌렸습니다.",
+        "url": "/api/posts/details/8",
+        "createdAt": "2026-02-09 08:15:00",
+        "isRead": false,
+        "noticeType": "POST_LIKE"
+      },
+      {
+        "id": 3,
+        "userId": 1,
+        "title": "내 댓글에 답글이 달렸습니다",
+        "contents": "\"던전 공략 가이드\" 게시글에서 내 댓글에 답글이 달렸습니다.",
+        "url": "/api/posts/details/5",
+        "createdAt": "2026-02-08 22:00:00",
+        "isRead": false,
+        "noticeType": "COMMENT_REPLY"
+      },
+      {
+        "id": 4,
+        "userId": 1,
+        "title": "내 댓글에 좋아요가 눌렸습니다",
+        "contents": "\"장비 추천 부탁드립니다\" 게시글에서 내 댓글에 좋아요가 눌렸습니다.",
+        "url": "/api/posts/details/7",
+        "createdAt": "2026-02-08 18:45:00",
+        "isRead": true,
+        "noticeType": "COMMENT_LIKE"
+      },
+      {
+        "id": 5,
+        "userId": 1,
+        "title": "공지사항이 등록되었습니다",
+        "contents": "2월 업데이트 패치 노트가 등록되었습니다. 확인해보세요!",
+        "url": "/community/1",
+        "createdAt": "2026-02-08 12:00:00",
+        "isRead": true,
+        "noticeType": "ANNOUNCEMENT"
+      },
+      {
+        "id": 6,
+        "userId": 1,
+        "title": "시스템 알림",
+        "contents": "서버 점검이 2026-02-10 06:00~08:00에 예정되어 있습니다.",
+        "url": "/community/1",
+        "createdAt": "2026-02-07 15:30:00",
+        "isRead": true,
+        "noticeType": "SYSTEM"
+      },
+      {
+        "id": 7,
+        "userId": 1,
+        "title": "이벤트 알림",
+        "contents": "발렌타인 데이 특별 이벤트가 시작되었습니다! 참여하고 보상을 받아가세요.",
+        "url": "/community/1",
+        "createdAt": "2026-02-07 10:00:00",
+        "isRead": true,
+        "noticeType": "EVENT"
+      },
+      {
+        "id": 8,
+        "userId": 1,
+        "title": "신고 처리 결과",
+        "contents": "회원님이 신고한 게시글에 대한 처리가 완료되었습니다.",
+        "url": "/community/1",
+        "createdAt": "2026-02-06 14:20:00",
+        "isRead": true,
+        "noticeType": "REPORT_RESULT"
+      },
+      {
+        "id": 9,
+        "userId": 1,
+        "title": "내 게시글에 댓글이 달렸습니다",
+        "contents": "\"인챈트 성공 후기\" 게시글에 새 댓글이 달렸습니다.",
+        "url": "/api/posts/details/3",
+        "createdAt": "2026-02-05 09:10:00",
+        "isRead": true,
+        "noticeType": "POST_COMMENT"
+      },
+      {
+        "id": 10,
+        "userId": 1,
+        "title": "내 게시글에 좋아요가 눌렸습니다",
+        "contents": "\"신규 유저 가이드\" 게시글에 좋아요가 눌렸습니다.",
+        "url": "/api/posts/details/2",
+        "createdAt": "2026-02-04 16:45:00",
+        "isRead": true,
+        "noticeType": "POST_LIKE"
+      }
+    ],
+    "timestamp": "2026-02-09T12:00:00"
+  },
+  "detail": {
+    "success": true,
+    "code": "200",
+    "message": "OK",
+    "data": {
+      "id": 1,
+      "userId": 1,
+      "title": "내 게시글에 댓글이 달렸습니다",
+      "contents": "\"마비노기 초보 질문입니다\" 에 새 댓글이 달렸습니다.",
+      "url": "/api/posts/details/10",
+      "createdAt": "2026-02-09 10:30:00",
+      "isRead": false,
+      "noticeType": "POST_COMMENT"
+    },
+    "timestamp": "2026-02-09T12:00:00"
+  }
+}

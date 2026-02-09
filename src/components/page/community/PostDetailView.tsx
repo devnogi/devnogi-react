@@ -13,6 +13,7 @@ import {
   X,
   Check,
   Loader2,
+  Flag,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
@@ -22,14 +23,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { clientAxios } from "@/lib/api/clients";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ReportDialog from "./ReportDialog";
 
 interface PostDetailViewProps {
   postId: string;
@@ -50,11 +63,14 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   const isOwner = isAuthenticated && user?.userId === post?.userId;
   const isAdmin = isAuthenticated && user?.role === "ADMIN";
   const canEdit = isOwner;
   const canDelete = isOwner || isAdmin;
+  const canReport = isAuthenticated && !isOwner;
 
   if (isLoading) {
     return (
@@ -62,9 +78,9 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         <div className="mb-6">
           <Skeleton className="h-8 w-24" />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200">
+        <div className="bg-card rounded-xl border border-border">
           {/* Author skeleton */}
-          <div className="p-4 md:p-6 border-b border-gray-100">
+          <div className="p-4 md:p-6 border-b border-border">
             <div className="flex items-center gap-3">
               <Skeleton className="w-10 h-10 rounded-full" />
               <div className="space-y-2">
@@ -81,7 +97,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
             <Skeleton className="h-4 w-2/3" />
           </div>
           {/* Stats skeleton */}
-          <div className="px-4 py-3 md:px-6 md:py-4 border-t border-gray-100">
+          <div className="px-4 py-3 md:px-6 md:py-4 border-t border-border">
             <div className="flex gap-6">
               <Skeleton className="h-4 w-12" />
               <Skeleton className="h-4 w-12" />
@@ -89,7 +105,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
             </div>
           </div>
           {/* Actions skeleton */}
-          <div className="px-4 py-3 md:px-6 border-t border-gray-100 flex gap-2">
+          <div className="px-4 py-3 md:px-6 border-t border-border flex gap-2">
             <Skeleton className="h-10 flex-1 rounded-lg" />
             <Skeleton className="h-10 flex-1 rounded-lg" />
           </div>
@@ -101,8 +117,8 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   if (isError || !post) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500">게시글을 불러오는데 실패했습니다.</p>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-red-500 dark:text-red-400">게시글을 불러오는데 실패했습니다.</p>
+        <p className="text-sm text-muted-foreground mt-2">
           {error instanceof Error ? error.message : "알 수 없는 오류"}
         </p>
       </div>
@@ -187,10 +203,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     }
   };
 
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm("게시글을 삭제하시겠습니까?");
-    if (!confirmDelete) return;
-
+  const handleDeleteConfirm = async () => {
     setIsSubmitting(true);
     try {
       await clientAxios.delete(`/posts/${postId}`);
@@ -201,6 +214,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
       toast.error("게시글 삭제에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -217,9 +231,9 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
       </div>
 
       {/* Post Content - Threads Style */}
-      <article className="bg-white rounded-xl border border-gray-200">
+      <article className="bg-card rounded-xl border border-border">
         {/* Author Section */}
-        <div className="p-4 md:p-6 border-b border-gray-100">
+        <div className="p-4 md:p-6 border-b border-border">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               {/* Profile Image */}
@@ -230,26 +244,26 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
               {/* Author Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-foreground">
                     사용자 {post.userId}
                   </span>
-                  <span className="text-gray-400 text-sm">·</span>
-                  <span className="text-gray-500 text-sm">
+                  <span className="text-muted-foreground text-sm">·</span>
+                  <span className="text-muted-foreground text-sm">
                     {relativeTime}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500 mt-0.5">
+                <div className="text-xs text-muted-foreground mt-0.5">
                   {formattedDate}
                 </div>
               </div>
             </div>
 
-            {/* Edit/Delete Menu */}
-            {(canEdit || canDelete) && !isEditing && (
+            {/* Edit/Delete/Report Menu */}
+            {(canEdit || canDelete || canReport) && !isEditing && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    <MoreVertical className="w-5 h-5 text-gray-500" />
+                  <button className="p-2 hover:bg-muted rounded-full transition-colors">
+                    <MoreVertical className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[120px]">
@@ -261,12 +275,24 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                   )}
                   {canDelete && (
                     <DropdownMenuItem
-                      onClick={handleDelete}
+                      onClick={() => setShowDeleteDialog(true)}
                       disabled={isSubmitting}
-                      className="text-red-600 focus:text-red-600"
+                      className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       삭제
+                    </DropdownMenuItem>
+                  )}
+                  {canReport && (canEdit || canDelete) && (
+                    <DropdownMenuSeparator />
+                  )}
+                  {canReport && (
+                    <DropdownMenuItem
+                      onClick={() => setShowReportDialog(true)}
+                      className="text-orange-600 focus:text-orange-600 dark:text-orange-400 dark:focus:text-orange-400"
+                    >
+                      <Flag className="w-4 h-4 mr-2" />
+                      신고
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
@@ -283,14 +309,14 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full text-xl font-bold text-gray-900 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full text-xl font-bold text-foreground bg-background border border-input rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="제목을 입력하세요"
               />
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                rows={10}
-                className="w-full text-gray-700 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                rows={6}
+                className="w-full text-foreground/80 bg-background border border-input rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ring resize-none min-h-[150px] md:min-h-[250px]"
                 placeholder="내용을 입력하세요"
               />
               <div className="flex justify-end gap-2">
@@ -317,10 +343,10 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-bold text-gray-900 mb-4">
+              <h1 className="text-xl font-bold text-foreground mb-4">
                 {post.title}
               </h1>
-              <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <div className="text-foreground/80 whitespace-pre-wrap leading-relaxed">
                 {post.content}
               </div>
             </>
@@ -328,8 +354,8 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         </div>
 
         {/* Stats Bar */}
-        <div className="px-4 py-3 md:px-6 md:py-4 border-t border-gray-100">
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+        <div className="px-4 py-3 md:px-6 md:py-4 border-t border-border">
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Eye className="w-4 h-4" />
               <span>{post.viewCount.toLocaleString()}</span>
@@ -348,27 +374,30 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="px-4 py-3 md:px-6 border-t border-gray-100 flex items-center gap-2">
+        <div className="px-4 py-3 md:px-6 border-t border-border flex items-center gap-2">
           <button
             onClick={handleLike}
             className={`flex-1 py-2.5 rounded-lg font-medium transition-colors ${
               post.isLiked
-                ? "bg-red-50 text-red-600 hover:bg-red-100"
-                : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                : "bg-muted text-foreground hover:bg-muted/80 dark:hover:bg-muted/70"
             }`}
           >
             <div className="flex items-center justify-center gap-2">
               <Heart
                 className={`w-4 h-4 ${post.isLiked ? "fill-current" : ""}`}
               />
-              <span className="text-sm">
+              <span className="text-sm hidden sm:inline">
                 {post.isLiked ? "좋아요 취소" : "좋아요"}
+              </span>
+              <span className="text-sm sm:hidden">
+                {post.isLiked ? "취소" : "좋아요"}
               </span>
             </div>
           </button>
           <button
             onClick={handleShare}
-            className="flex-1 py-2.5 rounded-lg font-medium bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+            className="flex-1 py-2.5 rounded-lg font-medium bg-muted text-foreground hover:bg-muted/80 dark:hover:bg-muted/70 transition-colors"
           >
             <div className="flex items-center justify-center gap-2">
               <Share2 className="w-4 h-4" />
@@ -377,6 +406,46 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
           </button>
         </div>
       </article>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>게시글 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              게시글을 삭제하시겠습니까? 삭제된 게시글은 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting}>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isSubmitting}
+              variant="destructive"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  삭제 중...
+                </>
+              ) : (
+                "삭제"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Report Dialog */}
+      {post && (
+        <ReportDialog
+          open={showReportDialog}
+          onOpenChange={setShowReportDialog}
+          targetType="POST"
+          targetId={post.id}
+          targetUserId={post.userId}
+        />
+      )}
     </div>
   );
 }
