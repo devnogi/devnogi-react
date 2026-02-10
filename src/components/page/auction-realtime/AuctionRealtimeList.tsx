@@ -1,6 +1,6 @@
 "use client";
 
-import { AuctionRealtimeItem } from "@/hooks/useInfiniteAuctionRealtime";
+import { AuctionRealtimeItem } from "@/hooks/useAuctionRealtime";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,

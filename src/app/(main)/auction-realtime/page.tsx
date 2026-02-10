@@ -8,72 +8,288 @@ import CategoryDropdown from "@/components/commons/CategoryDropdown";
 import SearchFilterCard from "@/components/page/auction-realtime/SearchFilterCard";
 import MobileFilterChips from "@/components/page/auction-realtime/MobileFilterChips";
 import MobileFilterModal from "@/components/page/auction-realtime/MobileFilterModal";
+import ItemInfoPagination from "@/components/page/item-info/ItemInfoPagination";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
-import { useInfiniteAuctionRealtime } from "@/hooks/useInfiniteAuctionRealtime";
+import { useAuctionRealtime } from "@/hooks/useAuctionRealtime";
 import { useAuctionHistoryLayout } from "@/hooks/useAuctionHistoryLayout";
 import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 import { ActiveFilter } from "@/types/search-filter";
-import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-// URL params reader component - URL 파라미터 변경 시마다 검색 동작
-function UrlParamsReader({
-  onParamsLoad,
-}: {
-  onParamsLoad: (params: { itemName?: string; category?: string }) => void;
-}) {
-  const urlSearchParams = useSearchParams();
-  const prevParamsRef = useRef<string>("");
+const DEFAULT_PAGE_SIZE = 20;
 
-  useEffect(() => {
-    const itemName = urlSearchParams.get("itemName") || undefined;
-    const category = urlSearchParams.get("category") || undefined;
+const DEFAULT_SEARCH_PARAMS: AuctionRealtimeSearchParams = {
+  page: 1,
+  size: DEFAULT_PAGE_SIZE,
+  sortBy: "dateAuctionExpire",
+  direction: "asc",
+};
 
-    // 현재 URL 파라미터를 문자열로 직렬화하여 이전 값과 비교
-    const currentParams = JSON.stringify({ itemName, category });
+const SORT_OPTIONS: Array<{
+  label: string;
+  sortBy: string;
+  direction: "asc" | "desc";
+}> = [
+  { label: "만료 임박순", sortBy: "dateAuctionExpire", direction: "asc" },
+  { label: "만료 늦은순", sortBy: "dateAuctionExpire", direction: "desc" },
+  { label: "등록 최신순", sortBy: "dateAuctionRegister", direction: "desc" },
+  { label: "등록 오래된순", sortBy: "dateAuctionRegister", direction: "asc" },
+  {
+    label: "개당 가격 낮은순",
+    sortBy: "auctionPricePerUnit",
+    direction: "asc",
+  },
+  {
+    label: "개당 가격 높은순",
+    sortBy: "auctionPricePerUnit",
+    direction: "desc",
+  },
+];
 
-    // 파라미터가 변경되었고, 유효한 검색 조건이 있을 때만 실행
-    if (currentParams !== prevParamsRef.current && (itemName || category)) {
-      prevParamsRef.current = currentParams;
-      onParamsLoad({ itemName, category });
+function parseNumber(value: string | null, fallback: number) {
+  if (!value) return fallback;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+}
+
+function parseDirection(value: string | null): "asc" | "desc" {
+  if (!value) return "asc";
+  return value.toLowerCase() === "desc" ? "desc" : "asc";
+}
+
+function setNestedValue(
+  target: Record<string, unknown>,
+  key: string,
+  rawValue: string,
+) {
+  const parts = key.split(".");
+  if (parts.length < 2) return;
+
+  let current: Record<string, unknown> = target;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (
+      typeof current[part] !== "object" ||
+      current[part] === null ||
+      Array.isArray(current[part])
+    ) {
+      current[part] = {};
     }
-  }, [urlSearchParams, onParamsLoad]);
+    current = current[part] as Record<string, unknown>;
+  }
 
-  return null;
+  const lastKey = parts[parts.length - 1];
+  const numberValue = Number(rawValue);
+  current[lastKey] = Number.isFinite(numberValue) && rawValue.trim() !== ""
+    ? numberValue
+    : rawValue;
+}
+
+function cleanEmptyObject<T>(obj: T): T {
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
+    return obj;
+  }
+
+  const result = Object.entries(obj as Record<string, unknown>).reduce(
+    (acc, [key, value]) => {
+      const cleanedValue = cleanEmptyObject(value);
+      if (
+        cleanedValue !== undefined &&
+        cleanedValue !== null &&
+        !(typeof cleanedValue === "string" && cleanedValue === "") &&
+        !(
+          typeof cleanedValue === "object" &&
+          !Array.isArray(cleanedValue) &&
+          Object.keys(cleanedValue as Record<string, unknown>).length === 0
+        )
+      ) {
+        acc[key] = cleanedValue;
+      }
+      return acc;
+    },
+    {} as Record<string, unknown>,
+  );
+
+  return result as T;
+}
+
+function buildNestedQueryParams(
+  obj: Record<string, unknown>,
+  prefix = "",
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  Object.entries(obj).forEach(([key, value]) => {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+    if (value === null || value === undefined || value === "") {
+      return;
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      const nestedParams = buildNestedQueryParams(
+        value as Record<string, unknown>,
+        fullKey,
+      );
+      nestedParams.forEach((v, k) => params.append(k, v));
+      return;
+    }
+
+    params.append(fullKey, String(value));
+  });
+
+  return params;
+}
+
+function categoryIdFromSearchParams(params: AuctionRealtimeSearchParams): string {
+  if (!params.itemTopCategory) return "all";
+  if (!params.itemSubCategory) return params.itemTopCategory;
+  return `${params.itemTopCategory}/${params.itemSubCategory}`;
+}
+
+function parseSearchParamsFromUrl(
+  urlSearchParams: ReadonlyURLSearchParams,
+): AuctionRealtimeSearchParams {
+  const parsed: AuctionRealtimeSearchParams = {
+    ...DEFAULT_SEARCH_PARAMS,
+  };
+
+  parsed.page = parseNumber(urlSearchParams.get("page"), 1);
+  parsed.size = parseNumber(urlSearchParams.get("size"), DEFAULT_PAGE_SIZE);
+
+  const sortBy = urlSearchParams.get("sortBy");
+  if (sortBy) {
+    parsed.sortBy = sortBy;
+  }
+
+  parsed.direction = parseDirection(urlSearchParams.get("direction"));
+
+  const itemName =
+    urlSearchParams.get("itemName") || urlSearchParams.get("item_name");
+  if (itemName) {
+    parsed.itemName = itemName;
+  }
+
+  const itemTopCategory = urlSearchParams.get("itemTopCategory");
+  const itemSubCategory = urlSearchParams.get("itemSubCategory");
+
+  if (itemTopCategory) {
+    parsed.itemTopCategory = itemTopCategory;
+  }
+  if (itemSubCategory) {
+    parsed.itemSubCategory = itemSubCategory;
+  }
+
+  if (!itemTopCategory) {
+    const legacyCategory = urlSearchParams.get("category");
+    if (legacyCategory && legacyCategory !== "all") {
+      const parts = legacyCategory.split("/");
+      if (parts.length >= 1) {
+        parsed.itemTopCategory = parts[0];
+      }
+      if (parts.length >= 2) {
+        parsed.itemSubCategory = parts[1];
+      }
+    }
+  }
+
+  urlSearchParams.forEach((value, key) => {
+    if (
+      [
+        "page",
+        "size",
+        "sortBy",
+        "direction",
+        "itemName",
+        "item_name",
+        "itemTopCategory",
+        "itemSubCategory",
+        "category",
+      ].includes(key)
+    ) {
+      return;
+    }
+
+    if (!key.includes(".")) {
+      return;
+    }
+
+    setNestedValue(parsed as unknown as Record<string, unknown>, key, value);
+  });
+
+  return cleanEmptyObject(parsed);
+}
+
+function serializeSearchParams(params: AuctionRealtimeSearchParams): string {
+  const normalized: AuctionRealtimeSearchParams = { ...params };
+
+  if (
+    normalized.page === undefined ||
+    normalized.page === DEFAULT_SEARCH_PARAMS.page
+  ) {
+    delete normalized.page;
+  }
+  if (
+    normalized.size === undefined ||
+    normalized.size === DEFAULT_SEARCH_PARAMS.size
+  ) {
+    delete normalized.size;
+  }
+  if (
+    normalized.sortBy === undefined ||
+    normalized.sortBy === DEFAULT_SEARCH_PARAMS.sortBy
+  ) {
+    delete normalized.sortBy;
+  }
+  if (
+    normalized.direction === undefined ||
+    normalized.direction === DEFAULT_SEARCH_PARAMS.direction
+  ) {
+    delete normalized.direction;
+  }
+
+  const cleaned = cleanEmptyObject(normalized) as Record<string, unknown>;
+
+  const queryParams = buildNestedQueryParams(cleaned);
+  const sortedQueryParams = new URLSearchParams(
+    Array.from(queryParams.entries()).sort(([a], [b]) => a.localeCompare(b)),
+  );
+
+  return sortedQueryParams.toString();
 }
 
 export default function Page() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const urlSearchParams = useSearchParams();
+  const lastSyncedQueryRef = useRef<string>("");
+
   const [itemName, setItemName] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchParams, setSearchParams] = useState<AuctionRealtimeSearchParams>(
-    {},
+    DEFAULT_SEARCH_PARAMS,
   );
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   const [isClientMounted, setIsClientMounted] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-  // 실시간 경매장 기본 정렬: 만료일 오름차순 (만료 임박순)
-  const [sortOption, setSortOption] = useState<{
-    label: string;
-    sortBy: string;
-    direction: "asc" | "desc";
-  }>({ label: "만료 임박순", sortBy: "dateAuctionExpire", direction: "asc" });
 
-  // Mobile filter states - 날짜 필터 제거
   const [mobileFilterType, setMobileFilterType] = useState<
     "category" | "price" | "options" | null
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
-  const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>([]);
+  const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>(
+    [],
+  );
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
 
-  // 레이아웃 모드 관리 - 화면 크기에 따라 자동 전환
   const {
     layoutMode,
     showCategorySidebar,
@@ -84,26 +300,30 @@ export default function Page() {
   const {
     data,
     isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteAuctionRealtime(searchParams);
+    isFetching,
+  } = useAuctionRealtime(searchParams);
 
-  // Flatten all pages into a single array
-  const allItems = useMemo(
-    () => data?.pages.flatMap((page) => page.items) ?? [],
-    [data],
-  );
+  const allItems = data?.items ?? [];
+  const meta = data?.meta;
+  const totalElements = meta?.totalElements ?? 0;
+  const currentPage = meta?.currentPage ?? (searchParams.page ?? 1);
+  const totalPages = meta?.totalPages ?? 1;
+  const pageSize = meta?.pageSize ?? (searchParams.size ?? DEFAULT_PAGE_SIZE);
 
-  const totalElements = data?.pages[0]?.meta.totalElements ?? 0;
+  const selectedSortOption =
+    SORT_OPTIONS.find(
+      (option) =>
+        option.sortBy === searchParams.sortBy &&
+        option.direction === searchParams.direction,
+    ) || SORT_OPTIONS[0];
 
   const findCategoryPath = useCallback(
     (
-      categories: ItemCategory[],
+      categoryList: ItemCategory[],
       targetId: string,
       currentPath: ItemCategory[] = [],
     ): ItemCategory[] => {
-      for (const category of categories) {
+      for (const category of categoryList) {
         const newPath = [...currentPath, category];
         if (category.id === targetId) {
           return newPath;
@@ -133,80 +353,76 @@ export default function Page() {
     const idsToExpand = categoryPath.slice(0, -1).map((c) => c.id);
 
     setExpandedIds((prev) => {
-      // Check if all IDs are already in the set
       const allAlreadyExpanded = idsToExpand.every((id) => prev.has(id));
       if (allAlreadyExpanded && prev.size === idsToExpand.length) {
-        return prev; // Return same reference to prevent re-render
+        return prev;
       }
-
-      // Only create new Set if there are changes
       return new Set(idsToExpand);
     });
   }, [categoryPath]);
 
   useEffect(() => {
     setIsClientMounted(true);
-    const saved = localStorage.getItem("lastSelectedCategoryTradeLog");
-    if (saved) {
-      setSelectedCategory(saved);
-    }
   }, []);
 
-  // Callback for URL params initialization
-  const handleUrlParamsLoad = useCallback(
-    (params: { itemName?: string; category?: string }) => {
-      const newSearchParams: AuctionRealtimeSearchParams = {};
-
-      if (params.itemName) {
-        setItemName(params.itemName);
-        newSearchParams.itemName = params.itemName;
-      }
-
-      if (params.category) {
-        setSelectedCategory(params.category);
-        const parts = params.category.split("/");
-        if (parts.length === 1) {
-          newSearchParams.itemTopCategory = parts[0];
-        } else if (parts.length === 2) {
-          newSearchParams.itemTopCategory = parts[0];
-          newSearchParams.itemSubCategory = parts[1];
-        }
-      }
-
-      setSearchParams(newSearchParams);
-    },
-    []
-  );
-
-  // Intersection Observer for infinite scroll
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 },
-    );
+    const parsed = parseSearchParamsFromUrl(urlSearchParams);
+    const parsedQuery = serializeSearchParams(parsed);
 
-    const currentRef = loadMoreRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
+    if (parsedQuery === lastSyncedQueryRef.current) {
+      return;
     }
 
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+    lastSyncedQueryRef.current = parsedQuery;
+
+    setSearchParams(parsed);
+    setItemName(parsed.itemName ?? "");
+    setSelectedCategory(categoryIdFromSearchParams(parsed));
+    setMobilePriceMin(parsed.priceSearchRequest?.priceFrom?.toString() ?? "");
+    setMobilePriceMax(parsed.priceSearchRequest?.priceTo?.toString() ?? "");
+  }, [urlSearchParams]);
+
+  useEffect(() => {
+    const nextQuery = serializeSearchParams(searchParams);
+
+    if (nextQuery === lastSyncedQueryRef.current) {
+      return;
+    }
+
+    lastSyncedQueryRef.current = nextQuery;
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [searchParams, router, pathname]);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
+
     if (isClientMounted) {
       localStorage.setItem("lastSelectedCategoryTradeLog", categoryId);
     }
+
+    setSearchParams((prev) => {
+      const next: AuctionRealtimeSearchParams = {
+        ...prev,
+        page: 1,
+      };
+
+      if (categoryId === "all") {
+        delete next.itemTopCategory;
+        delete next.itemSubCategory;
+      } else {
+        const parts = categoryId.split("/");
+        next.itemTopCategory = parts[0];
+        if (parts.length > 1) {
+          next.itemSubCategory = parts[1];
+        } else {
+          delete next.itemSubCategory;
+        }
+      }
+
+      return next;
+    });
   };
 
   const handleToggleExpand = (categoryId: string) => {
@@ -222,13 +438,29 @@ export default function Page() {
   };
 
   const handleFilterApply = (filters: AuctionRealtimeSearchParams) => {
-    // Merge existing search params with new filters
-    const params: AuctionRealtimeSearchParams = {
-      ...searchParams,
-      ...filters,
-    };
+    setSearchParams((prev) => {
+      const next: AuctionRealtimeSearchParams = {
+        ...prev,
+        page: 1,
+      };
 
-    setSearchParams(params);
+      if (filters.priceSearchRequest) {
+        next.priceSearchRequest = filters.priceSearchRequest;
+      } else {
+        delete next.priceSearchRequest;
+      }
+
+      if (filters.itemOptionSearchRequest) {
+        next.itemOptionSearchRequest = filters.itemOptionSearchRequest;
+      } else {
+        delete next.itemOptionSearchRequest;
+      }
+
+      return next;
+    });
+
+    setMobilePriceMin(filters.priceSearchRequest?.priceFrom?.toString() ?? "");
+    setMobilePriceMax(filters.priceSearchRequest?.priceTo?.toString() ?? "");
   };
 
   const handleMobileFilterApply = (data: {
@@ -237,101 +469,117 @@ export default function Page() {
     priceMax?: string;
     activeFilters?: ActiveFilter[];
   }) => {
-    // Update mobile filter states
     if (data.selectedCategory !== undefined) {
       setSelectedCategory(data.selectedCategory);
       if (isClientMounted) {
-        localStorage.setItem("lastSelectedCategoryTradeLog", data.selectedCategory);
+        localStorage.setItem(
+          "lastSelectedCategoryTradeLog",
+          data.selectedCategory,
+        );
       }
     }
+
     if (data.priceMin !== undefined) setMobilePriceMin(data.priceMin);
     if (data.priceMax !== undefined) setMobilePriceMax(data.priceMax);
-    if (data.activeFilters !== undefined)
+    if (data.activeFilters !== undefined) {
       setMobileActiveFilters(data.activeFilters);
-
-    // Build search params
-    const params: AuctionRealtimeSearchParams = { ...searchParams };
-
-    // Category
-    if (data.selectedCategory !== undefined) {
-      const category = data.selectedCategory;
-      if (category !== "all") {
-        const parts = category.split("/");
-        if (parts.length === 1) {
-          params.itemTopCategory = parts[0];
-          delete params.itemSubCategory;
-        } else if (parts.length === 2) {
-          params.itemTopCategory = parts[0];
-          params.itemSubCategory = parts[1];
-        }
-      } else {
-        delete params.itemTopCategory;
-        delete params.itemSubCategory;
-      }
     }
 
-    // Price
-    if (data.priceMin || data.priceMax || mobilePriceMin || mobilePriceMax) {
-      params.priceSearchRequest = {};
+    setSearchParams((prev) => {
+      const next: AuctionRealtimeSearchParams = {
+        ...prev,
+        page: 1,
+      };
+
+      if (data.selectedCategory !== undefined) {
+        const category = data.selectedCategory;
+
+        if (category !== "all") {
+          const parts = category.split("/");
+          next.itemTopCategory = parts[0];
+          if (parts.length > 1) {
+            next.itemSubCategory = parts[1];
+          } else {
+            delete next.itemSubCategory;
+          }
+        } else {
+          delete next.itemTopCategory;
+          delete next.itemSubCategory;
+        }
+      }
+
       const minPrice = data.priceMin !== undefined ? data.priceMin : mobilePriceMin;
       const maxPrice = data.priceMax !== undefined ? data.priceMax : mobilePriceMax;
-      if (minPrice) params.priceSearchRequest.priceFrom = Number(minPrice);
-      if (maxPrice) params.priceSearchRequest.priceTo = Number(maxPrice);
-    }
+      if (minPrice || maxPrice) {
+        next.priceSearchRequest = {};
+        if (minPrice) next.priceSearchRequest.priceFrom = Number(minPrice);
+        if (maxPrice) next.priceSearchRequest.priceTo = Number(maxPrice);
+      } else {
+        delete next.priceSearchRequest;
+      }
 
-    // 날짜 필터 제거됨 - 실시간 경매장은 날짜 필터 없음
+      const filters =
+        data.activeFilters !== undefined ? data.activeFilters : mobileActiveFilters;
+      if (filters.length > 0) {
+        next.itemOptionSearchRequest = {};
 
-    // Options
-    const filters =
-      data.activeFilters !== undefined
-        ? data.activeFilters
-        : mobileActiveFilters;
-    if (filters.length > 0) {
-      params.itemOptionSearchRequest = {};
+        filters.forEach((filter) => {
+          Object.entries(filter.values).forEach(([key, value]) => {
+            if (value === undefined || value === "") return;
 
-      filters.forEach((filter) => {
-        Object.entries(filter.values).forEach(([key, value]) => {
-          if (value === undefined || value === "") return;
+            let optionSearchKey: string;
+            if (key.endsWith("From") || key.endsWith("To")) {
+              const baseName = key.replace(/(From|To)$/, "");
+              optionSearchKey = `${baseName}Search`;
+            } else if (key.endsWith("Standard")) {
+              const baseName = key.replace(/Standard$/, "");
+              optionSearchKey = `${baseName}Search`;
+            } else if (key === "wearingRestrictions") {
+              optionSearchKey = "wearingRestrictionsSearch";
+            } else if (key === "ergRank") {
+              optionSearchKey = "ergRankSearch";
+            } else {
+              optionSearchKey = `${key}Search`;
+            }
 
-          let optionSearchKey: string;
-          if (key.endsWith("From") || key.endsWith("To")) {
-            const baseName = key.replace(/(From|To)$/, "");
-            optionSearchKey = `${baseName}Search`;
-          } else if (key.endsWith("Standard")) {
-            const baseName = key.replace(/Standard$/, "");
-            optionSearchKey = `${baseName}Search`;
-          } else if (key === "wearingRestrictions") {
-            optionSearchKey = "wearingRestrictionsSearch";
-          } else if (key === "ergRank") {
-            optionSearchKey = "ergRankSearch";
-          } else {
-            optionSearchKey = `${key}Search`;
-          }
+            if (
+              !next.itemOptionSearchRequest![
+                optionSearchKey as keyof typeof next.itemOptionSearchRequest
+              ]
+            ) {
+              (
+                next.itemOptionSearchRequest as Record<
+                  string,
+                  Record<string, unknown>
+                >
+              )[optionSearchKey] = {};
+            }
 
-          if (
-            !params.itemOptionSearchRequest![
-              optionSearchKey as keyof typeof params.itemOptionSearchRequest
-            ]
-          ) {
             (
-              params.itemOptionSearchRequest as Record<
+              next.itemOptionSearchRequest as Record<
                 string,
                 Record<string, unknown>
               >
-            )[optionSearchKey] = {};
-          }
-
-          (
-            params.itemOptionSearchRequest as Record<
-              string,
-              Record<string, unknown>
-            >
-          )[optionSearchKey][key] = value;
+            )[optionSearchKey][key] = value;
+          });
         });
-      });
+      } else {
+        delete next.itemOptionSearchRequest;
+      }
+
+      return next;
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) {
+      return;
     }
 
-    setSearchParams(params);
+    setSearchParams((prev) => ({
+      ...prev,
+      page,
+    }));
   };
 
   if (isCategoriesLoading) {
@@ -344,12 +592,6 @@ export default function Page() {
 
   return (
     <div className="select-none min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
-      {/* URL Params Reader - wrapped in Suspense for SSR compatibility */}
-      <Suspense fallback={null}>
-        <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />
-      </Suspense>
-
-      {/* Fixed Floating Category Sidebar - 메인 콘텐츠 기준 왼쪽에 배치 */}
       {showCategorySidebar && (
         <div
           className="fixed top-[140px] bottom-8 w-56 z-40"
@@ -365,8 +607,6 @@ export default function Page() {
         </div>
       )}
 
-
-      {/* Centered Main Content Container */}
       <div
         className={`min-h-full flex justify-center [scrollbar-gutter:stable] ${
           showCategorySidebar
@@ -377,30 +617,29 @@ export default function Page() {
         }`}
       >
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
-          {/* Mobile Filter Chips - 모바일 뷰에서만 표시, 날짜 필터 제거됨 */}
           {showMobileFilter && (
             <div className="mb-4">
-            <MobileFilterChips
-              activeFilters={{
-                hasCategory: selectedCategory !== "all",
-                hasPrice: !!(mobilePriceMin || mobilePriceMax),
-                hasOptions: mobileActiveFilters.length > 0,
-              }}
-              onCategoryClick={() => setMobileFilterType("category")}
-              onPriceClick={() => setMobileFilterType("price")}
-              onOptionsClick={() => setMobileFilterType("options")}
-            />
+              <MobileFilterChips
+                activeFilters={{
+                  hasCategory: selectedCategory !== "all",
+                  hasPrice: !!(mobilePriceMin || mobilePriceMax),
+                  hasOptions: mobileActiveFilters.length > 0,
+                }}
+                onCategoryClick={() => setMobileFilterType("category")}
+                onPriceClick={() => setMobileFilterType("price")}
+                onOptionsClick={() => setMobileFilterType("options")}
+              />
             </div>
           )}
 
-          {/* Category Breadcrumb - 필터 사이드바가 표시될 때 보임 (tablet/desktop) */}
           {showFilterSidebar && categoryPath.length > 0 && (
             <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
-              {/* Category Dropdown - 2xl 미만에서만 표시 */}
               <div className="2xl:hidden">
                 <CategoryDropdown
                   isOpen={isCategoryDropdownOpen}
-                  onToggle={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  onToggle={() =>
+                    setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                  }
                   onClose={() => setIsCategoryDropdownOpen(false)}
                   selectedId={selectedCategory}
                   onSelect={handleCategorySelect}
@@ -423,15 +662,16 @@ export default function Page() {
             </div>
           )}
 
-          {/* Results Section */}
           <div>
             {totalElements > 0 && (
               <div className="mb-4 flex items-center justify-between">
                 <div className="text-xs md:text-sm text-[var(--color-ds-disabled)]">
                   {itemName ? (
                     <>
-                      <span className="font-semibold text-[var(--color-ds-primary)]">{itemName}</span> 검색결과{" "}
-                      <span className="font-semibold">{totalElements}</span>개
+                      <span className="font-semibold text-[var(--color-ds-primary)]">
+                        {itemName}
+                      </span>{" "}
+                      검색결과 <span className="font-semibold">{totalElements}</span>개
                     </>
                   ) : (
                     <>
@@ -444,35 +684,37 @@ export default function Page() {
                     onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
                     className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
                   >
-                    <span className="font-medium">{sortOption.label}</span>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <span className="font-medium">{selectedSortOption.label}</span>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
                   {isSortDropdownOpen && (
                     <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px]">
-                      {/* 실시간 경매장 정렬 옵션: 만료일, 등록일, 가격, 아이템명 */}
-                      {[
-                        { label: "만료 임박순", sortBy: "dateAuctionExpire", direction: "asc" as const },
-                        { label: "만료 늦은순", sortBy: "dateAuctionExpire", direction: "desc" as const },
-                        { label: "등록 최신순", sortBy: "dateAuctionRegister", direction: "desc" as const },
-                        { label: "등록 오래된순", sortBy: "dateAuctionRegister", direction: "asc" as const },
-                        { label: "개당 가격 낮은순", sortBy: "auctionPricePerUnit", direction: "asc" as const },
-                        { label: "개당 가격 높은순", sortBy: "auctionPricePerUnit", direction: "desc" as const },
-                      ].map((option) => (
+                      {SORT_OPTIONS.map((option) => (
                         <button
                           key={option.label}
                           onClick={() => {
-                            setSortOption(option);
                             setIsSortDropdownOpen(false);
-                            setSearchParams({
-                              ...searchParams,
+                            setSearchParams((prev) => ({
+                              ...prev,
                               sortBy: option.sortBy,
                               direction: option.direction,
-                            });
+                              page: 1,
+                            }));
                           }}
                           className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                            sortOption.label === option.label
+                            selectedSortOption.label === option.label
                               ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
                               : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
                           }`}
@@ -488,17 +730,23 @@ export default function Page() {
 
             <AuctionRealtimeList items={allItems} isLoading={isLoading} />
 
-            {/* Infinite Scroll Trigger */}
-            <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
-              {isFetchingNextPage && (
+            {isFetching && !isLoading && (
+              <div className="h-12 flex items-center justify-center">
                 <div className="text-sm text-[var(--color-ds-disabled)]">로딩 중...</div>
-              )}
-            </div>
+              </div>
+            )}
+
+            <ItemInfoPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+            />
           </div>
         </div>
       </div>
 
-      {/* Fixed Floating Filter Card - 메인 콘텐츠 기준 오른쪽에 배치 */}
       {showFilterSidebar && (
         <SearchFilterCard
           onFilterApply={handleFilterApply}
@@ -508,14 +756,13 @@ export default function Page() {
         />
       )}
 
-      {/* Mobile Filter Modal - 모바일 뷰에서만 표시, 날짜 필터 제거됨 */}
       {showMobileFilter && (
         <MobileFilterModal
           isOpen={mobileFilterType !== null}
           onClose={() => setMobileFilterType(null)}
           filterType={mobileFilterType || "category"}
           initialData={{
-            selectedCategory: selectedCategory,
+            selectedCategory,
             priceMin: mobilePriceMin,
             priceMax: mobilePriceMax,
             activeFilters: mobileActiveFilters,
@@ -524,7 +771,6 @@ export default function Page() {
           onApply={handleMobileFilterApply}
         />
       )}
-
     </div>
   );
 }
