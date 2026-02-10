@@ -49,6 +49,9 @@ export default function MobileFilterModal({
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
   const [currentTab, setCurrentTab] = useState<"category" | "price" | "options">(initialFilterType);
+  const topCategories =
+    categories.find((category) => category.id === "all" && category.children?.length)?.children ||
+    categories.filter((category) => category.id !== "all");
 
   // Parse initialData.selectedCategory to extract top and sub category
   const parseSelectedCategory = (selected: string) => {
@@ -366,7 +369,7 @@ export default function MobileFilterModal({
                   전체
                 </button>
                 {/* topCategory 리스트 (전체 제외) */}
-                {categories.filter((cat) => cat.id !== "all").map((category) => {
+                {topCategories.map((category) => {
                   const isSelected = selectedTopCategory === category.id;
 
                   return (
@@ -407,7 +410,7 @@ export default function MobileFilterModal({
                       전체
                     </button>
                     {/* subCategory 리스트 */}
-                    {categories
+                    {topCategories
                       .find((cat) => cat.id === selectedTopCategory)
                       ?.children?.map((subCategory) => {
                         const isSelected = selectedSubCategory === subCategory.id;

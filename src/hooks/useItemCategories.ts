@@ -2,12 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/types/community";
-
-export interface ItemCategory {
-  id: string;
-  name: string;
-  children?: ItemCategory[];
-}
+import {
+  ItemCategory,
+  itemCategories,
+  mergeCategoriesWithFallback,
+} from "@/data/item-category";
 
 interface ItemCategoriesData {
   categories: ItemCategory[];
@@ -52,25 +51,32 @@ async function fetchWithRetry(url: string, maxRetries: number = 3): Promise<Resp
 }
 
 async function fetchItemCategories(): Promise<ItemCategory[]> {
-  const response = await fetchWithRetry("/api/item-categories", 3);
+  try {
+    const response = await fetchWithRetry("/api/item-categories", 3);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch item categories: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch item categories: ${response.status}`);
+    }
+
+    const apiResponse: ApiResponse<ItemCategoriesData> = await response.json();
+
+    if (!apiResponse.success) {
+      throw new Error(apiResponse.message || "Failed to fetch item categories");
+    }
+
+    const categoriesFromApi = apiResponse.data?.categories || [];
+    return mergeCategoriesWithFallback(categoriesFromApi);
+  } catch (error) {
+    console.error("Falling back to enum categories:", error);
+    return itemCategories;
   }
-
-  const apiResponse: ApiResponse<ItemCategoriesData> = await response.json();
-
-  if (!apiResponse.success) {
-    throw new Error(apiResponse.message || "Failed to fetch item categories");
-  }
-
-  return apiResponse.data?.categories || [];
 }
 
 export function useItemCategories() {
   return useQuery({
     queryKey: ["item-categories"],
     queryFn: fetchItemCategories,
+    placeholderData: itemCategories,
     staleTime: 12 * 60 * 60 * 1000, // 12 hours
     gcTime: 24 * 60 * 60 * 1000, // 24 hours (formerly cacheTime)
     refetchOnWindowFocus: false,
