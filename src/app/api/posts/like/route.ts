@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
     logger.info(`POST /posts/like - 성공 (${status}) [${duration}ms]`);
     logger.debug(`Response data:`, data);
 
+    if (status === 204) {
+      return new NextResponse(null, { status: 204 });
+    }
+
     return NextResponse.json(data, { status });
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
