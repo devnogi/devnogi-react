@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Image as ImageIcon,
@@ -13,9 +13,15 @@ import {
   ChevronDown,
   Maximize2,
   Minimize2,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { clientAxios } from "@/lib/api/clients";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Board, ApiResponse, BoardListData } from "@/types/community";
 
 type VisibilityOption = "public" | "followers" | "private";
 
@@ -34,22 +40,42 @@ export default function PostCreateModal({
   isOpen,
   onClose,
 }: PostCreateModalProps) {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [visibility, setVisibility] = useState<VisibilityOption>("public");
   const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
-  const [selectedBoard, setSelectedBoard] = useState("자유게시판");
+  const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
   const [showBoardMenu, setShowBoardMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [boardOptions, setBoardOptions] = useState<Board[]>([]);
 
-  const boardOptions = [
-    "자유게시판",
-    "공략게시판",
-    "거래게시판",
-    "질문게시판",
-  ];
+  const fetchBoards = useCallback(async () => {
+    try {
+      const response = await fetch("/api/boards");
+      if (!response.ok) return;
+      const apiResponse: ApiResponse<BoardListData> = await response.json();
+      if (!apiResponse.success) return;
+      const boards = apiResponse.data?.boards || [];
+      setBoardOptions(boards);
+      if (boards.length > 0 && selectedBoardId === null) {
+        setSelectedBoardId(boards[0].id);
+      }
+    } catch {
+      // 게시판 목록 로드 실패 시 무시
+    }
+  }, [selectedBoardId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchBoards();
+    }
+  }, [isOpen, fetchBoards]);
 
   const visibilityOptions = [
     { value: "public" as VisibilityOption, label: "전체 공개", icon: Globe },
@@ -99,14 +125,76 @@ export default function PostCreateModal({
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement post submission
-    onClose();
+  const handleSubmit = async () => {
+    if (!isAuthenticated) {
+      toast.warning("로그인 후 사용 가능합니다.");
+      return;
+    }
+
+    if (!title.trim()) {
+      toast.warning("제목을 입력해주세요.");
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.warning("내용을 입력해주세요.");
+      return;
+    }
+
+    const selectedBoardData = boardOptions.find((b) => b.id === selectedBoardId);
+    if (!selectedBoardData) {
+      toast.error("게시판을 선택해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+
+      const postData = {
+        boardId: selectedBoardData.id,
+        title: title.trim(),
+        content: content.trim(),
+      };
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(postData)], { type: "application/json" })
+      );
+
+      images.forEach((image) => {
+        formData.append("files", image.file);
+      });
+
+      await clientAxios.post("/posts", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("게시글이 작성되었습니다.");
+      resetForm();
+      onClose();
+      router.push("/community");
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      toast.error("게시글 작성에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setImages([]);
+    setTags([]);
+    setTagInput("");
+    setIsExpanded(false);
   };
 
   const handleClose = () => {
-    // Check if there's any content
-    const hasContent = content.trim() || images.length > 0 || tags.length > 0;
+    const hasContent = title.trim() || content.trim() || images.length > 0 || tags.length > 0;
 
     if (hasContent) {
       const confirmed = window.confirm(
@@ -115,11 +203,7 @@ export default function PostCreateModal({
       if (!confirmed) return;
     }
 
-    setContent("");
-    setImages([]);
-    setTags([]);
-    setTagInput("");
-    setIsExpanded(false);
+    resetForm();
     onClose();
   };
 
@@ -195,10 +279,17 @@ export default function PostCreateModal({
                   <div className="flex items-center gap-2">
                     <Button
                       onClick={handleSubmit}
-                      disabled={!content.trim()}
+                      disabled={!title.trim() || !content.trim() || isSubmitting}
                       className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                     >
-                      게시하기
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          게시 중...
+                        </>
+                      ) : (
+                        "게시하기"
+                      )}
                     </Button>
                     <Button
                       variant="ghost"
@@ -228,7 +319,7 @@ export default function PostCreateModal({
                       }`}
                     >
                       <span className="text-sm font-medium text-gray-700">
-                        {selectedBoard}
+                        {boardOptions.find((b) => b.id === selectedBoardId)?.name || "게시판 선택"}
                       </span>
                       <ChevronDown className="w-4 h-4 text-gray-500" />
                     </button>
@@ -243,20 +334,30 @@ export default function PostCreateModal({
                         >
                           {boardOptions.map((board) => (
                             <button
-                              key={board}
+                              key={board.id}
                               onClick={() => {
-                                setSelectedBoard(board);
+                                setSelectedBoardId(board.id);
                                 setShowBoardMenu(false);
                               }}
                               className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
                             >
-                              {board}
+                              {board.name}
                             </button>
                           ))}
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </motion.div>
+
+                  {/* Title Input */}
+                  <input
+                    type="text"
+                    placeholder="제목을 입력하세요..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full text-2xl font-bold text-gray-900 placeholder-gray-400 border-none outline-none mb-4 bg-transparent"
+                    maxLength={100}
+                  />
 
                   {/* Content Textarea */}
                   <motion.textarea

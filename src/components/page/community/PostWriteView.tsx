@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Image as ImageIcon,
   X,
@@ -19,6 +19,7 @@ import { clientAxios } from "@/lib/api/clients";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Board, ApiResponse, BoardListData } from "@/types/community";
 
 type VisibilityOption = "public" | "followers" | "private";
 
@@ -38,16 +39,30 @@ export default function PostWriteView() {
   const [tagInput, setTagInput] = useState("");
   const [visibility, setVisibility] = useState<VisibilityOption>("public");
   const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
-  const [selectedBoard, setSelectedBoard] = useState("자유게시판");
+  const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
   const [showBoardMenu, setShowBoardMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [boardOptions, setBoardOptions] = useState<Board[]>([]);
 
-  const boardOptions = [
-    { name: "자유게시판", id: 1 },
-    { name: "공략게시판", id: 2 },
-    { name: "거래게시판", id: 3 },
-    { name: "질문게시판", id: 4 },
-  ];
+  const fetchBoards = useCallback(async () => {
+    try {
+      const response = await fetch("/api/boards");
+      if (!response.ok) return;
+      const apiResponse: ApiResponse<BoardListData> = await response.json();
+      if (!apiResponse.success) return;
+      const boards = apiResponse.data?.boards || [];
+      setBoardOptions(boards);
+      if (boards.length > 0 && selectedBoardId === null) {
+        setSelectedBoardId(boards[0].id);
+      }
+    } catch {
+      // 게시판 목록 로드 실패 시 무시
+    }
+  }, [selectedBoardId]);
+
+  useEffect(() => {
+    fetchBoards();
+  }, [fetchBoards]);
 
   const visibilityOptions = [
     { value: "public" as VisibilityOption, label: "전체 공개", icon: Globe },
@@ -113,7 +128,7 @@ export default function PostWriteView() {
       return;
     }
 
-    const selectedBoardData = boardOptions.find((b) => b.name === selectedBoard);
+    const selectedBoardData = boardOptions.find((b) => b.id === selectedBoardId);
     if (!selectedBoardData) {
       toast.error("게시판을 선택해주세요.");
       return;
@@ -199,7 +214,7 @@ export default function PostWriteView() {
               className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <span className="text-sm font-medium text-gray-700">
-                {selectedBoard}
+                {boardOptions.find((b) => b.id === selectedBoardId)?.name || "게시판 선택"}
               </span>
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -209,7 +224,7 @@ export default function PostWriteView() {
                   <button
                     key={board.id}
                     onClick={() => {
-                      setSelectedBoard(board.name);
+                      setSelectedBoardId(board.id);
                       setShowBoardMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
