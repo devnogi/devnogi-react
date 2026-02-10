@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ThreeTierNav from "@/components/navigation/ThreeTierNav";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
@@ -11,7 +12,9 @@ export default function RootLayout({
   return (
     <div className="min-h-screen flex flex-col bg-background transition-colors duration-300">
       {/* 3-Tier Navigation */}
-      <ThreeTierNav />
+      <Suspense fallback={null}>
+        <ThreeTierNav />
+      </Suspense>
 
       {/* Main Content
           Mobile: pt-[142px] for full nav (48+49+44+1)
