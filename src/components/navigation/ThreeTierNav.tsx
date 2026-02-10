@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { Search, Sun, Moon, User, Home, X, Clock } from "lucide-react";
@@ -31,6 +31,7 @@ const navItems = [
 export default function ThreeTierNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const urlSearchParams = useSearchParams();
   const { isAuthenticated, user } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -66,8 +67,10 @@ export default function ThreeTierNav() {
   const isItemInfoPage = pathname.startsWith("/item-info");
   // 게시판 페이지인지 확인
   const isCommunityPage = pathname.startsWith("/community");
-  // 검색 가능한 페이지 (경매장 + 아이템 정보)
-  const isSearchablePage = isAuctionPage || isItemInfoPage;
+  // 시세 정보 페이지인지 확인
+  const isStatisticsPage = pathname.startsWith("/statistics");
+  // 검색 가능한 페이지 (경매장 + 아이템 정보 + 시세 정보)
+  const isSearchablePage = isAuctionPage || isItemInfoPage || isStatisticsPage;
 
   // Filtered items based on search input
   const filteredItems = useMemo(() => {
@@ -114,6 +117,13 @@ export default function ThreeTierNav() {
     setSelectedIndex(-1);
   }, [searchValue]);
 
+  useEffect(() => {
+    if (isStatisticsPage) {
+      setSearchValue(urlSearchParams.get("itemName") || "");
+      return;
+    }
+  }, [isStatisticsPage, urlSearchParams]);
+
   const handleNotReady = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     toast("죄송합니다. 해당 메뉴는 오픈 준비 중입니다", {
@@ -140,6 +150,18 @@ export default function ThreeTierNav() {
         return;
       }
 
+      // 시세 정보 페이지인 경우 (item 탭으로 강제 전환)
+      if (isStatisticsPage) {
+        const params = new URLSearchParams({
+          tab: "item",
+          itemName: item.name,
+          topCategory: item.topCategory,
+          subCategory: item.subCategory,
+        });
+        router.push(`/statistics?${params.toString()}`);
+        return;
+      }
+
       // Navigate to current auction page with search params (history or realtime)
       const categoryId = getCategoryId(item.topCategory, item.subCategory);
       const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
@@ -147,7 +169,7 @@ export default function ThreeTierNav() {
         `${basePath}?itemName=${encodeURIComponent(item.name)}&category=${encodeURIComponent(categoryId || "")}`
       );
     },
-    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage]
+    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage, isStatisticsPage]
   );
 
   const handleRecentSearchClick = useCallback(
@@ -168,6 +190,22 @@ export default function ThreeTierNav() {
         return;
       }
 
+      // 시세 정보 페이지인 경우 (카테고리 정보가 있는 최근 검색어만 허용)
+      if (isStatisticsPage) {
+        if (!search.topCategory || !search.subCategory) {
+          toast("시세 정보에서는 목록의 아이템을 선택해주세요.");
+          return;
+        }
+        const params = new URLSearchParams({
+          tab: "item",
+          itemName: search.itemName,
+          topCategory: search.topCategory,
+          subCategory: search.subCategory,
+        });
+        router.push(`/statistics?${params.toString()}`);
+        return;
+      }
+
       const categoryId = getCategoryId(search.topCategory, search.subCategory);
       const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
 
@@ -181,7 +219,7 @@ export default function ThreeTierNav() {
         );
       }
     },
-    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage]
+    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage, isStatisticsPage]
   );
 
   const handleClearAllRecentSearches = useCallback(() => {
@@ -211,6 +249,10 @@ export default function ThreeTierNav() {
       if (matchingItem) {
         handleItemSelect(matchingItem);
       } else {
+        if (isStatisticsPage) {
+          toast("시세 정보에서는 목록의 아이템을 선택해주세요.");
+          return;
+        }
         // 일치하는 아이템이 없으면 검색어만 저장
         addRecentSearch({ itemName: searchValue.trim() });
 
@@ -237,6 +279,7 @@ export default function ThreeTierNav() {
     router,
     isAuctionRealtimePage,
     isItemInfoPage,
+    isStatisticsPage,
   ]);
 
   // 뿔피리 검색 제출 로직
@@ -364,6 +407,8 @@ export default function ThreeTierNav() {
       return "게시글 제목을 검색해주세요";
     } else if (pathname.startsWith("/item-info")) {
       return "아이템 정보 검색";
+    } else if (pathname.startsWith("/statistics")) {
+      return "시세 아이템 검색";
     }
     return "아이템 이름을 검색하세요";
   }, [pathname]);

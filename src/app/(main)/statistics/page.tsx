@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import StatisticsTabs, {
   StatisticsTabType,
 } from "@/components/page/statistics/StatisticsTabs";
@@ -30,6 +31,8 @@ import {
 } from "@/types/statistics";
 
 export default function StatisticsPage() {
+  const router = useRouter();
+  const urlSearchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<StatisticsTabType>("item");
   const [period, setPeriod] = useState<PeriodType>("daily");
   const [dateFrom, setDateFrom] = useState("");
@@ -50,6 +53,58 @@ export default function StatisticsPage() {
     useState<TopCategoryStatisticsParams>({
       topCategory: "",
     });
+
+  const updateStatisticsUrl = useCallback(
+    (
+      tab: StatisticsTabType,
+      item: ItemStatisticsParams,
+      subcategory: SubcategoryStatisticsParams,
+      topCategory: TopCategoryStatisticsParams,
+    ) => {
+      const params = new URLSearchParams();
+      params.set("tab", tab);
+
+      if (tab === "item") {
+        if (item.itemName) params.set("itemName", item.itemName);
+        if (item.topCategory) params.set("topCategory", item.topCategory);
+        if (item.subCategory) params.set("subCategory", item.subCategory);
+      } else if (tab === "subcategory") {
+        if (subcategory.topCategory) params.set("topCategory", subcategory.topCategory);
+        if (subcategory.subCategory) params.set("subCategory", subcategory.subCategory);
+      } else if (topCategory.topCategory) {
+        params.set("topCategory", topCategory.topCategory);
+      }
+
+      const query = params.toString();
+      router.replace(query ? `/statistics?${query}` : "/statistics");
+    },
+    [router],
+  );
+
+  useEffect(() => {
+    const rawTab = urlSearchParams.get("tab");
+    const nextTab: StatisticsTabType =
+      rawTab === "subcategory" || rawTab === "top-category" || rawTab === "item"
+        ? rawTab
+        : "item";
+    const nextTopCategory = urlSearchParams.get("topCategory") || "";
+    const nextSubCategory = urlSearchParams.get("subCategory") || "";
+    const nextItemName = urlSearchParams.get("itemName") || "";
+
+    setActiveTab(nextTab);
+    setItemParams({
+      itemName: nextItemName,
+      topCategory: nextTopCategory,
+      subCategory: nextSubCategory,
+    });
+    setSubcategoryParams({
+      topCategory: nextTopCategory,
+      subCategory: nextSubCategory,
+    });
+    setTopCategoryParams({
+      topCategory: nextTopCategory,
+    });
+  }, [urlSearchParams]);
 
   // Build params with dates
   const itemParamsWithDates = useMemo(
@@ -116,28 +171,63 @@ export default function StatisticsPage() {
     return !!topCategoryParams.topCategory;
   }, [activeTab, itemParams, subcategoryParams, topCategoryParams]);
 
-  const handleSearch = (params: {
+  const handleSearch = useCallback((params: {
     topCategory: string;
     subCategory: string;
     itemName: string;
   }) => {
     if (activeTab === "item") {
-      setItemParams({
+      const nextItemParams = {
         itemName: params.itemName,
         subCategory: params.subCategory,
         topCategory: params.topCategory,
-      });
+      };
+      setItemParams(nextItemParams);
+      updateStatisticsUrl(
+        activeTab,
+        nextItemParams,
+        subcategoryParams,
+        topCategoryParams,
+      );
     } else if (activeTab === "subcategory") {
-      setSubcategoryParams({
+      const nextSubcategoryParams = {
         topCategory: params.topCategory,
         subCategory: params.subCategory,
-      });
+      };
+      setSubcategoryParams(nextSubcategoryParams);
+      updateStatisticsUrl(
+        activeTab,
+        itemParams,
+        nextSubcategoryParams,
+        topCategoryParams,
+      );
     } else {
-      setTopCategoryParams({
+      const nextTopCategoryParams = {
         topCategory: params.topCategory,
-      });
+      };
+      setTopCategoryParams(nextTopCategoryParams);
+      updateStatisticsUrl(
+        activeTab,
+        itemParams,
+        subcategoryParams,
+        nextTopCategoryParams,
+      );
     }
-  };
+  }, [
+    activeTab,
+    itemParams,
+    subcategoryParams,
+    topCategoryParams,
+    updateStatisticsUrl,
+  ]);
+
+  const handleTabChange = useCallback(
+    (tab: StatisticsTabType) => {
+      setActiveTab(tab);
+      updateStatisticsUrl(tab, itemParams, subcategoryParams, topCategoryParams);
+    },
+    [itemParams, subcategoryParams, topCategoryParams, updateStatisticsUrl],
+  );
 
   const maxRange =
     period === "daily" ? "최대 30일" : "최대 4개월";
@@ -157,12 +247,59 @@ export default function StatisticsPage() {
 
         {/* Tabs */}
         <div className="mb-4">
-          <StatisticsTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <StatisticsTabs activeTab={activeTab} onTabChange={handleTabChange} />
         </div>
 
         {/* Search Form */}
         <div className="bg-white dark:bg-navy-700 rounded-2xl p-4 md:p-6 shadow-xl border border-gray-100 dark:border-navy-600 mb-4">
-          <StatisticsSearchForm activeTab={activeTab} onSearch={handleSearch} />
+          <StatisticsSearchForm
+            activeTab={activeTab}
+            topCategory={
+              activeTab === "item"
+                ? itemParams.topCategory
+                : activeTab === "subcategory"
+                  ? subcategoryParams.topCategory
+                  : topCategoryParams.topCategory
+            }
+            subCategory={
+              activeTab === "item"
+                ? itemParams.subCategory
+                : activeTab === "subcategory"
+                  ? subcategoryParams.subCategory
+                  : ""
+            }
+            itemName={activeTab === "item" ? itemParams.itemName : ""}
+            onTopCategoryChange={(value) => {
+              if (activeTab === "item") {
+                setItemParams((prev) => ({
+                  ...prev,
+                  topCategory: value,
+                  subCategory: "",
+                }));
+              } else if (activeTab === "subcategory") {
+                setSubcategoryParams((prev) => ({
+                  ...prev,
+                  topCategory: value,
+                  subCategory: "",
+                }));
+              } else {
+                setTopCategoryParams({ topCategory: value });
+              }
+            }}
+            onSubCategoryChange={(value) => {
+              if (activeTab === "item") {
+                setItemParams((prev) => ({ ...prev, subCategory: value }));
+              } else if (activeTab === "subcategory") {
+                setSubcategoryParams((prev) => ({ ...prev, subCategory: value }));
+              }
+            }}
+            onItemNameChange={(value) => {
+              if (activeTab === "item") {
+                setItemParams((prev) => ({ ...prev, itemName: value }));
+              }
+            }}
+            onSearch={handleSearch}
+          />
         </div>
 
         {/* Period Toggle + Date Range */}
