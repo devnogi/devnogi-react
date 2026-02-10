@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { Suspense, useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import StatisticsTabs, {
   StatisticsTabType,
@@ -30,7 +30,7 @@ import {
   StatisticsBase,
 } from "@/types/statistics";
 
-export default function StatisticsPage() {
+function StatisticsPageContent() {
   const router = useRouter();
   const urlSearchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<StatisticsTabType>("item");
@@ -364,5 +364,13 @@ export default function StatisticsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function StatisticsPage() {
+  return (
+    <Suspense fallback={<StatisticsSkeleton />}>
+      <StatisticsPageContent />
+    </Suspense>
   );
 }
