@@ -79,57 +79,70 @@ function CommunityPageContent() {
         setSelectedBoardId={setSelectedBoardId}
       />
 
-      {/* Popular Posts Highlight */}
-      <PopularPostsHighlight boardId={selectedBoardId} />
-
-      {/* Search Result Info */}
-      {keyword && (
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <span>&quot;{keyword}&quot; 검색 결과</span>
-        </div>
-      )}
-
-      {/* Sort Options */}
-      <div className="flex items-center gap-2">
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value as SortType)}
-          disabled={showMyPosts}
-          className="border border-gray-200 dark:border-navy-600 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 disabled:opacity-50"
-        >
-          <option value="latest">최신순</option>
-          <option value="popular">인기순</option>
-          <option value="mostLiked">좋아요순</option>
-        </select>
-        {isAuthenticated && (
-          <button
-            onClick={() => setShowMyPosts((prev) => !prev)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
-              showMyPosts
-                ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100"
-                : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
-            }`}
-          >
-            <UserRound className="w-4 h-4" />
-            내 글
-          </button>
-        )}
+      {/* Mobile Popular Posts */}
+      <div className="md:hidden">
+        <PopularPostsHighlight boardId={selectedBoardId} />
       </div>
 
-      {/* Info: 인기순/좋아요순은 게시판 선택 필요 */}
-      {(sortOption === "popular" || sortOption === "mostLiked") && !selectedBoardId && (
-        <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
-          인기순/좋아요순은 게시판을 선택해야 적용됩니다.
-        </div>
-      )}
+      {/* Desktop/Tablet Layout: Post List + Popular Card */}
+      <div className="md:grid md:grid-cols-[minmax(0,1fr)_320px] md:gap-6 lg:gap-8">
+        <section className="min-w-0 space-y-4">
+          {/* Search Result Info */}
+          {keyword && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <span>&quot;{keyword}&quot; 검색 결과</span>
+            </div>
+          )}
 
-      {/* Post List */}
-      <PostList
-        boardId={showMyPosts ? undefined : selectedBoardId}
-        keyword={showMyPosts ? undefined : keyword}
-        sortType={showMyPosts ? undefined : sortOption}
-        userId={showMyPosts ? user?.userId : undefined}
-      />
+          {/* Sort Options */}
+          <div className="flex items-center gap-2">
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value as SortType)}
+              disabled={showMyPosts}
+              className="border border-gray-200 dark:border-navy-600 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 disabled:opacity-50"
+            >
+              <option value="latest">최신순</option>
+              <option value="popular">인기순</option>
+              <option value="mostLiked">좋아요순</option>
+            </select>
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowMyPosts((prev) => !prev)}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
+                  showMyPosts
+                    ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100"
+                    : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
+                }`}
+              >
+                <UserRound className="w-4 h-4" />
+                내 글
+              </button>
+            )}
+          </div>
+
+          {/* Info: 인기순/좋아요순은 게시판 선택 필요 */}
+          {(sortOption === "popular" || sortOption === "mostLiked") && !selectedBoardId && (
+            <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
+              인기순/좋아요순은 게시판을 선택해야 적용됩니다.
+            </div>
+          )}
+
+          {/* Post List */}
+          <PostList
+            boardId={showMyPosts ? undefined : selectedBoardId}
+            keyword={showMyPosts ? undefined : keyword}
+            sortType={showMyPosts ? undefined : sortOption}
+            userId={showMyPosts ? user?.userId : undefined}
+          />
+        </section>
+
+        <aside className="hidden md:block">
+          <div className="sticky top-[116px]">
+            <PopularPostsHighlight boardId={selectedBoardId} />
+          </div>
+        </aside>
+      </div>
 
       {/* FAB - Write Post Button */}
       <button
