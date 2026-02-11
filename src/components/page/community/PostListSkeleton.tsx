@@ -4,30 +4,30 @@
  */
 export default function PostListSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="space-y-3">
       {[...Array(6)].map((_, i) => (
         <div
           key={i}
-          className="bg-white dark:bg-navy-700 rounded-[20px] border border-gray-200 dark:border-navy-600 shadow-[0_4px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-5 flex flex-col animate-pulse"
+          className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 animate-pulse"
         >
-          {/* Title skeleton */}
-          <div className="flex-1 min-h-[48px] space-y-2">
-            <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-full" />
-            <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-3/4" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-navy-600" />
+            <div className="space-y-1.5">
+              <div className="h-3.5 bg-gray-200 dark:bg-navy-600 rounded w-20" />
+              <div className="h-3 bg-gray-200 dark:bg-navy-600 rounded w-16" />
+            </div>
           </div>
 
-          {/* Stats & Time skeleton */}
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-navy-600">
-            <div className="flex items-center justify-between">
-              {/* Stats */}
-              <div className="flex items-center gap-3">
-                <div className="h-4 w-12 bg-gray-200 dark:bg-navy-600 rounded" />
-                <div className="h-4 w-12 bg-gray-200 dark:bg-navy-600 rounded" />
-                <div className="h-4 w-12 bg-gray-200 dark:bg-navy-600 rounded" />
-              </div>
+          <div className="space-y-2 mb-3">
+            <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-full" />
+            <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-4/5" />
+          </div>
 
-              {/* Time */}
-              <div className="h-3 w-16 bg-gray-200 dark:bg-navy-600 rounded" />
+          <div className="pt-3 border-t border-gray-100 dark:border-navy-600">
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-14 bg-gray-200 dark:bg-navy-600 rounded-full" />
+              <div className="h-6 w-14 bg-gray-200 dark:bg-navy-600 rounded-full" />
+              <div className="h-6 w-14 bg-gray-200 dark:bg-navy-600 rounded-full ml-auto" />
             </div>
           </div>
         </div>

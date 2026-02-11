@@ -69,9 +69,9 @@ export default function PostList({ boardId, keyword, sortType, userId }: PostLis
 
   if (allPosts.length === 0) {
     return (
-      <div className="bg-white dark:bg-navy-700 rounded-[20px] border border-gray-200 dark:border-navy-600 shadow-[0_8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] py-12">
+      <div className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 py-12">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
             {userId ? "작성한 게시글이 없습니다." : "게시글이 없습니다."}
           </p>
           {!userId && (
@@ -87,7 +87,7 @@ export default function PostList({ boardId, keyword, sortType, userId }: PostLis
   return (
     <>
       {/* Card List Layout */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="space-y-3">
         {allPosts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
