@@ -12,9 +12,15 @@ import {
 } from "recharts";
 import { useTheme } from "@/contexts/ThemeContext";
 import { StatisticsBase } from "@/types/statistics";
+import StatisticsChartTooltip from "./StatisticsChartTooltip";
 
 interface PriceChartProps {
-  data: (StatisticsBase & { date?: string; weekStart?: string })[];
+  data: (StatisticsBase & {
+    date?: string;
+    dateAuctionBuy?: string;
+    weekStart?: string;
+    weekEnd?: string;
+  })[];
 }
 
 function formatPrice(value: number): string {
@@ -28,7 +34,7 @@ export default function PriceChart({ data }: PriceChartProps) {
 
   const chartData = data.map((item) => ({
     ...item,
-    label: item.date ?? item.weekStart ?? "",
+    label: item.date ?? item.dateAuctionBuy ?? item.weekStart ?? "",
   }));
 
   const colors = isDarkMode
@@ -56,20 +62,13 @@ export default function PriceChart({ data }: PriceChartProps) {
               width={60}
             />
             <Tooltip
-              formatter={(value, name) => [
-                formatPrice(Number(value)),
-                name === "minPrice"
-                  ? "최저가"
-                  : name === "maxPrice"
-                    ? "최고가"
-                    : "평균가",
-              ]}
-              contentStyle={{
-                backgroundColor: isDarkMode ? "#1a1a2e" : "#FFFFFF",
-                border: `1px solid ${isDarkMode ? "#2a2a45" : "#E5E7EB"}`,
-                borderRadius: "12px",
-                color: isDarkMode ? "#F9FAFB" : "#111827",
-              }}
+              content={(tooltipProps) => (
+                <StatisticsChartTooltip
+                  {...tooltipProps}
+                  mode="price"
+                  isDarkMode={isDarkMode}
+                />
+              )}
             />
             <Legend
               formatter={(value: string) =>

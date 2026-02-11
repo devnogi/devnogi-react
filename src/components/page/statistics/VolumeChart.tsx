@@ -12,9 +12,15 @@ import {
 } from "recharts";
 import { useTheme } from "@/contexts/ThemeContext";
 import { StatisticsBase } from "@/types/statistics";
+import StatisticsChartTooltip from "./StatisticsChartTooltip";
 
 interface VolumeChartProps {
-  data: (StatisticsBase & { date?: string; weekStart?: string })[];
+  data: (StatisticsBase & {
+    date?: string;
+    dateAuctionBuy?: string;
+    weekStart?: string;
+    weekEnd?: string;
+  })[];
 }
 
 function formatVolume(value: number): string {
@@ -28,7 +34,7 @@ export default function VolumeChart({ data }: VolumeChartProps) {
 
   const chartData = data.map((item) => ({
     ...item,
-    label: item.date ?? item.weekStart ?? "",
+    label: item.date ?? item.dateAuctionBuy ?? item.weekStart ?? "",
   }));
 
   const colors = isDarkMode
@@ -64,18 +70,13 @@ export default function VolumeChart({ data }: VolumeChartProps) {
               width={40}
             />
             <Tooltip
-              formatter={(value, name) => [
-                name === "totalVolume"
-                  ? formatVolume(Number(value))
-                  : Number(value).toLocaleString(),
-                name === "totalVolume" ? "총 거래금액" : "총 거래수량",
-              ]}
-              contentStyle={{
-                backgroundColor: isDarkMode ? "#1a1a2e" : "#FFFFFF",
-                border: `1px solid ${isDarkMode ? "#2a2a45" : "#E5E7EB"}`,
-                borderRadius: "12px",
-                color: isDarkMode ? "#F9FAFB" : "#111827",
-              }}
+              content={(tooltipProps) => (
+                <StatisticsChartTooltip
+                  {...tooltipProps}
+                  mode="volume"
+                  isDarkMode={isDarkMode}
+                />
+              )}
             />
             <Legend
               formatter={(value: string) =>
