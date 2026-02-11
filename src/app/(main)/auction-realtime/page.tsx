@@ -173,13 +173,21 @@ function parseSearchParamsFromUrl(
   parsed.direction = parseDirection(urlSearchParams.get("direction"));
 
   const itemName =
-    urlSearchParams.get("itemName") || urlSearchParams.get("item_name");
+    urlSearchParams.get("item_name") ||
+    urlSearchParams.get("itemName") ||
+    urlSearchParams.get("name");
   if (itemName) {
     parsed.itemName = itemName;
   }
 
-  const itemTopCategory = urlSearchParams.get("itemTopCategory");
-  const itemSubCategory = urlSearchParams.get("itemSubCategory");
+  const itemTopCategory =
+    urlSearchParams.get("top_category") ||
+    urlSearchParams.get("itemTopCategory") ||
+    urlSearchParams.get("topCategory");
+  const itemSubCategory =
+    urlSearchParams.get("sub_category") ||
+    urlSearchParams.get("itemSubCategory") ||
+    urlSearchParams.get("subCategory");
 
   if (itemTopCategory) {
     parsed.itemTopCategory = itemTopCategory;
@@ -209,8 +217,13 @@ function parseSearchParamsFromUrl(
         "sortBy",
         "direction",
         "itemName",
+        "name",
         "item_name",
+        "top_category",
+        "topCategory",
         "itemTopCategory",
+        "sub_category",
+        "subCategory",
         "itemSubCategory",
         "category",
       ].includes(key)
@@ -259,6 +272,19 @@ function serializeSearchParams(params: AuctionRealtimeSearchParams): string {
   const cleaned = cleanEmptyObject(normalized) as Record<string, unknown>;
 
   const queryParams = buildNestedQueryParams(cleaned);
+  if (normalized.itemName) {
+    queryParams.set("item_name", normalized.itemName);
+    queryParams.delete("itemName");
+  }
+  if (normalized.itemTopCategory) {
+    queryParams.set("top_category", normalized.itemTopCategory);
+    queryParams.delete("itemTopCategory");
+  }
+  if (normalized.itemSubCategory) {
+    queryParams.set("sub_category", normalized.itemSubCategory);
+    queryParams.delete("itemSubCategory");
+  }
+
   const sortedQueryParams = new URLSearchParams(
     Array.from(queryParams.entries()).sort(([a], [b]) => a.localeCompare(b)),
   );

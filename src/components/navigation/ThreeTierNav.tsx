@@ -3,7 +3,12 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  type ReadonlyURLSearchParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { toast } from "sonner";
 import clsx from "clsx";
 import { Search, Sun, Moon, User, Home, X, Clock } from "lucide-react";
@@ -12,7 +17,6 @@ import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
 import {
   useRecentSearches,
   RecentSearch,
-  getCategoryId,
 } from "@/hooks/useRecentSearches";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -27,6 +31,45 @@ const navItems = [
   { href: "/horn-bugle", label: "거대한 뿔피리", ready: true },
   { href: "/item-info", label: "아이템 정보", ready: true },
 ];
+
+const SHARED_SEARCH_ROUTE_SET = new Set([
+  "/auction-history",
+  "/auction-realtime",
+  "/statistics",
+  "/item-info",
+]);
+
+type SharedSearchContext = {
+  itemName: string;
+  topCategory: string;
+  subCategory: string;
+};
+
+function firstNonEmpty(values: Array<string | null>) {
+  return values.find((value) => value && value.trim().length > 0) ?? "";
+}
+
+function readSharedSearchContext(
+  params: ReadonlyURLSearchParams,
+): SharedSearchContext {
+  return {
+    itemName: firstNonEmpty([
+      params.get("item_name"),
+      params.get("itemName"),
+      params.get("name"),
+    ]),
+    topCategory: firstNonEmpty([
+      params.get("top_category"),
+      params.get("itemTopCategory"),
+      params.get("topCategory"),
+    ]),
+    subCategory: firstNonEmpty([
+      params.get("sub_category"),
+      params.get("itemSubCategory"),
+      params.get("subCategory"),
+    ]),
+  };
+}
 
 export default function ThreeTierNav() {
   const pathname = usePathname();
@@ -71,6 +114,10 @@ export default function ThreeTierNav() {
   const isStatisticsPage = pathname.startsWith("/statistics");
   // 검색 가능한 페이지 (경매장 + 아이템 정보 + 시세 정보)
   const isSearchablePage = isAuctionPage || isItemInfoPage || isStatisticsPage;
+  const sharedSearchContext = useMemo(
+    () => readSharedSearchContext(urlSearchParams),
+    [urlSearchParams],
+  );
 
   // Filtered items based on search input
   const filteredItems = useMemo(() => {
@@ -118,11 +165,66 @@ export default function ThreeTierNav() {
   }, [searchValue]);
 
   useEffect(() => {
-    if (isStatisticsPage) {
-      setSearchValue(urlSearchParams.get("itemName") || "");
+    if (isSearchablePage) {
+      setSearchValue(sharedSearchContext.itemName);
       return;
     }
-  }, [isStatisticsPage, urlSearchParams]);
+
+    if (isHornBuglePage) {
+      setSearchValue(urlSearchParams.get("keyword") || "");
+      return;
+    }
+
+    if (isCommunityPage) {
+      setSearchValue(urlSearchParams.get("q") || "");
+      return;
+    }
+
+    setSearchValue("");
+  }, [
+    isSearchablePage,
+    isHornBuglePage,
+    isCommunityPage,
+    sharedSearchContext.itemName,
+    urlSearchParams,
+  ]);
+
+  const buildSharedSearchPath = useCallback(
+    (targetPath: string) => {
+      if (!SHARED_SEARCH_ROUTE_SET.has(targetPath)) {
+        return targetPath;
+      }
+
+      if (pathname === targetPath) {
+        const currentQuery = urlSearchParams.toString();
+        return currentQuery ? `${targetPath}?${currentQuery}` : targetPath;
+      }
+
+      const params = new URLSearchParams();
+
+      if (sharedSearchContext.itemName) {
+        params.set("item_name", sharedSearchContext.itemName);
+      }
+      if (sharedSearchContext.topCategory) {
+        params.set("top_category", sharedSearchContext.topCategory);
+      }
+      if (sharedSearchContext.subCategory) {
+        params.set("sub_category", sharedSearchContext.subCategory);
+      }
+      if (
+        targetPath === "/statistics" &&
+        (sharedSearchContext.itemName ||
+          sharedSearchContext.topCategory ||
+          sharedSearchContext.subCategory)
+      ) {
+        params.set("tab", "item");
+      }
+
+      const query = params.toString();
+      return query ? `${targetPath}?${query}` : targetPath;
+    },
+    [pathname, sharedSearchContext, urlSearchParams],
+  );
 
   const handleNotReady = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -144,9 +246,12 @@ export default function ThreeTierNav() {
 
       // 아이템 정보 페이지인 경우
       if (isItemInfoPage) {
-        router.push(
-          `/item-info?name=${encodeURIComponent(item.name)}&topCategory=${encodeURIComponent(item.topCategory)}`
-        );
+        const params = new URLSearchParams({
+          item_name: item.name,
+          top_category: item.topCategory,
+          sub_category: item.subCategory,
+        });
+        router.push(`/item-info?${params.toString()}`);
         return;
       }
 
@@ -154,20 +259,22 @@ export default function ThreeTierNav() {
       if (isStatisticsPage) {
         const params = new URLSearchParams({
           tab: "item",
-          itemName: item.name,
-          topCategory: item.topCategory,
-          subCategory: item.subCategory,
+          item_name: item.name,
+          top_category: item.topCategory,
+          sub_category: item.subCategory,
         });
         router.push(`/statistics?${params.toString()}`);
         return;
       }
 
       // Navigate to current auction page with search params (history or realtime)
-      const categoryId = getCategoryId(item.topCategory, item.subCategory);
       const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
-      router.push(
-        `${basePath}?itemName=${encodeURIComponent(item.name)}&category=${encodeURIComponent(categoryId || "")}`
-      );
+      const params = new URLSearchParams({
+        item_name: item.name,
+        top_category: item.topCategory,
+        sub_category: item.subCategory,
+      });
+      router.push(`${basePath}?${params.toString()}`);
     },
     [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage, isStatisticsPage]
   );
@@ -182,9 +289,12 @@ export default function ThreeTierNav() {
       // 아이템 정보 페이지인 경우
       if (isItemInfoPage) {
         const params = new URLSearchParams();
-        params.set("name", search.itemName);
+        params.set("item_name", search.itemName);
         if (search.topCategory) {
-          params.set("topCategory", search.topCategory);
+          params.set("top_category", search.topCategory);
+        }
+        if (search.subCategory) {
+          params.set("sub_category", search.subCategory);
         }
         router.push(`/item-info?${params.toString()}`);
         return;
@@ -198,26 +308,25 @@ export default function ThreeTierNav() {
         }
         const params = new URLSearchParams({
           tab: "item",
-          itemName: search.itemName,
-          topCategory: search.topCategory,
-          subCategory: search.subCategory,
+          item_name: search.itemName,
+          top_category: search.topCategory,
+          sub_category: search.subCategory,
         });
         router.push(`/statistics?${params.toString()}`);
         return;
       }
 
-      const categoryId = getCategoryId(search.topCategory, search.subCategory);
       const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
-
-      if (categoryId) {
-        router.push(
-          `${basePath}?itemName=${encodeURIComponent(search.itemName)}&category=${encodeURIComponent(categoryId)}`
-        );
-      } else {
-        router.push(
-          `${basePath}?itemName=${encodeURIComponent(search.itemName)}`
-        );
+      const params = new URLSearchParams({
+        item_name: search.itemName,
+      });
+      if (search.topCategory) {
+        params.set("top_category", search.topCategory);
       }
+      if (search.subCategory) {
+        params.set("sub_category", search.subCategory);
+      }
+      router.push(`${basePath}?${params.toString()}`);
     },
     [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage, isStatisticsPage]
   );
@@ -258,10 +367,10 @@ export default function ThreeTierNav() {
 
         // 아이템 정보 페이지인 경우
         if (isItemInfoPage) {
-          router.push(`/item-info?name=${encodeURIComponent(searchValue.trim())}`);
+          router.push(`/item-info?item_name=${encodeURIComponent(searchValue.trim())}`);
         } else {
           const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
-          router.push(`${basePath}?itemName=${encodeURIComponent(searchValue.trim())}`);
+          router.push(`${basePath}?item_name=${encodeURIComponent(searchValue.trim())}`);
         }
         setIsSearchFocused(false);
         setSelectedIndex(-1);
@@ -588,11 +697,11 @@ export default function ThreeTierNav() {
                 (pathname === href || pathname.startsWith(href + "/"));
 
               return (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={!ready ? handleNotReady : undefined}
-                  className={clsx(
+              <Link
+                key={label}
+                href={buildSharedSearchPath(href)}
+                onClick={!ready ? handleNotReady : undefined}
+                className={clsx(
                     "relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
                     isActive
                       ? "text-blaanid-600 dark:text-coral-400"

@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useState, useMemo, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import StatisticsTabs, {
   StatisticsTabType,
 } from "@/components/page/statistics/StatisticsTabs";
@@ -32,7 +32,9 @@ import {
 
 function StatisticsPageContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const urlSearchParams = useSearchParams();
+  const lastSyncedQueryRef = useRef<string>("");
   const [activeTab, setActiveTab] = useState<StatisticsTabType>("item");
   const [period, setPeriod] = useState<PeriodType>("daily");
   const [dateFrom, setDateFrom] = useState("");
@@ -54,31 +56,44 @@ function StatisticsPageContent() {
       topCategory: "",
     });
 
-  const updateStatisticsUrl = useCallback(
+  const buildStatisticsQuery = useCallback(
     (
       tab: StatisticsTabType,
+      targetPeriod: PeriodType,
+      targetDateFrom: string,
+      targetDateTo: string,
       item: ItemStatisticsParams,
       subcategory: SubcategoryStatisticsParams,
       topCategory: TopCategoryStatisticsParams,
     ) => {
       const params = new URLSearchParams();
       params.set("tab", tab);
-
-      if (tab === "item") {
-        if (item.itemName) params.set("itemName", item.itemName);
-        if (item.topCategory) params.set("topCategory", item.topCategory);
-        if (item.subCategory) params.set("subCategory", item.subCategory);
-      } else if (tab === "subcategory") {
-        if (subcategory.topCategory) params.set("topCategory", subcategory.topCategory);
-        if (subcategory.subCategory) params.set("subCategory", subcategory.subCategory);
-      } else if (topCategory.topCategory) {
-        params.set("topCategory", topCategory.topCategory);
+      if (targetPeriod !== "daily") {
+        params.set("period", targetPeriod);
+      }
+      if (targetDateFrom) {
+        params.set("date_from", targetDateFrom);
+      }
+      if (targetDateTo) {
+        params.set("date_to", targetDateTo);
       }
 
-      const query = params.toString();
-      router.replace(query ? `/statistics?${query}` : "/statistics");
+      if (tab === "item") {
+        if (item.itemName) params.set("item_name", item.itemName);
+        if (item.topCategory) params.set("top_category", item.topCategory);
+        if (item.subCategory) params.set("sub_category", item.subCategory);
+      } else if (tab === "subcategory") {
+        if (subcategory.topCategory) params.set("top_category", subcategory.topCategory);
+        if (subcategory.subCategory) params.set("sub_category", subcategory.subCategory);
+      } else if (topCategory.topCategory) {
+        params.set("top_category", topCategory.topCategory);
+      }
+
+      return new URLSearchParams(
+        Array.from(params.entries()).sort(([a], [b]) => a.localeCompare(b)),
+      ).toString();
     },
-    [router],
+    [],
   );
 
   useEffect(() => {
@@ -87,11 +102,57 @@ function StatisticsPageContent() {
       rawTab === "subcategory" || rawTab === "top-category" || rawTab === "item"
         ? rawTab
         : "item";
-    const nextTopCategory = urlSearchParams.get("topCategory") || "";
-    const nextSubCategory = urlSearchParams.get("subCategory") || "";
-    const nextItemName = urlSearchParams.get("itemName") || "";
+    const rawPeriod = urlSearchParams.get("period");
+    const nextPeriod: PeriodType = rawPeriod === "weekly" ? "weekly" : "daily";
+    const nextDateFrom =
+      urlSearchParams.get("date_from") ||
+      urlSearchParams.get("dateFrom") ||
+      "";
+    const nextDateTo =
+      urlSearchParams.get("date_to") ||
+      urlSearchParams.get("dateTo") ||
+      "";
+    const nextTopCategory =
+      urlSearchParams.get("top_category") ||
+      urlSearchParams.get("topCategory") ||
+      "";
+    const nextSubCategory =
+      urlSearchParams.get("sub_category") ||
+      urlSearchParams.get("subCategory") ||
+      "";
+    const nextItemName =
+      urlSearchParams.get("item_name") ||
+      urlSearchParams.get("itemName") ||
+      "";
 
+    const normalizedQuery = buildStatisticsQuery(
+      nextTab,
+      nextPeriod,
+      nextDateFrom,
+      nextDateTo,
+      {
+        itemName: nextItemName,
+        topCategory: nextTopCategory,
+        subCategory: nextSubCategory,
+      },
+      {
+        topCategory: nextTopCategory,
+        subCategory: nextSubCategory,
+      },
+      {
+        topCategory: nextTopCategory,
+      },
+    );
+
+    if (normalizedQuery === lastSyncedQueryRef.current) {
+      return;
+    }
+
+    lastSyncedQueryRef.current = normalizedQuery;
     setActiveTab(nextTab);
+    setPeriod(nextPeriod);
+    setDateFrom(nextDateFrom);
+    setDateTo(nextDateTo);
     setItemParams({
       itemName: nextItemName,
       topCategory: nextTopCategory,
@@ -104,7 +165,39 @@ function StatisticsPageContent() {
     setTopCategoryParams({
       topCategory: nextTopCategory,
     });
-  }, [urlSearchParams]);
+  }, [urlSearchParams, buildStatisticsQuery]);
+
+  useEffect(() => {
+    const nextQuery = buildStatisticsQuery(
+      activeTab,
+      period,
+      dateFrom,
+      dateTo,
+      itemParams,
+      subcategoryParams,
+      topCategoryParams,
+    );
+
+    if (nextQuery === lastSyncedQueryRef.current) {
+      return;
+    }
+
+    lastSyncedQueryRef.current = nextQuery;
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [
+    activeTab,
+    period,
+    dateFrom,
+    dateTo,
+    itemParams,
+    subcategoryParams,
+    topCategoryParams,
+    router,
+    pathname,
+    buildStatisticsQuery,
+  ]);
 
   // Build params with dates
   const itemParamsWithDates = useMemo(
@@ -183,50 +276,25 @@ function StatisticsPageContent() {
         topCategory: params.topCategory,
       };
       setItemParams(nextItemParams);
-      updateStatisticsUrl(
-        activeTab,
-        nextItemParams,
-        subcategoryParams,
-        topCategoryParams,
-      );
     } else if (activeTab === "subcategory") {
       const nextSubcategoryParams = {
         topCategory: params.topCategory,
         subCategory: params.subCategory,
       };
       setSubcategoryParams(nextSubcategoryParams);
-      updateStatisticsUrl(
-        activeTab,
-        itemParams,
-        nextSubcategoryParams,
-        topCategoryParams,
-      );
     } else {
       const nextTopCategoryParams = {
         topCategory: params.topCategory,
       };
       setTopCategoryParams(nextTopCategoryParams);
-      updateStatisticsUrl(
-        activeTab,
-        itemParams,
-        subcategoryParams,
-        nextTopCategoryParams,
-      );
     }
-  }, [
-    activeTab,
-    itemParams,
-    subcategoryParams,
-    topCategoryParams,
-    updateStatisticsUrl,
-  ]);
+  }, [activeTab]);
 
   const handleTabChange = useCallback(
     (tab: StatisticsTabType) => {
       setActiveTab(tab);
-      updateStatisticsUrl(tab, itemParams, subcategoryParams, topCategoryParams);
     },
-    [itemParams, subcategoryParams, topCategoryParams, updateStatisticsUrl],
+    [],
   );
 
   const maxRange =

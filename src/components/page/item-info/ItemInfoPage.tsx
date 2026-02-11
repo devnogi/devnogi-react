@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useItemInfoDetail } from "@/hooks/useItemInfoDetail";
 import { useItemInfoCategories } from "@/hooks/useItemInfoCategories";
 import { ItemInfoSearchParams } from "@/types/item-info";
@@ -11,63 +11,125 @@ import ItemInfoPagination from "./ItemInfoPagination";
 import { Info, ArrowUpDown } from "lucide-react";
 
 const PAGE_SIZE = 20;
+const DEFAULT_SORT_DIRECTION: "ASC" | "DESC" = "ASC";
 
-// URL params reader component
-function UrlParamsReader({
-  onParamsLoad,
-}: {
-  onParamsLoad: (params: { name?: string; topCategory?: string }) => void;
-}) {
-  const urlSearchParams = useSearchParams();
-  const prevParamsRef = useRef<string>("");
+function parsePositiveInt(raw: string | null, fallback: number): number {
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+}
 
-  useEffect(() => {
-    const name = urlSearchParams.get("name") || undefined;
-    const topCategory = urlSearchParams.get("topCategory") || undefined;
-
-    const currentParams = JSON.stringify({ name, topCategory });
-
-    if (currentParams !== prevParamsRef.current && (name || topCategory)) {
-      prevParamsRef.current = currentParams;
-      onParamsLoad({ name, topCategory });
-    }
-  }, [urlSearchParams, onParamsLoad]);
-
-  return null;
+function parseSortDirection(raw: string | null): "ASC" | "DESC" {
+  if (!raw) return DEFAULT_SORT_DIRECTION;
+  return raw.toUpperCase() === "DESC" ? "DESC" : "ASC";
 }
 
 export default function ItemInfoPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const urlSearchParams = useSearchParams();
+  const lastSyncedQueryRef = useRef<string>("");
   const { data: categories = [], isLoading: isCategoriesLoading } = useItemInfoCategories();
 
   const [topCategory, setTopCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [appliedName, setAppliedName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortDirection, setSortDirection] = useState<"ASC" | "DESC">("ASC");
-  const [initialParamsApplied, setInitialParamsApplied] = useState(false);
+  const [sortDirection, setSortDirection] =
+    useState<"ASC" | "DESC">(DEFAULT_SORT_DIRECTION);
 
-  // URL 파라미터 처리 (상단 네비게이션 검색창에서 전달)
-  const handleUrlParamsLoad = useCallback(
-    (params: { name?: string; topCategory?: string }) => {
-      if (params.name) {
-        setAppliedName(params.name);
-      }
-      if (params.topCategory) {
-        setTopCategory(params.topCategory);
-        setSubCategory("");
-      }
-      setCurrentPage(1);
-      setInitialParamsApplied(true);
-    },
-    []
-  );
-
-  // 카테고리 데이터가 로드되면 첫 번째 카테고리 선택 (URL 파라미터가 없는 경우에만)
+  // URL -> state 동기화
   useEffect(() => {
-    if (categories.length > 0 && !topCategory && !initialParamsApplied) {
+    const nextTopCategory =
+      urlSearchParams.get("top_category") ||
+      urlSearchParams.get("topCategory") ||
+      "";
+    const nextSubCategory =
+      urlSearchParams.get("sub_category") ||
+      urlSearchParams.get("subCategory") ||
+      "";
+    const nextItemName =
+      urlSearchParams.get("item_name") ||
+      urlSearchParams.get("itemName") ||
+      urlSearchParams.get("name") ||
+      "";
+    const nextPage = parsePositiveInt(urlSearchParams.get("page"), 1);
+    const nextSortDirection = parseSortDirection(
+      urlSearchParams.get("direction"),
+    );
+
+    const parsedQuery = new URLSearchParams();
+    if (nextTopCategory) {
+      parsedQuery.set("top_category", nextTopCategory);
+    }
+    if (nextSubCategory) {
+      parsedQuery.set("sub_category", nextSubCategory);
+    }
+    if (nextItemName) {
+      parsedQuery.set("item_name", nextItemName);
+    }
+    if (nextPage > 1) {
+      parsedQuery.set("page", String(nextPage));
+    }
+    if (nextSortDirection !== DEFAULT_SORT_DIRECTION) {
+      parsedQuery.set("direction", nextSortDirection);
+    }
+    const normalizedQuery = new URLSearchParams(
+      Array.from(parsedQuery.entries()).sort(([a], [b]) => a.localeCompare(b)),
+    ).toString();
+
+    if (normalizedQuery === lastSyncedQueryRef.current) {
+      return;
+    }
+
+    lastSyncedQueryRef.current = normalizedQuery;
+    setTopCategory(nextTopCategory);
+    setSubCategory(nextSubCategory);
+    setAppliedName(nextItemName);
+    setCurrentPage(nextPage);
+    setSortDirection(nextSortDirection);
+  }, [urlSearchParams]);
+
+  // 카테고리 로드 후 기본 탑카테고리 설정
+  useEffect(() => {
+    if (categories.length > 0 && !topCategory) {
       setTopCategory(categories[0].topCategory);
     }
-  }, [categories, topCategory, initialParamsApplied]);
+  }, [categories, topCategory]);
+
+  // state -> URL 동기화
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (topCategory) {
+      params.set("top_category", topCategory);
+    }
+    if (subCategory) {
+      params.set("sub_category", subCategory);
+    }
+    if (appliedName) {
+      params.set("item_name", appliedName);
+    }
+    if (currentPage > 1) {
+      params.set("page", String(currentPage));
+    }
+    if (sortDirection !== DEFAULT_SORT_DIRECTION) {
+      params.set("direction", sortDirection);
+    }
+
+    const nextQuery = new URLSearchParams(
+      Array.from(params.entries()).sort(([a], [b]) => a.localeCompare(b)),
+    ).toString();
+
+    if (nextQuery === lastSyncedQueryRef.current) {
+      return;
+    }
+
+    lastSyncedQueryRef.current = nextQuery;
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [topCategory, subCategory, appliedName, currentPage, sortDirection, router, pathname]);
 
   const searchParams: ItemInfoSearchParams | null = topCategory
     ? {
@@ -127,11 +189,6 @@ export default function ItemInfoPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
-      {/* URL Params Reader */}
-      <Suspense fallback={null}>
-        <UrlParamsReader onParamsLoad={handleUrlParamsLoad} />
-      </Suspense>
-
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
         {/* Category Filter */}
         <ItemInfoCategoryFilter
