@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 // 캐싱 5분
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
 export async function GET(request: NextRequest) {

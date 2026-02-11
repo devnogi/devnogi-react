@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300; // 5분 캐싱
 
 export async function GET(request: NextRequest) {

@@ -29,6 +29,7 @@ function getSecondsUntilNextCacheUpdate(): number {
   );
 }
 
+export const dynamic = "force-dynamic";
 export const revalidate = 21600; // 6시간 (기본값)
 
 interface ItemInfoSummaryResponse {

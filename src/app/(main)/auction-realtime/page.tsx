@@ -16,7 +16,12 @@ import { useAuctionHistoryLayout } from "@/hooks/useAuctionHistoryLayout";
 import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 import { ActiveFilter } from "@/types/search-filter";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  type ReadonlyURLSearchParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 const DEFAULT_PAGE_SIZE = 20;
 

@@ -16,7 +16,8 @@ VERCEL_ENV=production
 API_MOCKING=disabled
 
 # === Gateway Configuration ===
-GATEWAY_URL=http://your-production-gateway-url:8080
+GATEWAY_URL=http://sample
+SOCIAL_AUTH_BASE_URL=https://sample
 
 # === Docker Compose Configuration ===
 # Docker Hub 정보 (GitHub Secrets와 동일한 값)

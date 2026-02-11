@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 const logger = createLogger("API/comments");
 
 // comments 요청 캐싱 기간 1분(초)
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export async function GET(

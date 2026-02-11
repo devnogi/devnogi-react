@@ -21,7 +21,7 @@ export default function RootLayout({
           Desktop/Tablet: pt-[102px] for compact nav (56+44+2) */}
       <main className="flex-1 pt-[142px] md:pt-[102px] bg-background">
         <div className="max-w-7xl w-full mx-auto h-full px-4 md:px-6 py-6 md:py-8">
-          {children}
+          <Suspense fallback={null}>{children}</Suspense>
         </div>
       </main>
 

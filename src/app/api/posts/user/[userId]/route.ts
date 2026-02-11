@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 // posts 요청 캐싱 기간 5분(초)
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
 // 유저별 게시글 리스트 조회

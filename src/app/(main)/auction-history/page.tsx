@@ -23,6 +23,7 @@ import {
   useRef,
 } from "react";
 import {
+  type ReadonlyURLSearchParams,
   usePathname,
   useRouter,
   useSearchParams,

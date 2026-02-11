@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 21600; // 6시간 캐싱
 
 export async function GET() {

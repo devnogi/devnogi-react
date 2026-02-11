@@ -162,7 +162,7 @@ export default function Page() {
 
     // 소셜 로그인 시작
     import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
-      initiateSocialLogin(provider, config.gatewayUrl);
+      initiateSocialLogin(provider, config.socialAuthBaseUrl);
     });
   };
 

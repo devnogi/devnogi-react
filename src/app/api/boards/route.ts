@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 // boards 요청 캐싱 기간 12시간 (매일 12시, 24시에 갱신)
+export const dynamic = "force-dynamic";
 export const revalidate = 43200; // 12시간 (초)
 
 export async function GET(request: NextRequest) {

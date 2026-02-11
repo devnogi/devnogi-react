@@ -122,7 +122,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
     // 소셜 로그인 시작
     import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
-      initiateSocialLogin(provider, config.gatewayUrl);
+      initiateSocialLogin(provider, config.socialAuthBaseUrl);
     });
 
     // 소셜 로그인 완료 메시지 수신 대기

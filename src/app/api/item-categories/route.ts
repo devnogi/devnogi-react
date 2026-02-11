@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 // 12시간 캐싱 (매일 12시, 24시에 갱신)
+export const dynamic = "force-dynamic";
 export const revalidate = 43200; // 12시간 (초)
 
 interface ItemCategoryResponse {

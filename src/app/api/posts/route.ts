@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 const logger = createLogger("API/posts");
 
 // posts 요청 캐싱 기간 5분(초)
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
 // 게시글 생성 (multipart/form-data)

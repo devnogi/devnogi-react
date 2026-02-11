@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerAxios } from "@/lib/api/server";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const serverAxios = createServerAxios(request);

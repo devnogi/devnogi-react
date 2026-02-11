@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface RuntimeConfig {
   gatewayUrl: string;
+  socialAuthBaseUrl: string;
   environment: string;
 }
 
