@@ -3,7 +3,7 @@
 interface StatisticsChartTooltipProps {
   active?: boolean;
   label?: string | number;
-  payload?: Array<{
+  payload?: ReadonlyArray<{
     name?: string;
     value?: number | string;
     color?: string;
