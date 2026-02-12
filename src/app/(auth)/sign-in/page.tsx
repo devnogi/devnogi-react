@@ -188,7 +188,7 @@ export default function Page() {
             <div className="space-y-4">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
                 <Sparkles className="h-4 w-4" />
-                DevNogi
+                메모노기
               </p>
               <h2 className="text-3xl font-bold leading-tight">
                 마비노기 정보를
@@ -206,7 +206,8 @@ export default function Page() {
                 안전한 계정 연결
               </p>
               <p className="mt-1 text-xs text-white/80">
-                소셜 계정은 공식 인증 절차를 통해 연결됩니다.
+                메모노기는 공식 사이트가 아닌 NEXON OPEN API 기반 비공식
+                서비스입니다.
               </p>
             </div>
           </aside>
@@ -223,7 +224,10 @@ export default function Page() {
                 </Link>
                 <h1 className="text-3xl font-bold text-clover-700">로그인</h1>
                 <p className="mt-2 text-sm text-cream-600">
-                  계정 정보를 입력하고 DevNogi를 시작하세요.
+                  계정 정보를 입력하고 메모노기를 시작하세요.
+                </p>
+                <p className="mt-1 text-xs text-cream-500">
+                  메모노기는 NEXON OPEN API를 활용한 비공식 커뮤니티 서비스입니다.
                 </p>
               </header>
 

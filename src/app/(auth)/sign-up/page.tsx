@@ -260,6 +260,10 @@ export default function SignUpPage() {
               <div className="rounded-2xl border border-white/20 bg-black/10 p-4 text-sm text-white/90">
                 가입 후 닉네임과 프로필 이미지는 마이페이지에서 언제든 변경할 수
                 있습니다.
+                <p className="mt-2 text-xs text-white/80">
+                  메모노기는 공식 사이트가 아닌 NEXON OPEN API 기반 비공식
+                  서비스입니다.
+                </p>
               </div>
             </aside>
 
@@ -276,7 +280,10 @@ export default function SignUpPage() {
                   </Link>
                   <h1 className="text-3xl font-bold text-clover-700">회원가입</h1>
                   <p className="mt-2 text-sm text-cream-600">
-                    DevNogi와 함께 마비노기를 더 즐겁게!
+                    메모노기와 함께 마비노기를 더 즐겁게!
+                  </p>
+                  <p className="mt-1 text-xs text-cream-500">
+                    NEXON OPEN API를 활용한 비공식 커뮤니티 서비스입니다.
                   </p>
                 </div>
 
