@@ -45,6 +45,9 @@ interface AuctionRealtimeResponse {
   meta: PageMeta;
 }
 
+const MIN_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 50;
+
 /**
  * Nested object를 Spring Boot @ModelAttribute 형식의 query parameter로 변환
  * 예: { priceSearchRequest: { priceFrom: 10000 } } -> "priceSearchRequest.priceFrom=10000"
@@ -78,6 +81,25 @@ function buildNestedQueryParams(
   return params;
 }
 
+function clampNumber(
+  value: string | null,
+  fallback: number,
+  min: number,
+  max?: number,
+) {
+  if (!value) return fallback;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  let normalized = Math.floor(parsed);
+  if (normalized < min) {
+    normalized = min;
+  }
+  if (max !== undefined && normalized > max) {
+    normalized = max;
+  }
+  return normalized;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const gatewayUrl = process.env.GATEWAY_URL;
@@ -92,11 +114,16 @@ export async function GET(request: NextRequest) {
     const searchRequest: Record<string, unknown> = {};
 
     // Extract pagination parameters
-    const page = searchParams.get("page") || "1";
-    const size = searchParams.get("size") || "20";
-    // 실시간 경매장 기본 정렬: 만료일 오름차순 (만료 임박순)
+    const page = clampNumber(searchParams.get("page"), 1, 1);
+    const size = clampNumber(
+      searchParams.get("size"),
+      20,
+      MIN_PAGE_SIZE,
+      MAX_PAGE_SIZE,
+    );
+    // 실시간 경매장 기본 정렬: 만료일 내림차순 (최근 등록/남은 시간 순)
     const sortBy = searchParams.get("sortBy") || "dateAuctionExpire";
-    const direction = searchParams.get("direction") || "asc";
+    const direction = searchParams.get("direction") || "desc";
 
     // Map frontend values to backend enum names
     const sortByMap: Record<string, string> = {
@@ -111,10 +138,10 @@ export async function GET(request: NextRequest) {
       desc: "DESC",
     };
 
-    pageParams.page = page;
-    pageParams.size = size;
+    pageParams.page = page.toString();
+    pageParams.size = size.toString();
     pageParams.sortBy = sortByMap[sortBy] || "DATE_AUCTION_EXPIRE";
-    pageParams.direction = directionMap[direction.toLowerCase()] || "ASC";
+    pageParams.direction = directionMap[direction.toLowerCase()] || "DESC";
 
     // Extract basic search parameters
     const itemName = searchParams.get("itemName");

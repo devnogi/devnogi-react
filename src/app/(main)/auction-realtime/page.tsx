@@ -24,12 +24,14 @@ import {
 } from "next/navigation";
 
 const DEFAULT_PAGE_SIZE = 20;
+const MIN_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 50;
 
 const DEFAULT_SEARCH_PARAMS: AuctionRealtimeSearchParams = {
   page: 1,
   size: DEFAULT_PAGE_SIZE,
   sortBy: "dateAuctionExpire",
-  direction: "asc",
+  direction: "desc",
 };
 
 const SORT_OPTIONS: Array<{
@@ -53,15 +55,27 @@ const SORT_OPTIONS: Array<{
   },
 ];
 
-function parseNumber(value: string | null, fallback: number) {
+function parseNumber(
+  value: string | null,
+  fallback: number,
+  min = 1,
+  max?: number,
+) {
   if (!value) return fallback;
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
-  return Math.floor(parsed);
+  let normalized = Math.floor(parsed);
+  if (min !== undefined && normalized < min) {
+    normalized = min;
+  }
+  if (max !== undefined && normalized > max) {
+    normalized = max;
+  }
+  return normalized;
 }
 
 function parseDirection(value: string | null): "asc" | "desc" {
-  if (!value) return "asc";
+  if (!value) return "desc";
   return value.toLowerCase() === "desc" ? "desc" : "asc";
 }
 
@@ -162,8 +176,13 @@ function parseSearchParamsFromUrl(
     ...DEFAULT_SEARCH_PARAMS,
   };
 
-  parsed.page = parseNumber(urlSearchParams.get("page"), 1);
-  parsed.size = parseNumber(urlSearchParams.get("size"), DEFAULT_PAGE_SIZE);
+  parsed.page = parseNumber(urlSearchParams.get("page"), 1, 1);
+  parsed.size = parseNumber(
+    urlSearchParams.get("size"),
+    DEFAULT_PAGE_SIZE,
+    MIN_PAGE_SIZE,
+    MAX_PAGE_SIZE,
+  );
 
   const sortBy = urlSearchParams.get("sortBy");
   if (sortBy) {
