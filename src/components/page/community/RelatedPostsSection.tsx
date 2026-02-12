@@ -74,7 +74,7 @@ export default function RelatedPostsSection({
   }, [fallbackData, numericPostId]);
 
   const relatedPosts = useMemo(() => {
-    const merged = [];
+    const merged: typeof boardRelatedPosts = [];
     const seenPostIds = new Set<number>();
 
     boardRelatedPosts.forEach((post) => {
