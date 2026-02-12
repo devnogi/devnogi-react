@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Board, ApiResponse, BoardListData } from "@/types/community";
+import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
 
 type VisibilityOption = "public" | "draft";
 
@@ -252,6 +253,17 @@ export default function PostWriteView() {
             className="w-full text-gray-700 placeholder-gray-400 border-none outline-none resize-none bg-transparent min-h-[200px] leading-relaxed"
             maxLength={5000}
           />
+          <p className="mt-2 text-xs text-gray-500">
+            마크다운 지원: <code># 제목</code>, <code>**굵게**</code>,{" "}
+            <code>[링크](https://...)</code>, <code>- 목록</code>
+          </p>
+
+          {content.trim() && (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <div className="mb-2 text-xs font-semibold text-gray-600">미리보기</div>
+              <MarkdownRenderer content={content} className="text-gray-800" />
+            </div>
+          )}
 
           {/* Image Previews */}
           {images.length > 0 && (
@@ -412,7 +424,7 @@ export default function PostWriteView() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-600 font-bold">•</span>
-            <span>게시 상태를 선택하세요. 임시작성은 초안으로 저장됩니다.</span>
+            <span>마크다운으로 제목, 목록, 코드 블록 등을 표현할 수 있습니다.</span>
           </li>
         </ul>
       </div>

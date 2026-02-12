@@ -15,7 +15,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Eye, EyeOff, Lock, ArrowLeft, User, Loader2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  ArrowLeft,
+  User,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import { useConfig } from "@/contexts/ConfigContext";
@@ -119,6 +128,7 @@ export default function Page() {
       id: "",
       password: "",
     },
+    mode: "onChange",
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -166,164 +176,216 @@ export default function Page() {
     });
   };
 
+  const isSocialDisabled = isConfigLoading || !config;
+  const socialButtonBaseClass =
+    "w-full h-12 flex items-center justify-center gap-3 rounded-xl transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream-50">
-      <div className="w-full max-w-md p-6 md:p-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center text-sm text-cream-600 hover:text-cream-900 transition-colors mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            홈으로 돌아가기
-          </Link>
-          <h1 className="text-3xl font-bold mb-2 text-clover-600">
-            환영합니다
-          </h1>
-          <p className="text-cream-600 text-sm">DevNogi에 로그인하세요</p>
-        </div>
-
-        {/* Login Card */}
-        <div className="bg-white md:rounded-[20px] md:shadow-[0_8px_24px_rgba(61,56,47,0.08)] md:border md:border-cream-200 p-6 md:p-8">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold text-cream-800">
-                      아이디
-                    </FormLabel>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
-                      <FormControl>
-                        <Input
-                          placeholder="아이디를 입력하세요"
-                          className="pl-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold text-cream-800">
-                      비밀번호
-                    </FormLabel>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
-                      <FormControl>
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="비밀번호를 입력하세요"
-                          className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
-                          {...field}
-                        />
-                      </FormControl>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className={clsx(
-                  "w-full h-12 mt-6 bg-clover-500 hover:bg-clover-600 text-white font-semibold rounded-xl shadow-[0_2px_8px_rgba(34,197,94,0.2)] hover:shadow-[0_4px_16px_rgba(34,197,94,0.3)] transition-all duration-200",
-                  !form.formState.isValid && "opacity-50",
-                )}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    로그인 중...
-                  </>
-                ) : (
-                  "로그인"
-                )}
-              </Button>
-            </form>
-          </Form>
-
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-cream-200"></div>
+    <div className="h-dvh overflow-hidden bg-gradient-to-b from-cream-100 via-cream-50 to-white">
+      <div className="mx-auto flex h-full max-w-5xl px-4 py-4 sm:px-6 sm:py-6">
+        <div className="flex min-h-0 w-full overflow-hidden rounded-3xl border border-cream-200/70 bg-white/95 shadow-[0_20px_60px_rgba(31,41,55,0.10)] backdrop-blur-sm">
+          <aside className="hidden w-[42%] min-w-[320px] flex-col justify-between bg-gradient-to-br from-clover-700 via-clover-600 to-clover-500 p-8 text-white md:flex">
+            <div className="space-y-4">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
+                <Sparkles className="h-4 w-4" />
+                DevNogi
+              </p>
+              <h2 className="text-3xl font-bold leading-tight">
+                마비노기 정보를
+                <br />
+                더 빠르게 확인하세요.
+              </h2>
+              <p className="text-sm text-white/85">
+                로그인 후 경매장 분석, 실시간 데이터, 커뮤니티 활동을 바로 이용할
+                수 있습니다.
+              </p>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-cream-500">또는</span>
+            <div className="rounded-2xl border border-white/20 bg-black/10 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <ShieldCheck className="h-4 w-4" />
+                안전한 계정 연결
+              </p>
+              <p className="mt-1 text-xs text-white/80">
+                소셜 계정은 공식 인증 절차를 통해 연결됩니다.
+              </p>
             </div>
-          </div>
+          </aside>
 
-          {/* Social Login */}
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("google")}
-              className="w-full h-12 flex items-center justify-center gap-3 border border-cream-300 rounded-xl hover:bg-cream-50 transition-colors duration-200 group"
-            >
-              <GoogleIcon />
-              <span className="text-sm font-medium text-cream-700 group-hover:text-cream-900">
-                Google로 계속하기
-              </span>
-            </button>
+          <main className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5 sm:p-8">
+            <div className="mx-auto w-full max-w-md">
+              <header className="mb-6">
+                <Link
+                  href="/"
+                  className="mb-4 inline-flex items-center text-sm text-cream-600 transition-colors hover:text-cream-900"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  홈으로 돌아가기
+                </Link>
+                <h1 className="text-3xl font-bold text-clover-700">로그인</h1>
+                <p className="mt-2 text-sm text-cream-600">
+                  계정 정보를 입력하고 DevNogi를 시작하세요.
+                </p>
+              </header>
 
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("kakao")}
-              className="w-full h-12 flex items-center justify-center gap-3 bg-[#FEE500] rounded-xl hover:bg-[#FDD835] transition-colors duration-200 group"
-            >
-              <KakaoIcon />
-              <span className="text-sm font-medium text-[#3C1E1E] group-hover:text-black">
-                카카오로 계속하기
-              </span>
-            </button>
+              <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-[0_8px_24px_rgba(61,56,47,0.08)] sm:p-6">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-cream-800">
+                            아이디
+                          </FormLabel>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
+                            <FormControl>
+                              <Input
+                                placeholder="아이디를 입력하세요"
+                                className="h-12 rounded-xl border-cream-300 pl-11 focus:border-clover-500 focus:ring-clover-500/20"
+                                {...field}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("naver")}
-              className="w-full h-12 flex items-center justify-center gap-3 bg-[#03C75A] rounded-xl hover:bg-[#02B350] transition-colors duration-200 group"
-            >
-              <NaverIcon />
-              <span className="text-sm font-medium text-white">
-                네이버로 계속하기
-              </span>
-            </button>
-          </div>
-        </div>
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-cream-800">
+                            비밀번호
+                          </FormLabel>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
+                            <FormControl>
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="비밀번호를 입력하세요"
+                                className="h-12 rounded-xl border-cream-300 pl-11 pr-11 focus:border-clover-500 focus:ring-clover-500/20"
+                                {...field}
+                              />
+                            </FormControl>
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-cream-400 transition-colors hover:text-cream-600"
+                              aria-label={
+                                showPassword
+                                  ? "비밀번호 숨기기"
+                                  : "비밀번호 보기"
+                              }
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                              ) : (
+                                <Eye className="h-5 w-5" />
+                              )}
+                            </button>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-        {/* Sign Up Link */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-cream-600">
-            계정이 없으신가요?{" "}
-            <Link
-              href="/sign-up"
-              className="font-semibold text-clover-600 hover:text-clover-700 transition-colors"
-            >
-              회원가입
-            </Link>
-          </p>
+                    <Button
+                      type="submit"
+                      disabled={isLoading || !form.formState.isValid}
+                      className={clsx(
+                        "mt-2 h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
+                        !form.formState.isValid && "opacity-60",
+                      )}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          로그인 중...
+                        </>
+                      ) : (
+                        "로그인"
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-cream-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="bg-white px-4 text-cream-500">또는</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSocialLogin("google")}
+                    disabled={isSocialDisabled}
+                    className={clsx(
+                      socialButtonBaseClass,
+                      "group border border-cream-300 hover:bg-cream-50",
+                    )}
+                  >
+                    <GoogleIcon />
+                    <span className="text-sm font-medium text-cream-700 group-hover:text-cream-900">
+                      Google로 계속하기
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSocialLogin("kakao")}
+                    disabled={isSocialDisabled}
+                    className={clsx(
+                      socialButtonBaseClass,
+                      "group bg-[#FEE500] hover:bg-[#FDD835]",
+                    )}
+                  >
+                    <KakaoIcon />
+                    <span className="text-sm font-medium text-[#3C1E1E] group-hover:text-black">
+                      카카오로 계속하기
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSocialLogin("naver")}
+                    disabled={isSocialDisabled}
+                    className={clsx(
+                      socialButtonBaseClass,
+                      "group bg-[#03C75A] hover:bg-[#02B350]",
+                    )}
+                  >
+                    <NaverIcon />
+                    <span className="text-sm font-medium text-white">
+                      네이버로 계속하기
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-5 text-center">
+                <p className="text-sm text-cream-600">
+                  계정이 없으신가요?{" "}
+                  <Link
+                    href="/sign-up"
+                    className="font-semibold text-clover-600 transition-colors hover:text-clover-700"
+                  >
+                    회원가입
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     </div>

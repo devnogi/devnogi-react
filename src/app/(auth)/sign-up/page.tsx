@@ -239,32 +239,55 @@ export default function SignUpPage() {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-cream-50 py-12 px-4">
-        <div className="w-full max-w-2xl">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <Link
-              href="/sign-in"
-              className="inline-flex items-center text-sm text-cream-600 hover:text-cream-900 transition-colors mb-6"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              로그인으로 돌아가기
-            </Link>
-            <h1 className="text-3xl font-bold mb-2 text-clover-600">
-              회원가입
-            </h1>
-            <p className="text-cream-600 text-sm">
-              DevNogi와 함께 마비노기를 더 즐겁게!
-            </p>
-          </div>
+      <div className="h-dvh overflow-hidden bg-gradient-to-b from-cream-100 via-cream-50 to-white">
+        <div className="mx-auto flex h-full max-w-5xl px-4 py-4 sm:px-6 sm:py-6">
+          <div className="flex min-h-0 w-full overflow-hidden rounded-3xl border border-cream-200/70 bg-white/95 shadow-[0_20px_60px_rgba(31,41,55,0.10)] backdrop-blur-sm">
+            <aside className="hidden w-[36%] min-w-[280px] flex-col justify-between bg-gradient-to-br from-clover-700 via-clover-600 to-clover-500 p-8 text-white md:flex">
+              <div className="space-y-4">
+                <p className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
+                  가입 안내
+                </p>
+                <h2 className="text-3xl font-bold leading-tight">
+                  계정 하나로
+                  <br />
+                  모든 기능을 시작하세요.
+                </h2>
+                <p className="text-sm text-white/85">
+                  실시간 시세, 통계 차트, 커뮤니티 기능을 회원 전용 기능과 함께
+                  이용할 수 있습니다.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/20 bg-black/10 p-4 text-sm text-white/90">
+                가입 후 닉네임과 프로필 이미지는 마이페이지에서 언제든 변경할 수
+                있습니다.
+              </div>
+            </aside>
 
-          {/* Sign Up Card */}
-          <div className="bg-white rounded-[20px] shadow-[0_8px_24px_rgba(61,56,47,0.08)] border border-cream-200 p-8">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
+            <main className="flex min-h-0 flex-1 flex-col overflow-hidden p-5 sm:p-8">
+              <div className="mx-auto flex min-h-0 w-full max-w-2xl flex-col">
+                {/* Header */}
+                <div className="mb-5">
+                  <Link
+                    href="/sign-in"
+                    className="mb-4 inline-flex items-center text-sm text-cream-600 transition-colors hover:text-cream-900"
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    로그인으로 돌아가기
+                  </Link>
+                  <h1 className="text-3xl font-bold text-clover-700">회원가입</h1>
+                  <p className="mt-2 text-sm text-cream-600">
+                    DevNogi와 함께 마비노기를 더 즐겁게!
+                  </p>
+                </div>
+
+                {/* Sign Up Card */}
+                <div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-cream-200 bg-white shadow-[0_8px_24px_rgba(61,56,47,0.08)]">
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="flex h-full min-h-0 flex-col"
+                    >
+                      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
                 {/* Profile Image */}
                 <div className="flex flex-col items-center mb-6">
                   <div className="relative">
@@ -624,39 +647,45 @@ export default function SignUpPage() {
                     )}
                   />
                 </div>
+                      </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading || !form.formState.isValid}
-                  className={clsx(
-                    "w-full h-12 mt-6 bg-clover-500 hover:bg-clover-600 text-white font-semibold rounded-xl shadow-[0_2px_8px_rgba(34,197,94,0.2)] hover:shadow-[0_4px_16px_rgba(34,197,94,0.3)] transition-all duration-200",
-                    (!form.formState.isValid || isLoading) && "opacity-50",
-                  )}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      가입 처리 중...
-                    </>
-                  ) : (
-                    "회원가입"
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </div>
+                      <div className="border-t border-cream-200 bg-white p-5 sm:p-6">
+                        <Button
+                          type="submit"
+                          disabled={isLoading || !form.formState.isValid}
+                          className={clsx(
+                            "h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
+                            (!form.formState.isValid || isLoading) && "opacity-50",
+                          )}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                              가입 처리 중...
+                            </>
+                          ) : (
+                            "회원가입"
+                          )}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
 
-          {/* Sign In Link */}
-          <div className="text-center mt-6">
-            <p className="text-sm text-cream-600">
-              이미 계정이 있으신가요?{" "}
-              <Link
-                href="/sign-in"
-                className="font-semibold text-clover-600 hover:text-clover-700 transition-colors"
-              >
-                로그인
-              </Link>
-            </p>
+                {/* Sign In Link */}
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-cream-600">
+                    이미 계정이 있으신가요?{" "}
+                    <Link
+                      href="/sign-in"
+                      className="font-semibold text-clover-600 transition-colors hover:text-clover-700"
+                    >
+                      로그인
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
       </div>

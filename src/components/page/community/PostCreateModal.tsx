@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Board, ApiResponse, BoardListData } from "@/types/community";
+import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
 
 type VisibilityOption = "public" | "draft";
 
@@ -371,6 +372,25 @@ export default function PostCreateModal({
                     maxLength={5000}
                     autoFocus={isExpanded}
                   />
+                  <p className="mt-2 text-xs text-gray-500">
+                    마크다운 지원: <code># 제목</code>, <code>**굵게**</code>,{" "}
+                    <code>[링크](https://...)</code>, <code>- 목록</code>
+                  </p>
+
+                  <AnimatePresence>
+                    {content.trim() && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4"
+                      >
+                        <div className="mb-2 text-xs font-semibold text-gray-600">미리보기</div>
+                        <MarkdownRenderer content={content} className="text-gray-800" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Image Previews */}
                   <AnimatePresence>

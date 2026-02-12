@@ -44,6 +44,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ReportDialog from "./ReportDialog";
+import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
 
 interface PostDetailViewProps {
   postId: string;
@@ -348,6 +349,18 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 className="w-full text-gray-700 dark:text-gray-200 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] resize-none min-h-[150px] md:min-h-[250px]"
                 placeholder="내용을 입력하세요"
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                마크다운 지원: <code># 제목</code>, <code>**굵게**</code>,{" "}
+                <code>[링크](https://...)</code>, <code>- 목록</code>
+              </p>
+              {editContent.trim() && (
+                <div className="rounded-xl border border-gray-200 dark:border-navy-500 bg-gray-50 dark:bg-navy-800 p-4">
+                  <div className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    미리보기
+                  </div>
+                  <MarkdownRenderer content={editContent} className="text-gray-800 dark:text-gray-200" />
+                </div>
+              )}
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-2">
                   {editTags.map((tag) => (
@@ -409,9 +422,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-snug">
                 {post.title}
               </h1>
-              <div className="text-gray-700 dark:text-gray-200 whitespace-pre-wrap leading-relaxed text-[15px] md:text-base">
-                {post.content}
-              </div>
+              <MarkdownRenderer content={post.content} className="text-gray-700 dark:text-gray-200" />
               {!!post.tags?.length && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
