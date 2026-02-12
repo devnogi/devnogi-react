@@ -28,6 +28,8 @@ interface ImagePreview {
   file: File;
 }
 
+const MAX_IMAGE_COUNT = 5;
+
 export default function PostWriteView() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -78,7 +80,7 @@ export default function PostWriteView() {
       file,
     }));
 
-    setImages((prev) => [...prev, ...newImages].slice(0, 10)); // Max 10 images
+    setImages((prev) => [...prev, ...newImages].slice(0, MAX_IMAGE_COUNT));
   };
 
   const handleRemoveImage = (id: string) => {
@@ -308,14 +310,17 @@ export default function PostWriteView() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {/* Image Upload Button */}
-              <label className="cursor-pointer p-2 hover:bg-blue-100 rounded-lg transition-colors group">
+              <label
+                className="cursor-pointer p-2 hover:bg-blue-100 rounded-lg transition-colors group"
+                title="이미지는 최대 5개입니다."
+              >
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleImageUpload}
                   className="hidden"
-                  disabled={images.length >= 10}
+                  disabled={images.length >= MAX_IMAGE_COUNT}
                 />
                 <ImageIcon className="w-5 h-5 text-blue-600 group-hover:text-blue-700" />
               </label>
@@ -379,7 +384,7 @@ export default function PostWriteView() {
           {/* Character Count */}
           <div className="mt-3 flex justify-between items-center text-xs text-gray-500">
             <span>
-              {images.length > 0 && `${images.length}/10 이미지`}
+              {images.length > 0 && `${images.length}/${MAX_IMAGE_COUNT} 이미지`}
               {tags.length > 0 &&
                 ` • ${tags.length}/10 태그${images.length > 0 ? "" : ""}`}
             </span>
@@ -399,7 +404,7 @@ export default function PostWriteView() {
         <ul className="space-y-2 text-sm text-gray-700">
           <li className="flex items-start gap-2">
             <span className="text-blue-600 font-bold">•</span>
-            <span>최대 10개의 이미지를 첨부할 수 있습니다.</span>
+            <span>최대 5개의 이미지를 첨부할 수 있습니다.</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600 font-bold">•</span>

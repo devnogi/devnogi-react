@@ -30,6 +30,8 @@ interface ImagePreview {
   file: File;
 }
 
+const MAX_IMAGE_COUNT = 5;
+
 interface PostCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -91,7 +93,7 @@ export default function PostCreateModal({
       file,
     }));
 
-    setImages((prev) => [...prev, ...newImages].slice(0, 10));
+    setImages((prev) => [...prev, ...newImages].slice(0, MAX_IMAGE_COUNT));
   };
 
   const handleRemoveImage = (id: string) => {
@@ -463,14 +465,17 @@ export default function PostCreateModal({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {/* Image Upload Button */}
-                      <label className="cursor-pointer p-2 hover:bg-blue-100 rounded-lg transition-colors group">
+                      <label
+                        className="cursor-pointer p-2 hover:bg-blue-100 rounded-lg transition-colors group"
+                        title="이미지는 최대 5개입니다."
+                      >
                         <input
                           type="file"
                           accept="image/*"
                           multiple
                           onChange={handleImageUpload}
                           className="hidden"
-                          disabled={images.length >= 10}
+                          disabled={images.length >= MAX_IMAGE_COUNT}
                         />
                         <ImageIcon className="w-5 h-5 text-blue-600 group-hover:text-blue-700" />
                       </label>
@@ -547,7 +552,8 @@ export default function PostCreateModal({
                     className="mt-3 flex justify-between items-center text-xs text-gray-500"
                   >
                     <span>
-                      {images.length > 0 && `${images.length}/10 이미지`}
+                      {images.length > 0 &&
+                        `${images.length}/${MAX_IMAGE_COUNT} 이미지`}
                       {tags.length > 0 &&
                         ` • ${tags.length}/10 태그${images.length > 0 ? "" : ""}`}
                     </span>

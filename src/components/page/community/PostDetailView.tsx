@@ -3,6 +3,7 @@
 import { usePostDetail } from "@/hooks/usePostDetail";
 import {
   ArrowLeft,
+  Hash,
   Heart,
   MessageCircle,
   Share2,
@@ -48,6 +49,8 @@ interface PostDetailViewProps {
   postId: string;
 }
 
+const MAX_TAG_COUNT = 10;
+
 export default function PostDetailView({ postId }: PostDetailViewProps) {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
@@ -62,6 +65,8 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editTags, setEditTags] = useState<string[]>([]);
+  const [editTagInput, setEditTagInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
@@ -171,6 +176,8 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     if (!post) return;
     setEditTitle(post.title);
     setEditContent(post.content);
+    setEditTags(post.tags ?? []);
+    setEditTagInput("");
     setIsEditing(true);
   };
 
@@ -178,6 +185,23 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     setIsEditing(false);
     setEditTitle("");
     setEditContent("");
+    setEditTags([]);
+    setEditTagInput("");
+  };
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && editTagInput.trim()) {
+      e.preventDefault();
+      const newTag = editTagInput.trim().replace(/^#/, "");
+      if (!editTags.includes(newTag) && editTags.length < MAX_TAG_COUNT) {
+        setEditTags((prev) => [...prev, newTag]);
+        setEditTagInput("");
+      }
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setEditTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const handleEditSubmit = async () => {
@@ -191,6 +215,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
       await clientAxios.patch(`/posts/${postId}`, {
         title: editTitle.trim(),
         content: editContent.trim(),
+        tags: editTags,
       });
       toast.success("게시글이 수정되었습니다.");
       setIsEditing(false);
@@ -323,6 +348,40 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 className="w-full text-gray-700 dark:text-gray-200 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] resize-none min-h-[150px] md:min-h-[250px]"
                 placeholder="내용을 입력하세요"
               />
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {editTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs"
+                    >
+                      <Hash className="w-3 h-3" />
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="hover:text-blue-900"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editTagInput}
+                    onChange={(e) => setEditTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                    disabled={editTags.length >= MAX_TAG_COUNT}
+                    placeholder="태그 입력 후 Enter"
+                    className="w-full text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-500 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] disabled:opacity-50"
+                  />
+                  <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    {editTags.length}/{MAX_TAG_COUNT}
+                  </span>
+                </div>
+              </div>
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
@@ -353,6 +412,19 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
               <div className="text-gray-700 dark:text-gray-200 whitespace-pre-wrap leading-relaxed text-[15px] md:text-base">
                 {post.content}
               </div>
+              {!!post.tags?.length && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300 text-xs"
+                    >
+                      <Hash className="w-3 h-3" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>

@@ -11,6 +11,7 @@ interface UseInfinitePostsParams {
   keyword?: string;
   sortType?: SortType;
   userId?: number;
+  enabled?: boolean;
 }
 
 interface Author {
@@ -58,6 +59,7 @@ export function useInfinitePosts({
   keyword,
   sortType = "latest",
   userId,
+  enabled = true,
 }: UseInfinitePostsParams = {}) {
   return useInfiniteQuery<PostsData>({
     queryKey: ["posts", boardId, keyword, sortType, userId],
@@ -102,6 +104,7 @@ export function useInfinitePosts({
       return undefined;
     },
     initialPageParam: 1,
+    enabled,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });

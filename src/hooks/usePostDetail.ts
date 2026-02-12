@@ -7,6 +7,7 @@ export interface PostDetail {
   id: number;
   boardId: number;
   userId: number;
+  username: string;
   title: string;
   content: string;
   viewCount: number;
@@ -17,6 +18,8 @@ export interface PostDetail {
   isLiked: boolean;
   createdAt: string;
   updatedAt: string;
+  tags?: string[];
+  imageUrlList?: string[];
 }
 
 interface ApiResponse<T> {

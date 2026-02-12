@@ -44,6 +44,7 @@ export default function PopularPostsHighlight({ boardId }: PopularPostsHighlight
           <Link
             key={post.id}
             href={`/community/${post.id}`}
+            prefetch={false}
             className="group flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-navy-600 transition-colors"
           >
             {/* Rank Badge */}

@@ -35,7 +35,7 @@ export default function PostCard({ post }: PostCardProps) {
   const avatarText = nickname.slice(0, 1).toUpperCase();
 
   return (
-    <Link href={`/community/${post.id}`} className="block">
+    <Link href={`/community/${post.id}`} prefetch={false} className="block">
       <article className="rounded-2xl border border-gray-200/90 dark:border-navy-600 bg-white/95 dark:bg-navy-700/95 hover:bg-white dark:hover:bg-navy-700 transition-colors p-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-teal-500 text-white text-sm font-semibold flex items-center justify-center flex-shrink-0">
