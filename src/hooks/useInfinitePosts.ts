@@ -21,13 +21,18 @@ interface Author {
   profileImage?: string;
 }
 
-interface PostSummary {
+export interface BackendPostSummary {
   id: number;
   title: string;
+  userId: number;
+  username: string;
   viewCount: number;
   likeCount: number;
   commentCount: number;
   createdAt: string;
+}
+
+export interface PostSummary extends BackendPostSummary {
   author: Author;
 }
 
@@ -40,7 +45,12 @@ interface PageMeta {
   isLast: boolean;
 }
 
-interface PostsData {
+interface BackendPostsData {
+  items: BackendPostSummary[];
+  meta: PageMeta;
+}
+
+export interface PostsData {
   items: PostSummary[];
   meta: PageMeta;
 }
@@ -53,6 +63,19 @@ interface ApiResponse<T> {
   timestamp: string;
 }
 
+export const normalizePostSummary = (post: BackendPostSummary): PostSummary => {
+  const normalizedName = post.username?.trim() || `사용자 ${post.userId}`;
+  return {
+    ...post,
+    username: normalizedName,
+    author: {
+      id: post.userId,
+      username: normalizedName,
+      nickname: normalizedName,
+    },
+  };
+};
+
 export function useInfinitePosts({
   boardId,
   size = 20,
@@ -61,6 +84,7 @@ export function useInfinitePosts({
   userId,
   enabled = true,
 }: UseInfinitePostsParams = {}) {
+
   return useInfiniteQuery<PostsData>({
     queryKey: ["posts", boardId, keyword, sortType, userId],
     queryFn: async ({ pageParam = 1 }) => {
@@ -87,7 +111,7 @@ export function useInfinitePosts({
         endpoint = boardId ? `/posts/${boardId}` : "/posts";
       }
 
-      const response = await clientAxios.get<ApiResponse<PostsData>>(endpoint, {
+      const response = await clientAxios.get<ApiResponse<BackendPostsData>>(endpoint, {
         params: {
           page: pageParam as number,
           size,
@@ -95,7 +119,12 @@ export function useInfinitePosts({
         },
       });
 
-      return response.data.data;
+      const { items, meta } = response.data.data;
+
+      return {
+        items: items.map(normalizePostSummary),
+        meta,
+      };
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage.meta.isLast) {

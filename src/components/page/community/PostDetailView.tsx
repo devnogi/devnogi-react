@@ -143,6 +143,9 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     minute: "2-digit",
   });
 
+  const displayName = post.username?.trim() || `사용자 ${post.userId}`;
+  const avatarText = displayName.slice(0, 1).toUpperCase();
+
   const handleLike = async () => {
     if (!isAuthenticated) {
       toast.warning("로그인 후 사용 가능합니다.");
@@ -267,14 +270,14 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
             <div className="flex items-start gap-3">
               {/* Profile Image */}
               <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                {post.userId.toString()[0]}
+                {avatarText}
               </div>
 
               {/* Author Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    사용자 {post.userId}
+                    {displayName}
                   </span>
                   <span className="text-gray-300 dark:text-gray-500 text-sm">·</span>
                   <span className="text-gray-500 dark:text-gray-400 text-sm">

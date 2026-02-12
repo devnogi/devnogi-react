@@ -4,23 +4,7 @@ import { Heart, MessageCircle, Eye } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-
-interface Author {
-  id: number;
-  username: string;
-  nickname: string;
-  profileImage?: string;
-}
-
-interface PostSummary {
-  id: number;
-  title: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  createdAt: string;
-  author: Author;
-}
+import type { PostSummary } from "@/hooks/useInfinitePosts";
 
 interface PostCardProps {
   post: PostSummary;
@@ -31,8 +15,9 @@ export default function PostCard({ post }: PostCardProps) {
     addSuffix: true,
     locale: ko,
   });
-  const nickname = post.author?.nickname || "익명";
-  const avatarText = nickname.slice(0, 1).toUpperCase();
+  const displayName =
+    post.username?.trim() || post.author?.nickname || `사용자 ${post.userId}`;
+  const avatarText = displayName.slice(0, 1).toUpperCase();
 
   return (
     <Link href={`/community/${post.id}`} prefetch={false} className="block">
@@ -43,7 +28,7 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
           <div className="min-w-0">
             <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-              {nickname}
+              {displayName}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               {relativeTime}

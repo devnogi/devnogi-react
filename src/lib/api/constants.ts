@@ -29,3 +29,9 @@ export const STATISTICS_WEEKLY_TOP_CATEGORIES_ENDPOINT = "/oab/statistics/weekly
 // Auth API Endpoints (prefix: /das/api)
 export const AUTH_ENDPOINT = "/das/api/auth";
 export const USER_ENDPOINT = "/das/api/user";
+// Admin batch/sync endpoints (prefix: /oab)
+export const AUCTION_HISTORY_BATCH_ENDPOINT = "/oab/auction-history/batch";
+export const HORN_BUGLE_BATCH_ENDPOINT = "/oab/horn-bugle/batch";
+export const ITEM_INFO_SYNC_ENDPOINT = "/oab/api/item-infos/sync";
+export const METALWARE_INFO_SYNC_ENDPOINT = "/oab/api/metalware-infos/sync";
+export const METALWARE_ATTRIBUTE_SYNC_ENDPOINT = "/oab/api/metalware-attribute-infos/sync";
