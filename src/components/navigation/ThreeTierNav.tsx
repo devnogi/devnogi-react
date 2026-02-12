@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import NotificationDropdown from "@/components/notification/NotificationDropdown";
+import { isAdminRole } from "@/utils/roles";
 
 // Navigation menu items
 const navItems = [
@@ -76,6 +77,7 @@ export default function ThreeTierNav() {
   const router = useRouter();
   const urlSearchParams = useSearchParams();
   const { isAuthenticated, user } = useAuth();
+  const isAdminUser = isAdminRole(user?.role);
   const { isDarkMode, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -715,6 +717,22 @@ export default function ThreeTierNav() {
                 </Link>
               );
             })}
+            {isAdminUser && (
+              <Link
+                href="/admin"
+                className={clsx(
+                  "relative px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors",
+                  pathname.startsWith("/admin")
+                    ? "text-blaanid-600 dark:text-coral-400"
+                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                )}
+              >
+                관리자 도구
+                {pathname.startsWith("/admin") && (
+                  <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
+                )}
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -768,6 +786,15 @@ export default function ThreeTierNav() {
                   onClose={() => setIsNotificationOpen(false)}
                   onToggle={() => setIsNotificationOpen(!isNotificationOpen)}
                 />
+              )}
+
+              {isAdminUser && (
+                <Link
+                  href="/admin"
+                  className="px-3 py-1.5 text-xs font-semibold text-blaanid-600 dark:text-coral-300 border border-blaanid-200 dark:border-coral-400/40 rounded-xl hover:bg-blaanid-50 dark:hover:bg-coral-500/10 transition-colors"
+                >
+                  관리자
+                </Link>
               )}
 
               {/* Login / Profile */}
@@ -851,6 +878,15 @@ export default function ThreeTierNav() {
                   onClose={() => setIsNotificationOpen(false)}
                   onToggle={() => setIsNotificationOpen(!isNotificationOpen)}
                 />
+              )}
+
+              {isAdminUser && (
+                <Link
+                  href="/admin"
+                  className="px-2.5 py-1 text-xs font-semibold text-blaanid-600 dark:text-coral-300 border border-blaanid-200 dark:border-coral-400/40 rounded-xl hover:bg-blaanid-50 dark:hover:bg-coral-500/10 transition-colors"
+                >
+                  관리자
+                </Link>
               )}
 
               {/* Login / Profile */}
