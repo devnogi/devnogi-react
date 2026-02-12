@@ -8,8 +8,7 @@ import {
   Hash,
   Smile,
   Globe,
-  Lock,
-  Users,
+  FileText,
   ChevronDown,
   Maximize2,
   Minimize2,
@@ -23,7 +22,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Board, ApiResponse, BoardListData } from "@/types/community";
 
-type VisibilityOption = "public" | "followers" | "private";
+type VisibilityOption = "public" | "draft";
 
 interface ImagePreview {
   id: string;
@@ -78,13 +77,8 @@ export default function PostCreateModal({
   }, [isOpen, fetchBoards]);
 
   const visibilityOptions = [
-    { value: "public" as VisibilityOption, label: "전체 공개", icon: Globe },
-    {
-      value: "followers" as VisibilityOption,
-      label: "팔로워 공개",
-      icon: Users,
-    },
-    { value: "private" as VisibilityOption, label: "비공개", icon: Lock },
+    { value: "public" as VisibilityOption, label: "공개", icon: Globe },
+    { value: "draft" as VisibilityOption, label: "임시작성", icon: FileText },
   ];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,6 +150,8 @@ export default function PostCreateModal({
         boardId: selectedBoardData.id,
         title: title.trim(),
         content: content.trim(),
+        isDraft: visibility === "draft" ? 1 : 0,
+        tags,
       };
       formData.append(
         "data",

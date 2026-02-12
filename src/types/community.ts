@@ -141,6 +141,8 @@ export interface PostCreateRequest {
   boardId: number;
   title: string;
   content: string;
+  isDraft: 0 | 1;
+  tags: string[];
 }
 
 // 게시글 수정 요청 타입

@@ -7,8 +7,7 @@ import {
   Hash,
   Smile,
   Globe,
-  Lock,
-  Users,
+  FileText,
   ChevronDown,
   Loader2,
 } from "lucide-react";
@@ -21,7 +20,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Board, ApiResponse, BoardListData } from "@/types/community";
 
-type VisibilityOption = "public" | "followers" | "private";
+type VisibilityOption = "public" | "draft";
 
 interface ImagePreview {
   id: string;
@@ -65,13 +64,8 @@ export default function PostWriteView() {
   }, [fetchBoards]);
 
   const visibilityOptions = [
-    { value: "public" as VisibilityOption, label: "전체 공개", icon: Globe },
-    {
-      value: "followers" as VisibilityOption,
-      label: "팔로워 공개",
-      icon: Users,
-    },
-    { value: "private" as VisibilityOption, label: "비공개", icon: Lock },
+    { value: "public" as VisibilityOption, label: "공개", icon: Globe },
+    { value: "draft" as VisibilityOption, label: "임시작성", icon: FileText },
   ];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,6 +138,8 @@ export default function PostWriteView() {
         boardId: selectedBoardData.id,
         title: title.trim(),
         content: content.trim(),
+        isDraft: visibility === "draft" ? 1 : 0,
+        tags,
       };
       formData.append(
         "data",
@@ -411,7 +407,7 @@ export default function PostWriteView() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-600 font-bold">•</span>
-            <span>공개 범위를 설정하여 원하는 사람들에게만 공개하세요.</span>
+            <span>게시 상태를 선택하세요. 임시작성은 초안으로 저장됩니다.</span>
           </li>
         </ul>
       </div>
