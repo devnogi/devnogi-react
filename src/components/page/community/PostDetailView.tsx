@@ -74,11 +74,11 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full py-4 md:py-6">
-        <div className="mb-6">
+      <div className="w-full py-2 md:py-4">
+        <div className="mb-4">
           <Skeleton className="h-8 w-24" />
         </div>
-        <div className="bg-card rounded-xl border border-border">
+        <div className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600">
           {/* Author skeleton */}
           <div className="p-4 md:p-6 border-b border-border">
             <div className="flex items-center gap-3">
@@ -219,11 +219,15 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   };
 
   return (
-    <div className="w-full py-4 md:py-6">
+    <div className="w-full py-2 md:py-4">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4">
         <Link href="/community">
-          <Button variant="ghost" size="sm" className="gap-2 -ml-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 -ml-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          >
             <ArrowLeft className="w-4 h-4" />
             목록으로
           </Button>
@@ -231,28 +235,28 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
       </div>
 
       {/* Post Content - Threads Style */}
-      <article className="bg-card rounded-xl border border-border">
+      <article className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600">
         {/* Author Section */}
-        <div className="p-4 md:p-6 border-b border-border">
+        <div className="p-4 md:p-5 border-b border-gray-100 dark:border-navy-600">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               {/* Profile Image */}
-              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
                 {post.userId.toString()[0]}
               </div>
 
               {/* Author Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
                     사용자 {post.userId}
                   </span>
-                  <span className="text-muted-foreground text-sm">·</span>
-                  <span className="text-muted-foreground text-sm">
+                  <span className="text-gray-300 dark:text-gray-500 text-sm">·</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
                     {relativeTime}
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   {formattedDate}
                 </div>
               </div>
@@ -262,8 +266,8 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
             {(canEdit || canDelete || canReport) && !isEditing && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 hover:bg-muted rounded-full transition-colors">
-                    <MoreVertical className="w-5 h-5 text-muted-foreground" />
+                  <button className="p-2 hover:bg-gray-100 dark:hover:bg-navy-600 rounded-full transition-colors">
+                    <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[120px]">
@@ -302,21 +306,21 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         </div>
 
         {/* Post Body */}
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-5">
           {isEditing ? (
             <div className="space-y-4">
               <input
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full text-xl font-bold text-foreground bg-background border border-input rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full text-xl font-bold text-gray-900 dark:text-gray-100 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-500 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)]"
                 placeholder="제목을 입력하세요"
               />
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 rows={6}
-                className="w-full text-foreground/80 bg-background border border-input rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ring resize-none min-h-[150px] md:min-h-[250px]"
+                className="w-full text-gray-700 dark:text-gray-200 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] resize-none min-h-[150px] md:min-h-[250px]"
                 placeholder="내용을 입력하세요"
               />
               <div className="flex justify-end gap-2">
@@ -343,10 +347,10 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-bold text-foreground mb-4">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-snug">
                 {post.title}
               </h1>
-              <div className="text-foreground/80 whitespace-pre-wrap leading-relaxed">
+              <div className="text-gray-700 dark:text-gray-200 whitespace-pre-wrap leading-relaxed text-[15px] md:text-base">
                 {post.content}
               </div>
             </>
@@ -354,33 +358,33 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
         </div>
 
         {/* Stats Bar */}
-        <div className="px-4 py-3 md:px-6 md:py-4 border-t border-border">
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Eye className="w-4 h-4" />
+        <div className="px-4 py-3 md:px-5 border-t border-gray-100 dark:border-navy-600">
+          <div className="flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-navy-600">
+              <Eye className="w-3.5 h-3.5" />
               <span>{post.viewCount.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-navy-600">
               <Heart
-                className={`w-4 h-4 ${post.isLiked ? "fill-red-500 text-red-500" : ""}`}
+                className={`w-3.5 h-3.5 ${post.isLiked ? "fill-red-500 text-red-500" : ""}`}
               />
               <span>{post.likeCount.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <MessageCircle className="w-4 h-4" />
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-navy-600">
+              <MessageCircle className="w-3.5 h-3.5" />
               <span>{post.commentCount.toLocaleString()}</span>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="px-4 py-3 md:px-6 border-t border-border flex items-center gap-2">
+        <div className="px-4 py-3 md:px-5 border-t border-gray-100 dark:border-navy-600 flex items-center gap-2">
           <button
             onClick={handleLike}
-            className={`flex-1 py-2.5 rounded-lg font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-xl font-medium transition-colors text-sm ${
               post.isLiked
                 ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-                : "bg-muted text-foreground hover:bg-muted/80 dark:hover:bg-muted/70"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-navy-600 dark:text-gray-200 dark:hover:bg-navy-500"
             }`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -397,7 +401,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
           </button>
           <button
             onClick={handleShare}
-            className="flex-1 py-2.5 rounded-lg font-medium bg-muted text-foreground hover:bg-muted/80 dark:hover:bg-muted/70 transition-colors"
+            className="flex-1 py-2.5 rounded-xl font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-navy-600 dark:text-gray-200 dark:hover:bg-navy-500 transition-colors text-sm"
           >
             <div className="flex items-center justify-center gap-2">
               <Share2 className="w-4 h-4" />

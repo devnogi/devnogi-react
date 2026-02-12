@@ -59,7 +59,7 @@ export default function CommentList({ postId }: CommentListProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400 dark:text-gray-500" />
       </div>
     );
   }
@@ -67,8 +67,8 @@ export default function CommentList({ postId }: CommentListProps) {
   if (isError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500">댓글을 불러오는데 실패했습니다.</p>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-red-500 dark:text-red-400">댓글을 불러오는데 실패했습니다.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {error instanceof Error ? error.message : "알 수 없는 오류"}
         </p>
       </div>
@@ -96,17 +96,17 @@ export default function CommentList({ postId }: CommentListProps) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-900">
-        댓글 {totalCount}
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        댓글 <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
       </h3>
 
       {/* Comments */}
       {comments.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">첫 댓글을 작성해보세요!</p>
+          <p className="text-gray-500 dark:text-gray-400">첫 댓글을 작성해보세요!</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {topLevelComments.map((comment) => (
             <CommentItem
               key={comment.id}
@@ -127,7 +127,7 @@ export default function CommentList({ postId }: CommentListProps) {
             size="sm"
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto rounded-xl"
           >
             {isFetchingNextPage ? (
               <>
@@ -142,7 +142,7 @@ export default function CommentList({ postId }: CommentListProps) {
       )}
 
       {/* Comment Form (bottom) */}
-      <div className="pt-4 border-t border-gray-200">
+      <div className="pt-4 border-t border-gray-100 dark:border-navy-600">
         <CommentForm postId={postId} onSuccess={handleRefetch} />
       </div>
     </div>

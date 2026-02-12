@@ -192,13 +192,13 @@ export default function CommentItem({
   // 삭제되거나 차단된 댓글 표시
   if (comment.isDeleted || comment.isBlocked) {
     return (
-      <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-border" : ""}`}>
-        <div className="bg-muted rounded-lg p-3">
+      <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}>
+        <div className="bg-gray-50 dark:bg-navy-600/40 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-muted-foreground/20" />
-            <span className="text-muted-foreground text-sm">알 수 없음</span>
+            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-navy-500" />
+            <span className="text-gray-500 dark:text-gray-400 text-sm">알 수 없음</span>
           </div>
-          <p className="text-muted-foreground text-sm italic">
+          <p className="text-gray-500 dark:text-gray-400 text-sm italic">
             {comment.isDeleted
               ? "삭제된 댓글입니다."
               : "차단된 댓글입니다."}
@@ -209,19 +209,19 @@ export default function CommentItem({
   }
 
   return (
-    <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l-2 border-border" : ""}`}>
-      <div className="bg-muted rounded-lg p-3">
+    <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}>
+      <div className="bg-gray-50 dark:bg-navy-600/40 rounded-xl p-3">
         {/* Header: Avatar + Nickname + Date + Actions (같은 행) */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             {/* Author Avatar */}
             <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-              <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-full h-full bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center text-white text-sm font-semibold">
                 {comment.nickname?.[0] || comment.userId.toString()[0]}
               </div>
             </div>
             {/* Nickname */}
-            <span className="font-semibold text-foreground text-sm">
+            <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
               {comment.nickname || `사용자 ${comment.userId}`}
             </span>
           </div>
@@ -232,7 +232,7 @@ export default function CommentItem({
                 <button
                   onClick={handleEditStart}
                   disabled={isSubmitting}
-                  className="p-2 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded"
+                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-[var(--color-ds-primary)] transition-colors rounded-lg"
                   title="수정"
                 >
                   <Pencil className="w-4 h-4" />
@@ -242,7 +242,7 @@ export default function CommentItem({
                 <button
                   onClick={() => setShowDeleteDialog(true)}
                   disabled={isSubmitting}
-                  className="p-2 text-muted-foreground hover:text-red-500 dark:hover:text-red-400 transition-colors rounded"
+                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-lg"
                   title="삭제"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -258,7 +258,7 @@ export default function CommentItem({
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full px-3 py-2 bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none text-sm"
+              className="w-full px-3 py-2 bg-white dark:bg-navy-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-navy-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] resize-none text-sm"
               rows={3}
               disabled={isSubmitting}
               autoFocus
@@ -292,22 +292,22 @@ export default function CommentItem({
             </div>
           </div>
         ) : (
-          <p className="text-foreground/80 text-sm whitespace-pre-wrap">
+          <p className="text-gray-700 dark:text-gray-200 text-sm whitespace-pre-wrap">
             {comment.content}
           </p>
         )}
 
         {/* Meta: Date + Actions */}
         {!isEditing && (
-          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border">
+          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-navy-500">
             {comment.createdAt && (
-              <span className="text-muted-foreground text-xs">
+              <span className="text-gray-500 dark:text-gray-400 text-xs mr-1">
                 {formatDate(comment.createdAt)}
               </span>
             )}
             <button
               onClick={handleLike}
-              className="flex items-center gap-1 text-muted-foreground hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs"
+              className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs px-2 py-1 rounded-full bg-white dark:bg-navy-700"
             >
               <Heart
                 className={`w-3.5 h-3.5 ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
@@ -317,7 +317,7 @@ export default function CommentItem({
             {!isReply && (
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="flex items-center gap-1 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-xs"
+                className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-[var(--color-ds-primary)] transition-colors text-xs px-2 py-1 rounded-full bg-white dark:bg-navy-700"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>답글</span>
@@ -326,7 +326,7 @@ export default function CommentItem({
             {canReport && (
               <button
                 onClick={() => setShowReportDialog(true)}
-                className="flex items-center gap-1 text-muted-foreground hover:text-orange-500 dark:hover:text-orange-400 transition-colors text-xs"
+                className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors text-xs px-2 py-1 rounded-full bg-white dark:bg-navy-700"
               >
                 <Flag className="w-3.5 h-3.5" />
                 <span>신고</span>
