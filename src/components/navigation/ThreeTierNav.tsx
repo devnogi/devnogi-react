@@ -20,6 +20,7 @@ import {
 } from "@/hooks/useRecentSearches";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import NotificationDropdown from "@/components/notification/NotificationDropdown";
 import { isAdminRole } from "@/utils/roles";
 
@@ -816,8 +817,9 @@ export default function ThreeTierNav() {
                   ) : (
                     <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
                   )}
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-1">
                     {user?.nickname}
+                    {user?.verified && <VerifiedBadge size="sm" />}
                   </span>
                 </Link>
               ) : (

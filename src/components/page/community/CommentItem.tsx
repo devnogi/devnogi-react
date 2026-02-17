@@ -2,6 +2,7 @@
 
 import { CommentPageResponseItem } from "@/types/community";
 import { Heart, MessageCircle, Pencil, Trash2, X, Check, Loader2, Flag } from "lucide-react";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useState, useEffect, useCallback } from "react";
 import CommentForm from "./CommentForm";
 import { useAuth } from "@/contexts/AuthContext";
@@ -221,8 +222,9 @@ export default function CommentItem({
               </div>
             </div>
             {/* Nickname */}
-            <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+            <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-1">
               {comment.nickname || `사용자 ${comment.userId}`}
+              {comment.verified && <VerifiedBadge size="sm" />}
             </span>
           </div>
           {/* Edit/Delete Buttons */}

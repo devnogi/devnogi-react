@@ -19,6 +19,7 @@ interface Author {
   username: string;
   nickname: string;
   profileImage?: string;
+  verified?: boolean;
 }
 
 export interface BackendPostSummary {

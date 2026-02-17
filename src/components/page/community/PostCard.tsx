@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import type { PostSummary } from "@/hooks/useInfinitePosts";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
 interface PostCardProps {
   post: PostSummary;
@@ -27,8 +28,9 @@ export default function PostCard({ post }: PostCardProps) {
             {avatarText}
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate flex items-center gap-1">
               {displayName}
+              {post.author?.verified && <VerifiedBadge size="sm" />}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               {relativeTime}

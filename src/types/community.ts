@@ -28,6 +28,7 @@ export interface Author {
   username: string;
   nickname: string;
   profileImage?: string;
+  verified?: boolean;
 }
 
 // 게시글 타입
@@ -87,6 +88,7 @@ export interface CommentPageResponseItem {
   isLiked: boolean;
   createdAt: string;
   updatedAt: string;
+  verified?: boolean;
 }
 
 // 페이지 메타 정보

@@ -20,6 +20,7 @@ export interface PostDetail {
   updatedAt: string;
   tags?: string[];
   imageUrlList?: string[];
+  verified?: boolean;
 }
 
 interface ApiResponse<T> {

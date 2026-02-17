@@ -8,6 +8,9 @@ export interface User {
   email: string;
   profileImageUrl: string | null;
   role?: "USER" | "ADMIN" | "SUPER_ADMIN";
+  verified?: boolean;
+  serverName?: string | null;
+  characterName?: string | null;
 }
 
 interface AuthContextType {

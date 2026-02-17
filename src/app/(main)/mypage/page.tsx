@@ -15,8 +15,11 @@ import {
   AlertTriangle,
   Bell,
   FileText,
+  Gamepad2,
+  Swords,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginModal from "@/components/auth/LoginModal";
@@ -40,6 +43,9 @@ interface ExtendedUser {
   createdAt?: string;
   updatedAt?: string;
   lastLoginAt?: string;
+  verified?: boolean;
+  serverName?: string | null;
+  characterName?: string | null;
 }
 
 const mockUserData: ExtendedUser = {
@@ -52,6 +58,9 @@ const mockUserData: ExtendedUser = {
   createdAt: "2024-01-15T09:30:00",
   updatedAt: "2025-01-10T14:20:00",
   lastLoginAt: "2025-01-11T10:15:00",
+  verified: false,
+  serverName: null,
+  characterName: null,
 };
 
 export default function MyPage() {
@@ -251,8 +260,9 @@ function MyPageContent() {
               {/* User Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-1.5">
                     {authUser?.nickname || user.nickname}
+                    {(authUser?.verified || user.verified) && <VerifiedBadge size="md" />}
                   </h1>
                   {getStatusBadge(user.status || "ACTIVE")}
                 </div>
@@ -296,6 +306,16 @@ function MyPageContent() {
                 icon={<Shield className="w-5 h-5 text-gray-400" />}
                 label="권한"
                 value={(user.role || "USER") === "USER" ? "일반 회원" : "관리자"}
+              />
+              <InfoRow
+                icon={<Gamepad2 className="w-5 h-5 text-gray-400" />}
+                label="서버명"
+                value={(authUser?.serverName || user.serverName) || "미설정"}
+              />
+              <InfoRow
+                icon={<Swords className="w-5 h-5 text-gray-400" />}
+                label="캐릭터명"
+                value={(authUser?.characterName || user.characterName) || "미설정"}
               />
               {user.createdAt && (
                 <InfoRow
@@ -455,10 +475,13 @@ function EditProfileModal({
   onSuccess: () => void;
 }) {
   const [nickname, setNickname] = useState(user.nickname);
+  const [serverName, setServerName] = useState(user.serverName || "");
+  const [characterName, setCharacterName] = useState(user.characterName || "");
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(user.profileImageUrl);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isVerified = user.verified === true;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -506,8 +529,10 @@ function EditProfileModal({
     // 변경사항이 없는 경우
     const nicknameChanged = nickname.trim() !== user.nickname;
     const imageChanged = profileImage !== null || (previewUrl === null && user.profileImageUrl !== null);
+    const serverNameChanged = serverName.trim() !== (user.serverName || "");
+    const characterNameChanged = characterName.trim() !== (user.characterName || "");
 
-    if (!nicknameChanged && !imageChanged) {
+    if (!nicknameChanged && !imageChanged && !serverNameChanged && !characterNameChanged) {
       toast.info("변경된 내용이 없습니다.");
       onClose();
       return;
@@ -517,6 +542,12 @@ function EditProfileModal({
     try {
       const formData = new FormData();
       formData.append("nickname", nickname.trim());
+
+      // 인증되지 않은 사용자만 서버명/캐릭터명 수정 가능
+      if (!isVerified) {
+        formData.append("serverName", serverName.trim());
+        formData.append("characterName", characterName.trim());
+      }
 
       // 프로필 이미지가 선택된 경우에만 추가
       if (profileImage) {
@@ -659,6 +690,50 @@ function EditProfileModal({
             />
             <p className="text-xs text-gray-500 mt-1">이메일은 변경할 수 없습니다.</p>
           </div>
+
+          {/* 서버명 */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              서버명
+            </label>
+            <input
+              type="text"
+              value={isVerified ? (user.serverName || "") : serverName}
+              onChange={(e) => setServerName(e.target.value)}
+              className={`w-full h-12 px-4 border rounded-xl ${
+                isVerified
+                  ? "border-gray-200 bg-gray-50 text-gray-500"
+                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              }`}
+              placeholder="서버명을 입력하세요"
+              disabled={isSubmitting || isVerified}
+            />
+          </div>
+
+          {/* 캐릭터명 */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              캐릭터명
+            </label>
+            <input
+              type="text"
+              value={isVerified ? (user.characterName || "") : characterName}
+              onChange={(e) => setCharacterName(e.target.value)}
+              className={`w-full h-12 px-4 border rounded-xl ${
+                isVerified
+                  ? "border-gray-200 bg-gray-50 text-gray-500"
+                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              }`}
+              placeholder="캐릭터명을 입력하세요"
+              disabled={isSubmitting || isVerified}
+            />
+          </div>
+
+          {isVerified && (
+            <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+              인증된 사용자는 재인증을 통해서만 서버명과 캐릭터명을 수정할 수 있습니다.
+            </p>
+          )}
         </div>
 
         <div className="flex gap-3">
