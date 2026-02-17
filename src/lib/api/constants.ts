@@ -29,6 +29,7 @@ export const STATISTICS_WEEKLY_TOP_CATEGORIES_ENDPOINT = "/oab/statistics/weekly
 // Auth API Endpoints (prefix: /das/api)
 export const AUTH_ENDPOINT = "/das/api/auth";
 export const USER_ENDPOINT = "/das/api/user";
+export const USER_VERIFICATION_ENDPOINT = "/das/api/user/verification";
 // Admin batch/sync endpoints (prefix: /oab)
 export const AUCTION_HISTORY_BATCH_ENDPOINT = "/oab/auction-history/batch";
 export const HORN_BUGLE_BATCH_ENDPOINT = "/oab/horn-bugle/batch";

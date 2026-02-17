@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Category from "@/components/page/community/Category";
 import PostList from "@/components/page/community/PostList";
 import PopularPostsHighlight from "@/components/page/community/PopularPostsHighlight";
-import { Plus, Search, X, Loader2, UserRound } from "lucide-react";
+import { Plus, Loader2, UserRound } from "lucide-react";
 import PostCreateModal from "@/components/page/community/PostCreateModal";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -13,7 +13,6 @@ type SortType = "latest" | "popular" | "mostLiked";
 
 function CommunityPageContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const keyword = searchParams.get("q") || "";
 
   const [selectedBoardId, setSelectedBoardId] = useState<number | undefined>(
@@ -22,58 +21,11 @@ function CommunityPageContent() {
   const [sortOption, setSortOption] = useState<SortType>("latest");
   const [showMyPosts, setShowMyPosts] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [mobileSearchInput, setMobileSearchInput] = useState(keyword);
   const { user, isAuthenticated } = useAuth();
-
-  // URL의 검색어가 변경되면 모바일 input 동기화
-  useEffect(() => {
-    setMobileSearchInput(keyword);
-  }, [keyword]);
-
-  const handleMobileSearch = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      const trimmedInput = mobileSearchInput.trim();
-      if (trimmedInput) {
-        router.push(`/community?q=${encodeURIComponent(trimmedInput)}`);
-      } else {
-        router.push("/community");
-      }
-    },
-    [mobileSearchInput, router]
-  );
-
-  const handleClearMobileSearch = useCallback(() => {
-    setMobileSearchInput("");
-    router.push("/community");
-  }, [router]);
 
   return (
     <main className="flex flex-col gap-6 pb-24">
       <div className="w-full md:w-2/3 mx-auto space-y-6">
-        {/* Mobile Search Bar - Only visible on mobile */}
-        <form onSubmit={handleMobileSearch} className="md:hidden">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-            <input
-              type="text"
-              value={mobileSearchInput}
-              onChange={(e) => setMobileSearchInput(e.target.value)}
-              placeholder="게시글 검색..."
-              className="w-full pl-10 pr-10 py-2.5 text-sm border border-gray-200 dark:border-navy-600 rounded-xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] transition-colors"
-            />
-            {mobileSearchInput && (
-              <button
-                type="button"
-                onClick={handleClearMobileSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </form>
-
         {/* Category Filter */}
         <Category
           selectedBoardId={selectedBoardId}

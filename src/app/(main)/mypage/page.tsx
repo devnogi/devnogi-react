@@ -17,6 +17,7 @@ import {
   FileText,
   Gamepad2,
   Swords,
+  BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import NotificationList from "@/components/page/mypage/NotificationList";
+import VerificationTab from "@/components/page/mypage/VerificationTab";
 import PostList from "@/components/page/community/PostList";
 import { useUnreadNoticeCount } from "@/hooks/useNotices";
 
@@ -186,6 +188,7 @@ function MyPageContent() {
     { key: "profile", label: "내 정보", icon: User },
     { key: "posts", label: "내 게시글", icon: FileText },
     { key: "notifications", label: "알림", icon: Bell, badge: unreadCount },
+    { key: "verification", label: "인증", icon: BadgeCheck },
   ];
 
   return (
@@ -232,6 +235,8 @@ function MyPageContent() {
         <PostList userId={userId} />
       ) : activeTab === "notifications" ? (
         <NotificationList userId={userId} />
+      ) : activeTab === "verification" ? (
+        <VerificationTab userId={userId} />
       ) : (
         <>
           {/* Profile Header Card */}
