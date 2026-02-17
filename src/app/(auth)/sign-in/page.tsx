@@ -181,9 +181,9 @@ export default function Page() {
     "w-full h-12 flex items-center justify-center gap-3 rounded-xl transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
-    <div className="h-dvh overflow-hidden bg-gradient-to-b from-cream-100 via-cream-50 to-white">
-      <div className="mx-auto flex h-full max-w-5xl px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex min-h-0 w-full overflow-hidden rounded-3xl border border-cream-200/70 bg-white/95 shadow-[0_20px_60px_rgba(31,41,55,0.10)] backdrop-blur-sm">
+    <div className="h-dvh overflow-hidden bg-white md:bg-gradient-to-b md:from-cream-100 md:via-cream-50 md:to-white">
+      <div className="flex h-full md:mx-auto md:max-w-5xl md:px-4 md:py-4 lg:px-6 lg:py-6">
+        <div className="flex min-h-0 w-full overflow-hidden md:rounded-3xl md:border md:border-cream-200/70 md:bg-white/95 md:shadow-[0_20px_60px_rgba(31,41,55,0.10)] md:backdrop-blur-sm">
           <aside className="hidden w-[42%] min-w-[320px] flex-col justify-between bg-gradient-to-br from-clover-700 via-clover-600 to-clover-500 p-8 text-white md:flex">
             <div className="space-y-4">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
@@ -231,150 +231,148 @@ export default function Page() {
                 </p>
               </header>
 
-              <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-[0_8px_24px_rgba(61,56,47,0.08)] sm:p-6">
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold text-cream-800">
+                          아이디
+                        </FormLabel>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
+                          <FormControl>
+                            <Input
+                              placeholder="아이디를 입력하세요"
+                              className="h-12 rounded-xl border-cream-300 pl-11 focus:border-clover-500 focus:ring-clover-500/20"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold text-cream-800">
+                          비밀번호
+                        </FormLabel>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="비밀번호를 입력하세요"
+                              className="h-12 rounded-xl border-cream-300 pl-11 pr-11 focus:border-clover-500 focus:ring-clover-500/20"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-cream-400 transition-colors hover:text-cream-600"
+                            aria-label={
+                              showPassword
+                                ? "비밀번호 숨기기"
+                                : "비밀번호 보기"
+                            }
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading || !form.formState.isValid}
+                    className={clsx(
+                      "mt-2 h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
+                      !form.formState.isValid && "opacity-60",
+                    )}
                   >
-                    <FormField
-                      control={form.control}
-                      name="id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold text-cream-800">
-                            아이디
-                          </FormLabel>
-                          <div className="relative">
-                            <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
-                            <FormControl>
-                              <Input
-                                placeholder="아이디를 입력하세요"
-                                className="h-12 rounded-xl border-cream-300 pl-11 focus:border-clover-500 focus:ring-clover-500/20"
-                                {...field}
-                              />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        로그인 중...
+                      </>
+                    ) : (
+                      "로그인"
+                    )}
+                  </Button>
+                </form>
+              </Form>
 
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold text-cream-800">
-                            비밀번호
-                          </FormLabel>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
-                            <FormControl>
-                              <Input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="비밀번호를 입력하세요"
-                                className="h-12 rounded-xl border-cream-300 pl-11 pr-11 focus:border-clover-500 focus:ring-clover-500/20"
-                                {...field}
-                              />
-                            </FormControl>
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-cream-400 transition-colors hover:text-cream-600"
-                              aria-label={
-                                showPassword
-                                  ? "비밀번호 숨기기"
-                                  : "비밀번호 보기"
-                              }
-                            >
-                              {showPassword ? (
-                                <EyeOff className="h-5 w-5" />
-                              ) : (
-                                <Eye className="h-5 w-5" />
-                              )}
-                            </button>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button
-                      type="submit"
-                      disabled={isLoading || !form.formState.isValid}
-                      className={clsx(
-                        "mt-2 h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
-                        !form.formState.isValid && "opacity-60",
-                      )}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          로그인 중...
-                        </>
-                      ) : (
-                        "로그인"
-                      )}
-                    </Button>
-                  </form>
-                </Form>
-
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-cream-200"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-4 text-cream-500">또는</span>
-                  </div>
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-cream-200"></div>
                 </div>
-
-                <div className="space-y-3">
-                  <button
-                    type="button"
-                    onClick={() => handleSocialLogin("google")}
-                    disabled={isSocialDisabled}
-                    className={clsx(
-                      socialButtonBaseClass,
-                      "group border border-cream-300 hover:bg-cream-50",
-                    )}
-                  >
-                    <GoogleIcon />
-                    <span className="text-sm font-medium text-cream-700 group-hover:text-cream-900">
-                      Google로 계속하기
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSocialLogin("kakao")}
-                    disabled={isSocialDisabled}
-                    className={clsx(
-                      socialButtonBaseClass,
-                      "group bg-[#FEE500] hover:bg-[#FDD835]",
-                    )}
-                  >
-                    <KakaoIcon />
-                    <span className="text-sm font-medium text-[#3C1E1E] group-hover:text-black">
-                      카카오로 계속하기
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSocialLogin("naver")}
-                    disabled={isSocialDisabled}
-                    className={clsx(
-                      socialButtonBaseClass,
-                      "group bg-[#03C75A] hover:bg-[#02B350]",
-                    )}
-                  >
-                    <NaverIcon />
-                    <span className="text-sm font-medium text-white">
-                      네이버로 계속하기
-                    </span>
-                  </button>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-4 text-cream-500">또는</span>
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("google")}
+                  disabled={isSocialDisabled}
+                  className={clsx(
+                    socialButtonBaseClass,
+                    "group border border-cream-300 hover:bg-cream-50",
+                  )}
+                >
+                  <GoogleIcon />
+                  <span className="text-sm font-medium text-cream-700 group-hover:text-cream-900">
+                    Google로 계속하기
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("kakao")}
+                  disabled={isSocialDisabled}
+                  className={clsx(
+                    socialButtonBaseClass,
+                    "group bg-[#FEE500] hover:bg-[#FDD835]",
+                  )}
+                >
+                  <KakaoIcon />
+                  <span className="text-sm font-medium text-[#3C1E1E] group-hover:text-black">
+                    카카오로 계속하기
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("naver")}
+                  disabled={isSocialDisabled}
+                  className={clsx(
+                    socialButtonBaseClass,
+                    "group bg-[#03C75A] hover:bg-[#02B350]",
+                  )}
+                >
+                  <NaverIcon />
+                  <span className="text-sm font-medium text-white">
+                    네이버로 계속하기
+                  </span>
+                </button>
               </div>
 
               <div className="mt-5 text-center">
