@@ -218,8 +218,6 @@ export default function AuctionHistoryList({
                 itemDisplayName={item.itemDisplayName}
                 itemOptions={item.itemOptions}
                 price={item.auctionPricePerUnit}
-                date={item.dateAuctionBuy}
-                dateLabel="거래일시"
               />
             </PopoverContent>
           </Popover>
@@ -308,8 +306,6 @@ export default function AuctionHistoryList({
                 itemDisplayName={item.itemDisplayName}
                 itemOptions={item.itemOptions}
                 price={item.auctionPricePerUnit}
-                date={item.dateAuctionBuy}
-                dateLabel="거래일시"
               />
             </PopoverContent>
           </Popover>

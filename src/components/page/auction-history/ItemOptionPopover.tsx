@@ -13,8 +13,6 @@ interface ItemOptionPopoverProps {
   itemDisplayName: string;
   itemOptions: ItemOption[];
   price: number;
-  date?: string;
-  dateLabel?: string;
 }
 
 /**
@@ -25,28 +23,11 @@ export default function ItemOptionPopover({
   itemDisplayName,
   itemOptions,
   price,
-  date,
-  dateLabel = "일자",
 }: ItemOptionPopoverProps) {
   const groupedOptions = groupOptionsByCategory(itemOptions);
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("ko-KR");
-  };
-
-  const formatDate = (dateString: string) => {
-    const parsedDate = new Date(dateString);
-    if (Number.isNaN(parsedDate.getTime())) {
-      return dateString;
-    }
-
-    return new Intl.DateTimeFormat("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(parsedDate);
   };
 
   return (
@@ -68,11 +49,6 @@ export default function ItemOptionPopover({
         <div className="text-xs text-amber-600 dark:text-[#ffcc00] font-semibold">
           가격 : {formatPrice(price)} Gold
         </div>
-        {date && (
-          <div className="text-xs text-gray-600 dark:text-[#d0d0d0] mt-1">
-            {dateLabel} : {formatDate(date)}
-          </div>
-        )}
       </div>
     </div>
   );

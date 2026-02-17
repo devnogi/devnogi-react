@@ -161,8 +161,6 @@ export default function AuctionRealtimeList({
                 itemDisplayName={item.itemDisplayName}
                 itemOptions={item.itemOptions}
                 price={item.auctionPricePerUnit}
-                date={item.dateAuctionExpire}
-                dateLabel="만료일시"
               />
             </PopoverContent>
           </Popover>
@@ -251,8 +249,6 @@ export default function AuctionRealtimeList({
                 itemDisplayName={item.itemDisplayName}
                 itemOptions={item.itemOptions}
                 price={item.auctionPricePerUnit}
-                date={item.dateAuctionExpire}
-                dateLabel="만료일시"
               />
             </PopoverContent>
           </Popover>
