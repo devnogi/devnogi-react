@@ -224,7 +224,7 @@ export default function CommentItem({
             {/* Nickname */}
             <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-1">
               {comment.nickname || `사용자 ${comment.userId}`}
-              {comment.verified && <VerifiedBadge size="sm" />}
+              {comment.verified === true && <VerifiedBadge size="sm" />}
             </span>
           </div>
           {/* Edit/Delete Buttons */}

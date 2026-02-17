@@ -262,7 +262,7 @@ function MyPageContent() {
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-1.5">
                     {authUser?.nickname || user.nickname}
-                    {(authUser?.verified || user.verified) && <VerifiedBadge size="md" />}
+                    {user.verified === true && <VerifiedBadge size="md" />}
                   </h1>
                   {getStatusBadge(user.status || "ACTIVE")}
                 </div>

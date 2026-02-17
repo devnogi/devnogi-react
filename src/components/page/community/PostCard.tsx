@@ -30,7 +30,7 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="min-w-0">
             <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate flex items-center gap-1">
               {displayName}
-              {post.author?.verified && <VerifiedBadge size="sm" />}
+              {post.author?.verified === true && <VerifiedBadge size="sm" />}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               {relativeTime}

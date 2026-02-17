@@ -819,7 +819,7 @@ export default function ThreeTierNav() {
                   )}
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-1">
                     {user?.nickname}
-                    {user?.verified && <VerifiedBadge size="sm" />}
+                    {user?.verified === true && <VerifiedBadge size="sm" />}
                   </span>
                 </Link>
               ) : (

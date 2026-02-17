@@ -280,7 +280,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1">
                     {displayName}
-                    {post.verified && <VerifiedBadge size="sm" />}
+                    {post.verified === true && <VerifiedBadge size="sm" />}
                   </span>
                   <span className="text-gray-300 dark:text-gray-500 text-sm">·</span>
                   <span className="text-gray-500 dark:text-gray-400 text-sm">
