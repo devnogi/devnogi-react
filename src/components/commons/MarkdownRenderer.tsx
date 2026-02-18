@@ -11,6 +11,22 @@ const INLINE_TOKEN_REGEX =
   /(`[^`]+`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~)/g;
 
 const BLOCK_PREFIX_REGEX = /^(#{1,6}\s+|>\s?|(\s*)[-*+]\s+|\d+\.\s+|```)/;
+const LIST_ITEM_REGEX = /^(\s*)([-*+]|\d+\.)\s+(.*)$/;
+
+type ListType = "ul" | "ol";
+
+interface ListItemNode {
+  key: string;
+  content: ReactNode[];
+  children: ReactNode[];
+}
+
+interface ListContext {
+  type: ListType;
+  indent: number;
+  depth: number;
+  items: ListItemNode[];
+}
 
 function parseInline(text: string): ReactNode[] {
   INLINE_TOKEN_REGEX.lastIndex = 0;
@@ -94,15 +110,156 @@ export default function MarkdownRenderer({ content, className }: MarkdownRendere
   const blocks: ReactNode[] = [];
   let i = 0;
   let blockKey = 0;
+  const listStack: ListContext[] = [];
+  let listItemKey = 0;
+
+  const getIndentWidth = (whitespace: string) => whitespace.replace(/\t/g, "    ").length;
+
+  const renderListContext = (context: ListContext) => {
+    const unorderedStyle =
+      context.depth >= 2 ? "list-[square]" : context.depth === 1 ? "list-[circle]" : "list-disc";
+    const baseClass =
+      context.type === "ul"
+        ? `${unorderedStyle} pl-4 space-y-1`
+        : "list-decimal pl-4 space-y-1";
+
+    const renderedItems = context.items.map((item) => (
+      <li key={item.key} className="space-y-1">
+        {item.content.length > 0 ? item.content : null}
+        {item.children}
+      </li>
+    ));
+
+    return context.type === "ul" ? (
+      <ul key={`ul-${blockKey++}`} className={baseClass}>
+        {renderedItems}
+      </ul>
+    ) : (
+      <ol key={`ol-${blockKey++}`} className={baseClass}>
+        {renderedItems}
+      </ol>
+    );
+  };
+
+  const appendNodeToParentOrBlocks = (node: ReactNode) => {
+    if (listStack.length === 0) {
+      blocks.push(node);
+      return;
+    }
+
+    const parentContext = listStack[listStack.length - 1];
+    const parentItems = parentContext.items;
+    let parentItem = parentItems[parentItems.length - 1];
+
+    if (!parentItem) {
+      parentItem = {
+        key: `li-${listItemKey++}`,
+        content: [],
+        children: [],
+      };
+      parentItems.push(parentItem);
+    }
+
+    parentItem.children.push(node);
+  };
+
+  const flushTopList = () => {
+    const context = listStack.pop();
+    if (!context) {
+      return;
+    }
+    const rendered = renderListContext(context);
+    appendNodeToParentOrBlocks(rendered);
+  };
+
+  const flushAllLists = () => {
+    while (listStack.length) {
+      flushTopList();
+    }
+  };
+
+  const ensureListContext = (indent: number, type: ListType) => {
+    while (listStack.length && indent < listStack[listStack.length - 1].indent) {
+      flushTopList();
+    }
+
+    let current = listStack[listStack.length - 1];
+
+    if (!current || indent > current.indent) {
+      if (current) {
+        const parentItems = current.items;
+        if (parentItems.length === 0) {
+          parentItems.push({
+            key: `li-${listItemKey++}`,
+            content: [],
+            children: [],
+          });
+        }
+      }
+      const parentDepth = current ? current.depth : -1;
+      const newContext: ListContext = {
+        type,
+        indent,
+        depth: parentDepth + 1,
+        items: [],
+      };
+      listStack.push(newContext);
+      current = newContext;
+    } else if (indent === current.indent && current.type !== type) {
+      flushTopList();
+      const parent = listStack[listStack.length - 1];
+      const newContext: ListContext = {
+        type,
+        indent,
+        depth: parent ? parent.depth + 1 : 0,
+        items: [],
+      };
+      listStack.push(newContext);
+      current = newContext;
+    } else if (!current) {
+      const parent = listStack[listStack.length - 1];
+      const newContext: ListContext = {
+        type,
+        indent,
+        depth: parent ? parent.depth + 1 : 0,
+        items: [],
+      };
+      listStack.push(newContext);
+      current = newContext;
+    }
+
+    return current;
+  };
 
   while (i < lines.length) {
     const line = lines[i];
     const trimmed = line.trim();
 
     if (!trimmed) {
+      flushAllLists();
       i += 1;
       continue;
     }
+
+    const listMatch = line.match(LIST_ITEM_REGEX);
+    if (listMatch) {
+      const indent = getIndentWidth(listMatch[1]);
+      const marker = listMatch[2];
+      const text = listMatch[3] ?? "";
+      const listType: ListType = marker.endsWith(".") ? "ol" : "ul";
+
+      const context = ensureListContext(indent, listType);
+      context.items.push({
+        key: `li-${listItemKey++}`,
+        content: parseInline(text),
+        children: [],
+      });
+
+      i += 1;
+      continue;
+    }
+
+    flushAllLists();
 
     if (trimmed.startsWith("```")) {
       const language = trimmed.slice(3).trim();
@@ -176,40 +333,6 @@ export default function MarkdownRenderer({ content, className }: MarkdownRendere
       continue;
     }
 
-    if (/^(\s*)[-*+]\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^(\s*)[-*+]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^(\s*)[-*+]\s+/, ""));
-        i += 1;
-      }
-
-      blocks.push(
-        <ul key={`ul-${blockKey++}`} className="list-disc pl-6 space-y-1">
-          {items.map((item, index) => (
-            <li key={`ul-item-${index}`}>{parseInline(item)}</li>
-          ))}
-        </ul>,
-      );
-      continue;
-    }
-
-    if (/^\d+\.\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\.\s+/, ""));
-        i += 1;
-      }
-
-      blocks.push(
-        <ol key={`ol-${blockKey++}`} className="list-decimal pl-6 space-y-1">
-          {items.map((item, index) => (
-            <li key={`ol-item-${index}`}>{parseInline(item)}</li>
-          ))}
-        </ol>,
-      );
-      continue;
-    }
-
     const paragraphLines: string[] = [];
     while (i < lines.length) {
       const current = lines[i];
@@ -234,6 +357,8 @@ export default function MarkdownRenderer({ content, className }: MarkdownRendere
 
     i += 1;
   }
+
+  flushAllLists();
 
   return (
     <div className={`space-y-3 text-[15px] md:text-base ${className ?? ""}`.trim()}>
