@@ -59,7 +59,7 @@ export default function ItemOptionPopover({
  */
 function OptionGroup({ group }: { group: GroupedOption }) {
   return (
-    <div className="relative border border-gray-300 dark:border-white/30 rounded-sm pt-5 pb-2 px-2.5 mt-1">
+    <div className="relative border border-gray-300 dark:border-white/30 rounded-sm pt-3 pb-2 px-2.5 mt-1">
       {/* 카테고리 라벨 (테두리에 겹치는 스타일) */}
       <span className="absolute -top-2.5 left-2 px-1.5 bg-white dark:bg-navy-800 text-amber-600 dark:text-[#e8a854] text-xs font-semibold leading-normal z-20">
         {group.categoryLabel}
