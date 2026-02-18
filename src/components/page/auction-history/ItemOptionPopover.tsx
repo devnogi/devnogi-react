@@ -77,6 +77,8 @@ function OptionGroup({ group }: { group: GroupedOption }) {
           <ErgOptions options={group.options} />
         ) : group.categoryId === "itemColor" ? (
           <ItemColorOptions options={group.options} />
+        ) : group.categoryId === "setItem" ? (
+          <DefaultOptions options={group.options} separator="+" />
         ) : (
           <DefaultOptions options={group.options} />
         )}
@@ -88,11 +90,11 @@ function OptionGroup({ group }: { group: GroupedOption }) {
 /**
  * 기본 옵션 렌더링 (아이템 속성, 세트 아이템, 아이템 색상)
  */
-function DefaultOptions({ options }: { options: ItemOption[] }) {
+function DefaultOptions({ options, separator }: { options: ItemOption[]; separator?: string }) {
   return (
     <>
       {options.map((option) => (
-        <OptionLine key={option.id} option={option} />
+        <OptionLine key={option.id} option={option} separator={separator} />
       ))}
     </>
   );
@@ -362,9 +364,9 @@ function ItemColorOptions({ options }: { options: ItemOption[] }) {
 /**
  * 단일 옵션 라인 렌더링
  */
-function OptionLine({ option }: { option: ItemOption }) {
+function OptionLine({ option, separator = "~" }: { option: ItemOption; separator?: string }) {
   const value = option.optionValue2
-    ? `${option.optionValue} ~ ${option.optionValue2}`
+    ? `${option.optionValue} ${separator} ${option.optionValue2}`
     : option.optionValue;
 
   return (
