@@ -183,15 +183,17 @@ function ReforgeOptions({ options }: { options: ItemOption[] }) {
 
         return (
           <div key={type} className="mb-2 last:mb-0">
-            {/* 개조 타입 소제목 */}
-            <div className="text-xs text-gray-500 dark:text-[#b0b0b0] font-medium mb-0.5">
-              {type}
-            </div>
-            {/* 개조 효과 목록 */}
-            <div className="ml-2">
-              {typeOptions.map((option) => (
-                <ReforgeItem key={option.id} option={option} />
-              ))}
+            <div className="flex items-baseline gap-2">
+              {/* 개조 타입 소제목 */}
+              <span className="text-xs text-gray-500 dark:text-[#b0b0b0] font-medium whitespace-nowrap">
+                {type}
+              </span>
+              {/* 개조 효과 목록 */}
+              <div className="flex-1">
+                {typeOptions.map((option) => (
+                  <ReforgeItem key={option.id} option={option} />
+                ))}
+              </div>
             </div>
           </div>
         );
