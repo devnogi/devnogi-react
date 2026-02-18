@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -77,12 +77,19 @@ export default function MobileFilterModal({
     initialData?.activeFilters || []
   );
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
+  const topCategoryScrollRef = useRef<HTMLDivElement>(null);
+  const subCategoryScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
     setCurrentTab(initialFilterType);
     setShowAddFilterDropdown(false);
   }, [isOpen, initialFilterType]);
+
+  useEffect(() => {
+    if (currentTab !== "category") return;
+    subCategoryScrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedTopCategory, currentTab]);
 
   const handleReset = () => {
     if (currentTab === "category") {
@@ -324,7 +331,7 @@ export default function MobileFilterModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col animate-slide-up pb-16">
+      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl min-h-[70vh] max-h-[85vh] overflow-hidden flex flex-col animate-slide-up pb-16">
         {/* Header with Close Button */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-ds-neutral-tone)]">
           <h3 className="text-lg font-bold text-[var(--color-ds-text)]">필터</h3>
@@ -355,11 +362,14 @@ export default function MobileFilterModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-hidden px-6 py-4">
           {currentTab === "category" && (
-            <div className="grid grid-cols-2 gap-3 h-full min-h-[70vh]">
+            <div className="grid grid-cols-2 gap-3 h-[52vh] min-h-[360px]">
               {/* 왼쪽: 상위 카테고리 */}
-              <div className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3">
+              <div
+                ref={topCategoryScrollRef}
+                className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3 h-full overflow-y-auto"
+              >
                 <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">상위 카테고리</h4>
                 {/* 전체 옵션 */}
                 <button
@@ -401,7 +411,10 @@ export default function MobileFilterModal({
               </div>
 
               {/* 오른쪽: 하위 카테고리 */}
-              <div className="space-y-1 pl-3">
+              <div
+                ref={subCategoryScrollRef}
+                className="space-y-1 pl-3 h-full overflow-y-auto"
+              >
                 <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">하위 카테고리</h4>
                 {selectedTopCategory !== "all" ? (
                   <>
