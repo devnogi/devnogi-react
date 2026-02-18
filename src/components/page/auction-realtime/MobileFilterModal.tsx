@@ -331,7 +331,7 @@ export default function MobileFilterModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl min-h-[70vh] max-h-[85vh] overflow-hidden flex flex-col animate-slide-up pb-16">
+      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl min-h-[80dvh] max-h-[90dvh] overflow-hidden flex flex-col animate-slide-up pb-16">
         {/* Header with Close Button */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-ds-neutral-tone)]">
           <h3 className="text-lg font-bold text-[var(--color-ds-text)]">필터</h3>
