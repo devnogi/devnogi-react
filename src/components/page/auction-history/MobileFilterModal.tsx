@@ -20,6 +20,36 @@ import {
 import { ItemCategory } from "@/data/item-category";
 import clsx from "clsx";
 
+type DatePreset = "1week" | "1month" | "3months";
+
+function getDatePresetRange(preset: DatePreset): { from: string; to: string } {
+  const today = new Date();
+  const to = today.toISOString().split("T")[0];
+  const from = new Date(today);
+
+  switch (preset) {
+    case "1week": from.setDate(from.getDate() - 7); break;
+    case "1month": from.setMonth(from.getMonth() - 1); break;
+    case "3months": from.setMonth(from.getMonth() - 3); break;
+  }
+
+  return { from: from.toISOString().split("T")[0], to };
+}
+
+function inferDatePreset(dateFrom: string, dateTo: string): DatePreset | null {
+  for (const preset of ["1week", "1month", "3months"] as DatePreset[]) {
+    const range = getDatePresetRange(preset);
+    if (range.from === dateFrom && range.to === dateTo) return preset;
+  }
+  return null;
+}
+
+const DATE_PRESETS: { value: DatePreset; label: string }[] = [
+  { value: "1week", label: "일주일" },
+  { value: "1month", label: "한달" },
+  { value: "3months", label: "3달" },
+];
+
 interface MobileFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -75,8 +105,14 @@ export default function MobileFilterModal({
 
   const [priceMin, setPriceMin] = useState(initialData?.priceMin || "");
   const [priceMax, setPriceMax] = useState(initialData?.priceMax || "");
-  const [dateFrom, setDateFrom] = useState(initialData?.dateFrom || "");
-  const [dateTo, setDateTo] = useState(initialData?.dateTo || "");
+
+  const initialDateFrom = initialData?.dateFrom || getDatePresetRange("1month").from;
+  const initialDateTo = initialData?.dateTo || getDatePresetRange("1month").to;
+  const [dateFrom, setDateFrom] = useState(initialDateFrom);
+  const [dateTo, setDateTo] = useState(initialDateTo);
+  const [selectedDatePreset, setSelectedDatePreset] = useState<DatePreset | null>(
+    inferDatePreset(initialDateFrom, initialDateTo) ?? "1month"
+  );
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>(
     initialData?.activeFilters || []
   );
@@ -90,8 +126,10 @@ export default function MobileFilterModal({
       setPriceMin("");
       setPriceMax("");
     } else if (currentTab === "date") {
-      setDateFrom("");
-      setDateTo("");
+      const resetRange = getDatePresetRange("1month");
+      setDateFrom(resetRange.from);
+      setDateTo(resetRange.to);
+      setSelectedDatePreset("1month");
     } else {
       setActiveFilters([]);
     }
@@ -482,6 +520,33 @@ export default function MobileFilterModal({
 
           {currentTab === "date" && (
             <div className="space-y-4">
+              {/* 빠른 선택 라디오 */}
+              <div>
+                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
+                  빠른 선택
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {DATE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.value}
+                      onClick={() => {
+                        const range = getDatePresetRange(preset.value);
+                        setSelectedDatePreset(preset.value);
+                        setDateFrom(range.from);
+                        setDateTo(range.to);
+                      }}
+                      className={`h-10 rounded-xl text-sm transition-all ${
+                        selectedDatePreset === preset.value
+                          ? "bg-[var(--color-ds-primary-50)] border-2 border-[var(--color-ds-primary)] text-[var(--color-ds-primary)] font-semibold"
+                          : "border border-[var(--color-ds-neutral-tone)] bg-white text-[var(--color-ds-text)]"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* 날짜 입력 - 한 줄 배치 */}
               <div>
                 <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
@@ -491,7 +556,10 @@ export default function MobileFilterModal({
                   <Input
                     type="date"
                     value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedDatePreset(null);
+                      setDateFrom(e.target.value);
+                    }}
                     className="h-12 rounded-xl text-base flex-1"
                     placeholder="시작일"
                   />
@@ -499,54 +567,13 @@ export default function MobileFilterModal({
                   <Input
                     type="date"
                     value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedDatePreset(null);
+                      setDateTo(e.target.value);
+                    }}
                     className="h-12 rounded-xl text-base flex-1"
                     placeholder="종료일"
                   />
-                </div>
-              </div>
-
-              {/* 빠른 선택 버튼 */}
-              <div>
-                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
-                  빠른 선택
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    onClick={() => {
-                      const today = new Date();
-                      const todayStr = today.toISOString().split('T')[0];
-                      setDateFrom(todayStr);
-                      setDateTo(todayStr);
-                    }}
-                    className="px-4 py-2.5 rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white hover:bg-[var(--color-ds-neutral-50)] text-sm font-medium text-[var(--color-ds-text)] transition-colors"
-                  >
-                    오늘
-                  </button>
-                  <button
-                    onClick={() => {
-                      const today = new Date();
-                      const weekAgo = new Date(today);
-                      weekAgo.setDate(weekAgo.getDate() - 7);
-                      setDateFrom(weekAgo.toISOString().split('T')[0]);
-                      setDateTo(today.toISOString().split('T')[0]);
-                    }}
-                    className="px-4 py-2.5 rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white hover:bg-[var(--color-ds-neutral-50)] text-sm font-medium text-[var(--color-ds-text)] transition-colors"
-                  >
-                    최근 일주일
-                  </button>
-                  <button
-                    onClick={() => {
-                      const today = new Date();
-                      const monthAgo = new Date(today);
-                      monthAgo.setDate(monthAgo.getDate() - 30);
-                      setDateFrom(monthAgo.toISOString().split('T')[0]);
-                      setDateTo(today.toISOString().split('T')[0]);
-                    }}
-                    className="px-4 py-2.5 rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white hover:bg-[var(--color-ds-neutral-50)] text-sm font-medium text-[var(--color-ds-text)] transition-colors"
-                  >
-                    최근 한달
-                  </button>
                 </div>
               </div>
             </div>

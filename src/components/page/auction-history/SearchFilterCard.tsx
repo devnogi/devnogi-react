@@ -28,6 +28,28 @@ interface SearchFilterCardProps {
   layoutMode?: LayoutMode;
 }
 
+type DatePreset = "1week" | "1month" | "3months";
+
+function getDatePresetRange(preset: DatePreset): { from: string; to: string } {
+  const today = new Date();
+  const to = today.toISOString().split("T")[0];
+  const from = new Date(today);
+
+  switch (preset) {
+    case "1week": from.setDate(from.getDate() - 7); break;
+    case "1month": from.setMonth(from.getMonth() - 1); break;
+    case "3months": from.setMonth(from.getMonth() - 3); break;
+  }
+
+  return { from: from.toISOString().split("T")[0], to };
+}
+
+const DATE_PRESETS: { value: DatePreset; label: string }[] = [
+  { value: "1week", label: "일주일" },
+  { value: "1month", label: "한달" },
+  { value: "3months", label: "3달" },
+];
+
 interface BasicFilters {
   priceMin: string;
   priceMax: string;
@@ -50,12 +72,14 @@ export default function SearchFilterCard({
       : "max(16px, calc(50% - 728px))";
   const { data: searchOptions = [], isLoading } = useSearchOptions();
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
+  const defaultDateRange = getDatePresetRange("1month");
   const [basicFilters, setBasicFilters] = useState<BasicFilters>({
     priceMin: "",
     priceMax: "",
-    dateFrom: "",
-    dateTo: "",
+    dateFrom: defaultDateRange.from,
+    dateTo: defaultDateRange.to,
   });
+  const [selectedDatePreset, setSelectedDatePreset] = useState<DatePreset | null>("1month");
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
   const [isDateCollapsed, setIsDateCollapsed] = useState(false);
   const addFilterDropdownRef = useRef<HTMLDivElement>(null);
@@ -117,13 +141,25 @@ export default function SearchFilterCard({
     [activeFilters],
   );
 
+  const handleDatePresetSelect = useCallback((preset: DatePreset) => {
+    const range = getDatePresetRange(preset);
+    setSelectedDatePreset(preset);
+    setBasicFilters((prev) => ({
+      ...prev,
+      dateFrom: range.from,
+      dateTo: range.to,
+    }));
+  }, []);
+
   const handleReset = useCallback(() => {
+    const resetRange = getDatePresetRange("1month");
     setBasicFilters({
       priceMin: "",
       priceMax: "",
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: resetRange.from,
+      dateTo: resetRange.to,
     });
+    setSelectedDatePreset("1month");
     setActiveFilters([]);
   }, []);
 
@@ -453,24 +489,44 @@ export default function SearchFilterCard({
           </div>
 
           {!isDateCollapsed ? (
-            <div className="flex items-center gap-2">
-              <Input
-                type="date"
-                value={basicFilters.dateFrom}
-                onChange={(e) =>
-                  setBasicFilters({ ...basicFilters, dateFrom: e.target.value })
-                }
-                className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
-              />
-              <span className="text-gray-400 text-sm">~</span>
-              <Input
-                type="date"
-                value={basicFilters.dateTo}
-                onChange={(e) =>
-                  setBasicFilters({ ...basicFilters, dateTo: e.target.value })
-                }
-                className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
-              />
+            <div className="space-y-2">
+              {/* Date Preset Radios */}
+              <div className="grid grid-cols-3 gap-1.5">
+                {DATE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => handleDatePresetSelect(preset.value)}
+                    className={`h-8 rounded-lg text-xs transition-all ${
+                      selectedDatePreset === preset.value
+                        ? "bg-blaanid-50 dark:bg-coral-500/10 border border-blaanid-500 dark:border-coral-500 text-blaanid-600 dark:text-coral-400 font-semibold"
+                        : "border border-gray-300 dark:border-navy-500 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-navy-600"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="date"
+                  value={basicFilters.dateFrom}
+                  onChange={(e) => {
+                    setSelectedDatePreset(null);
+                    setBasicFilters({ ...basicFilters, dateFrom: e.target.value });
+                  }}
+                  className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                />
+                <span className="text-gray-400 text-sm">~</span>
+                <Input
+                  type="date"
+                  value={basicFilters.dateTo}
+                  onChange={(e) => {
+                    setSelectedDatePreset(null);
+                    setBasicFilters({ ...basicFilters, dateTo: e.target.value });
+                  }}
+                  className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                />
+              </div>
             </div>
           ) : (
             <div className="text-xs text-gray-500 dark:text-gray-400">

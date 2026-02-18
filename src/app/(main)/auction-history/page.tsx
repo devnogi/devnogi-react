@@ -40,6 +40,27 @@ const DEFAULT_SEARCH_PARAMS: AuctionHistorySearchParams = {
   direction: "desc",
 };
 
+function getDefaultDateRange(): { from: string; to: string } {
+  const today = new Date();
+  const monthAgo = new Date(today);
+  monthAgo.setMonth(monthAgo.getMonth() - 1);
+  return {
+    from: monthAgo.toISOString().split("T")[0],
+    to: today.toISOString().split("T")[0],
+  };
+}
+
+function getInitialSearchParams(): AuctionHistorySearchParams {
+  const dateRange = getDefaultDateRange();
+  return {
+    ...DEFAULT_SEARCH_PARAMS,
+    dateAuctionBuyRequest: {
+      dateAuctionBuyFrom: dateRange.from,
+      dateAuctionBuyTo: dateRange.to,
+    },
+  };
+}
+
 const SORT_OPTIONS: Array<{
   label: string;
   sortBy: string;
@@ -324,7 +345,7 @@ export default function Page() {
   const [itemName, setItemName] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchParams, setSearchParams] = useState<AuctionHistorySearchParams>(
-    DEFAULT_SEARCH_PARAMS,
+    getInitialSearchParams,
   );
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [isClientMounted, setIsClientMounted] = useState(false);
@@ -337,8 +358,9 @@ export default function Page() {
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
-  const [mobileDateFrom, setMobileDateFrom] = useState("");
-  const [mobileDateTo, setMobileDateTo] = useState("");
+  const defaultDateRange = getDefaultDateRange();
+  const [mobileDateFrom, setMobileDateFrom] = useState(defaultDateRange.from);
+  const [mobileDateTo, setMobileDateTo] = useState(defaultDateRange.to);
   const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>(
     [],
   );
