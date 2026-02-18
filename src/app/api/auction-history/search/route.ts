@@ -96,11 +96,11 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get("sortBy") || "dateAuctionBuy";
     const direction = searchParams.get("direction") || "desc";
 
-    // Map frontend values to backend enum names
+    // Backend WebConfig converter(SortField::from)는 enum 이름이 아닌 fieldName을 기대함
     const sortByMap: Record<string, string> = {
-      dateAuctionBuy: "DATE_AUCTION_BUY",
-      auctionPricePerUnit: "AUCTION_PRICE_PER_UNIT",
-      itemName: "ITEM_NAME",
+      dateAuctionBuy: "dateAuctionBuy",
+      auctionPricePerUnit: "auctionPricePerUnit",
+      itemName: "itemName",
     };
 
     const directionMap: Record<string, string> = {
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
 
     pageParams.page = page;
     pageParams.size = size;
-    pageParams.sortBy = sortByMap[sortBy] || "DATE_AUCTION_BUY";
+    pageParams.sortBy = sortByMap[sortBy] || "dateAuctionBuy";
     pageParams.direction = directionMap[direction.toLowerCase()] || "DESC";
 
     // Extract basic search parameters

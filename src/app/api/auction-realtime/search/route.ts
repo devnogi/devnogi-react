@@ -125,12 +125,13 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get("sortBy") || "dateAuctionExpire";
     const direction = searchParams.get("direction") || "desc";
 
-    // Map frontend values to backend enum names
+    // Backend WebConfig converter(RealtimeSortField::from)는 enum 이름이 아닌 fieldName을 기대함
     const sortByMap: Record<string, string> = {
-      dateAuctionExpire: "DATE_AUCTION_EXPIRE",
-      dateAuctionRegister: "DATE_AUCTION_REGISTER",
-      auctionPricePerUnit: "AUCTION_PRICE_PER_UNIT",
-      itemName: "ITEM_NAME",
+      dateAuctionExpire: "dateAuctionExpire",
+      // 프론트 정렬키(dateAuctionRegister)와 백엔드 fieldName(dateRegister) 간 호환 매핑
+      dateAuctionRegister: "dateRegister",
+      auctionPricePerUnit: "auctionPricePerUnit",
+      itemName: "itemName",
     };
 
     const directionMap: Record<string, string> = {
@@ -140,7 +141,7 @@ export async function GET(request: NextRequest) {
 
     pageParams.page = page.toString();
     pageParams.size = size.toString();
-    pageParams.sortBy = sortByMap[sortBy] || "DATE_AUCTION_EXPIRE";
+    pageParams.sortBy = sortByMap[sortBy] || "dateAuctionExpire";
     pageParams.direction = directionMap[direction.toLowerCase()] || "DESC";
 
     // Extract basic search parameters
