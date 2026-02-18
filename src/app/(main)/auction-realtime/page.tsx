@@ -2,6 +2,7 @@
 
 import AuctionRealtimeList from "@/components/page/auction-realtime/AuctionRealtimeList";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
 import CategorySection from "@/components/commons/Category";
 import CategoryDropdown from "@/components/commons/CategoryDropdown";
@@ -406,6 +407,13 @@ export default function Page() {
         option.direction === searchParams.direction,
     ) || SORT_OPTIONS[0];
 
+  const isResultCountLoading = isLoading || isFetching;
+  const resultCountNode = isResultCountLoading ? (
+    <Skeleton className="inline-block h-4 w-12 align-middle rounded-md ml-1" />
+  ) : (
+    <span className="font-semibold inline-block ml-1">{totalElements}</span>
+  );
+
   const findCategoryPath = useCallback(
     (
       categoryList: ItemCategory[],
@@ -756,70 +764,72 @@ export default function Page() {
           )}
 
           <div>
-            {totalElements > 0 && (
-              <div className="mb-4 flex items-center justify-between">
-                <div className="text-xs md:text-sm text-[var(--color-ds-disabled)]">
-                  {itemName ? (
-                    <>
-                      <span className="font-semibold text-[var(--color-ds-primary)]">
-                        {itemName}
-                      </span>{" "}
-                      검색결과 <span className="font-semibold">{totalElements}</span>개
-                    </>
-                  ) : (
-                    <>
-                      검색결과 <span className="font-semibold">{totalElements}</span>개
-                    </>
-                  )}
-                </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
-                  >
-                    <span className="font-medium">{selectedSortOption.label}</span>
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-                  {isSortDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px]">
-                      {SORT_OPTIONS.map((option) => (
-                        <button
-                          key={option.label}
-                          onClick={() => {
-                            setIsSortDropdownOpen(false);
-                            setSearchParams((prev) => ({
-                              ...prev,
-                              sortBy: option.sortBy,
-                              direction: option.direction,
-                              page: 1,
-                            }));
-                          }}
-                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                            selectedSortOption.label === option.label
-                              ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                              : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            <div className="mb-4 flex items-center justify-between">
+              <div className="text-xs md:text-sm text-[var(--color-ds-disabled)]">
+                {itemName ? (
+                  <>
+                    <span className="font-semibold text-[var(--color-ds-primary)]">
+                      {itemName}
+                    </span>{" "}
+                    검색결과
+                    {resultCountNode}
+                    개
+                  </>
+                ) : (
+                  <>
+                    검색결과
+                    {resultCountNode}
+                    개
+                  </>
+                )}
               </div>
-            )}
+              <div className="relative">
+                <button
+                  onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
+                >
+                  <span className="font-medium">{selectedSortOption.label}</span>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {isSortDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px]">
+                    {SORT_OPTIONS.map((option) => (
+                      <button
+                        key={option.label}
+                        onClick={() => {
+                          setIsSortDropdownOpen(false);
+                          setSearchParams((prev) => ({
+                            ...prev,
+                            sortBy: option.sortBy,
+                            direction: option.direction,
+                            page: 1,
+                          }));
+                        }}
+                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                          selectedSortOption.label === option.label
+                            ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                            : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
 
             <AuctionRealtimeList items={allItems} isLoading={isLoading} />
 
