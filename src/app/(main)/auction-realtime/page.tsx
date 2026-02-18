@@ -169,6 +169,45 @@ function categoryIdFromSearchParams(params: AuctionRealtimeSearchParams): string
   return `${params.itemTopCategory}/${params.itemSubCategory}`;
 }
 
+function extractCategoryParts(categoryId: string): {
+  top?: string;
+  sub?: string;
+} {
+  if (!categoryId || categoryId === "all") {
+    return {};
+  }
+  const firstSlashIndex = categoryId.indexOf("/");
+  if (firstSlashIndex === -1) {
+    return { top: categoryId };
+  }
+  const top = categoryId.slice(0, firstSlashIndex);
+  const sub = categoryId.slice(firstSlashIndex + 1);
+  return {
+    top: top || undefined,
+    sub: sub || undefined,
+  };
+}
+
+function normalizeCategorySelection<T extends { itemTopCategory?: string; itemSubCategory?: string }>(
+  params: T,
+): T {
+  const { itemTopCategory, itemSubCategory } = params;
+  if (itemTopCategory && itemSubCategory) {
+    const prefix = `${itemTopCategory}/`;
+    if (itemSubCategory.startsWith(prefix)) {
+      const trimmed = itemSubCategory.slice(prefix.length);
+      params.itemSubCategory = trimmed || undefined;
+    } else {
+      const suffix = `/${itemTopCategory}`;
+      if (itemSubCategory.endsWith(suffix)) {
+        const trimmed = itemSubCategory.slice(0, -suffix.length);
+        params.itemSubCategory = trimmed || undefined;
+      }
+    }
+  }
+  return params;
+}
+
 function parseSearchParamsFromUrl(
   urlSearchParams: ReadonlyURLSearchParams,
 ): AuctionRealtimeSearchParams {
@@ -218,12 +257,12 @@ function parseSearchParamsFromUrl(
   if (!itemTopCategory) {
     const legacyCategory = urlSearchParams.get("category");
     if (legacyCategory && legacyCategory !== "all") {
-      const parts = legacyCategory.split("/");
-      if (parts.length >= 1) {
-        parsed.itemTopCategory = parts[0];
+      const { top, sub } = extractCategoryParts(legacyCategory);
+      if (top) {
+        parsed.itemTopCategory = top;
       }
-      if (parts.length >= 2) {
-        parsed.itemSubCategory = parts[1];
+      if (sub) {
+        parsed.itemSubCategory = sub;
       }
     }
   }
@@ -257,11 +296,11 @@ function parseSearchParamsFromUrl(
     setNestedValue(parsed as unknown as Record<string, unknown>, key, value);
   });
 
-  return cleanEmptyObject(parsed);
+  return normalizeCategorySelection(cleanEmptyObject(parsed));
 }
 
 function serializeSearchParams(params: AuctionRealtimeSearchParams): string {
-  const normalized: AuctionRealtimeSearchParams = { ...params };
+  const normalized: AuctionRealtimeSearchParams = normalizeCategorySelection({ ...params });
 
   if (
     normalized.page === undefined ||
@@ -462,16 +501,18 @@ export default function Page() {
         delete next.itemTopCategory;
         delete next.itemSubCategory;
       } else {
-        const parts = categoryId.split("/");
-        next.itemTopCategory = parts[0];
-        if (parts.length > 1) {
-          next.itemSubCategory = parts[1];
+        const { top, sub } = extractCategoryParts(categoryId);
+        if (top) {
+          next.itemTopCategory = top;
+        }
+        if (sub) {
+          next.itemSubCategory = sub;
         } else {
           delete next.itemSubCategory;
         }
       }
 
-      return next;
+      return normalizeCategorySelection(next);
     });
   };
 
@@ -506,7 +547,7 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
-      return next;
+      return normalizeCategorySelection(next);
     });
 
     setMobilePriceMin(filters.priceSearchRequest?.priceFrom?.toString() ?? "");
@@ -545,10 +586,12 @@ export default function Page() {
         const category = data.selectedCategory;
 
         if (category !== "all") {
-          const parts = category.split("/");
-          next.itemTopCategory = parts[0];
-          if (parts.length > 1) {
-            next.itemSubCategory = parts[1];
+          const { top, sub } = extractCategoryParts(category);
+          if (top) {
+            next.itemTopCategory = top;
+          }
+          if (sub) {
+            next.itemSubCategory = sub;
           } else {
             delete next.itemSubCategory;
           }
@@ -617,7 +660,7 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
-      return next;
+      return normalizeCategorySelection(next);
     });
   };
 

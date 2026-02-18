@@ -92,11 +92,13 @@ export default function MobileFilterModal({
     if (!selected || selected === "all") {
       return { top: "all", sub: "all" };
     }
-    const parts = selected.split("/");
-    if (parts.length === 1) {
-      return { top: parts[0], sub: "all" };
+    const firstSlashIndex = selected.indexOf("/");
+    if (firstSlashIndex === -1) {
+      return { top: selected, sub: "all" };
     }
-    return { top: parts[0], sub: parts[1] };
+    const top = selected.slice(0, firstSlashIndex);
+    const sub = selected.slice(firstSlashIndex + 1) || "all";
+    return { top, sub };
   };
 
   const parsed = parseSelectedCategory(initialData?.selectedCategory || "all");
