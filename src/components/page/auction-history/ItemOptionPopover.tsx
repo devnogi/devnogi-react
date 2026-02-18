@@ -365,14 +365,29 @@ function ItemColorOptions({ options }: { options: ItemOption[] }) {
  * 단일 옵션 라인 렌더링
  */
 function OptionLine({ option, separator = "~" }: { option: ItemOption; separator?: string }) {
+  const effectiveSeparator = option.optionType === "내구력" ? "/" : separator;
   const value = option.optionValue2
-    ? `${option.optionValue} ${separator} ${option.optionValue2}`
+    ? `${option.optionValue} ${effectiveSeparator} ${option.optionValue2}`
     : option.optionValue;
+
+  // 내구력: optionValue가 optionValue2의 1/4 이하이면 빨간색 표시
+  const isDurabilityLow =
+    option.optionType === "내구력" &&
+    option.optionValue2 &&
+    Number(option.optionValue) <= Number(option.optionValue2) / 4;
 
   return (
     <div className="text-xs text-gray-600 dark:text-[#ccc] leading-relaxed">
       <span className="text-gray-500 dark:text-[#a0a0a0]">{option.optionType}: </span>
-      <HighlightedValue value={value} />
+      {isDurabilityLow ? (
+        <>
+          <span className="text-red-500 dark:text-[#cc6666]">{option.optionValue}</span>
+          {` ${effectiveSeparator} `}
+          <HighlightedValue value={option.optionValue2!} />
+        </>
+      ) : (
+        <HighlightedValue value={value} />
+      )}
     </div>
   );
 }
