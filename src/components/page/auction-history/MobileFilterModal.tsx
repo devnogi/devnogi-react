@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -119,6 +119,12 @@ export default function MobileFilterModal({
     initialData?.activeFilters || []
   );
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setCurrentTab(initialFilterType);
+    setShowAddFilterDropdown(false);
+  }, [isOpen, initialFilterType]);
 
   const handleReset = () => {
     if (currentTab === "category") {
@@ -400,7 +406,7 @@ export default function MobileFilterModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {currentTab === "category" && (
-            <div className="grid grid-cols-2 gap-3 h-full">
+            <div className="grid grid-cols-2 gap-3 h-full min-h-[70vh]">
               {/* 왼쪽: 상위 카테고리 */}
               <div className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3">
                 <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">상위 카테고리</h4>

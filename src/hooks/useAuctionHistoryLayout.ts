@@ -63,8 +63,9 @@ interface UseAuctionHistoryLayoutReturn {
  * 컴포넌트 간 겹침이 발생할 수 있는 경우 자동으로 태블릿/모바일 뷰로 전환합니다.
  */
 export function useAuctionHistoryLayout(): UseAuctionHistoryLayoutReturn {
+  // SSR/CSR 첫 렌더를 일치시키기 위해 window 값을 초기 렌더에서 직접 읽지 않는다.
   const [windowWidth, setWindowWidth] = useState<number>(
-    typeof window !== "undefined" ? window.innerWidth : LAYOUT_CONSTANTS.TAILWIND_2XL
+    LAYOUT_CONSTANTS.TAILWIND_2XL
   );
 
   const calculateLayoutMode = useCallback((width: number): LayoutMode => {
