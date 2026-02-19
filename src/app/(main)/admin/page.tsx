@@ -132,7 +132,9 @@ export default function AdminPage() {
     }));
 
     try {
-      const response = await clientAxios.post(`/admin/tasks/${taskKey}`);
+      const response = await clientAxios.post(`/admin/tasks/${taskKey}`, undefined, {
+        timeout: 3 * 60 * 1000,
+      });
       setTaskStates((prev) => ({
         ...prev,
         [taskKey]: {

@@ -89,6 +89,7 @@ export async function POST(
     }
 
     const serverAxios = createServerAxios(request);
+    serverAxios.defaults.timeout = 3 * 60 * 1000;
     const response = await serverAxios.post(taskConfig.endpoint);
 
     return NextResponse.json(
