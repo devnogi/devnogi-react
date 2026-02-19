@@ -296,6 +296,11 @@ function parseSearchParamsFromUrl(
     }
   }
 
+  const exactMatch = urlSearchParams.get("exact_match");
+  if (exactMatch === "true") {
+    parsed.isExactItemName = true;
+  }
+
   urlSearchParams.forEach((value, key) => {
     if (
       [
@@ -313,6 +318,7 @@ function parseSearchParamsFromUrl(
         "subCategory",
         "itemSubCategory",
         "category",
+        "exact_match",
       ].includes(key)
     ) {
       return;
@@ -363,6 +369,10 @@ function serializeSearchParams(params: AuctionHistorySearchParams): string {
     queryParams.set("item_name", normalized.itemName);
     queryParams.delete("itemName");
   }
+  if (normalized.isExactItemName) {
+    queryParams.set("exact_match", "true");
+  }
+  queryParams.delete("isExactItemName");
   if (normalized.itemTopCategory) {
     queryParams.set("top_category", normalized.itemTopCategory);
     queryParams.delete("itemTopCategory");
@@ -514,6 +524,14 @@ export default function Page() {
     setMobileDateTo(parsed.dateAuctionBuyRequest?.dateAuctionBuyTo ?? "");
   }, [urlSearchParams]);
 
+  const handleExactItemNameChange = useCallback((value: boolean) => {
+    setSearchParams((prev) => ({
+      ...prev,
+      isExactItemName: value || undefined,
+      page: 1,
+    }));
+  }, []);
+
   // state -> URL 동기화
   useEffect(() => {
     const nextQuery = serializeSearchParams(searchParams);
@@ -599,6 +617,7 @@ export default function Page() {
 
       return normalizeCategorySelection(next);
     });
+    // isExactItemName은 SearchFilterCard에서 직접 onExactItemNameChange로 관리
 
     setMobilePriceMin(filters.priceSearchRequest?.priceFrom?.toString() ?? "");
     setMobilePriceMax(filters.priceSearchRequest?.priceTo?.toString() ?? "");
@@ -780,11 +799,13 @@ export default function Page() {
             <div className="mb-4">
               <MobileFilterChips
                 activeFilters={{
+                  hasExactItemName: !!searchParams.isExactItemName,
                   hasCategory: selectedCategory !== "all",
                   hasPrice: !!(mobilePriceMin || mobilePriceMax),
                   hasDate: !!(mobileDateFrom || mobileDateTo),
                   hasOptions: mobileActiveFilters.length > 0,
                 }}
+                onExactItemNameToggle={() => handleExactItemNameChange(!searchParams.isExactItemName)}
                 onCategoryClick={() => setMobileFilterType("category")}
                 onPriceClick={() => setMobileFilterType("price")}
                 onDateClick={() => setMobileFilterType("date")}
@@ -916,6 +937,8 @@ export default function Page() {
           isModal={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
           layoutMode={layoutMode}
+          isExactItemName={!!searchParams.isExactItemName}
+          onExactItemNameChange={handleExactItemNameChange}
         />
       )}
 

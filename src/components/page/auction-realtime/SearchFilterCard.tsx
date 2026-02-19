@@ -18,7 +18,7 @@ import {
 } from "@/types/search-filter";
 import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 import { LayoutMode } from "@/hooks/useAuctionHistoryLayout";
-import { Plus, X, RotateCcw, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, X, RotateCcw, ArrowUp, ArrowDown, Check } from "lucide-react";
 
 interface SearchFilterCardProps {
   onFilterApply: (filters: AuctionRealtimeSearchParams) => void;
@@ -26,6 +26,9 @@ interface SearchFilterCardProps {
   onClose?: () => void;
   /** 현재 레이아웃 모드 - 데스크탑/태블릿에 따라 위치 조정 */
   layoutMode?: LayoutMode;
+  /** 아이템명 완전 일치 검색 여부 */
+  isExactItemName?: boolean;
+  onExactItemNameChange?: (value: boolean) => void;
 }
 
 interface BasicFilters {
@@ -38,6 +41,8 @@ export default function SearchFilterCard({
   isModal = false,
   onClose,
   layoutMode = "desktop",
+  isExactItemName = false,
+  onExactItemNameChange,
 }: SearchFilterCardProps) {
   // 레이아웃 모드에 따른 필터 카드 위치 계산
   const filterRightPosition =
@@ -361,6 +366,36 @@ export default function SearchFilterCard({
           )}
         </div>
       </div>
+
+      {/* Exact Item Name Toggle - Compact Card */}
+      <button
+        type="button"
+        onClick={() => onExactItemNameChange?.(!isExactItemName)}
+        className={`w-full rounded-xl border cursor-pointer py-2 px-3 flex items-center gap-2.5 transition-all ${
+          isExactItemName
+            ? "bg-blaanid-50 dark:bg-coral-500/10 border-blaanid-400 dark:border-coral-500"
+            : "bg-white dark:bg-navy-700 border-gray-200 dark:border-navy-500 hover:border-gray-300 dark:hover:border-navy-400"
+        }`}
+      >
+        <div
+          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all ${
+            isExactItemName
+              ? "bg-blaanid-500 dark:bg-coral-500 border-0"
+              : "border border-gray-300 dark:border-navy-400 bg-white dark:bg-navy-600"
+          }`}
+        >
+          {isExactItemName && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+        </div>
+        <span
+          className={`text-xs font-medium leading-none ${
+            isExactItemName
+              ? "text-blaanid-700 dark:text-coral-300"
+              : "text-gray-600 dark:text-gray-300"
+          }`}
+        >
+          아이템명 완전 일치
+        </span>
+      </button>
 
       {/* Price Filter Only - 날짜 필터 없음 */}
       <div className="bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3">

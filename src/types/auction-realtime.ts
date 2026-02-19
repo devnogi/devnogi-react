@@ -20,6 +20,7 @@ export type { SearchStandard, PriceSearchRequest, ItemOptionSearchRequest };
  */
 export interface AuctionRealtimeSearchRequest {
   itemName?: string;
+  isExactItemName?: boolean;
   itemTopCategory?: string;
   itemSubCategory?: string;
   priceSearchRequest?: PriceSearchRequest;

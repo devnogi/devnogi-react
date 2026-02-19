@@ -268,6 +268,11 @@ function parseSearchParamsFromUrl(
     }
   }
 
+  const exactMatch = urlSearchParams.get("exact_match");
+  if (exactMatch === "true") {
+    parsed.isExactItemName = true;
+  }
+
   urlSearchParams.forEach((value, key) => {
     if (
       [
@@ -285,6 +290,7 @@ function parseSearchParamsFromUrl(
         "subCategory",
         "itemSubCategory",
         "category",
+        "exact_match",
       ].includes(key)
     ) {
       return;
@@ -335,6 +341,10 @@ function serializeSearchParams(params: AuctionRealtimeSearchParams): string {
     queryParams.set("item_name", normalized.itemName);
     queryParams.delete("itemName");
   }
+  if (normalized.isExactItemName) {
+    queryParams.set("exact_match", "true");
+  }
+  queryParams.delete("isExactItemName");
   if (normalized.itemTopCategory) {
     queryParams.set("top_category", normalized.itemTopCategory);
     queryParams.delete("itemTopCategory");
@@ -478,6 +488,14 @@ export default function Page() {
     setMobilePriceMin(parsed.priceSearchRequest?.priceFrom?.toString() ?? "");
     setMobilePriceMax(parsed.priceSearchRequest?.priceTo?.toString() ?? "");
   }, [urlSearchParams]);
+
+  const handleExactItemNameChange = useCallback((value: boolean) => {
+    setSearchParams((prev) => ({
+      ...prev,
+      isExactItemName: value || undefined,
+      page: 1,
+    }));
+  }, []);
 
   useEffect(() => {
     const nextQuery = serializeSearchParams(searchParams);
@@ -722,10 +740,12 @@ export default function Page() {
             <div className="mb-4">
               <MobileFilterChips
                 activeFilters={{
+                  hasExactItemName: !!searchParams.isExactItemName,
                   hasCategory: selectedCategory !== "all",
                   hasPrice: !!(mobilePriceMin || mobilePriceMax),
                   hasOptions: mobileActiveFilters.length > 0,
                 }}
+                onExactItemNameToggle={() => handleExactItemNameChange(!searchParams.isExactItemName)}
                 onCategoryClick={() => setMobileFilterType("category")}
                 onPriceClick={() => setMobileFilterType("price")}
                 onOptionsClick={() => setMobileFilterType("options")}
@@ -856,6 +876,8 @@ export default function Page() {
           isModal={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
           layoutMode={layoutMode}
+          isExactItemName={!!searchParams.isExactItemName}
+          onExactItemNameChange={handleExactItemNameChange}
         />
       )}
 

@@ -198,6 +198,7 @@ export interface ItemOptionSearchRequest {
  */
 export interface AuctionHistorySearchRequest {
   itemName?: string;
+  isExactItemName?: boolean;
   itemTopCategory?: string;
   itemSubCategory?: string;
   dateAuctionBuyRequest?: DateAuctionBuyRequest;
