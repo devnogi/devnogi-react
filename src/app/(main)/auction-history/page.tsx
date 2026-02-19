@@ -10,6 +10,17 @@ import SearchFilterCard from "@/components/page/auction-history/SearchFilterCard
 import MobileFilterChips from "@/components/page/auction-history/MobileFilterChips";
 import MobileFilterModal from "@/components/page/auction-history/MobileFilterModal";
 import ItemInfoPagination from "@/components/page/item-info/ItemInfoPagination";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useItemCategories } from "@/hooks/useItemCategories";
 import { ItemCategory } from "@/data/item-category";
 import { useAuctionHistory } from "@/hooks/useAuctionHistory";
@@ -39,7 +50,10 @@ const DEFAULT_SEARCH_PARAMS: AuctionHistorySearchParams = {
   size: DEFAULT_PAGE_SIZE,
   sortBy: "dateAuctionBuy",
   direction: "desc",
+  isExactItemName: true,
 };
+const EXACT_ITEM_NAME_WARNING_DISMISS_KEY =
+  "auctionExactItemNameDisableWarningDismissed";
 
 function getDefaultDateRange(): { from: string; to: string } {
   const today = new Date();
@@ -299,6 +313,8 @@ function parseSearchParamsFromUrl(
   const exactMatch = urlSearchParams.get("exact_match");
   if (exactMatch === "true") {
     parsed.isExactItemName = true;
+  } else if (exactMatch === "false") {
+    parsed.isExactItemName = false;
   }
 
   urlSearchParams.forEach((value, key) => {
@@ -369,8 +385,10 @@ function serializeSearchParams(params: AuctionHistorySearchParams): string {
     queryParams.set("item_name", normalized.itemName);
     queryParams.delete("itemName");
   }
-  if (normalized.isExactItemName) {
-    queryParams.set("exact_match", "true");
+  if (normalized.isExactItemName === false) {
+    queryParams.set("exact_match", "false");
+  } else {
+    queryParams.delete("exact_match");
   }
   queryParams.delete("isExactItemName");
   if (normalized.itemTopCategory) {
@@ -405,6 +423,10 @@ export default function Page() {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const [skipExactItemNameWarning, setSkipExactItemNameWarning] = useState(false);
+  const [showExactItemNameWarning, setShowExactItemNameWarning] = useState(false);
+  const [dontShowExactItemNameWarningAgain, setDontShowExactItemNameWarningAgain] =
+    useState(false);
 
   const [mobileFilterType, setMobileFilterType] = useState<
     "category" | "price" | "date" | "options" | null
@@ -503,6 +525,11 @@ export default function Page() {
     setIsClientMounted(true);
   }, []);
 
+  useEffect(() => {
+    const saved = localStorage.getItem(EXACT_ITEM_NAME_WARNING_DISMISS_KEY);
+    setSkipExactItemNameWarning(saved === "true");
+  }, []);
+
   // URL -> state 동기화
   useEffect(() => {
     const parsed = parseSearchParamsFromUrl(urlSearchParams);
@@ -524,12 +551,40 @@ export default function Page() {
     setMobileDateTo(parsed.dateAuctionBuyRequest?.dateAuctionBuyTo ?? "");
   }, [urlSearchParams]);
 
-  const handleExactItemNameChange = useCallback((value: boolean) => {
+  const applyExactItemNameChange = useCallback((value: boolean) => {
     setSearchParams((prev) => ({
       ...prev,
-      isExactItemName: value || undefined,
+      isExactItemName: value,
       page: 1,
     }));
+  }, []);
+
+  const handleExactItemNameChange = useCallback(
+    (value: boolean) => {
+      if (!!searchParams.isExactItemName && !value && !skipExactItemNameWarning) {
+        setShowExactItemNameWarning(true);
+        return;
+      }
+      applyExactItemNameChange(value);
+    },
+    [applyExactItemNameChange, searchParams.isExactItemName, skipExactItemNameWarning],
+  );
+
+  const handleConfirmDisableExactItemName = useCallback(() => {
+    if (dontShowExactItemNameWarningAgain) {
+      localStorage.setItem(EXACT_ITEM_NAME_WARNING_DISMISS_KEY, "true");
+      setSkipExactItemNameWarning(true);
+    }
+    setShowExactItemNameWarning(false);
+    setDontShowExactItemNameWarningAgain(false);
+    applyExactItemNameChange(false);
+  }, [applyExactItemNameChange, dontShowExactItemNameWarningAgain]);
+
+  const handleExactItemNameWarningOpenChange = useCallback((open: boolean) => {
+    setShowExactItemNameWarning(open);
+    if (!open) {
+      setDontShowExactItemNameWarningAgain(false);
+    }
   }, []);
 
   // state -> URL 동기화
@@ -959,6 +1014,37 @@ export default function Page() {
           onApply={handleMobileFilterApply}
         />
       )}
+
+      <AlertDialog
+        open={showExactItemNameWarning}
+        onOpenChange={handleExactItemNameWarningOpenChange}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>아이템명 완전 일치 옵션 해제</AlertDialogTitle>
+            <AlertDialogDescription>
+              아이템명 완전 일치 옵션을 해제하면 검색 속도가 느려질 수 있습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={dontShowExactItemNameWarningAgain}
+              onCheckedChange={(checked) =>
+                setDontShowExactItemNameWarningAgain(checked === true)
+              }
+            />
+            <span className="text-sm text-[var(--color-ds-text)]">
+              메시지 다시 보지 않기
+            </span>
+          </label>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDisableExactItemName}>
+              동의하고 해제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
