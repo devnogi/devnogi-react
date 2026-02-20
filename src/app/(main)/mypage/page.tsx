@@ -204,18 +204,25 @@ function MyPageContent() {
                 key={tab.key}
                 onClick={() => handleTabChange(tab.key)}
                 className={clsx(
-                  "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-200",
+                  "flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 sm:px-4 rounded-2xl font-medium transition-all duration-200",
                   isActive
                     ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 shadow-sm"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-700"
                 )}
               >
-                <Icon className="w-4 h-4" />
-                {tab.label}
+                <div className="relative">
+                  <Icon className="w-5 h-5 sm:w-4 sm:h-4" />
+                  {tab.badge !== undefined && tab.badge > 0 && (
+                    <span className="sm:hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-semibold rounded-full bg-red-500 text-white">
+                      {tab.badge > 9 ? "9+" : tab.badge}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] sm:text-sm leading-none whitespace-nowrap">{tab.label}</span>
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <span
                     className={clsx(
-                      "min-w-[20px] h-5 px-1.5 flex items-center justify-center text-xs font-semibold rounded-full",
+                      "hidden sm:flex min-w-[20px] h-5 px-1.5 items-center justify-center text-xs font-semibold rounded-full",
                       isActive
                         ? "bg-red-500 text-white"
                         : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
