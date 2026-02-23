@@ -71,7 +71,7 @@ function EnchantInput({
   };
 
   return (
-    <div ref={containerRef} className="relative flex-1 min-w-0">
+    <div ref={containerRef} className="relative w-full min-w-0">
       <div className="relative">
         <input
           type="text"
@@ -151,8 +151,7 @@ export default function EnchantSearchFilter({
       <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
         인챈트 검색
       </h3>
-      <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">접두</span>
+      <div className="flex flex-col gap-2">
         <EnchantInput
           list={prefixList}
           isLoading={isLoading}
@@ -160,7 +159,6 @@ export default function EnchantSearchFilter({
           placeholder="접두 인챈트"
           onSelect={handlePrefixSelect}
         />
-        <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">접미</span>
         <EnchantInput
           list={suffixList}
           isLoading={isLoading}
