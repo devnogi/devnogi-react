@@ -260,11 +260,6 @@ export default function AuctionHistoryList({
                       <span className="font-medium text-[var(--color-ds-text)] text-[0.85rem]">
                         {item.itemDisplayName}
                       </span>
-                      {item.itemName !== item.itemDisplayName && (
-                        <span className="text-xs text-[var(--color-ds-disabled)] ml-2">
-                          ({item.itemName})
-                        </span>
-                      )}
                     </div>
                   </div>
 
