@@ -185,6 +185,10 @@ export async function GET(request: NextRequest) {
         // Try to parse as number if possible
         const numValue = Number(value);
         current[lastKey] = isNaN(numValue) ? value : numValue;
+      } else {
+        // Handle flat (non-nested) params like isExactItemName
+        const numValue = Number(value);
+        searchRequest[key] = isNaN(numValue) ? value : numValue;
       }
     });
 
