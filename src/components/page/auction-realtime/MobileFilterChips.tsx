@@ -1,6 +1,6 @@
 "use client";
 
-import { DollarSign, Settings, FolderTree, TextSearch } from "lucide-react";
+import { DollarSign, Settings, FolderTree, TextSearch, Sparkles } from "lucide-react";
 
 interface MobileFilterChipsProps {
   activeFilters: {
@@ -8,11 +8,13 @@ interface MobileFilterChipsProps {
     hasCategory: boolean;
     hasPrice: boolean;
     hasOptions: boolean;
+    hasEnchant: boolean;
   };
   onExactItemNameToggle: () => void;
   onCategoryClick: () => void;
   onPriceClick: () => void;
   onOptionsClick: () => void;
+  onEnchantClick: () => void;
 }
 
 export default function MobileFilterChips({
@@ -21,6 +23,7 @@ export default function MobileFilterChips({
   onCategoryClick,
   onPriceClick,
   onOptionsClick,
+  onEnchantClick,
 }: MobileFilterChipsProps) {
   return (
     <div className="flex items-center gap-1.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -76,6 +79,19 @@ export default function MobileFilterChips({
       >
         <Settings className="w-3.5 h-3.5" />
         <span className="text-xs font-medium">옵션</span>
+      </button>
+
+      {/* Enchant Filter Chip */}
+      <button
+        onClick={onEnchantClick}
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+          activeFilters.hasEnchant
+            ? "border-2 border-[var(--color-ds-ornamental)]"
+            : "border border-[var(--color-ds-neutral-tone)]"
+        }`}
+      >
+        <Sparkles className="w-3.5 h-3.5" />
+        <span className="text-xs font-medium">인챈트</span>
       </button>
     </div>
   );

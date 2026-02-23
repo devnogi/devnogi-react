@@ -429,7 +429,7 @@ export default function Page() {
     useState(false);
 
   const [mobileFilterType, setMobileFilterType] = useState<
-    "category" | "price" | "date" | "options" | null
+    "category" | "price" | "date" | "options" | "enchant" | null
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
@@ -439,6 +439,8 @@ export default function Page() {
   const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>(
     [],
   );
+  const [mobileEnchantPrefix, setMobileEnchantPrefix] = useState<string | null>(null);
+  const [mobileEnchantSuffix, setMobileEnchantSuffix] = useState<string | null>(null);
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
@@ -549,6 +551,8 @@ export default function Page() {
     setMobilePriceMax(parsed.priceSearchRequest?.priceTo?.toString() ?? "");
     setMobileDateFrom(parsed.dateAuctionBuyRequest?.dateAuctionBuyFrom ?? "");
     setMobileDateTo(parsed.dateAuctionBuyRequest?.dateAuctionBuyTo ?? "");
+    setMobileEnchantPrefix(parsed.enchantSearchRequest?.enchantPrefix ?? null);
+    setMobileEnchantSuffix(parsed.enchantSearchRequest?.enchantSuffix ?? null);
   }, [urlSearchParams]);
 
   const applyExactItemNameChange = useCallback((value: boolean) => {
@@ -670,6 +674,12 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
+      if (filters.enchantSearchRequest) {
+        next.enchantSearchRequest = filters.enchantSearchRequest;
+      } else {
+        delete next.enchantSearchRequest;
+      }
+
       return normalizeCategorySelection(next);
     });
     // isExactItemName은 SearchFilterCard에서 직접 onExactItemNameChange로 관리
@@ -678,6 +688,8 @@ export default function Page() {
     setMobilePriceMax(filters.priceSearchRequest?.priceTo?.toString() ?? "");
     setMobileDateFrom(filters.dateAuctionBuyRequest?.dateAuctionBuyFrom ?? "");
     setMobileDateTo(filters.dateAuctionBuyRequest?.dateAuctionBuyTo ?? "");
+    setMobileEnchantPrefix(filters.enchantSearchRequest?.enchantPrefix ?? null);
+    setMobileEnchantSuffix(filters.enchantSearchRequest?.enchantSuffix ?? null);
   };
 
   const handleMobileFilterApply = (data: {
@@ -687,6 +699,8 @@ export default function Page() {
     dateFrom?: string;
     dateTo?: string;
     activeFilters?: ActiveFilter[];
+    enchantPrefix?: string | null;
+    enchantSuffix?: string | null;
   }) => {
     if (data.selectedCategory !== undefined) {
       setSelectedCategory(data.selectedCategory);
@@ -705,6 +719,8 @@ export default function Page() {
     if (data.activeFilters !== undefined) {
       setMobileActiveFilters(data.activeFilters);
     }
+    if (data.enchantPrefix !== undefined) setMobileEnchantPrefix(data.enchantPrefix);
+    if (data.enchantSuffix !== undefined) setMobileEnchantSuffix(data.enchantSuffix);
 
     setSearchParams((prev) => {
       const next: AuctionHistorySearchParams = {
@@ -800,6 +816,16 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
+      const enchantPrefixVal = data.enchantPrefix !== undefined ? data.enchantPrefix : mobileEnchantPrefix;
+      const enchantSuffixVal = data.enchantSuffix !== undefined ? data.enchantSuffix : mobileEnchantSuffix;
+      if (enchantPrefixVal || enchantSuffixVal) {
+        next.enchantSearchRequest = {};
+        if (enchantPrefixVal) next.enchantSearchRequest.enchantPrefix = enchantPrefixVal;
+        if (enchantSuffixVal) next.enchantSearchRequest.enchantSuffix = enchantSuffixVal;
+      } else {
+        delete next.enchantSearchRequest;
+      }
+
       return normalizeCategorySelection(next);
     });
   };
@@ -859,12 +885,14 @@ export default function Page() {
                   hasPrice: !!(mobilePriceMin || mobilePriceMax),
                   hasDate: !!(mobileDateFrom || mobileDateTo),
                   hasOptions: mobileActiveFilters.length > 0,
+                  hasEnchant: !!(mobileEnchantPrefix || mobileEnchantSuffix),
                 }}
                 onExactItemNameToggle={() => handleExactItemNameChange(!searchParams.isExactItemName)}
                 onCategoryClick={() => setMobileFilterType("category")}
                 onPriceClick={() => setMobileFilterType("price")}
                 onDateClick={() => setMobileFilterType("date")}
                 onOptionsClick={() => setMobileFilterType("options")}
+                onEnchantClick={() => setMobileFilterType("enchant")}
               />
             </div>
           )}
@@ -1009,6 +1037,8 @@ export default function Page() {
             dateFrom: mobileDateFrom,
             dateTo: mobileDateTo,
             activeFilters: mobileActiveFilters,
+            enchantPrefix: mobileEnchantPrefix,
+            enchantSuffix: mobileEnchantSuffix,
           }}
           categories={categories}
           onApply={handleMobileFilterApply}

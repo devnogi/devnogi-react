@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import { X, Plus, RotateCcw, ArrowUp, ArrowDown } from "lucide-react";
 import { useSearchOptions } from "@/hooks/useSearchOptions";
+import { useEnchantFullnames } from "@/hooks/useEnchantFullnames";
+import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
 import {
   SearchOptionMetadata,
   FieldMetadata,
@@ -53,7 +55,7 @@ const DATE_PRESETS: { value: DatePreset; label: string }[] = [
 interface MobileFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  filterType: "category" | "price" | "date" | "options";
+  filterType: "category" | "price" | "date" | "options" | "enchant";
   initialData?: {
     selectedCategory?: string;
     priceMin?: string;
@@ -61,6 +63,8 @@ interface MobileFilterModalProps {
     dateFrom?: string;
     dateTo?: string;
     activeFilters?: ActiveFilter[];
+    enchantPrefix?: string | null;
+    enchantSuffix?: string | null;
   };
   categories?: ItemCategory[];
   onApply: (data: {
@@ -70,6 +74,8 @@ interface MobileFilterModalProps {
     dateFrom?: string;
     dateTo?: string;
     activeFilters?: ActiveFilter[];
+    enchantPrefix?: string | null;
+    enchantSuffix?: string | null;
   }) => void;
 }
 
@@ -82,7 +88,8 @@ export default function MobileFilterModal({
   onApply,
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
-  const [currentTab, setCurrentTab] = useState<"category" | "price" | "date" | "options">(initialFilterType);
+  const { prefixList, suffixList, isLoading: isEnchantLoading } = useEnchantFullnames();
+  const [currentTab, setCurrentTab] = useState<"category" | "price" | "date" | "options" | "enchant">(initialFilterType);
   const topCategories =
     categories.find((category) => category.id === "all" && category.children?.length)?.children ||
     categories.filter((category) => category.id !== "all");
@@ -118,6 +125,13 @@ export default function MobileFilterModal({
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>(
     initialData?.activeFilters || []
   );
+  const [enchantPrefix, setEnchantPrefix] = useState<string | null>(
+    initialData?.enchantPrefix ?? null
+  );
+  const [enchantSuffix, setEnchantSuffix] = useState<string | null>(
+    initialData?.enchantSuffix ?? null
+  );
+  const [enchantResetKey, setEnchantResetKey] = useState(0);
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
   const topCategoryScrollRef = useRef<HTMLDivElement>(null);
   const subCategoryScrollRef = useRef<HTMLDivElement>(null);
@@ -145,6 +159,10 @@ export default function MobileFilterModal({
       setDateFrom(resetRange.from);
       setDateTo(resetRange.to);
       setSelectedDatePreset("1month");
+    } else if (currentTab === "enchant") {
+      setEnchantPrefix(null);
+      setEnchantSuffix(null);
+      setEnchantResetKey((k) => k + 1);
     } else {
       setActiveFilters([]);
     }
@@ -166,6 +184,8 @@ export default function MobileFilterModal({
       onApply({ priceMin, priceMax });
     } else if (currentTab === "date") {
       onApply({ dateFrom, dateTo });
+    } else if (currentTab === "enchant") {
+      onApply({ enchantPrefix, enchantSuffix });
     } else {
       onApply({ activeFilters });
     }
@@ -369,6 +389,7 @@ export default function MobileFilterModal({
     { id: "price" as const, label: "금액", icon: "💰" },
     { id: "date" as const, label: "날짜", icon: "📅" },
     { id: "options" as const, label: "옵션", icon: "⚙️" },
+    { id: "enchant" as const, label: "인챈트", icon: "✨" },
   ];
 
   return (
@@ -597,6 +618,28 @@ export default function MobileFilterModal({
                   />
                 </div>
               </div>
+            </div>
+          )}
+
+          {currentTab === "enchant" && (
+            <div className="space-y-4">
+              <EnchantSearchFilter
+                key={enchantResetKey}
+                prefixList={prefixList}
+                suffixList={suffixList}
+                isLoading={isEnchantLoading}
+                initialPrefix={enchantPrefix}
+                initialSuffix={enchantSuffix}
+                onChange={(prefix, suffix) => {
+                  setEnchantPrefix(prefix);
+                  setEnchantSuffix(suffix);
+                }}
+              />
+              {!enchantPrefix && !enchantSuffix && (
+                <div className="text-center py-8 text-[var(--color-ds-disabled)] text-sm">
+                  접두 또는 접미 인챈트를 선택하세요
+                </div>
+              )}
             </div>
           )}
 

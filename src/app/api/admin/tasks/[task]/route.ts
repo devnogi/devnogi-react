@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AUCTION_HISTORY_BATCH_ENDPOINT,
+  ENCHANT_INFO_SYNC_ENDPOINT,
   HORN_BUGLE_BATCH_ENDPOINT,
   ITEM_INFO_SYNC_ENDPOINT,
   METALWARE_ATTRIBUTE_SYNC_ENDPOINT,
@@ -39,6 +40,11 @@ const TASK_CONFIG = {
     endpoint: METALWARE_ATTRIBUTE_SYNC_ENDPOINT,
     label: "금속 변환 속성 정보 동기화",
     successMessage: "금속 변환 속성 정보 동기화가 실행되었습니다.",
+  },
+  "enchant-info-sync": {
+    endpoint: ENCHANT_INFO_SYNC_ENDPOINT,
+    label: "인챈트 정보 동기화",
+    successMessage: "인챈트 정보 동기화가 실행되었습니다.",
   },
 } as const;
 

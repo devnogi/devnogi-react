@@ -193,6 +193,15 @@ export interface ItemOptionSearchRequest {
 }
 
 /**
+ * 인챈트 검색 조건
+ * Backend: EnchantSearchRequest
+ */
+export interface EnchantSearchRequest {
+  enchantPrefix?: string;
+  enchantSuffix?: string;
+}
+
+/**
  * 경매 거래내역 검색 조건
  * Backend: AuctionHistorySearchRequest
  */
@@ -204,6 +213,7 @@ export interface AuctionHistorySearchRequest {
   dateAuctionBuyRequest?: DateAuctionBuyRequest;
   priceSearchRequest?: PriceSearchRequest;
   itemOptionSearchRequest?: ItemOptionSearchRequest;
+  enchantSearchRequest?: EnchantSearchRequest;
 }
 
 /**

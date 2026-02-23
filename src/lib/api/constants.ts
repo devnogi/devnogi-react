@@ -36,3 +36,5 @@ export const HORN_BUGLE_BATCH_ENDPOINT = "/oab/horn-bugle/batch";
 export const ITEM_INFO_SYNC_ENDPOINT = "/oab/api/item-infos/sync";
 export const METALWARE_INFO_SYNC_ENDPOINT = "/oab/api/metalware-infos/sync";
 export const METALWARE_ATTRIBUTE_SYNC_ENDPOINT = "/oab/api/metalware-attribute-infos/sync";
+export const ENCHANT_INFO_SYNC_ENDPOINT = "/oab/api/enchant-infos/sync";
+export const ENCHANT_INFO_FULLNAMES_ENDPOINT = "/oab/api/enchant-infos/fullnames";

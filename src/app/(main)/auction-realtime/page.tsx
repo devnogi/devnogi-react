@@ -401,13 +401,15 @@ export default function Page() {
     useState(false);
 
   const [mobileFilterType, setMobileFilterType] = useState<
-    "category" | "price" | "options" | null
+    "category" | "price" | "options" | "enchant" | null
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
   const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>(
     [],
   );
+  const [mobileEnchantPrefix, setMobileEnchantPrefix] = useState<string | null>(null);
+  const [mobileEnchantSuffix, setMobileEnchantSuffix] = useState<string | null>(null);
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
@@ -514,6 +516,8 @@ export default function Page() {
     setSelectedCategory(categoryIdFromSearchParams(parsed));
     setMobilePriceMin(parsed.priceSearchRequest?.priceFrom?.toString() ?? "");
     setMobilePriceMax(parsed.priceSearchRequest?.priceTo?.toString() ?? "");
+    setMobileEnchantPrefix(parsed.enchantSearchRequest?.enchantPrefix ?? null);
+    setMobileEnchantSuffix(parsed.enchantSearchRequest?.enchantSuffix ?? null);
   }, [urlSearchParams]);
 
   const applyExactItemNameChange = useCallback((value: boolean) => {
@@ -628,11 +632,19 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
+      if (filters.enchantSearchRequest) {
+        next.enchantSearchRequest = filters.enchantSearchRequest;
+      } else {
+        delete next.enchantSearchRequest;
+      }
+
       return normalizeCategorySelection(next);
     });
 
     setMobilePriceMin(filters.priceSearchRequest?.priceFrom?.toString() ?? "");
     setMobilePriceMax(filters.priceSearchRequest?.priceTo?.toString() ?? "");
+    setMobileEnchantPrefix(filters.enchantSearchRequest?.enchantPrefix ?? null);
+    setMobileEnchantSuffix(filters.enchantSearchRequest?.enchantSuffix ?? null);
   };
 
   const handleMobileFilterApply = (data: {
@@ -640,6 +652,8 @@ export default function Page() {
     priceMin?: string;
     priceMax?: string;
     activeFilters?: ActiveFilter[];
+    enchantPrefix?: string | null;
+    enchantSuffix?: string | null;
   }) => {
     if (data.selectedCategory !== undefined) {
       setSelectedCategory(data.selectedCategory);
@@ -656,6 +670,8 @@ export default function Page() {
     if (data.activeFilters !== undefined) {
       setMobileActiveFilters(data.activeFilters);
     }
+    if (data.enchantPrefix !== undefined) setMobileEnchantPrefix(data.enchantPrefix);
+    if (data.enchantSuffix !== undefined) setMobileEnchantSuffix(data.enchantSuffix);
 
     setSearchParams((prev) => {
       const next: AuctionRealtimeSearchParams = {
@@ -741,6 +757,16 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
+      const enchantPrefixVal = data.enchantPrefix !== undefined ? data.enchantPrefix : mobileEnchantPrefix;
+      const enchantSuffixVal = data.enchantSuffix !== undefined ? data.enchantSuffix : mobileEnchantSuffix;
+      if (enchantPrefixVal || enchantSuffixVal) {
+        next.enchantSearchRequest = {};
+        if (enchantPrefixVal) next.enchantSearchRequest.enchantPrefix = enchantPrefixVal;
+        if (enchantSuffixVal) next.enchantSearchRequest.enchantSuffix = enchantSuffixVal;
+      } else {
+        delete next.enchantSearchRequest;
+      }
+
       return normalizeCategorySelection(next);
     });
   };
@@ -799,11 +825,13 @@ export default function Page() {
                   hasCategory: selectedCategory !== "all",
                   hasPrice: !!(mobilePriceMin || mobilePriceMax),
                   hasOptions: mobileActiveFilters.length > 0,
+                  hasEnchant: !!(mobileEnchantPrefix || mobileEnchantSuffix),
                 }}
                 onExactItemNameToggle={() => handleExactItemNameChange(!searchParams.isExactItemName)}
                 onCategoryClick={() => setMobileFilterType("category")}
                 onPriceClick={() => setMobileFilterType("price")}
                 onOptionsClick={() => setMobileFilterType("options")}
+                onEnchantClick={() => setMobileFilterType("enchant")}
               />
             </div>
           )}
@@ -946,6 +974,8 @@ export default function Page() {
             priceMin: mobilePriceMin,
             priceMax: mobilePriceMax,
             activeFilters: mobileActiveFilters,
+            enchantPrefix: mobileEnchantPrefix,
+            enchantSuffix: mobileEnchantSuffix,
           }}
           categories={categories}
           onApply={handleMobileFilterApply}

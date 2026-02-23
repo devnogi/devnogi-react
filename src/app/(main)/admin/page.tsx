@@ -10,6 +10,7 @@ import {
   RefreshCcw,
   ServerCog,
   ShieldCheck,
+  Sparkles,
   Waves,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,14 @@ const ADMIN_TASKS = [
     backendEndpoint: "POST /oab/api/metalware-attribute-infos/sync",
     category: "Sync",
     icon: Activity,
+  },
+  {
+    key: "enchant-info-sync",
+    title: "인챈트 정보 동기화",
+    description: "auction_history_item_option을 기반으로 enchant_info를 업서트합니다.",
+    backendEndpoint: "POST /oab/api/enchant-infos/sync",
+    category: "Sync",
+    icon: Sparkles,
   },
 ] as const;
 

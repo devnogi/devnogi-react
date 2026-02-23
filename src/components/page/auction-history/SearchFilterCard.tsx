@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSearchOptions } from "@/hooks/useSearchOptions";
+import { useEnchantFullnames } from "@/hooks/useEnchantFullnames";
 import {
   SearchOptionMetadata,
   FieldMetadata,
@@ -18,6 +19,7 @@ import {
 } from "@/types/search-filter";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { LayoutMode } from "@/hooks/useAuctionHistoryLayout";
+import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
 import { Plus, X, RotateCcw, ChevronDown, ChevronUp, ArrowUp, ArrowDown, Check } from "lucide-react";
 
 interface SearchFilterCardProps {
@@ -76,6 +78,12 @@ export default function SearchFilterCard({
       ? "max(16px, calc(50% - 710px))"
       : "max(16px, calc(50% - 728px))";
   const { data: searchOptions = [], isLoading } = useSearchOptions();
+  const { prefixList, suffixList, isLoading: isEnchantLoading } = useEnchantFullnames();
+  const enchantRef = useRef<{ prefix: string | null; suffix: string | null }>({
+    prefix: null,
+    suffix: null,
+  });
+  const [enchantResetKey, setEnchantResetKey] = useState(0);
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
   const defaultDateRange = getDatePresetRange("1month");
   const [basicFilters, setBasicFilters] = useState<BasicFilters>({
@@ -166,6 +174,8 @@ export default function SearchFilterCard({
     });
     setSelectedDatePreset("1month");
     setActiveFilters([]);
+    enchantRef.current = { prefix: null, suffix: null };
+    setEnchantResetKey((k) => k + 1);
   }, []);
 
   const handleApply = useCallback(() => {
@@ -190,6 +200,17 @@ export default function SearchFilterCard({
       }
       if (basicFilters.dateTo) {
         searchParams.dateAuctionBuyRequest.dateAuctionBuyTo = basicFilters.dateTo;
+      }
+    }
+
+    // Build enchant search request
+    if (enchantRef.current.prefix || enchantRef.current.suffix) {
+      searchParams.enchantSearchRequest = {};
+      if (enchantRef.current.prefix) {
+        searchParams.enchantSearchRequest.enchantPrefix = enchantRef.current.prefix;
+      }
+      if (enchantRef.current.suffix) {
+        searchParams.enchantSearchRequest.enchantSuffix = enchantRef.current.suffix;
       }
     }
 
@@ -578,6 +599,17 @@ export default function SearchFilterCard({
           )}
         </div>
       </div>
+
+      {/* Enchant Search Filter */}
+      <EnchantSearchFilter
+        key={enchantResetKey}
+        prefixList={prefixList}
+        suffixList={suffixList}
+        isLoading={isEnchantLoading}
+        onChange={(prefix, suffix) => {
+          enchantRef.current = { prefix, suffix };
+        }}
+      />
 
       {/* Add Filter Button - Compact */}
       <div className="relative" ref={addFilterDropdownRef}>
