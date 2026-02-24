@@ -34,6 +34,7 @@ export const USER_VERIFICATION_ENDPOINT = "/das/api/user/verification";
 export const AUCTION_HISTORY_BATCH_ENDPOINT = "/oab/auction-history/batch";
 export const HORN_BUGLE_BATCH_ENDPOINT = "/oab/horn-bugle/batch";
 export const ITEM_INFO_SYNC_ENDPOINT = "/oab/api/item-infos/sync";
+export const METALWARE_INFO_ENDPOINT = "/oab/api/metalware-infos";
 export const METALWARE_INFO_SYNC_ENDPOINT = "/oab/api/metalware-infos/sync";
 export const METALWARE_ATTRIBUTE_SYNC_ENDPOINT = "/oab/api/metalware-attribute-infos/sync";
 export const ENCHANT_INFO_SYNC_ENDPOINT = "/oab/api/enchant-infos/sync";

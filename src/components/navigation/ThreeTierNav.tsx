@@ -501,7 +501,29 @@ export default function ThreeTierNav() {
   const handleClearInput = useCallback(() => {
     setSearchValue("");
     searchInputRef.current?.focus();
-  }, []);
+
+    // URL의 검색 키워드 파라미터도 함께 제거하여 URL 상태와 동기화
+    const params = new URLSearchParams(urlSearchParams.toString());
+
+    if (isSearchablePage) {
+      params.delete("item_name");
+      params.delete("itemName");
+      params.delete("name");
+      params.delete("top_category");
+      params.delete("topCategory");
+      params.delete("sub_category");
+      params.delete("subCategory");
+    } else if (isHornBuglePage) {
+      params.delete("keyword");
+    } else if (isCommunityPage) {
+      params.delete("q");
+    } else {
+      return;
+    }
+
+    const query = params.toString();
+    router.push(`${pathname}${query ? `?${query}` : ""}`);
+  }, [isSearchablePage, isHornBuglePage, isCommunityPage, urlSearchParams, pathname, router]);
 
   // 드롭다운 표시 여부: 검색 가능한 페이지에서만 + (입력값이 있거나 최근 검색어가 있을 때)
   const showDropdown =

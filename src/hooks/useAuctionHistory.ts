@@ -56,7 +56,22 @@ function buildNestedQueryParams(
       return; // Skip empty values
     }
 
-    if (typeof value === "object" && !Array.isArray(value)) {
+    if (Array.isArray(value)) {
+      // Handle arrays with indexed notation for Spring Boot @ModelAttribute
+      (value as unknown[]).forEach((item, index) => {
+        if (item === null || item === undefined) return;
+        const indexedKey = `${fullKey}[${index}]`;
+        if (typeof item === "object") {
+          const nestedParams = buildNestedQueryParams(
+            item as Record<string, unknown>,
+            indexedKey,
+          );
+          nestedParams.forEach((v, k) => params.append(k, v));
+        } else {
+          params.append(indexedKey, String(item));
+        }
+      });
+    } else if (typeof value === "object") {
       // Recursively handle nested objects
       const nestedParams = buildNestedQueryParams(
         value as Record<string, unknown>,

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useSearchOptions } from "@/hooks/useSearchOptions";
 import { useEnchantFullnames } from "@/hooks/useEnchantFullnames";
+import { useMetalwareInfos } from "@/hooks/useMetalwareInfos";
 import {
   SearchOptionMetadata,
   FieldMetadata,
@@ -20,6 +21,9 @@ import {
 import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 import { LayoutMode } from "@/hooks/useAuctionHistoryLayout";
 import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
+import MetalwareSearchFilter, {
+  MetalwareFilterItem,
+} from "@/components/commons/MetalwareSearchFilter";
 import { Plus, X, RotateCcw, ArrowUp, ArrowDown, Check } from "lucide-react";
 
 interface SearchFilterCardProps {
@@ -53,11 +57,14 @@ export default function SearchFilterCard({
       : "max(16px, calc(50% - 728px))";
   const { data: searchOptions = [], isLoading } = useSearchOptions();
   const { prefixList, suffixList, isLoading: isEnchantLoading } = useEnchantFullnames();
+  const { metalwareList, isLoading: isMetalwareLoading } = useMetalwareInfos();
   const enchantRef = useRef<{ prefix: string | null; suffix: string | null }>({
     prefix: null,
     suffix: null,
   });
+  const metalwareRef = useRef<MetalwareFilterItem[]>([]);
   const [enchantResetKey, setEnchantResetKey] = useState(0);
+  const [metalwareResetKey, setMetalwareResetKey] = useState(0);
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([]);
   const [basicFilters, setBasicFilters] = useState<BasicFilters>({
     priceMin: "",
@@ -109,7 +116,9 @@ export default function SearchFilterCard({
     });
     setActiveFilters([]);
     enchantRef.current = { prefix: null, suffix: null };
+    metalwareRef.current = [];
     setEnchantResetKey((k) => k + 1);
+    setMetalwareResetKey((k) => k + 1);
   }, []);
 
   const handleApply = useCallback(() => {
@@ -176,6 +185,18 @@ export default function SearchFilterCard({
           (searchParams.itemOptionSearchRequest as Record<string, Record<string, unknown>>)[optionSearchKey][key] = value;
         });
       });
+    }
+
+    // Build metalware search requests
+    const validMetalwares = metalwareRef.current.filter(
+      (f) => f.name.trim() !== "",
+    );
+    if (validMetalwares.length > 0) {
+      searchParams.metalwareSearchRequests = validMetalwares.map((f) => ({
+        metalware: f.name.trim(),
+        ...(f.levelFrom !== "" && { levelFrom: Number(f.levelFrom) }),
+        ...(f.levelTo !== "" && { levelTo: Number(f.levelTo) }),
+      }));
     }
 
     onFilterApply(searchParams);
@@ -448,6 +469,16 @@ export default function SearchFilterCard({
           </div>
         </div>
       </div>
+
+      {/* Metalware Search Filter */}
+      <MetalwareSearchFilter
+        key={metalwareResetKey}
+        metalwareList={metalwareList}
+        isLoading={isMetalwareLoading}
+        onChange={(filters) => {
+          metalwareRef.current = filters;
+        }}
+      />
 
       {/* Enchant Search Filter */}
       <EnchantSearchFilter

@@ -9,10 +9,17 @@ import {
   PriceSearchRequest,
   ItemOptionSearchRequest,
   EnchantSearchRequest,
+  MetalwareSearchRequest,
 } from "./auction-history";
 
 // Re-export shared types
-export type { SearchStandard, PriceSearchRequest, ItemOptionSearchRequest, EnchantSearchRequest };
+export type {
+  SearchStandard,
+  PriceSearchRequest,
+  ItemOptionSearchRequest,
+  EnchantSearchRequest,
+  MetalwareSearchRequest,
+};
 
 /**
  * 실시간 경매장 검색 조건
@@ -27,6 +34,7 @@ export interface AuctionRealtimeSearchRequest {
   priceSearchRequest?: PriceSearchRequest;
   itemOptionSearchRequest?: ItemOptionSearchRequest;
   enchantSearchRequest?: EnchantSearchRequest;
+  metalwareSearchRequests?: MetalwareSearchRequest[];
 }
 
 /**

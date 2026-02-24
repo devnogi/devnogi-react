@@ -202,6 +202,16 @@ export interface EnchantSearchRequest {
 }
 
 /**
+ * 세공 검색 조건
+ * Backend: MetalwareSearchRequest
+ */
+export interface MetalwareSearchRequest {
+  metalware: string;
+  levelFrom?: number;
+  levelTo?: number;
+}
+
+/**
  * 경매 거래내역 검색 조건
  * Backend: AuctionHistorySearchRequest
  */
@@ -214,6 +224,7 @@ export interface AuctionHistorySearchRequest {
   priceSearchRequest?: PriceSearchRequest;
   itemOptionSearchRequest?: ItemOptionSearchRequest;
   enchantSearchRequest?: EnchantSearchRequest;
+  metalwareSearchRequests?: MetalwareSearchRequest[];
 }
 
 /**

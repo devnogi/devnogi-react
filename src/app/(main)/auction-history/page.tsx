@@ -27,6 +27,7 @@ import { useAuctionHistory } from "@/hooks/useAuctionHistory";
 import { useAuctionHistoryLayout } from "@/hooks/useAuctionHistoryLayout";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
 import { ActiveFilter } from "@/types/search-filter";
+import { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
 import {
   useState,
   useEffect,
@@ -429,7 +430,7 @@ export default function Page() {
     useState(false);
 
   const [mobileFilterType, setMobileFilterType] = useState<
-    "category" | "price" | "date" | "options" | "enchant" | null
+    "category" | "price" | "date" | "options" | "enchant" | "metalware" | null
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
@@ -441,6 +442,7 @@ export default function Page() {
   );
   const [mobileEnchantPrefix, setMobileEnchantPrefix] = useState<string | null>(null);
   const [mobileEnchantSuffix, setMobileEnchantSuffix] = useState<string | null>(null);
+  const [mobileMetalwareItems, setMobileMetalwareItems] = useState<MetalwareFilterItem[]>([]);
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
@@ -680,6 +682,12 @@ export default function Page() {
         delete next.enchantSearchRequest;
       }
 
+      if (filters.metalwareSearchRequests && filters.metalwareSearchRequests.length > 0) {
+        next.metalwareSearchRequests = filters.metalwareSearchRequests;
+      } else {
+        delete next.metalwareSearchRequests;
+      }
+
       return normalizeCategorySelection(next);
     });
     // isExactItemName은 SearchFilterCard에서 직접 onExactItemNameChange로 관리
@@ -690,6 +698,18 @@ export default function Page() {
     setMobileDateTo(filters.dateAuctionBuyRequest?.dateAuctionBuyTo ?? "");
     setMobileEnchantPrefix(filters.enchantSearchRequest?.enchantPrefix ?? null);
     setMobileEnchantSuffix(filters.enchantSearchRequest?.enchantSuffix ?? null);
+    if (filters.metalwareSearchRequests && filters.metalwareSearchRequests.length > 0) {
+      setMobileMetalwareItems(
+        filters.metalwareSearchRequests.map((r, i) => ({
+          id: `mw-${i}`,
+          name: r.metalware,
+          levelFrom: r.levelFrom?.toString() ?? "",
+          levelTo: r.levelTo?.toString() ?? "",
+        }))
+      );
+    } else {
+      setMobileMetalwareItems([]);
+    }
   };
 
   const handleMobileFilterApply = (data: {
@@ -701,6 +721,7 @@ export default function Page() {
     activeFilters?: ActiveFilter[];
     enchantPrefix?: string | null;
     enchantSuffix?: string | null;
+    metalwareItems?: MetalwareFilterItem[];
   }) => {
     if (data.selectedCategory !== undefined) {
       setSelectedCategory(data.selectedCategory);
@@ -721,6 +742,7 @@ export default function Page() {
     }
     if (data.enchantPrefix !== undefined) setMobileEnchantPrefix(data.enchantPrefix);
     if (data.enchantSuffix !== undefined) setMobileEnchantSuffix(data.enchantSuffix);
+    if (data.metalwareItems !== undefined) setMobileMetalwareItems(data.metalwareItems);
 
     setSearchParams((prev) => {
       const next: AuctionHistorySearchParams = {
@@ -826,6 +848,18 @@ export default function Page() {
         delete next.enchantSearchRequest;
       }
 
+      const metalwareItemsVal = data.metalwareItems !== undefined ? data.metalwareItems : mobileMetalwareItems;
+      const validMetalwares = metalwareItemsVal.filter((f) => f.name.trim() !== "");
+      if (validMetalwares.length > 0) {
+        next.metalwareSearchRequests = validMetalwares.map((f) => ({
+          metalware: f.name.trim(),
+          ...(f.levelFrom !== "" && { levelFrom: Number(f.levelFrom) }),
+          ...(f.levelTo !== "" && { levelTo: Number(f.levelTo) }),
+        }));
+      } else {
+        delete next.metalwareSearchRequests;
+      }
+
       return normalizeCategorySelection(next);
     });
   };
@@ -886,6 +920,7 @@ export default function Page() {
                   hasDate: !!(mobileDateFrom || mobileDateTo),
                   hasOptions: mobileActiveFilters.length > 0,
                   hasEnchant: !!(mobileEnchantPrefix || mobileEnchantSuffix),
+                  hasMetalware: mobileMetalwareItems.some((f) => f.name.trim() !== ""),
                 }}
                 onExactItemNameToggle={() => handleExactItemNameChange(!searchParams.isExactItemName)}
                 onCategoryClick={() => setMobileFilterType("category")}
@@ -893,6 +928,7 @@ export default function Page() {
                 onDateClick={() => setMobileFilterType("date")}
                 onOptionsClick={() => setMobileFilterType("options")}
                 onEnchantClick={() => setMobileFilterType("enchant")}
+                onMetalwareClick={() => setMobileFilterType("metalware")}
               />
             </div>
           )}
@@ -1039,6 +1075,7 @@ export default function Page() {
             activeFilters: mobileActiveFilters,
             enchantPrefix: mobileEnchantPrefix,
             enchantSuffix: mobileEnchantSuffix,
+            metalwareItems: mobileMetalwareItems,
           }}
           categories={categories}
           onApply={handleMobileFilterApply}

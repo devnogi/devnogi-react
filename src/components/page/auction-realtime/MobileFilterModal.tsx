@@ -13,7 +13,9 @@ import {
 import { X, Plus, RotateCcw, ArrowUp, ArrowDown } from "lucide-react";
 import { useSearchOptions } from "@/hooks/useSearchOptions";
 import { useEnchantFullnames } from "@/hooks/useEnchantFullnames";
+import { useMetalwareInfos } from "@/hooks/useMetalwareInfos";
 import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
+import MetalwareSearchFilter, { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
 import {
   SearchOptionMetadata,
   FieldMetadata,
@@ -25,7 +27,7 @@ import clsx from "clsx";
 interface MobileFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  filterType: "category" | "price" | "options" | "enchant";
+  filterType: "category" | "price" | "options" | "enchant" | "metalware";
   initialData?: {
     selectedCategory?: string;
     priceMin?: string;
@@ -33,6 +35,7 @@ interface MobileFilterModalProps {
     activeFilters?: ActiveFilter[];
     enchantPrefix?: string | null;
     enchantSuffix?: string | null;
+    metalwareItems?: MetalwareFilterItem[];
   };
   categories?: ItemCategory[];
   onApply: (data: {
@@ -42,6 +45,7 @@ interface MobileFilterModalProps {
     activeFilters?: ActiveFilter[];
     enchantPrefix?: string | null;
     enchantSuffix?: string | null;
+    metalwareItems?: MetalwareFilterItem[];
   }) => void;
 }
 
@@ -55,7 +59,8 @@ export default function MobileFilterModal({
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
   const { prefixList, suffixList, isLoading: isEnchantLoading } = useEnchantFullnames();
-  const [currentTab, setCurrentTab] = useState<"category" | "price" | "options" | "enchant">(initialFilterType);
+  const { metalwareList, isLoading: isMetalwareLoading } = useMetalwareInfos();
+  const [currentTab, setCurrentTab] = useState<"category" | "price" | "options" | "enchant" | "metalware">(initialFilterType);
   const topCategories =
     categories.find((category) => category.id === "all" && category.children?.length)?.children ||
     categories.filter((category) => category.id !== "all");
@@ -90,6 +95,10 @@ export default function MobileFilterModal({
     initialData?.enchantSuffix ?? null
   );
   const [enchantResetKey, setEnchantResetKey] = useState(0);
+  const [metalwareItems, setMetalwareItems] = useState<MetalwareFilterItem[]>(
+    initialData?.metalwareItems ?? []
+  );
+  const [metalwareResetKey, setMetalwareResetKey] = useState(0);
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
   const topCategoryScrollRef = useRef<HTMLDivElement>(null);
   const subCategoryScrollRef = useRef<HTMLDivElement>(null);
@@ -116,6 +125,9 @@ export default function MobileFilterModal({
       setEnchantPrefix(null);
       setEnchantSuffix(null);
       setEnchantResetKey((k) => k + 1);
+    } else if (currentTab === "metalware") {
+      setMetalwareItems([]);
+      setMetalwareResetKey((k) => k + 1);
     } else {
       setActiveFilters([]);
     }
@@ -137,6 +149,8 @@ export default function MobileFilterModal({
       onApply({ priceMin, priceMax });
     } else if (currentTab === "enchant") {
       onApply({ enchantPrefix, enchantSuffix });
+    } else if (currentTab === "metalware") {
+      onApply({ metalwareItems });
     } else {
       onApply({ activeFilters });
     }
@@ -341,6 +355,7 @@ export default function MobileFilterModal({
     { id: "price" as const, label: "금액", icon: "💰" },
     { id: "options" as const, label: "옵션", icon: "⚙️" },
     { id: "enchant" as const, label: "인챈트", icon: "✨" },
+    { id: "metalware" as const, label: "세공", icon: "🔨" },
   ];
 
   return (
@@ -590,6 +605,18 @@ export default function MobileFilterModal({
                   추가된 옵션 필터가 없습니다
                 </div>
               )}
+            </div>
+          )}
+
+          {currentTab === "metalware" && (
+            <div className="overflow-y-auto h-full">
+              <MetalwareSearchFilter
+                key={metalwareResetKey}
+                metalwareList={metalwareList}
+                isLoading={isMetalwareLoading}
+                initialItems={metalwareItems}
+                onChange={setMetalwareItems}
+              />
             </div>
           )}
         </div>

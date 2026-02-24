@@ -1,6 +1,6 @@
 "use client";
 
-import { DollarSign, Settings, FolderTree, TextSearch, Sparkles } from "lucide-react";
+import { DollarSign, Settings, FolderTree, TextSearch, Sparkles, Hammer } from "lucide-react";
 
 interface MobileFilterChipsProps {
   activeFilters: {
@@ -9,12 +9,14 @@ interface MobileFilterChipsProps {
     hasPrice: boolean;
     hasOptions: boolean;
     hasEnchant: boolean;
+    hasMetalware: boolean;
   };
   onExactItemNameToggle: () => void;
   onCategoryClick: () => void;
   onPriceClick: () => void;
   onOptionsClick: () => void;
   onEnchantClick: () => void;
+  onMetalwareClick: () => void;
 }
 
 export default function MobileFilterChips({
@@ -24,6 +26,7 @@ export default function MobileFilterChips({
   onPriceClick,
   onOptionsClick,
   onEnchantClick,
+  onMetalwareClick,
 }: MobileFilterChipsProps) {
   return (
     <div className="flex items-center gap-1.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -92,6 +95,19 @@ export default function MobileFilterChips({
       >
         <Sparkles className="w-3.5 h-3.5" />
         <span className="text-xs font-medium">인챈트</span>
+      </button>
+
+      {/* Metalware Filter Chip */}
+      <button
+        onClick={onMetalwareClick}
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+          activeFilters.hasMetalware
+            ? "border-2 border-[var(--color-ds-ornamental)]"
+            : "border border-[var(--color-ds-neutral-tone)]"
+        }`}
+      >
+        <Hammer className="w-3.5 h-3.5" />
+        <span className="text-xs font-medium">세공</span>
       </button>
     </div>
   );
