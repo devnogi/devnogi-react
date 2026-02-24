@@ -210,10 +210,10 @@ function SocialCallbackContent() {
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
-            onClick={() => router.push("/")}
+            onClick={handleCancel}
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
           >
-            메인으로 이동
+            닫기
           </button>
         </div>
       </div>
