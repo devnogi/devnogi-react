@@ -623,7 +623,7 @@ export default function SearchFilterCard({
 
       {/* Metalware Search Filter */}
       <MetalwareSearchFilter
-        key={metalwareResetKey}
+        key={`metalware-${metalwareResetKey}`}
         metalwareList={metalwareList}
         isLoading={isMetalwareLoading}
         onChange={(filters) => {
@@ -633,7 +633,7 @@ export default function SearchFilterCard({
 
       {/* Enchant Search Filter */}
       <EnchantSearchFilter
-        key={enchantResetKey}
+        key={`enchant-${enchantResetKey}`}
         prefixList={prefixList}
         suffixList={suffixList}
         isLoading={isEnchantLoading}
