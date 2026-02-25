@@ -385,6 +385,7 @@ export default function Page() {
   const pathname = usePathname();
   const urlSearchParams = useSearchParams();
   const lastSyncedQueryRef = useRef<string>("");
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   const [itemName, setItemName] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -497,6 +498,17 @@ export default function Page() {
   useEffect(() => {
     setIsClientMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isSortDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+        setIsSortDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSortDropdownOpen]);
 
   useEffect(() => {
     const saved = localStorage.getItem(EXACT_ITEM_NAME_WARNING_DISMISS_KEY);
@@ -922,14 +934,14 @@ export default function Page() {
                   </>
                 )}
               </div>
-              <div className="relative">
+              <div ref={sortDropdownRef} className="relative">
                 <button
                   onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
                   className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
                 >
                   <span className="font-medium">{selectedSortOption.label}</span>
                   <svg
-                    className="w-4 h-4"
+                    className={`w-4 h-4 transition-transform duration-200 ${isSortDropdownOpen ? "rotate-180" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -943,7 +955,7 @@ export default function Page() {
                   </svg>
                 </button>
                 {isSortDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px]">
+                  <div className="absolute top-full right-0 mt-2 bg-white dark:bg-navy-700 rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px] shadow-lg">
                     {SORT_OPTIONS.map((option) => (
                       <button
                         key={option.label}

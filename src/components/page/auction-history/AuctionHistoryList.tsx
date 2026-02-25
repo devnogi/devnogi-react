@@ -168,11 +168,11 @@ export default function AuctionHistoryList({
                   </div>
 
                   {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
-                  <div className="flex justify-between items-center mb-1.5">
-                    <h3 className="font-semibold text-[var(--color-ds-text)] text-[0.96rem] flex-1 mr-2">
+                  <div className="flex justify-between items-center mb-1.5 gap-2">
+                    <h3 className="font-semibold text-[var(--color-ds-text)] text-[0.96rem] flex-1 min-w-0 truncate">
                       {getItemNameWithoutAttributes(item.itemName)}
                     </h3>
-                    <div className="flex items-center flex-shrink-0">
+                    <div className="flex items-center flex-shrink-0 whitespace-nowrap">
                       <span className="font-bold text-[var(--color-ds-primary)] text-[0.96rem]">
                         {formatPrice(item.auctionPricePerUnit)}
                       </span>
@@ -274,11 +274,11 @@ export default function AuctionHistoryList({
                   </div>
 
                   {/* Price */}
-                  <div className="col-span-2 flex items-center justify-end">
-                    <span className="font-bold text-[var(--color-ds-primary)] text-[0.85rem]">
+                  <div className="col-span-2 flex items-center justify-end min-w-0">
+                    <span className="font-bold text-[var(--color-ds-primary)] text-[0.85rem] whitespace-nowrap">
                       {formatPrice(item.auctionPricePerUnit)}
                     </span>
-                    <span className="text-sm text-[var(--color-ds-disabled)] ml-1">G</span>
+                    <span className="text-sm text-[var(--color-ds-disabled)] ml-1 whitespace-nowrap">G</span>
                   </div>
 
                   {/* Date */}
