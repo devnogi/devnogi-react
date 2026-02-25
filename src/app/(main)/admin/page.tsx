@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import {
   Activity,
+  CalendarClock,
   DatabaseZap,
   Loader2,
   RefreshCcw,
@@ -71,6 +72,39 @@ const ADMIN_TASKS = [
   },
 ] as const;
 
+const BATCH_TYPE_OPTIONS = [
+  "AUCTION_HISTORY_BATCH",
+  "ITEM_INFO_SYNC",
+  "METALWARE_ATTRIBUTE_SYNC",
+] as const;
+
+type BatchType = (typeof BATCH_TYPE_OPTIONS)[number];
+
+type BatchExecutionLog = {
+  id: number;
+  batchType: BatchType;
+  triggerType: "AUTO" | "MANUAL";
+  startedAt: string;
+  completedAt?: string | null;
+  isSuccess: boolean;
+  recordCount: number;
+  message?: string | null;
+};
+
+type PageMeta = {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+  isFirst: boolean;
+  isLast: boolean;
+};
+
+type BatchLogPageResponse = {
+  items: BatchExecutionLog[];
+  meta: PageMeta;
+};
+
 type AdminTaskKey = (typeof ADMIN_TASKS)[number]["key"];
 
 type TaskState = {
@@ -91,7 +125,7 @@ const buildInitialTaskStates = (): TaskStateMap => {
   }, {} as TaskStateMap);
 };
 
-function formatTimestamp(value?: string) {
+function formatTimestamp(value?: string | null) {
   if (!value) return "-";
   try {
     const date = new Date(value);
@@ -121,11 +155,40 @@ function formatPayload(payload: unknown) {
   }
 }
 
+function formatBatchTypeLabel(batchType: BatchType) {
+  switch (batchType) {
+    case "AUCTION_HISTORY_BATCH":
+      return "경매장 거래내역 배치";
+    case "ITEM_INFO_SYNC":
+      return "아이템 정보 동기화";
+    case "METALWARE_ATTRIBUTE_SYNC":
+      return "금속 변환 속성 동기화";
+    default:
+      return batchType;
+  }
+}
+
+function formatTriggerTypeLabel(triggerType: BatchExecutionLog["triggerType"]) {
+  return triggerType === "MANUAL" ? "수동" : "자동";
+}
+
 export default function AdminPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const normalizedRole = normalizeRole(user?.role);
   const isAdminUser = isAdminRole(normalizedRole);
+
   const [taskStates, setTaskStates] = useState<TaskStateMap>(() => buildInitialTaskStates());
+
+  const [latestLogs, setLatestLogs] = useState<BatchExecutionLog[]>([]);
+  const [isLatestLoading, setIsLatestLoading] = useState(false);
+
+  const [selectedBatchType, setSelectedBatchType] =
+    useState<BatchType>("AUCTION_HISTORY_BATCH");
+  const [batchPage, setBatchPage] = useState(1);
+  const [batchLogs, setBatchLogs] = useState<BatchExecutionLog[]>([]);
+  const [batchMeta, setBatchMeta] = useState<PageMeta | null>(null);
+  const [isBatchLogLoading, setIsBatchLogLoading] = useState(false);
+  const [batchLogError, setBatchLogError] = useState<string | null>(null);
 
   const pageState = useMemo(() => {
     if (isLoading) return "loading";
@@ -133,6 +196,62 @@ export default function AdminPage() {
     if (!isAdminUser) return "forbidden";
     return "ready";
   }, [isLoading, isAuthenticated, isAdminUser]);
+
+  const latestLogMap = useMemo(() => {
+    return latestLogs.reduce((acc, log) => {
+      acc[log.batchType] = log;
+      return acc;
+    }, {} as Partial<Record<BatchType, BatchExecutionLog>>);
+  }, [latestLogs]);
+
+  const fetchLatestLogs = useCallback(async () => {
+    if (pageState !== "ready") return;
+
+    setIsLatestLoading(true);
+    try {
+      const response = await clientAxios.get("/admin/batch-logs", {
+        params: { latest: true },
+      });
+      const logs = Array.isArray(response.data?.data) ? response.data.data : [];
+      setLatestLogs(logs);
+    } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : "최신 배치 로그를 불러오지 못했습니다.";
+      toast.error("최신 배치 로그 조회 실패", {
+        description: message,
+      });
+    } finally {
+      setIsLatestLoading(false);
+    }
+  }, [pageState]);
+
+  const fetchBatchLogs = useCallback(async (batchType: BatchType, page: number) => {
+    if (pageState !== "ready") return;
+
+    setIsBatchLogLoading(true);
+    setBatchLogError(null);
+
+    try {
+      const response = await clientAxios.get("/admin/batch-logs", {
+        params: {
+          batchType,
+          page,
+          size: 20,
+        },
+      });
+      const payload: BatchLogPageResponse | undefined = response.data?.data;
+      setBatchLogs(payload?.items ?? []);
+      setBatchMeta(payload?.meta ?? null);
+    } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : "배치 로그 조회 중 오류가 발생했습니다.";
+      setBatchLogError(message);
+    } finally {
+      setIsBatchLogLoading(false);
+    }
+  }, [pageState]);
 
   const runTask = async (taskKey: AdminTaskKey, taskTitle: string) => {
     setTaskStates((prev) => ({
@@ -156,6 +275,8 @@ export default function AdminPage() {
         },
       }));
       toast.success(`${taskTitle} 작업이 실행되었습니다.`);
+
+      await Promise.all([fetchLatestLogs(), fetchBatchLogs(selectedBatchType, batchPage)]);
     } catch (error) {
       const statusCode = axios.isAxiosError(error)
         ? error.response?.status
@@ -166,8 +287,8 @@ export default function AdminPage() {
       const message = axios.isAxiosError(error)
         ? payload?.message || error.message
         : error instanceof Error
-        ? error.message
-        : "알 수 없는 오류가 발생했습니다.";
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다.";
 
       setTaskStates((prev) => ({
         ...prev,
@@ -186,6 +307,16 @@ export default function AdminPage() {
       });
     }
   };
+
+  useEffect(() => {
+    if (pageState !== "ready") return;
+    void fetchLatestLogs();
+  }, [pageState, fetchLatestLogs]);
+
+  useEffect(() => {
+    if (pageState !== "ready") return;
+    void fetchBatchLogs(selectedBatchType, batchPage);
+  }, [pageState, selectedBatchType, batchPage, fetchBatchLogs]);
 
   if (pageState === "loading") {
     return (
@@ -256,6 +387,239 @@ export default function AdminPage() {
         </div>
       </header>
 
+      <section className="grid gap-6 xl:grid-cols-2">
+        <article className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-3xl p-6 shadow-sm space-y-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <CalendarClock className="w-5 h-5 text-blaanid-600 dark:text-coral-300" />
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  최근 배치 실행 일시
+                </h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  배치 타입별 최신 실행 로그
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+              onClick={() => void fetchLatestLogs()}
+              disabled={isLatestLoading}
+            >
+              {isLatestLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCcw className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {BATCH_TYPE_OPTIONS.map((batchType) => {
+              const log = latestLogMap[batchType];
+
+              return (
+                <div
+                  key={batchType}
+                  className="rounded-2xl border border-gray-200 dark:border-navy-600 bg-gray-50/70 dark:bg-navy-700/60 p-4 space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">
+                      {formatBatchTypeLabel(batchType)}
+                    </p>
+                    <Badge
+                      className={`rounded-full px-2 py-0.5 text-[10px] ${
+                        log?.isSuccess
+                          ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-200"
+                          : log
+                            ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-200"
+                            : "bg-gray-200 text-gray-600 dark:bg-navy-600 dark:text-gray-200"
+                      }`}
+                    >
+                      {log ? (log.isSuccess ? "성공" : "실패") : "미조회"}
+                    </Badge>
+                  </div>
+
+                  <dl className="space-y-1.5 text-xs">
+                    <div className="flex items-start justify-between gap-2">
+                      <dt className="text-gray-500 dark:text-gray-400">시작</dt>
+                      <dd className="font-medium text-right text-gray-800 dark:text-gray-100">
+                        {formatTimestamp(log?.startedAt)}
+                      </dd>
+                    </div>
+                    <div className="flex items-start justify-between gap-2">
+                      <dt className="text-gray-500 dark:text-gray-400">완료</dt>
+                      <dd className="font-medium text-right text-gray-800 dark:text-gray-100">
+                        {formatTimestamp(log?.completedAt)}
+                      </dd>
+                    </div>
+                    <div className="flex items-start justify-between gap-2">
+                      <dt className="text-gray-500 dark:text-gray-400">실행 유형</dt>
+                      <dd className="font-medium text-gray-800 dark:text-gray-100">
+                        {log ? formatTriggerTypeLabel(log.triggerType) : "-"}
+                      </dd>
+                    </div>
+                    <div className="flex items-start justify-between gap-2">
+                      <dt className="text-gray-500 dark:text-gray-400">처리 건수</dt>
+                      <dd className="font-mono text-gray-800 dark:text-gray-100">
+                        {log ? log.recordCount.toLocaleString() : "-"}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {log?.message && (
+                    <p className="text-xs text-gray-600 dark:text-gray-300 break-words line-clamp-2">
+                      {log.message}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </article>
+
+        <article className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                배치 로그 조회
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                배치 타입별 실행 로그를 페이지 단위로 조회합니다.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <select
+                value={selectedBatchType}
+                onChange={(event) => {
+                  const nextType = event.target.value as BatchType;
+                  setSelectedBatchType(nextType);
+                  setBatchPage(1);
+                }}
+                className="w-full sm:w-auto rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 px-3 py-2 text-sm"
+              >
+                {BATCH_TYPE_OPTIONS.map((batchType) => (
+                  <option key={batchType} value={batchType}>
+                    {formatBatchTypeLabel(batchType)}
+                  </option>
+                ))}
+              </select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl"
+                onClick={() => void fetchBatchLogs(selectedBatchType, batchPage)}
+                disabled={isBatchLogLoading}
+              >
+                {isBatchLogLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {batchLogError && (
+            <div className="rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+              {batchLogError}
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {isBatchLogLoading ? (
+              <div className="h-[220px] rounded-2xl border border-dashed border-gray-300 dark:border-navy-600 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : batchLogs.length === 0 ? (
+              <div className="h-[220px] rounded-2xl border border-dashed border-gray-300 dark:border-navy-600 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+                조회된 로그가 없습니다.
+              </div>
+            ) : (
+              batchLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="rounded-2xl border border-gray-200 dark:border-navy-600 bg-gray-50/70 dark:bg-navy-700/60 p-4"
+                >
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {formatTimestamp(log.startedAt)}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Badge className="rounded-full px-2.5 py-0.5 text-[10px] bg-gray-200 text-gray-700 dark:bg-navy-600 dark:text-gray-100">
+                        {formatTriggerTypeLabel(log.triggerType)}
+                      </Badge>
+                      <Badge
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] ${
+                          log.isSuccess
+                            ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-200"
+                            : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-200"
+                        }`}
+                      >
+                        {log.isSuccess ? "성공" : "실패"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <dl className="mt-3 grid gap-2 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
+                    <div>
+                      <dt className="text-gray-500 dark:text-gray-400">완료 시각</dt>
+                      <dd className="font-medium text-gray-800 dark:text-gray-100">
+                        {formatTimestamp(log.completedAt)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-gray-500 dark:text-gray-400">처리 건수</dt>
+                      <dd className="font-mono text-gray-800 dark:text-gray-100">
+                        {log.recordCount.toLocaleString()}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {log.message && (
+                    <p className="mt-3 text-xs text-gray-700 dark:text-gray-200 break-words">
+                      {log.message}
+                    </p>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {batchMeta
+                ? `${batchMeta.currentPage} / ${batchMeta.totalPages} 페이지 (총 ${batchMeta.totalElements.toLocaleString()}건)`
+                : "-"}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl"
+                disabled={isBatchLogLoading || !!batchMeta?.isFirst}
+                onClick={() => setBatchPage((prev) => Math.max(1, prev - 1))}
+              >
+                이전
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl"
+                disabled={isBatchLogLoading || !!batchMeta?.isLast || !batchMeta}
+                onClick={() => setBatchPage((prev) => prev + 1)}
+              >
+                다음
+              </Button>
+            </div>
+          </div>
+        </article>
+      </section>
+
       <section className="grid gap-6 lg:grid-cols-2">
         {ADMIN_TASKS.map((task) => {
           const state = taskStates[task.key];
@@ -301,8 +665,8 @@ export default function AdminPage() {
                       state?.lastStatus === "success"
                         ? "text-green-600"
                         : state?.lastStatus === "error"
-                        ? "text-red-500"
-                        : "text-gray-400"
+                          ? "text-red-500"
+                          : "text-gray-400"
                     }`}
                   >
                     {state?.message ?? "미실행"}
@@ -355,4 +719,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
