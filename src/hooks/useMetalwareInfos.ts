@@ -2,10 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-interface MetalwareInfoResponse {
-  metalware: string;
-}
-
 interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -19,14 +15,13 @@ async function fetchMetalwareInfos(): Promise<string[]> {
     throw new Error(`Failed to fetch metalware infos: ${response.status}`);
   }
 
-  const apiResponse: ApiResponse<MetalwareInfoResponse[]> =
-    await response.json();
+  const apiResponse: ApiResponse<string[]> = await response.json();
 
   if (!apiResponse.success) {
     throw new Error(apiResponse.message || "세공 정보 조회 실패");
   }
 
-  return (apiResponse.data || []).map((item) => item.metalware);
+  return apiResponse.data ?? [];
 }
 
 export function useMetalwareInfos() {

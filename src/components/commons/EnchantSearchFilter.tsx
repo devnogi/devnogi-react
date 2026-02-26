@@ -10,6 +10,8 @@ interface EnchantSearchFilterProps {
   initialPrefix?: string | null;
   initialSuffix?: string | null;
   onChange: (prefix: string | null, suffix: string | null) => void;
+  /** true일 때 카드 래퍼(border/background/padding) 없이 렌더링 */
+  flat?: boolean;
 }
 
 interface EnchantInputProps {
@@ -124,6 +126,7 @@ export default function EnchantSearchFilter({
   initialPrefix,
   initialSuffix,
   onChange,
+  flat = false,
 }: EnchantSearchFilterProps) {
   const prefixRef = useRef<string | null>(initialPrefix ?? null);
   const suffixRef = useRef<string | null>(initialSuffix ?? null);
@@ -147,7 +150,13 @@ export default function EnchantSearchFilter({
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3">
+    <div
+      className={
+        flat
+          ? ""
+          : "bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3"
+      }
+    >
       <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
         인챈트 검색
       </h3>

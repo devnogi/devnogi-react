@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
 import { Plus, X, ChevronDown } from "lucide-react";
 
@@ -16,6 +17,8 @@ interface MetalwareSearchFilterProps {
   isLoading?: boolean;
   initialItems?: MetalwareFilterItem[];
   onChange: (filters: MetalwareFilterItem[]) => void;
+  /** true일 때 카드 래퍼(border/background/padding) 없이 렌더링 */
+  flat?: boolean;
 }
 
 const MAX_METALWARE = 3;
@@ -29,18 +32,53 @@ export default function MetalwareSearchFilter({
   isLoading = false,
   initialItems,
   onChange,
+  flat = false,
 }: MetalwareSearchFilterProps) {
   const [items, setItems] = useState<MetalwareFilterItem[]>(initialItems ?? []);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // 각 input 래퍼 요소의 ref를 item.id로 관리
+  const inputWrapperRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  // 포털 드롭다운 ref (외부 클릭 감지용)
+  const portalDropdownRef = useRef<HTMLDivElement>(null);
+  // 드롭다운 위치 (fixed 좌표)
+  const [dropdownPos, setDropdownPos] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
 
-  // 외부 클릭 시 드롭다운 닫기
+  // activeDropdownId가 바뀔 때마다 해당 input 위치를 계산
+  useEffect(() => {
+    if (!activeDropdownId) {
+      setDropdownPos(null);
+      return;
+    }
+    const el = inputWrapperRefs.current.get(activeDropdownId);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDropdownPos({
+      top: rect.bottom + 4, // mt-1 (4px)
+      left: rect.left,
+      width: rect.width,
+    });
+  }, [activeDropdownId]);
+
+  // 스크롤 시 드롭다운 닫기 (overflow-auto 컨테이너 포함)
+  useEffect(() => {
+    if (!activeDropdownId) return;
+    const handleScroll = () => setActiveDropdownId(null);
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
+  }, [activeDropdownId]);
+
+  // 외부 클릭 시 드롭다운 닫기 (포털 드롭다운 내부 클릭은 제외)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Node;
+      const isInsideContainer = containerRef.current?.contains(target);
+      const isInsidePortal = portalDropdownRef.current?.contains(target);
+      if (!isInsideContainer && !isInsidePortal) {
         setActiveDropdownId(null);
       }
     };
@@ -121,7 +159,11 @@ export default function MetalwareSearchFilter({
   return (
     <div
       ref={containerRef}
-      className="bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3"
+      className={
+        flat
+          ? ""
+          : "bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3"
+      }
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -163,52 +205,70 @@ export default function MetalwareSearchFilter({
                   <div className="border-t border-gray-200 dark:border-navy-600 pt-1.5" />
                 )}
                 {/* 세공 이름 자동완성 */}
-                <div className="relative">
-                  <div className="flex items-center gap-1.5">
-                    <div className="relative flex-1">
-                      <Input
-                        type="text"
-                        placeholder="세공 이름 입력"
-                        value={item.name}
-                        onChange={(e) =>
-                          handleNameChange(item.id, e.target.value)
-                        }
-                        onFocus={() => setActiveDropdownId(item.id)}
-                        className="h-8 rounded-xl text-xs pr-7 border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
-                      />
-                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveItem(item.id)}
-                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors shrink-0"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  {/* input 래퍼: getBoundingClientRect 기준점 */}
+                  <div
+                    ref={(el) => {
+                      if (el) inputWrapperRefs.current.set(item.id, el);
+                      else inputWrapperRefs.current.delete(item.id);
+                    }}
+                    className="relative flex-1"
+                  >
+                    <Input
+                      type="text"
+                      placeholder="세공 이름 입력"
+                      value={item.name}
+                      onChange={(e) =>
+                        handleNameChange(item.id, e.target.value)
+                      }
+                      onFocus={() => setActiveDropdownId(item.id)}
+                      className="h-8 rounded-xl text-xs pr-7 border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                    />
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
 
-                  {/* 자동완성 드롭다운 */}
-                  {showDropdown && (
-                    <div className="absolute top-full left-0 right-7 mt-1 bg-white dark:bg-navy-700 rounded-xl shadow-[0_8px_24px_rgba(61,56,47,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-navy-500 max-h-44 overflow-auto z-50">
-                      {suggestions.map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          type="button"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            handleSelectSuggestion(item.id, suggestion);
+                    {/* 자동완성 드롭다운 - overflow-auto 클리핑 우회를 위해 Portal로 렌더링 */}
+                    {showDropdown &&
+                      dropdownPos &&
+                      createPortal(
+                        <div
+                          ref={portalDropdownRef}
+                          style={{
+                            position: "fixed",
+                            top: dropdownPos.top,
+                            left: dropdownPos.left,
+                            width: dropdownPos.width,
+                            zIndex: 9999,
                           }}
-                          className={`w-full px-3 py-2 text-left text-xs transition-colors first:rounded-t-xl last:rounded-b-xl ${
-                            item.name === suggestion
-                              ? "bg-blaanid-50 dark:bg-coral-500/10 text-blaanid-700 dark:text-coral-300 font-medium"
-                              : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-navy-600"
-                          }`}
+                          className="bg-white dark:bg-navy-700 rounded-xl shadow-[0_8px_24px_rgba(61,56,47,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-navy-500 max-h-44 overflow-auto"
                         >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                          {suggestions.map((suggestion) => (
+                            <button
+                              key={suggestion}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleSelectSuggestion(item.id, suggestion);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs transition-colors first:rounded-t-xl last:rounded-b-xl ${
+                                item.name === suggestion
+                                  ? "bg-blaanid-50 dark:bg-coral-500/10 text-blaanid-700 dark:text-coral-300 font-medium"
+                                  : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-navy-600"
+                              }`}
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>,
+                        document.body,
+                      )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(item.id)}
+                    className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
                 {/* 레벨 범위 */}

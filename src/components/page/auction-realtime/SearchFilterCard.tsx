@@ -475,6 +475,7 @@ export default function SearchFilterCard({
         key={`metalware-${metalwareResetKey}`}
         metalwareList={metalwareList}
         isLoading={isMetalwareLoading}
+        flat={isModal}
         onChange={(filters) => {
           metalwareRef.current = filters;
         }}
@@ -486,6 +487,7 @@ export default function SearchFilterCard({
         prefixList={prefixList}
         suffixList={suffixList}
         isLoading={isEnchantLoading}
+        flat={isModal}
         onChange={(prefix, suffix) => {
           enchantRef.current = { prefix, suffix };
         }}
