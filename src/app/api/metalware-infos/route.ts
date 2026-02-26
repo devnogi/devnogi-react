@@ -7,15 +7,16 @@ interface Category {
   children?: Category[];
 }
 
-interface MetalwareData {
-  categories: Category[];
+interface MetalwareItem {
+  metalware?: string;
+  name?: string;
 }
 
 interface BackendApiResponse {
   success: boolean;
   code: string;
   message: string;
-  data: MetalwareData;
+  data: unknown;
   timestamp: string;
 }
 
@@ -42,6 +43,33 @@ function extractCategoryNames(categories: Category[]): string[] {
   return names;
 }
 
+function normalizeMetalwareList(data: unknown): string[] {
+  // New backend shape: data = [{ metalware: string }, ...]
+  if (Array.isArray(data)) {
+    return data
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object") {
+          const value = (item as MetalwareItem).metalware ?? (item as MetalwareItem).name;
+          return typeof value === "string" ? value : "";
+        }
+        return "";
+      })
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0);
+  }
+
+  // Legacy shape: data = { categories: [...] }
+  if (data && typeof data === "object" && "categories" in data) {
+    const categories = (data as { categories?: unknown }).categories;
+    if (Array.isArray(categories)) {
+      return extractCategoryNames(categories as Category[]);
+    }
+  }
+
+  return [];
+}
+
 export async function GET() {
   try {
     const gatewayUrl = process.env.GATEWAY_URL;
@@ -64,10 +92,7 @@ export async function GET() {
       throw new Error(backendResponse.message || "세공 정보 조회 실패");
     }
 
-    // categories 트리에서 모든 카테고리 이름을 평탄화
-    const metalwareList = extractCategoryNames(
-      backendResponse.data?.categories ?? [],
-    );
+    const metalwareList = normalizeMetalwareList(backendResponse.data);
 
     return NextResponse.json(
       {
