@@ -126,7 +126,7 @@ function setNestedValue(
   rawValue: string,
 ) {
   const parts = key.split(".");
-  if (parts.length < 2) return;
+  if (parts.length === 0) return;
 
   let current: Record<string, unknown> = target;
   for (let i = 0; i < parts.length - 1; i++) {
@@ -146,6 +146,35 @@ function setNestedValue(
   current[lastKey] = Number.isFinite(numberValue) && rawValue.trim() !== ""
     ? numberValue
     : rawValue;
+}
+
+function setIndexedNestedValue(
+  target: Record<string, unknown>,
+  key: string,
+  rawValue: string,
+): boolean {
+  const matched = key.match(/^([^[\].]+)\[(\d+)\]\.(.+)$/);
+  if (!matched) return false;
+
+  const [, arrayKey, indexRaw, nestedKey] = matched;
+  const index = Number(indexRaw);
+  if (!Number.isInteger(index) || index < 0) return false;
+
+  if (!Array.isArray(target[arrayKey])) {
+    target[arrayKey] = [];
+  }
+
+  const arr = target[arrayKey] as unknown[];
+  if (
+    typeof arr[index] !== "object" ||
+    arr[index] === null ||
+    Array.isArray(arr[index])
+  ) {
+    arr[index] = {};
+  }
+
+  setNestedValue(arr[index] as Record<string, unknown>, nestedKey, rawValue);
+  return true;
 }
 
 function cleanEmptyObject<T>(obj: T): T {
@@ -189,7 +218,26 @@ function buildNestedQueryParams(
       return;
     }
 
-    if (typeof value === "object" && !Array.isArray(value)) {
+    if (Array.isArray(value)) {
+      (value as unknown[]).forEach((item, index) => {
+        if (item === null || item === undefined || item === "") {
+          return;
+        }
+        const indexedKey = `${fullKey}[${index}]`;
+        if (typeof item === "object" && !Array.isArray(item)) {
+          const nestedParams = buildNestedQueryParams(
+            item as Record<string, unknown>,
+            indexedKey,
+          );
+          nestedParams.forEach((v, k) => params.append(k, v));
+          return;
+        }
+        params.append(indexedKey, String(item));
+      });
+      return;
+    }
+
+    if (typeof value === "object") {
       const nestedParams = buildNestedQueryParams(
         value as Record<string, unknown>,
         fullKey,
@@ -342,6 +390,10 @@ function parseSearchParamsFromUrl(
     }
 
     if (!key.includes(".")) {
+      return;
+    }
+
+    if (setIndexedNestedValue(parsed as unknown as Record<string, unknown>, key, value)) {
       return;
     }
 
