@@ -20,12 +20,13 @@ interface VerificationHistoryListProps {
 export default function VerificationHistoryList({
   enabled,
 }: VerificationHistoryListProps) {
-  const [sort, setSort] = useState<"desc" | "asc">("desc");
+  const [sort, setSort] = useState<"latest" | "oldest">("latest");
   const [limit, setLimit] = useState(10);
 
   const { data, isLoading } = useVerificationHistory(sort, limit, enabled);
 
-  const toggleSort = () => setSort((prev) => (prev === "desc" ? "asc" : "desc"));
+  const toggleSort = () =>
+    setSort((prev) => (prev === "latest" ? "oldest" : "latest"));
 
   if (isLoading) {
     return (
@@ -67,7 +68,7 @@ export default function VerificationHistoryList({
             variant="ghost"
             size="icon-sm"
             className="text-gray-500 dark:text-gray-400"
-            title={sort === "desc" ? "오래된순" : "최신순"}
+            title={sort === "latest" ? "오래된순으로 보기" : "최신순으로 보기"}
           >
             <ArrowUpDown className="w-4 h-4" />
           </Button>
@@ -90,7 +91,7 @@ export default function VerificationHistoryList({
                 "rounded-2xl border p-4",
                 item.verificationSuccess
                   ? "border-green-100 dark:border-green-900/30 bg-green-50/50 dark:bg-green-900/10"
-                  : "border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10"
+                  : "border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10",
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -106,7 +107,7 @@ export default function VerificationHistoryList({
                         "text-sm font-medium",
                         item.verificationSuccess
                           ? "text-green-700 dark:text-green-400"
-                          : "text-red-700 dark:text-red-400"
+                          : "text-red-700 dark:text-red-400",
                       )}
                     >
                       {item.verificationSuccess ? "인증 성공" : "인증 실패"}

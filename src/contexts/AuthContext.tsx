@@ -11,13 +11,19 @@ export interface User {
   verified?: boolean;
   serverName?: string | null;
   characterName?: string | null;
+  createdAt?: string;
+  lastLoginAt?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    rememberMe?: boolean,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -76,7 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string, rememberMe?: boolean) => {
+  const login = async (
+    email: string,
+    password: string,
+    rememberMe?: boolean,
+  ) => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",

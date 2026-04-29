@@ -1,0 +1,7 @@
+interface:
+  display_name: "DevNogi UIUX Builder"
+  short_description: "Build DevNogi UI with design and theme parity"
+  default_prompt: "Use $devnogi-uiux-implementation to build or update a DevNogi UI that matches the existing design system."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,11 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { clientAxios } from "@/lib/api/clients";
 import {
-  UserVerificationTokenResponse,
-  UserVerificationTokenIssueResponse,
-  UserVerificationInfoResponse,
   UserVerificationHistoryListResponse,
+  UserVerificationInfoResponse,
   UserVerificationPublicSummaryResponse,
+  UserVerificationTokenIssueResponse,
+  UserVerificationTokenResponse,
 } from "@/types/verification";
 
 interface CommonResponse<T> {
@@ -16,17 +17,44 @@ interface CommonResponse<T> {
   timestamp: string;
 }
 
+interface ErrorResponse {
+  code?: string;
+}
+
+type VerificationHistorySort = "latest" | "oldest";
+
+function isTokenNotFoundError(error: unknown) {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+
+  const payload = error.response?.data as ErrorResponse | undefined;
+  return (
+    error.response?.status === 400 &&
+    payload?.code === "USER_VERIFICATION_TOKEN_NOT_FOUND"
+  );
+}
+
 export function useVerificationToken(enabled: boolean = true) {
   return useQuery<UserVerificationTokenResponse | null>({
     queryKey: ["verification", "token"],
     queryFn: async () => {
-      const res = await clientAxios.get<
-        CommonResponse<UserVerificationTokenResponse>
-      >("/user/verification/token");
-      return res.data.data ?? null;
+      try {
+        const res = await clientAxios.get<
+          CommonResponse<UserVerificationTokenResponse>
+        >("/user/verification/token");
+        return res.data.data ?? null;
+      } catch (error) {
+        if (isTokenNotFoundError(error)) {
+          return null;
+        }
+
+        throw error;
+      }
     },
     enabled,
-    refetchInterval: 30000,
+    refetchInterval: (query) =>
+      query.state.data?.tokenStatus === "ACTIVE" ? 30000 : false,
     staleTime: 10000,
   });
 }
@@ -46,9 +74,9 @@ export function useVerificationInfo(enabled: boolean = true) {
 }
 
 export function useVerificationHistory(
-  sort: string = "desc",
+  sort: VerificationHistorySort = "latest",
   limit: number = 10,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   return useQuery<UserVerificationHistoryListResponse | null>({
     queryKey: ["verification", "history", sort, limit],
@@ -113,7 +141,7 @@ export function usePublicVerificationInfo(userId: number | undefined) {
 
 export function usePublicVerificationSummary(
   userId: number | undefined,
-  limit: number = 5
+  limit: number = 5,
 ) {
   return useQuery<UserVerificationPublicSummaryResponse | null>({
     queryKey: ["verification", "public", "summary", userId, limit],

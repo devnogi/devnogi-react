@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, KeyRound, Monitor, FileEdit, CheckCircle2 } from "lucide-react";
+import {
+  ChevronDown,
+  KeyRound,
+  Monitor,
+  FileEdit,
+  CheckCircle2,
+} from "lucide-react";
 import clsx from "clsx";
 
 const steps = [
@@ -25,7 +31,7 @@ const steps = [
     icon: CheckCircle2,
     title: "자동 인증 완료",
     description:
-      "시스템이 자동으로 캐릭터 메모를 확인하여 인증을 완료합니다. 잠시만 기다려주세요.",
+      "시스템이 자동으로 캐릭터 메모를 확인하여 인증을 완료합니다. 성공하면 서버명과 캐릭터명이 자동 반영됩니다.",
   },
 ];
 
@@ -44,7 +50,7 @@ export default function VerificationInstructions() {
         <ChevronDown
           className={clsx(
             "w-5 h-5 text-gray-400 dark:text-gray-500 transition-transform duration-200",
-            isOpen && "rotate-180"
+            isOpen && "rotate-180",
           )}
         />
       </button>
@@ -75,6 +81,11 @@ export default function VerificationInstructions() {
                 </div>
               );
             })}
+          </div>
+          <div className="mt-5 rounded-2xl bg-blue-50 px-4 py-3 text-sm text-blue-900">
+            최근 인증 성공 이력이 있으면 7일 동안은 새 인증 코드를 다시 발급할
+            수 없습니다. 서버명이나 캐릭터명을 바꾸려면 인게임에서 다시 인증을
+            진행해주세요.
           </div>
         </div>
       )}

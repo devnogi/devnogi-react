@@ -1,0 +1,7 @@
+interface:
+  display_name: "DevNogi UI Finish QA"
+  short_description: "Check theme parity, responsive QA, and lint"
+  default_prompt: "Use $devnogi-frontend-qa-finish to review a DevNogi frontend change for theme parity, responsive behavior, and final lint checks."
+
+policy:
+  allow_implicit_invocation: true

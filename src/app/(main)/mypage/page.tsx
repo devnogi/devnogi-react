@@ -18,6 +18,7 @@ import {
   Gamepad2,
   Swords,
   BadgeCheck,
+  Shuffle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -31,6 +32,7 @@ import clsx from "clsx";
 import NotificationList from "@/components/page/mypage/NotificationList";
 import VerificationTab from "@/components/page/mypage/VerificationTab";
 import PostList from "@/components/page/community/PostList";
+import { useVerificationInfo } from "@/hooks/useUserVerification";
 import { useUnreadNoticeCount } from "@/hooks/useNotices";
 
 // TODO: 실제 API 연동 시 교체
@@ -83,7 +85,13 @@ export default function MyPage() {
 }
 
 function MyPageContent() {
-  const { user: authUser, isAuthenticated, isLoading, logout, refreshUser } = useAuth();
+  const {
+    user: authUser,
+    isAuthenticated,
+    isLoading,
+    logout,
+    refreshUser,
+  } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "profile";
@@ -93,9 +101,17 @@ function MyPageContent() {
 
   const userId = authUser?.userId;
   const unreadCount = useUnreadNoticeCount(userId);
+  const { data: verificationInfo } = useVerificationInfo(!!userId);
 
   // authUser가 있으면 authUser 사용, 없으면 mockData 사용 (개발 편의상)
   const user: ExtendedUser = authUser || mockUserData;
+  const profileUser: ExtendedUser = {
+    ...user,
+    verified: verificationInfo?.verified ?? user.verified,
+    serverName: verificationInfo?.serverName ?? user.serverName ?? null,
+    characterName:
+      verificationInfo?.characterName ?? user.characterName ?? null,
+  };
 
   useEffect(() => {
     // 로딩이 끝나고 인증되지 않은 경우 로그인 모달 표시
@@ -207,7 +223,7 @@ function MyPageContent() {
                   "flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 sm:px-4 rounded-2xl font-medium transition-all duration-200",
                   isActive
                     ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-700"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-700",
                 )}
               >
                 <div className="relative">
@@ -218,14 +234,16 @@ function MyPageContent() {
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] sm:text-sm leading-none whitespace-nowrap">{tab.label}</span>
+                <span className="text-[11px] sm:text-sm leading-none whitespace-nowrap">
+                  {tab.label}
+                </span>
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <span
                     className={clsx(
                       "hidden sm:flex min-w-[20px] h-5 px-1.5 items-center justify-center text-xs font-semibold rounded-full",
                       isActive
                         ? "bg-red-500 text-white"
-                        : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                        : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
                     )}
                   >
                     {tab.badge > 99 ? "99+" : tab.badge}
@@ -273,14 +291,16 @@ function MyPageContent() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-1.5">
-                    {authUser?.nickname || user.nickname}
-                    {user.verified === true && <VerifiedBadge size="md" />}
+                    {profileUser.nickname}
+                    {profileUser.verified === true && (
+                      <VerifiedBadge size="md" />
+                    )}
                   </h1>
-                  {getStatusBadge(user.status || "ACTIVE")}
+                  {getStatusBadge(profileUser.status || "ACTIVE")}
                 </div>
                 <p className="text-gray-600 flex items-center gap-2 mb-4">
                   <Mail className="w-4 h-4" />
-                  {authUser?.email || user.email}
+                  {profileUser.email}
                 </p>
                 <div className="flex gap-2 sm:gap-3">
                   <Button
@@ -312,35 +332,39 @@ function MyPageContent() {
               <InfoRow
                 icon={<User className="w-5 h-5 text-gray-400" />}
                 label="회원 ID"
-                value={`#${authUser?.userId || user.id}`}
+                value={`#${profileUser.userId || profileUser.id}`}
               />
               <InfoRow
                 icon={<Shield className="w-5 h-5 text-gray-400" />}
                 label="권한"
-                value={(user.role || "USER") === "USER" ? "일반 회원" : "관리자"}
+                value={
+                  (profileUser.role || "USER") === "USER"
+                    ? "일반 회원"
+                    : "관리자"
+                }
               />
               <InfoRow
                 icon={<Gamepad2 className="w-5 h-5 text-gray-400" />}
                 label="서버명"
-                value={(authUser?.serverName || user.serverName) || "미설정"}
+                value={profileUser.serverName || "미설정"}
               />
               <InfoRow
                 icon={<Swords className="w-5 h-5 text-gray-400" />}
                 label="캐릭터명"
-                value={(authUser?.characterName || user.characterName) || "미설정"}
+                value={profileUser.characterName || "미설정"}
               />
-              {user.createdAt && (
+              {profileUser.createdAt && (
                 <InfoRow
                   icon={<Calendar className="w-5 h-5 text-gray-400" />}
                   label="가입일"
-                  value={formatDate(user.createdAt)}
+                  value={formatDate(profileUser.createdAt)}
                 />
               )}
-              {user.lastLoginAt && (
+              {profileUser.lastLoginAt && (
                 <InfoRow
                   icon={<Clock className="w-5 h-5 text-gray-400" />}
                   label="마지막 로그인"
-                  value={formatDate(user.lastLoginAt)}
+                  value={formatDate(profileUser.lastLoginAt)}
                 />
               )}
               {user.updatedAt && (
@@ -391,7 +415,7 @@ function MyPageContent() {
           {/* Edit Profile Modal */}
           {isEditModalOpen && (
             <EditProfileModal
-              user={user}
+              user={profileUser}
               onClose={() => setIsEditModalOpen(false)}
               onSuccess={async () => {
                 await refreshUser();
@@ -482,15 +506,16 @@ function EditProfileModal({
   onClose,
   onSuccess,
 }: {
-  user: typeof mockUserData;
+  user: ExtendedUser;
   onClose: () => void;
   onSuccess: () => void;
 }) {
   const [nickname, setNickname] = useState(user.nickname);
-  const [serverName, setServerName] = useState(user.serverName || "");
-  const [characterName, setCharacterName] = useState(user.characterName || "");
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(user.profileImageUrl);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    user.profileImageUrl,
+  );
+  const [isGeneratingNickname, setIsGeneratingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isVerified = user.verified === true;
@@ -526,9 +551,41 @@ function EditProfileModal({
 
   const handleRemoveImage = () => {
     setProfileImage(null);
-    setPreviewUrl(null);
+    setPreviewUrl(user.profileImageUrl);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const handleGenerateNickname = async () => {
+    setIsGeneratingNickname(true);
+
+    try {
+      const response = await clientAxios.get<{
+        success: boolean;
+        data: string;
+      }>("/auth/random-nickname");
+
+      if (response.data.success && response.data.data) {
+        setNickname(response.data.data);
+        toast.success("랜덤 닉네임을 불러왔습니다.");
+      } else {
+        toast.error("랜덤 닉네임을 불러오지 못했습니다.");
+      }
+    } catch (error: unknown) {
+      const axiosError = error as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+      };
+      toast.error(
+        axiosError.response?.data?.message ||
+          "랜덤 닉네임을 불러오지 못했습니다.",
+      );
+    } finally {
+      setIsGeneratingNickname(false);
     }
   };
 
@@ -540,11 +597,14 @@ function EditProfileModal({
 
     // 변경사항이 없는 경우
     const nicknameChanged = nickname.trim() !== user.nickname;
-    const imageChanged = profileImage !== null || (previewUrl === null && user.profileImageUrl !== null);
-    const serverNameChanged = serverName.trim() !== (user.serverName || "");
-    const characterNameChanged = characterName.trim() !== (user.characterName || "");
+    const imageChanged = profileImage !== null;
 
-    if (!nicknameChanged && !imageChanged && !serverNameChanged && !characterNameChanged) {
+    if (isVerified && nicknameChanged) {
+      toast.warning("인증된 계정은 닉네임을 직접 변경할 수 없습니다.");
+      return;
+    }
+
+    if (!nicknameChanged && !imageChanged) {
       toast.info("변경된 내용이 없습니다.");
       onClose();
       return;
@@ -554,12 +614,6 @@ function EditProfileModal({
     try {
       const formData = new FormData();
       formData.append("nickname", nickname.trim());
-
-      // 인증되지 않은 사용자만 서버명/캐릭터명 수정 가능
-      if (!isVerified) {
-        formData.append("serverName", serverName.trim());
-        formData.append("characterName", characterName.trim());
-      }
 
       // 프로필 이미지가 선택된 경우에만 추가
       if (profileImage) {
@@ -587,7 +641,8 @@ function EditProfileModal({
         };
       }
       const axiosError = error as AxiosErrorResponse;
-      const errorMessage = axiosError.response?.data?.message || "프로필 수정에 실패했습니다.";
+      const errorMessage =
+        axiosError.response?.data?.message || "프로필 수정에 실패했습니다.";
 
       if (axiosError.response?.status === 401) {
         toast.error("로그인이 필요합니다. 다시 로그인해주세요.");
@@ -604,9 +659,7 @@ function EditProfileModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 md:p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          프로필 수정
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">프로필 수정</h2>
 
         <div className="space-y-5 mb-8">
           {/* Profile Image */}
@@ -676,17 +729,50 @@ function EditProfileModal({
 
           {/* Nickname */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              닉네임
-            </label>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <label className="block text-sm font-semibold text-gray-700">
+                닉네임
+              </label>
+              {!isVerified && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateNickname}
+                  disabled={isSubmitting || isGeneratingNickname}
+                  className="shrink-0"
+                >
+                  {isGeneratingNickname ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Shuffle className="w-4 h-4 mr-2" />
+                  )}
+                  랜덤 닉네임
+                </Button>
+              )}
+            </div>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="닉네임을 입력하세요"
-              disabled={isSubmitting}
+              className={clsx(
+                "w-full h-12 px-4 border rounded-xl",
+                isVerified
+                  ? "border-gray-200 bg-gray-50 text-gray-500"
+                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              )}
+              placeholder={
+                isVerified
+                  ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다"
+                  : "직접 입력하거나 랜덤 닉네임을 생성하세요"
+              }
+              disabled={isSubmitting || isVerified}
             />
+            <p className="text-xs text-gray-500 mt-2">
+              {isVerified
+                ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다. 닉네임을 바꾸려면 인증 정보를 다시 갱신해야 합니다."
+                : "닉네임 변경은 서버가 허용하는 랜덤 닉네임 조합 형식을 따라야 합니다."}
+            </p>
           </div>
 
           {/* Email (읽기 전용) */}
@@ -700,7 +786,9 @@ function EditProfileModal({
               className="w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-50 text-gray-500"
               disabled
             />
-            <p className="text-xs text-gray-500 mt-1">이메일은 변경할 수 없습니다.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              이메일은 변경할 수 없습니다.
+            </p>
           </div>
 
           {/* 서버명 */}
@@ -710,15 +798,10 @@ function EditProfileModal({
             </label>
             <input
               type="text"
-              value={isVerified ? (user.serverName || "") : serverName}
-              onChange={(e) => setServerName(e.target.value)}
-              className={`w-full h-12 px-4 border rounded-xl ${
-                isVerified
-                  ? "border-gray-200 bg-gray-50 text-gray-500"
-                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              }`}
-              placeholder="서버명을 입력하세요"
-              disabled={isSubmitting || isVerified}
+              value={user.serverName || ""}
+              className="w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-50 text-gray-500"
+              placeholder="인게임 인증 후 자동 반영됩니다"
+              disabled
             />
           </div>
 
@@ -729,23 +812,17 @@ function EditProfileModal({
             </label>
             <input
               type="text"
-              value={isVerified ? (user.characterName || "") : characterName}
-              onChange={(e) => setCharacterName(e.target.value)}
-              className={`w-full h-12 px-4 border rounded-xl ${
-                isVerified
-                  ? "border-gray-200 bg-gray-50 text-gray-500"
-                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              }`}
-              placeholder="캐릭터명을 입력하세요"
-              disabled={isSubmitting || isVerified}
+              value={user.characterName || ""}
+              className="w-full h-12 px-4 border border-gray-200 rounded-xl bg-gray-50 text-gray-500"
+              placeholder="인게임 인증 후 자동 반영됩니다"
+              disabled
             />
           </div>
 
-          {isVerified && (
-            <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-              인증된 사용자는 재인증을 통해서만 서버명과 캐릭터명을 수정할 수 있습니다.
-            </p>
-          )}
+          <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+            서버명과 캐릭터명은 인게임 인증 결과로만 동기화됩니다. 프로필
+            화면에서는 직접 수정할 수 없습니다.
+          </p>
         </div>
 
         <div className="flex gap-3">
@@ -814,9 +891,7 @@ function WithdrawModal({
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
             <AlertTriangle className="w-6 h-6 text-red-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            회원 탈퇴
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">회원 탈퇴</h2>
         </div>
 
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
@@ -832,7 +907,9 @@ function WithdrawModal({
 
         <div className="mb-6">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
-            확인을 위해 <span className="text-red-600">&quot;탈퇴합니다&quot;</span>를 입력해주세요
+            확인을 위해{" "}
+            <span className="text-red-600">&quot;탈퇴합니다&quot;</span>를
+            입력해주세요
           </label>
           <input
             type="text"

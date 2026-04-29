@@ -11,12 +11,13 @@ interface VerificationTabProps {
 }
 
 export default function VerificationTab({ userId }: VerificationTabProps) {
-  const { data: info, isLoading: isInfoLoading } = useVerificationInfo(!!userId);
+  const { data: info, isLoading: isInfoLoading } =
+    useVerificationInfo(!!userId);
 
   return (
     <div className="space-y-4">
       <VerificationStatusCard info={info} isLoading={isInfoLoading} />
-      <VerificationTokenCard />
+      <VerificationTokenCard info={info} />
       <VerificationInstructions />
       <VerificationHistoryList enabled={!!userId} />
     </div>

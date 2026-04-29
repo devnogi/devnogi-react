@@ -7,21 +7,27 @@ import { NextRequest, NextResponse } from "next/server";
 const logger = createLogger("API/user/verification/history");
 
 export async function GET(request: NextRequest) {
-  logger.info("========== GET /api/user/verification/history 요청 시작 ==========");
+  logger.info(
+    "========== GET /api/user/verification/history 요청 시작 ==========",
+  );
 
   try {
     const { searchParams } = new URL(request.url);
-    const sort = searchParams.get("sort") || "desc";
+    const rawSort = searchParams.get("sort");
+    const sort =
+      rawSort === "oldest" || rawSort === "asc" ? "oldest" : "latest";
     const limit = searchParams.get("limit") || "10";
 
     const axios = createAuthServerAxios(request);
     const { data, status } = await axios.get(
       `${USER_VERIFICATION_ENDPOINT}/history`,
-      { params: { sort, limit } }
+      { params: { sort, limit } },
     );
 
     logger.info(`Gateway 응답: status=${status}`, data);
-    logger.info("========== GET /api/user/verification/history 요청 완료 ==========");
+    logger.info(
+      "========== GET /api/user/verification/history 요청 완료 ==========",
+    );
 
     return NextResponse.json(data, { status });
   } catch (error: unknown) {
@@ -30,7 +36,9 @@ export async function GET(request: NextRequest) {
     if ((error as AxiosError).isAxiosError) {
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status ?? 500;
-      const payload = axiosError.response?.data ?? { message: axiosError.message };
+      const payload = axiosError.response?.data ?? {
+        message: axiosError.message,
+      };
 
       logger.error(`Axios 에러: status=${status}`, payload);
       return NextResponse.json(payload, { status });

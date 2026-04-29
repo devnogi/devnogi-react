@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import {
   useVerificationToken,
   useIssueVerificationToken,
@@ -19,8 +20,29 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import clsx from "clsx";
+import { UserVerificationInfoResponse } from "@/types/verification";
 
-export default function VerificationTokenCard() {
+interface VerificationTokenCardProps {
+  info?: UserVerificationInfoResponse | null;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (axios.isAxiosError(error)) {
+    const message = (error.response?.data as { message?: string } | undefined)
+      ?.message;
+    return message || error.message || fallback;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
+export default function VerificationTokenCard({
+  info,
+}: VerificationTokenCardProps) {
   const { refreshUser } = useAuth();
   const {
     data: token,
@@ -32,12 +54,22 @@ export default function VerificationTokenCard() {
 
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState<number>(0);
+  const cooldownUntil = info?.lastVerifiedAt
+    ? new Date(
+        new Date(info.lastVerifiedAt).getTime() + 7 * 24 * 60 * 60 * 1000,
+      )
+    : null;
+  const isCooldownActive =
+    cooldownUntil !== null && cooldownUntil.getTime() > Date.now();
 
   // Sync countdown with token's expiresInSeconds
   useEffect(() => {
     if (token && token.tokenStatus === "ACTIVE" && token.expiresInSeconds > 0) {
       setCountdown(token.expiresInSeconds);
+      return;
     }
+
+    setCountdown(0);
   }, [token]);
 
   // Countdown timer
@@ -82,8 +114,8 @@ export default function VerificationTokenCard() {
     try {
       await issueToken.mutateAsync();
       toast.success("인증 코드가 발급되었습니다.");
-    } catch {
-      toast.error("인증 코드 발급에 실패했습니다.");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "인증 코드 발급에 실패했습니다."));
     }
   }, [issueToken]);
 
@@ -91,8 +123,8 @@ export default function VerificationTokenCard() {
     try {
       await reissueToken.mutateAsync();
       toast.success("인증 코드가 재발급되었습니다.");
-    } catch {
-      toast.error("인증 코드 재발급에 실패했습니다.");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "인증 코드 재발급에 실패했습니다."));
     }
   }, [reissueToken]);
 
@@ -129,21 +161,35 @@ export default function VerificationTokenCard() {
       {/* No token or no active token */}
       {(!token || !status) && (
         <div className="text-center py-6">
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
-            인증 코드를 발급하여 캐릭터 인증을 시작하세요.
-          </p>
-          <Button
-            onClick={handleIssue}
-            disabled={issueToken.isPending}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl h-11 px-6"
-          >
-            {issueToken.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <KeyRound className="w-4 h-4 mr-2" />
-            )}
-            인증 시작
-          </Button>
+          {isCooldownActive ? (
+            <>
+              <p className="text-gray-700 dark:text-gray-200 mb-1 font-medium">
+                최근 인증 이력이 있어 아직 새 코드를 발급할 수 없습니다.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                다음 발급 가능 시각:{" "}
+                {formatDateTime(cooldownUntil.toISOString())}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                인증 코드를 발급하여 캐릭터 인증을 시작하세요.
+              </p>
+              <Button
+                onClick={handleIssue}
+                disabled={issueToken.isPending}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl h-11 px-6"
+              >
+                {issueToken.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <KeyRound className="w-4 h-4 mr-2" />
+                )}
+                {info?.verificationCount ? "재인증 시작" : "인증 시작"}
+              </Button>
+            </>
+          )}
         </div>
       )}
 
@@ -172,7 +218,8 @@ export default function VerificationTokenCard() {
                 size="icon"
                 className={clsx(
                   "rounded-xl flex-shrink-0 transition-colors",
-                  copied && "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700"
+                  copied &&
+                    "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700",
                 )}
                 title="복사"
               >
@@ -219,6 +266,12 @@ export default function VerificationTokenCard() {
           <p className="text-sm text-gray-500 dark:text-gray-400">
             캐릭터 인증이 성공적으로 처리되었습니다.
           </p>
+          {cooldownUntil && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              새 인증 코드는 {formatDateTime(cooldownUntil.toISOString())}{" "}
+              이후에 다시 발급할 수 있습니다.
+            </p>
+          )}
         </div>
       )}
 
@@ -249,4 +302,15 @@ export default function VerificationTokenCard() {
       )}
     </div>
   );
+}
+
+function formatDateTime(dateString: string) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }

@@ -1,0 +1,7 @@
+interface:
+  display_name: "DevNogi UX Planner"
+  short_description: "Plan screen structure, states, and responsive flow"
+  default_prompt: "Use $devnogi-uiux-planning to plan a DevNogi screen, component states, and implementation scope before coding."
+
+policy:
+  allow_implicit_invocation: true
