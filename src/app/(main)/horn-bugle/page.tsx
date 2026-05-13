@@ -34,7 +34,9 @@ function HornBugleContent() {
     [data]
   );
 
-  const totalElements = data?.pages[0]?.meta.totalElements ?? 0;
+  const itemCountLabel = hasNextPage
+    ? `현재 ${allItems.length}개의 메시지 표시 중`
+    : `총 ${allItems.length}개의 메시지`;
 
   // 무한 스크롤
   useEffect(() => {
@@ -79,9 +81,9 @@ function HornBugleContent() {
         </div>
 
         {/* 결과 카운트 */}
-        {totalElements > 0 && (
+        {allItems.length > 0 && (
           <div className="mb-4 text-sm text-gray-500">
-            총 <span className="font-semibold">{totalElements}</span>개의 메시지
+            {itemCountLabel}
           </div>
         )}
 
