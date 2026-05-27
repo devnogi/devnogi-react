@@ -118,9 +118,6 @@ function addClientLoggingInterceptors(instance: AxiosInstance): void {
 export const clientAxios: AxiosInstance = axios.create({
   baseURL: "/api",
   timeout: 5000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // 401 자동 갱신 인터셉터

@@ -202,7 +202,6 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
     baseURL: gatewayUrl,
     timeout: 5000,
     headers: {
-      "Content-Type": "application/json",
       Authorization: authorization,
       Cookie: cookieHeader ?? "",
     },
@@ -266,7 +265,6 @@ export function createAuthServerAxios(request: NextRequest): AxiosInstance {
     baseURL: gatewayUrl,
     timeout: 5000,
     headers: {
-      "Content-Type": "application/json",
       Authorization: authorization,
       Cookie: cookieHeader ?? "",
     },
@@ -293,8 +291,5 @@ export function createPublicAuthServerAxios(): AxiosInstance {
   return axios.create({
     baseURL: gatewayUrl,
     timeout: 5000,
-    headers: {
-      "Content-Type": "application/json",
-    },
   });
 }

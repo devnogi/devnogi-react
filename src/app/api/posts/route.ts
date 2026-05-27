@@ -35,11 +35,7 @@ export async function POST(request: NextRequest) {
     // DCS API: POST /api/posts (게시글 생성)
     logger.debug(`Forwarding to: ${POSTS_ENDPOINT}`);
 
-    const { data, status } = await axios.post(POSTS_ENDPOINT, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const { data, status } = await axios.post(POSTS_ENDPOINT, formData);
 
     const duration = Date.now() - startTime;
     logger.info(`POST /posts - 성공 (${status}) [${duration}ms]`);

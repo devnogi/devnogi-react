@@ -10,11 +10,7 @@ export async function POST(request: NextRequest) {
     // 로컬 게이트웨이(localhost:8099)를 통해 /das/**로 라우팅됩니다
     // multipart/form-data로 전송
     const serverAxios = createPublicAuthServerAxios();
-    const response = await serverAxios.post(`${AUTH_ENDPOINT}/signup`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await serverAxios.post(`${AUTH_ENDPOINT}/signup`, formData);
 
     const nextResponse = NextResponse.json(response.data);
 

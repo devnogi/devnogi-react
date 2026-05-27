@@ -29,11 +29,7 @@ export async function PUT(request: NextRequest) {
     // DAS API: PUT /api/user/info (사용자 정보 수정)
     logger.info(`Gateway 요청: PUT ${USER_ENDPOINT}/info`);
 
-    const { data, status } = await axios.put(`${USER_ENDPOINT}/info`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const { data, status } = await axios.put(`${USER_ENDPOINT}/info`, formData);
 
     logger.info(`Gateway 응답: status=${status}`, data);
     logger.info("========== PUT /api/user/info 요청 완료 ==========");

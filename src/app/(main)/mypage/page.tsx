@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginModal from "@/components/auth/LoginModal";
 import { clientAxios } from "@/lib/api/clients";
@@ -271,12 +270,12 @@ function MyPageContent() {
               <div className="relative group">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                   {authUser?.profileImageUrl || user.profileImageUrl ? (
-                    <Image
+                    <img
                       src={authUser?.profileImageUrl || user.profileImageUrl!}
                       alt="Profile"
-                      width={96}
-                      height={96}
-                      className="object-cover"
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
                     />
                   ) : (
                     (authUser?.nickname || user.nickname)[0]
@@ -620,11 +619,7 @@ function EditProfileModal({
         formData.append("file", profileImage);
       }
 
-      await clientAxios.put("/user/info", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await clientAxios.put("/user/info", formData);
 
       toast.success("프로필이 수정되었습니다.");
       onSuccess();
@@ -673,12 +668,12 @@ function EditProfileModal({
                 className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
               >
                 {previewUrl ? (
-                  <Image
+                  <img
                     src={previewUrl}
                     alt="Profile Preview"
-                    width={80}
-                    height={80}
                     className="object-cover w-full h-full"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   nickname[0] || "?"

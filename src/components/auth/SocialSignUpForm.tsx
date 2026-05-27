@@ -148,11 +148,7 @@ export default function SocialSignUpForm({
       const response = await clientAxios.post<{
         success: boolean;
         data: { id: number };
-      }>("/auth/signup/social", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      }>("/auth/signup/social", formData);
 
       if (response.data.success) {
         onSuccess(response.data.data.id);

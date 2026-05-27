@@ -15,7 +15,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { clientAxios } from "@/lib/api/clients";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -165,11 +164,7 @@ export default function PostCreateModal({
         formData.append("files", image.file);
       });
 
-      await clientAxios.post("/posts", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await clientAxios.post("/posts", formData);
 
       toast.success("게시글이 작성되었습니다.");
       resetForm();
@@ -417,11 +412,10 @@ export default function PostCreateModal({
                             transition={{ duration: 0.2 }}
                             className="relative group aspect-square"
                           >
-                            <Image
+                            <img
                               src={image.url}
                               alt="Preview"
-                              fill
-                              className="object-cover rounded-xl"
+                              className="h-full w-full object-cover rounded-xl"
                             />
                             <button
                               onClick={() => handleRemoveImage(image.id)}

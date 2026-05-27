@@ -147,6 +147,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
 
   const displayName = post.username?.trim() || `사용자 ${post.userId}`;
   const avatarText = displayName.slice(0, 1).toUpperCase();
+  const imageUrls = post.imageUrlList?.filter(Boolean) ?? [];
 
   const handleLike = async () => {
     if (!isAuthenticated) {
@@ -428,6 +429,35 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 {post.title}
               </h1>
               <MarkdownRenderer content={post.content} className="text-gray-700 dark:text-gray-200" />
+              {imageUrls.length > 0 && (
+                <div
+                  className={`mt-5 grid gap-3 ${
+                    imageUrls.length === 1
+                      ? "grid-cols-1"
+                      : imageUrls.length === 2
+                        ? "grid-cols-2"
+                        : "grid-cols-2 md:grid-cols-3"
+                  }`}
+                >
+                  {imageUrls.map((imageUrl, index) => (
+                    <a
+                      key={`${imageUrl}-${index}`}
+                      href={imageUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="relative block aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-navy-600 dark:bg-navy-800"
+                    >
+                      <img
+                        src={imageUrl}
+                        alt={`게시글 이미지 ${index + 1}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
               {!!post.tags?.length && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {post.tags.map((tag) => (

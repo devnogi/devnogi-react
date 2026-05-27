@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   type ReadonlyURLSearchParams,
   usePathname,
@@ -828,13 +827,12 @@ export default function ThreeTierNav() {
                   aria-label="마이페이지"
                 >
                   {user?.profileImageUrl ? (
-                    <Image
+                    <img
                       src={user.profileImageUrl}
                       alt="프로필"
-                      width={24}
-                      height={24}
                       className="w-6 h-6 rounded-full object-cover"
-                      unoptimized
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
                     />
                   ) : (
                     <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />
@@ -921,13 +919,12 @@ export default function ThreeTierNav() {
                   aria-label="마이페이지"
                 >
                   {user?.profileImageUrl ? (
-                    <Image
+                    <img
                       src={user.profileImageUrl}
                       alt="프로필"
-                      width={20}
-                      height={20}
                       className="w-5 h-5 rounded-full object-cover"
-                      unoptimized
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
                     />
                   ) : (
                     <User className="w-5 h-5 text-gray-700 dark:text-gray-200" />

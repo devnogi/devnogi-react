@@ -9,11 +9,7 @@ export async function POST(request: NextRequest) {
 
     // Auth Server로 소셜 회원가입 요청
     const serverAxios = createPublicAuthServerAxios();
-    const response = await serverAxios.post(`${AUTH_ENDPOINT}/signup/social`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await serverAxios.post(`${AUTH_ENDPOINT}/signup/social`, formData);
 
     const nextResponse = NextResponse.json(response.data);
 
