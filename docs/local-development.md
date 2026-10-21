@@ -11,6 +11,18 @@ npm run verify
 
 ## Docker 개발 서버
 
+### 이메일 로그인
+
+auth와 gateway가 먼저 실행되어야 합니다. 공동 루트의 로컬 인프라로 `auth` 스키마를 준비하고 auth의 정상 가입 API로 합성 계정을 만든 뒤 `/sign-in`에서 이메일과 비밀번호로 로그인합니다. 계정 lock을 수동으로 넣지 않습니다. 이 흐름은 운영 자격 증명이나 실제 OAuth 제공자 호출을 사용하지 않습니다.
+
+auth와 웹에 같은 쿠키 설정을 사용하세요. 로컬 HTTP는 `JWT_COOKIE_DOMAIN=`(Domain 생략), `JWT_COOKIE_SECURE=false`, `JWT_COOKIE_SAME_SITE=Lax`입니다. 환경 변수를 생략하면 기존 운영 기본값 `.memonogi.com`, `true`, `None`을 사용합니다. 실제 `.env.local`은 추적하거나 덮어쓰지 않습니다.
+
+계약 원본은 auth 저장소의 `contracts/openapi.yaml`입니다. BFF `/api/auth/login`, `/api/auth/me`, `/api/auth/refresh`, `/api/auth/logout`은 각각 gateway의 `/das/api/auth/login`, `/das/api/user/info`, `/das/api/auth/refresh`, `/das/api/auth/logout`으로 연결됩니다. 이메일 로그인 body는 `{email,password}`이며 사용자 DTO는 그대로 전달합니다. BFF는 upstream 4xx/5xx를 유지하고 예상하지 않은 redirect나 HTML은 502로 처리합니다.
+
+refresh는 `refresh_token` 쿠키만 전달합니다. 만료한 access 쿠키와 Bearer를 다시 보내 gateway에서 차단되지 않도록 합니다. 정상 logout은 access 인증을 전달해 서버 refresh 폐기를 요청하고 삭제 쿠키를 전달합니다. 서버 실패 시에는 같은 scope의 브라우저 쿠키만 지우며, 실패 상태를 200으로 바꾸거나 서버 폐기를 보장하지 않습니다.
+
+회귀 테스트는 `src/app/(auth)/sign-in/page.test.tsx`(실제 AuthContext 연결), `src/app/api/auth/auth-routes.test.ts`(HTTP/쿠키 계약), `src/lib/api/server.test.ts`(credential 전달 경계)에서 실행합니다. 실제 브라우저 검증은 `API_MOCKING=disabled`로 로그인 → 사용자 조회 → 새로고침 → refresh → logout 순서로 확인합니다.
+
 1. Docker Desktop/Linux 엔진과 로컬 게이트웨이(호스트 포트 8090)를 준비합니다.
 2. 기존 `.env.local`이 있으면 내용을 확인하고 보존하세요. 새 환경에서는 `.env.example`을 `.env.local`로 복사합니다. 샘플의 `GATEWAY_URL`은 Docker에서 호스트의 로컬 게이트웨이를 가리킵니다.
 3. 다음 명령은 이 저장소 폴더에서 실행합니다.

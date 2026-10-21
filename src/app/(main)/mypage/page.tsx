@@ -125,7 +125,11 @@ function MyPageContent() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await logout();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "서버 로그아웃을 확인할 수 없습니다.");
+    }
   };
 
   const handleTabChange = (tab: string) => {
@@ -428,7 +432,7 @@ function MyPageContent() {
             <WithdrawModal
               onClose={() => setIsWithdrawModalOpen(false)}
               onSuccess={async () => {
-                await logout();
+                await handleLogout();
                 router.push("/");
               }}
             />

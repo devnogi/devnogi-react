@@ -5,7 +5,6 @@ import { selectServerGatewayUrl } from "./gateway-selector";
 import { createLogger, maskAuthHeader, maskJwt } from "@/lib/logger";
 
 const serverLogger = createLogger("ServerAxios");
-const authLogger = createLogger("AuthServerAxios");
 
 /**
  * Cookie 문자열에서 특정 쿠키 값을 추출하는 헬퍼 함수
@@ -219,60 +218,33 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
  * Cookie의 access_token을 추출하여 Authorization 헤더로 변환합니다.
  * (Gateway는 Authorization: Bearer <token> 형식으로 JWT를 검증함)
  */
-export function createAuthServerAxios(request: NextRequest): AxiosInstance {
+export function createAuthServerAxios(
+  request: NextRequest,
+  credentials: "access" | "refresh" | "none" = "access"
+): AxiosInstance {
   initMockServer();
 
-  const gatewayUrl = selectServerGatewayUrl();
+  const headers: Record<string, string> = {};
   const cookieHeader = request.headers.get("cookie");
-
-  // Cookie에서 access_token 추출하여 Authorization 헤더로 변환
-  const accessToken = extractCookieValue(cookieHeader, "access_token");
-  const authHeader = request.headers.get("authorization");
-  const authorization = authHeader || (accessToken ? `Bearer ${accessToken}` : "");
-
-  // 쿠키 파싱 및 로깅
-  const parsedCookies = parseCookies(cookieHeader);
-  const maskedCookies = maskCookiesForLogging(parsedCookies);
-
-  // 디버그 로그: 인증 정보 상태 (인증 필수 API이므로 INFO 레벨)
-  authLogger.info("========== Creating AuthServerAxios instance (Auth Required) ==========");
-  authLogger.info(`Gateway URL: ${gatewayUrl}`);
-  authLogger.info(`Request URL: ${request.url}`);
-  authLogger.info(`Request Method: ${request.method}`);
-  authLogger.info(`--- Cookie Information ---`);
-  authLogger.info(`Cookie header present: ${!!cookieHeader}`);
-  authLogger.info(`Cookie count: ${Object.keys(parsedCookies).length}`);
-  authLogger.info(`Cookie names: ${Object.keys(parsedCookies).join(", ") || "(none)"}`);
-  authLogger.debug(`All cookies (masked):`, maskedCookies);
-  authLogger.info(`--- Authentication Information ---`);
-  authLogger.info(`Access token from cookie: ${accessToken ? "EXISTS" : "MISSING"}`);
-  authLogger.debug(`Access token value: ${maskJwt(accessToken)}`);
-  authLogger.info(`Auth header from request: ${authHeader ? "EXISTS" : "MISSING"}`);
-  authLogger.debug(`Auth header value: ${maskAuthHeader(authHeader)}`);
-  authLogger.info(`Final Authorization: ${authorization ? "SET" : "EMPTY"}`);
-  authLogger.debug(`Final Authorization value: ${maskAuthHeader(authorization)}`);
-  authLogger.info("=======================================================================");
-
-  // 인증이 필요한 API인데 토큰이 없는 경우 경고
-  if (!authorization) {
-    authLogger.warn("⚠️ AuthServerAxios created WITHOUT authorization token!");
-    authLogger.warn("⚠️ This request will likely fail with 401 Unauthorized");
-    authLogger.warn(`⚠️ Cookie header: ${cookieHeader ? `(${cookieHeader.length} chars)` : "(empty)"}`);
-    authLogger.warn(`⚠️ Cookie names present: ${Object.keys(parsedCookies).join(", ") || "(none)"}`);
+  if (credentials === "access") {
+    const accessToken = extractCookieValue(cookieHeader, "access_token");
+    const authorization = request.headers.get("authorization") ||
+      (accessToken ? `Bearer ${accessToken}` : "");
+    if (authorization) headers.Authorization = authorization;
+    if (cookieHeader) headers.Cookie = cookieHeader;
+  } else if (credentials === "refresh") {
+    // 만료 access 토큰을 gateway에 보내면 auth의 refresh 검증 전에 차단된다.
+    const refreshToken = extractCookieValue(cookieHeader, "refresh_token");
+    if (refreshToken) headers.Cookie = `refresh_token=${refreshToken}`;
   }
 
-  const instance = axios.create({
-    baseURL: gatewayUrl,
+  // 인증 body, 쿠키, AxiosError를 로깅하는 공용 interceptor를 붙이지 않는다.
+  return axios.create({
+    baseURL: selectServerGatewayUrl(),
     timeout: 5000,
-    headers: {
-      Authorization: authorization,
-      Cookie: cookieHeader ?? "",
-    },
+    maxRedirects: 0,
+    headers,
   });
-
-  addLoggingInterceptors(instance, authLogger);
-
-  return instance;
 }
 
 /**
