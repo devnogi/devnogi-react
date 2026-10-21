@@ -74,8 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
       }
-    } catch (error) {
-      console.error("인증 확인 실패:", error);
+    } catch {
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -87,37 +86,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     rememberMe?: boolean,
   ) => {
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ email, password, rememberMe }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "로그인에 실패했습니다");
-      }
-
-      const data = await response.json();
-      setUser(data.data);
-    } catch (error) {
-      console.error("로그인 실패:", error);
-      throw error;
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email, password, rememberMe }),
+    }).catch(() => {
+      throw new Error("인증 서버에 연결할 수 없습니다. 다시 시도해주세요.");
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data?.success || !data?.data) {
+      throw new Error(typeof data?.message === "string" ? data.message : "로그인에 실패했습니다. 다시 시도해주세요.");
     }
+    setUser(data.data);
   };
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", {
+      const response = await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
+      const data = await response.json().catch(() => null);
+      if (!response.ok || data?.success !== true) {
+        throw new Error("서버 로그아웃을 확인할 수 없습니다.");
+      }
+    } catch {
+      throw new Error("서버 로그아웃을 확인할 수 없습니다. 로컬 로그인 상태만 해제했습니다.");
     } finally {
       setUser(null);
     }

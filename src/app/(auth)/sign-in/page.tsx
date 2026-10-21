@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -31,21 +31,8 @@ import { useConfig } from "@/contexts/ConfigContext";
 import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
-  // TODO: validation 조건 확인
-  id: z
-    .string()
-    .min(2, { message: "아이디는 2자 이상 입력해주세요" })
-    .max(20, { message: "아이디는 20자 이하로 입력해주세요" })
-    .regex(/^[a-zA-Z0-9_]+$/, {
-      message: "아이디는 영문, 숫자, 언더스코어(_)만 사용 가능합니다",
-    }),
-  password: z
-    .string()
-    .min(6, { message: "비밀번호는 6자 이상 입력해주세요" })
-    .max(50, { message: "비밀번호는 50자 이하로 입력해주세요" })
-    .regex(/^(?=.*[a-zA-Z])(?=.*\d)/, {
-      message: "비밀번호는 영문과 숫자를 포함해야 합니다",
-    }),
+  email: z.string().email({ message: "올바른 이메일 주소를 입력해주세요" }),
+  password: z.string().min(1, { message: "비밀번호를 입력해주세요" }),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -89,9 +76,11 @@ const NaverIcon = () => (
 export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const submitting = useRef(false);
   const router = useRouter();
   const { config, isLoading: isConfigLoading } = useConfig();
-  const { refreshUser } = useAuth();
+  const { login, refreshUser } = useAuth();
 
   // 소셜 로그인 성공 메시지 핸들러
   const handleSocialLoginMessage = useCallback(
@@ -125,42 +114,51 @@ export default function Page() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      id: "",
+      email: "",
       password: "",
     },
     mode: "onChange",
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    if (submitting.current) return;
+    submitting.current = true;
     setIsLoading(true);
+    setLoginError(null);
+    let succeeded = false;
 
     try {
-      // TODO: 실제 로그인 로직 구현
-      console.warn("로그인 시도:", data);
-
-      // 로그인중...
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await login(data.email, data.password);
 
       const referrer = document.referrer;
       let returnUrl = "/";
 
       if (referrer && referrer !== window.location.href) {
         try {
-          // 상대 URL도 처리
-          returnUrl = new URL(referrer, window.location.href).pathname;
+          const previous = new URL(referrer);
+          if (
+            previous.origin === window.location.origin &&
+            previous.pathname.startsWith("/") &&
+            !previous.pathname.startsWith("//") &&
+            previous.pathname !== "/sign-in"
+          ) {
+            returnUrl = previous.pathname + previous.search + previous.hash;
+          }
         } catch {
           // 파싱 실패 시 안전 기본값
           returnUrl = "/";
         }
       }
 
-      window.history.replaceState(null, "", returnUrl);
+      succeeded = true;
       router.push(returnUrl);
     } catch (error) {
-      console.error("로그인 실패:", error);
-      // TODO: 에러 처리
+      setLoginError(error instanceof Error ? error.message : "로그인에 실패했습니다. 다시 시도해주세요.");
     } finally {
-      setIsLoading(false);
+      if (!succeeded) {
+        submitting.current = false;
+        setIsLoading(false);
+      }
     }
   };
 
@@ -233,22 +231,31 @@ export default function Page() {
 
               <Form {...form}>
                 <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={(event) => {
+                    if (submitting.current) {
+                      event.preventDefault();
+                      return;
+                    }
+                    void form.handleSubmit(onSubmit)(event);
+                  }}
                   className="space-y-4"
                 >
                   <FormField
                     control={form.control}
-                    name="id"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-sm font-semibold text-cream-800">
-                          아이디
+                          이메일
                         </FormLabel>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
                           <FormControl>
                             <Input
-                              placeholder="아이디를 입력하세요"
+                              type="email"
+                              autoComplete="username"
+                              disabled={isLoading}
+                              placeholder="이메일을 입력하세요"
                               className="h-12 rounded-xl border-cream-300 pl-11 focus:border-clover-500 focus:ring-clover-500/20"
                               {...field}
                             />
@@ -272,6 +279,8 @@ export default function Page() {
                           <FormControl>
                             <Input
                               type={showPassword ? "text" : "password"}
+                              autoComplete="current-password"
+                              disabled={isLoading}
                               placeholder="비밀번호를 입력하세요"
                               className="h-12 rounded-xl border-cream-300 pl-11 pr-11 focus:border-clover-500 focus:ring-clover-500/20"
                               {...field}
@@ -298,6 +307,10 @@ export default function Page() {
                       </FormItem>
                     )}
                   />
+
+                  {loginError && (
+                    <p role="alert" className="text-sm text-red-600">{loginError}</p>
+                  )}
 
                   <Button
                     type="submit"
