@@ -12,6 +12,7 @@ const config: Config = {
   testEnvironment: "jest-fixed-jsdom",
   // Add more setup options before each test is run
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  modulePathIgnorePatterns: ["<rootDir>/.next/"],
   // 상대 경로 매핑
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

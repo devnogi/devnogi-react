@@ -6,6 +6,17 @@ const createMockProps = () => ({
   onSelect: jest.fn(),
   expandedIds: new Set<string>(),
   onToggleExpand: jest.fn(),
+  categories: [
+    {
+      id: "all",
+      name: "전체",
+      children: [
+        { id: "melee", name: "근거리 장비" },
+        { id: "ranged", name: "원거리 장비" },
+        { id: "magic", name: "마법 장비" },
+      ],
+    },
+  ],
 });
 
 describe("AuctionCategory", () => {
@@ -14,10 +25,11 @@ describe("AuctionCategory", () => {
 
     render(<AuctionCategory {...props} />);
 
-    // 초기 상태: "전체" 카테고리에 "전체", "+"가 있어야 함
-    const expandButton = screen.getByText("+");
+    // 접힌 카테고리의 화살표를 눌러 확장한다.
+    const expandButton = screen.getByText("▼");
     const categoryItem = screen.getByText("전체");
     expect(expandButton).toBeInTheDocument();
+    expect(expandButton).toHaveClass("-rotate-90");
     expect(categoryItem).toBeInTheDocument();
 
     // "+" 클릭 시 확장만 일어남
@@ -39,14 +51,15 @@ describe("AuctionCategory", () => {
     props.selectedId = "all";
     render(<AuctionCategory {...props} />);
 
-    // 초기 상태: 자식 카테고리와 "전체", "-"가 있어야 함
-    const collapseButton = screen.getByText("-");
+    // 펼쳐진 카테고리의 화살표를 눌러 접는다.
+    const collapseButton = screen.getByText("▼");
     const categoryItem = screen.getByText("전체");
 
     expect(screen.getByText("근거리 장비")).toBeInTheDocument();
     expect(screen.getByText("원거리 장비")).toBeInTheDocument();
     expect(screen.getByText("마법 장비")).toBeInTheDocument();
     expect(collapseButton).toBeInTheDocument();
+    expect(collapseButton).toHaveClass("rotate-0");
     expect(categoryItem).toBeInTheDocument();
 
     // "-" 클릭 시 접기만 일어남
@@ -75,6 +88,6 @@ describe("AuctionCategory", () => {
 
     // 선택된 카테고리가 시각적으로 구분되는지 확인
     const parentSpan = selectedItem.parentElement;
-    expect(parentSpan).toHaveClass("bg-gray-200", "font-semibold");
+    expect(parentSpan).toHaveClass("bg-clover-50", "font-semibold");
   });
 });

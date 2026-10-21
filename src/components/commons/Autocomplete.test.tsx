@@ -8,46 +8,16 @@ const mockItems: ItemInfo[] = [
     name: "나뭇가지",
     topCategory: "무기",
     subCategory: "한손검",
-    description: "흔한 나뭇가지이다.",
-    inventoryWidth: 1,
-    inventoryHeight: 2,
-    inventoryMaxBundleCount: 100,
-    history: null,
-    acquisitionMethod: null,
-    storeSalesPrice: null,
-    weaponType: null,
-    repair: null,
-    maxAlterationCount: null,
   },
   {
     name: "나무 방패",
     topCategory: "방어 장비",
     subCategory: "방패",
-    description: "나무로 만든 방패",
-    inventoryWidth: 2,
-    inventoryHeight: 2,
-    inventoryMaxBundleCount: 1,
-    history: null,
-    acquisitionMethod: null,
-    storeSalesPrice: null,
-    weaponType: null,
-    repair: null,
-    maxAlterationCount: null,
   },
   {
     name: "검",
     topCategory: "무기",
     subCategory: "검",
-    description: "기본 검",
-    inventoryWidth: 1,
-    inventoryHeight: 3,
-    inventoryMaxBundleCount: 1,
-    history: null,
-    acquisitionMethod: null,
-    storeSalesPrice: null,
-    weaponType: null,
-    repair: null,
-    maxAlterationCount: null,
   },
 ];
 
@@ -85,7 +55,7 @@ describe("Autocomplete", () => {
     );
 
     const firstItem = screen.getByText("나무 방패");
-    fireEvent.click(firstItem);
+    fireEvent.mouseDown(firstItem);
 
     await waitFor(() => {
       expect(mockOnSelect).toHaveBeenCalledWith(mockItems[1]);
@@ -131,16 +101,6 @@ describe("Autocomplete", () => {
       name: `아이템${i}`,
       topCategory: "무기",
       subCategory: "검",
-      description: null,
-      inventoryWidth: 1,
-      inventoryHeight: 1,
-      inventoryMaxBundleCount: 1,
-      history: null,
-      acquisitionMethod: null,
-      storeSalesPrice: null,
-      weaponType: null,
-      repair: null,
-      maxAlterationCount: null,
     }));
 
     render(

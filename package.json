@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm test -- --ci --maxWorkers=2 && npm run build"
+  },
+  "engines": {
+    "node": "20.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

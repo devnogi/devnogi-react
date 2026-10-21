@@ -2,6 +2,17 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import FilterableListLayout from "./FilterableListLayout";
 import { useState } from "react";
 
+jest.mock("@/hooks/useItemCategories", () => {
+  const categories = [
+    {
+      id: "all",
+      name: "전체",
+      children: [{ id: "melee", name: "근거리 장비" }],
+    },
+  ];
+  return { useItemCategories: () => ({ data: categories, isLoading: false }) };
+});
+
 // Mock localStorage
 const localStorageMock = {
   getItem: jest.fn(),
@@ -67,7 +78,7 @@ function ComponentWrapper({
 
 describe("FilterableListLayout", () => {
   beforeEach(() => {
-    localStorageMock.getItem.mockClear();
+    localStorageMock.getItem.mockReset();
     localStorageMock.setItem.mockClear();
   });
 
