@@ -2,9 +2,11 @@
 
 마비노기 정보 커뮤니티를 위한 Next.js 15 기반 프론트엔드 애플리케이션입니다. MSA(Microservices Architecture)와 BFF(Backend for Frontend) 패턴을 적용하여 효율적인 서비스 간 통신을 구현합니다.
 
+로컬 설치·Docker 실행·표준 검증은 [개발 환경 안내](docs/local-development.md)를 먼저 확인하세요. 표준 명령은 `npm ci` 다음 `npm run verify`이며, PR 검증과 운영 배포는 분리되어 있습니다.
+
 ## 기술 스택
 
-- **런타임**: Node.js v22
+- **런타임**: Node.js v20 (`.nvmrc`, Docker, CI 기준)
 - **프레임워크**: [Next.js](https://nextjs.org) v15.3.3 (App Router)
 - **언어**: TypeScript v5
 - **UI 라이브러리**: React v19

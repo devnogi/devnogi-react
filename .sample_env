@@ -8,7 +8,7 @@ VERCEL_ENV=development
 API_MOCKING=enabled
 
 # === Gateway Configuration ===
-GATEWAY_URL=http://168.107.43.221:8080
+GATEWAY_URL=http://localhost:8090
 
 # === Logging Configuration ===
 # DEBUG: 모든 로그 (디버깅용 - JWT, 요청 URL, 응답 데이터 등 상세 정보)

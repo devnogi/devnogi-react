@@ -2,6 +2,10 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import AuctionSearch from "./Search";
 import { ItemCategory } from "@/data/item-category";
 
+jest.mock("@/hooks/useItemInfos", () => ({
+  useItemInfos: () => ({ data: [], isLoading: false }),
+}));
+
 const createMockPath = (): ItemCategory[] => [
   { id: "all", name: "전체" },
   { id: "melee", name: "근거리 장비" },
@@ -14,7 +18,12 @@ describe("AuctionSearch", () => {
     const mockOnCategorySelect = jest.fn();
 
     render(
-      <AuctionSearch path={mockPath} onCategorySelect={mockOnCategorySelect} />,
+      <AuctionSearch
+        path={mockPath}
+        onCategorySelect={mockOnCategorySelect}
+        itemName=""
+        setItemName={jest.fn()}
+      />,
     );
 
     const categoryBadge = screen.getByText("근거리 장비");

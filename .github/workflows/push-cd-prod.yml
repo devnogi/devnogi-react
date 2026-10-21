@@ -1,9 +1,7 @@
-name: CI/CD for Production Server
+name: Manual Production Deployment
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]  # Only main branch
 
 permissions:
   contents: read
@@ -11,6 +9,8 @@ permissions:
 jobs:
   ci-cd-prod:
     name: Test, Build, and Deploy to Production Server
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    environment: production
     runs-on: ubuntu-latest
 
     steps:
@@ -29,12 +29,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linter
-        run: npm run lint
-
-      - name: Run tests
-        run: npm test -- --ci --coverage --maxWorkers=2
-        continue-on-error: true
+      - name: Verify
+        run: npm run verify
+        env:
+          GATEWAY_URL: http://127.0.0.1:8090
+          API_MOCKING: disabled
+          VERCEL_ENV: development
+          NEXT_TELEMETRY_DISABLED: '1'
 
       # ========================================
       # CD Stage: Build & Push Docker Image

@@ -7,11 +7,32 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushSpy }),
 }));
 
+jest.mock("@/contexts/ConfigContext", () => ({
+  useConfig: () => ({
+    config: {
+      gatewayUrl: "http://localhost:8090",
+      socialAuthBaseUrl: "http://localhost:8090",
+      environment: "test",
+    },
+    isLoading: false,
+    error: null,
+  }),
+}));
+
+jest.mock("@/contexts/AuthContext", () => {
+  const refreshUser = jest.fn().mockResolvedValue(undefined);
+  return { useAuth: () => ({ refreshUser }) };
+});
+
 describe("LoginPage", () => {
   let replaceStateSpy: jest.SpyInstance;
 
   beforeEach(() => {
     pushSpy.mockClear();
+    Object.defineProperty(document, "referrer", {
+      configurable: true,
+      value: "",
+    });
 
     replaceStateSpy = jest
       .spyOn(window.history, "replaceState")
@@ -150,10 +171,14 @@ describe("LoginPage", () => {
     fireEvent.change(passwordInput, { target: { value: "password123" } });
 
     const submitButton = screen.getByRole("button", { name: "로그인" });
+    await waitFor(() => expect(submitButton).toBeEnabled());
     fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(screen.getByText("로그인 중...")).toBeInTheDocument();
+    });
+    await waitFor(() => expect(pushSpy).toHaveBeenCalledWith("/"), {
+      timeout: 2000,
     });
   });
 
@@ -167,12 +192,16 @@ describe("LoginPage", () => {
     fireEvent.change(passwordInput, { target: { value: "password123" } });
 
     const submitButton = screen.getByRole("button", { name: "로그인" });
+    await waitFor(() => expect(submitButton).toBeEnabled());
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(pushSpy).toHaveBeenCalledWith("/");
-      expect(replaceStateSpy).toHaveBeenCalledWith(null, "", "/");
-    });
+    await waitFor(
+      () => {
+        expect(pushSpy).toHaveBeenCalledWith("/");
+        expect(replaceStateSpy).toHaveBeenCalledWith(null, "", "/");
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("로그인 성공 후 이전 페이지 이동 테스트", async () => {
@@ -192,11 +221,15 @@ describe("LoginPage", () => {
     fireEvent.change(passwordInput, { target: { value: "password123" } });
 
     const submitButton = screen.getByRole("button", { name: "로그인" });
+    await waitFor(() => expect(submitButton).toBeEnabled());
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(pushSpy).toHaveBeenCalledWith("/auction");
-      expect(replaceStateSpy).toHaveBeenCalledWith(null, "", "/auction");
-    });
+    await waitFor(
+      () => {
+        expect(pushSpy).toHaveBeenCalledWith("/auction");
+        expect(replaceStateSpy).toHaveBeenCalledWith(null, "", "/auction");
+      },
+      { timeout: 2000 },
+    );
   });
 });
