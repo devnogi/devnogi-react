@@ -517,7 +517,7 @@ function EditProfileModal({
 }) {
   const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate(false);
   const nickname = candidate?.nickname ?? user.nickname;
-  const [nicknameConflict, setNicknameConflict] = useState(false);
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     user.profileImageUrl,
@@ -564,7 +564,7 @@ function EditProfileModal({
   };
 
   const handleGenerateNickname = () => {
-    setNicknameConflict(false);
+    setNicknameSubmissionError(null);
     void refreshNickname();
   };
 
@@ -584,7 +584,7 @@ function EditProfileModal({
     }
 
     if (nicknameChanged && (nicknameStatus !== "ready" || !candidate ||
-        nicknameConflict || Date.parse(candidate.expiresAt) <= Date.now())) {
+        nicknameSubmissionError || Date.parse(candidate.expiresAt) <= Date.now())) {
       toast.warning("닉네임을 다시 발급받아주세요.");
       return;
     }
@@ -629,11 +629,11 @@ function EditProfileModal({
         axiosError.response?.data?.message || "프로필 수정에 실패했습니다.";
 
       if (axiosError.response?.status === 409 && nicknameChanged) {
-        setNicknameConflict(true);
+        setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
         toast.error("닉네임이 중복되었습니다. 다시 뽑아주세요.");
       } else if (nicknameChanged && axiosError.response?.status === 400 &&
           ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(axiosError.response.data?.code ?? "")) {
-        setNicknameConflict(true);
+        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
         toast.error("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
       } else if (axiosError.response?.status === 401) {
         toast.error("로그인이 필요합니다. 다시 로그인해주세요.");
@@ -765,8 +765,8 @@ function EditProfileModal({
             <p id="profile-nickname-status" role="status" aria-live="polite" className="text-xs text-gray-500 mt-2">
               {isVerified
                 ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다. 닉네임을 바꾸려면 인증 정보를 다시 갱신해야 합니다."
-                : nicknameConflict ? "이미 사용 중인 닉네임입니다. 다시 뽑아주세요." :
-                  nicknameError ?? (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." :
+                : nicknameSubmissionError ?? nicknameError ??
+                  (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." :
                     "기존 닉네임은 변경 전까지 유지됩니다. 인증 전에는 다시 뽑기로 생성한 이름만 사용할 수 있습니다.")}
             </p>
           </div>
@@ -833,7 +833,7 @@ function EditProfileModal({
           <Button
             onClick={handleSave}
             className="flex-1 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl"
-            disabled={isSubmitting || !nickname.trim() || nicknameStatus === "loading" || nicknameConflict}
+            disabled={isSubmitting || !nickname.trim() || nicknameStatus === "loading" || !!nicknameSubmissionError}
           >
             {isSubmitting ? (
               <>

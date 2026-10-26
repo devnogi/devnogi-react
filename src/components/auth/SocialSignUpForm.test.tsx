@@ -59,5 +59,20 @@ it("만료된 티켓 거절 뒤에는 다시 뽑기 전 재제출을 막는다",
   await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
   await waitFor(() => expect(onError).toHaveBeenCalledWith(expect.stringContaining("다시 뽑아주세요")));
+  expect(onError).toHaveBeenCalledWith(expect.stringContaining("페이지를 새로고침"));
   expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
+});
+
+it("소셜 가입의 기타 4xx도 서버 메시지와 최신 화면 갱신 방법을 보여준다", async () => {
+  jest.mocked(clientAxios.post).mockRejectedValue({
+    response: { status: 422, data: { code: "OLD_FORM", message: "가입 양식을 갱신해주세요." } },
+  });
+  const onError = jest.fn();
+  render(<SocialSignUpForm provider="google" providerUserId="synthetic-user"
+    onSuccess={jest.fn()} onError={onError} onCancel={jest.fn()} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
+  await waitFor(() => expect(onError).toHaveBeenCalledWith(
+    expect.stringContaining("가입 양식을 갱신해주세요.")));
+  expect(onError).toHaveBeenCalledWith(expect.stringContaining("페이지를 새로고침"));
 });

@@ -38,6 +38,7 @@ const socialSignUpSchema = z.object({
 });
 
 type SocialSignUpFormData = z.infer<typeof socialSignUpSchema>;
+const refreshSignupHint = "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
 
 interface SocialSignUpFormProps {
   provider: SocialProvider;
@@ -58,7 +59,7 @@ export default function SocialSignUpForm({
 }: SocialSignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [nicknameConflict, setNicknameConflict] = useState(false);
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
   const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
 
   const form = useForm<SocialSignUpFormData>({
@@ -74,7 +75,7 @@ export default function SocialSignUpForm({
   }, [candidate, form]);
 
   const rerollNickname = () => {
-    setNicknameConflict(false);
+    setNicknameSubmissionError(null);
     void refreshNickname();
   };
 
@@ -97,7 +98,7 @@ export default function SocialSignUpForm({
 
   const onSubmit = async (data: SocialSignUpFormData) => {
     if (nicknameStatus !== "ready" || !candidate ||
-        data.nickname !== candidate.nickname || nicknameConflict ||
+        data.nickname !== candidate.nickname || nicknameSubmissionError ||
         Date.parse(candidate.expiresAt) <= Date.now()) {
       onError("닉네임을 다시 발급받아주세요.");
       return;
@@ -128,16 +129,20 @@ export default function SocialSignUpForm({
         throw new Error("회원가입에 실패했습니다");
       }
     } catch (error) {
-      const response = (error as { response?: { status?: number; data?: { code?: string } } }).response;
+      const response = (error as { response?: { status?: number; data?: { code?: string; message?: string } } }).response;
       const status = response?.status;
       if (status === 409) {
-        setNicknameConflict(true);
-        onError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+        setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+        onError(`닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`);
         return;
       }
       if (status === 400 && ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(response?.data?.code ?? "")) {
-        setNicknameConflict(true);
-        onError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+        onError(`${response?.data?.message || "닉네임 사용 시간이 지났거나 유효하지 않습니다."} 다시 뽑아주세요. ${refreshSignupHint}`);
+        return;
+      }
+      if (status && status >= 400 && status < 500) {
+        onError(`${response?.data?.message || "회원가입에 실패했습니다."} ${refreshSignupHint}`);
         return;
       }
       const errorMessage =
@@ -269,8 +274,8 @@ export default function SocialSignUpForm({
                   </Button>
                 </div>
                 <FormDescription id="social-nickname-status" role="status" aria-live="polite">
-                  {nicknameConflict ? "이미 사용 중인 닉네임입니다. 다시 뽑아주세요." :
-                    nicknameError ?? (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
+                  {nicknameSubmissionError ?? nicknameError ??
+                    (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -293,7 +298,7 @@ export default function SocialSignUpForm({
               disabled={
                 isLoading ||
                 nicknameStatus !== "ready" ||
-                !candidate || nicknameConflict
+                !candidate || !!nicknameSubmissionError
               }
               className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200"
             >

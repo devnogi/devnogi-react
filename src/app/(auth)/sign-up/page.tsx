@@ -67,6 +67,7 @@ const signUpSchema = z
   });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
+const refreshSignupHint = "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -76,7 +77,7 @@ export default function SignUpPage() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [termsContent, setTermsContent] = useState("");
   const [emailCheckStatus, setEmailCheckStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
-  const [nicknameConflict, setNicknameConflict] = useState(false);
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
   const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
@@ -103,7 +104,7 @@ export default function SignUpPage() {
   }, [candidate, form]);
 
   const rerollNickname = () => {
-    setNicknameConflict(false);
+    setNicknameSubmissionError(null);
     void refreshNickname();
   };
 
@@ -175,7 +176,7 @@ export default function SignUpPage() {
     }
 
     if (nicknameStatus !== "ready" || !candidate ||
-        data.nickname !== candidate.nickname || nicknameConflict ||
+        data.nickname !== candidate.nickname || nicknameSubmissionError ||
         Date.parse(candidate.expiresAt) <= Date.now()) {
       alert("닉네임을 다시 발급받아주세요");
       return;
@@ -202,22 +203,23 @@ export default function SignUpPage() {
       const result = await response.json();
 
       if (response.status === 409) {
-        setNicknameConflict(true);
-        throw new Error("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+        setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+        throw new Error(`닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`);
       }
       if (response.status === 400 &&
           ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(result.code)) {
-        setNicknameConflict(true);
-        throw new Error("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+        throw new Error(`${result.message || "닉네임 사용 시간이 지났거나 유효하지 않습니다."} 다시 뽑아주세요. ${refreshSignupHint}`);
       }
       if (!response.ok) {
-        throw new Error(result.message || "회원가입에 실패했습니다");
+        const message = result.message || "회원가입에 실패했습니다";
+        throw new Error(response.status >= 400 && response.status < 500
+          ? `${message} ${refreshSignupHint}` : message);
       }
 
       alert("회원가입이 완료되었습니다!");
       router.push("/sign-in");
     } catch (error) {
-      console.error("회원가입 실패:", error);
       alert(error instanceof Error ? error.message : "회원가입에 실패했습니다");
     } finally {
       setIsLoading(false);
@@ -525,8 +527,8 @@ export default function SignUpPage() {
                         </Button>
                       </div>
                       <FormDescription id="signup-nickname-status" role="status" aria-live="polite" className="text-xs text-cream-500 mt-2">
-                        {nicknameConflict ? "이미 사용 중인 닉네임입니다. 다시 뽑아주세요." :
-                          nicknameError ?? (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
+                        {nicknameSubmissionError ?? nicknameError ??
+                          (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -638,10 +640,10 @@ export default function SignUpPage() {
                       <div className="border-t border-cream-200 bg-white p-5 sm:p-6">
                         <Button
                           type="submit"
-                          disabled={isLoading || !form.formState.isValid || nicknameStatus !== "ready" || !candidate || nicknameConflict}
+                          disabled={isLoading || !form.formState.isValid || nicknameStatus !== "ready" || !candidate || !!nicknameSubmissionError}
                           className={clsx(
                             "h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
-                            (!form.formState.isValid || isLoading || nicknameStatus !== "ready" || nicknameConflict) && "opacity-50",
+                            (!form.formState.isValid || isLoading || nicknameStatus !== "ready" || nicknameSubmissionError) && "opacity-50",
                           )}
                         >
                           {isLoading ? (
