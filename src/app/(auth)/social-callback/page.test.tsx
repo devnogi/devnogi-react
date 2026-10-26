@@ -99,7 +99,26 @@ it("무효 코드 실패 화면은 개인정보나 코드를 표시하지 않는
   expect(screen.queryByText(/private@example.test|synthetic-code/)).not.toBeInTheDocument();
 });
 
-it("팝업 소셜 가입 실패는 서버 오류 원문을 부모에게 보내지 않는다", async () => {
+it("팝업의 이전 Auth 교환 4xx는 창을 유지하고 안전한 새로고침 안내를 표시한다", async () => {
+  const postMessage = jest.fn();
+  const close = jest.spyOn(window, "close").mockImplementation(() => {});
+  Object.defineProperty(window, "opener", { configurable: true, value: { postMessage } });
+  window.history.replaceState({}, "", "/social-callback?code=synthetic-code");
+  jest.mocked(clientAxios.post).mockRejectedValue({
+    response: { status: 400, data: { message: "private@example.test synthetic-proof" } },
+  });
+  try {
+    render(<SocialCallbackPage />);
+    expect(await screen.findByText(/페이지를 새로고침하고 다시 시도해주세요/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/private@example.test|synthetic-proof|synthetic-code/);
+    expect(postMessage).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+  } finally {
+    close.mockRestore();
+  }
+});
+
+it("팝업 소셜 가입 실패는 새로고침 안내를 표시하고 민감한 오류를 전송하지 않는다", async () => {
   const postMessage = jest.fn();
   const close = jest.spyOn(window, "close").mockImplementation(() => {});
   Object.defineProperty(window, "opener", { configurable: true, value: { postMessage } });
@@ -113,9 +132,11 @@ it("팝업 소셜 가입 실패는 서버 오류 원문을 부모에게 보내�
     await screen.findByTestId("social-form");
     const onError = jest.mocked(SocialSignUpForm).mock.calls.at(-1)?.[0].onError;
     await act(async () => { onError?.("private@example.test synthetic-proof"); });
-    expect(postMessage).toHaveBeenCalledWith({ type: "social_signup_error" }, window.location.origin);
+    expect(screen.getByText(/페이지를 새로고침하고 다시 시도해주세요/)).toBeInTheDocument();
+    expect(screen.queryByTestId("social-form")).not.toBeInTheDocument();
+    expect(postMessage).not.toHaveBeenCalled();
     expect(JSON.stringify(postMessage.mock.calls)).not.toMatch(/private@example.test|synthetic-proof/);
-    expect(close).toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
   } finally {
     close.mockRestore();
   }

@@ -141,20 +141,9 @@ function SocialCallbackContent() {
   };
 
   const handleSignUpError = () => {
-    clearSocialLoginReturnUrl();
-
-    // 부모 창에 메시지 전송 (팝업인 경우)
-    if (window.opener) {
-      window.opener.postMessage(
-        { type: "social_signup_error" },
-        window.location.origin
-      );
-      window.close();
-    } else {
-      // 실패 UI 표시 후 메인으로 이동
-      setError("회원가입을 완료하지 못했습니다. 페이지를 새로고침하고 다시 시도해주세요.");
-      setStatus("error");
-    }
+    // 오류 원문에는 계정 정보가 포함될 수 있으므로 화면과 부모 창에 전달하지 않는다.
+    setError("회원가입을 완료하지 못했습니다. 페이지를 새로고침하고 다시 시도해주세요.");
+    setStatus("error");
   };
 
   const handleCancel = () => {

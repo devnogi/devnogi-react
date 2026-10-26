@@ -94,4 +94,17 @@ describe("일반 회원가입의 랜덤 닉네임", () => {
     expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("페이지를 새로고침"));
     expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
   });
+
+  it("이메일 중복 409는 이메일 오류로 표시하고 닉네임 재발급을 요구하지 않는다", async () => {
+    fetchMock.mockImplementation(async (input: string) => input.startsWith("/api/auth/check-email")
+      ? { ok: true, json: async () => ({ success: true, data: true }) }
+      : { ok: false, status: 409, json: async () => ({ code: "EMAIL_ALREADY_EXISTS" }) });
+    render(<SignUpPage />);
+    const submit = await fillRequiredFields();
+    await act(async () => { fireEvent.click(submit); });
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("이미 가입된 이메일"));
+    expect(window.alert).not.toHaveBeenCalledWith(expect.stringContaining("다시 뽑아주세요"));
+    expect(screen.getByRole("status")).not.toHaveTextContent("중복되었습니다");
+    expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
+  });
 });

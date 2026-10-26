@@ -64,18 +64,48 @@ it("후보가 없으면 소셜 가입을 비활성화한다", async () => {
   expect(screen.getByRole("status")).toHaveTextContent("다시 시도해주세요");
 });
 
-it("만료된 티켓 거절 뒤에는 다시 뽑기 전 재제출을 막는다", async () => {
-  jest.mocked(clientAxios.post).mockRejectedValue({
-    response: { status: 400, data: { code: "EXPIRED_NICKNAME_TICKET" } },
+it.each([
+  [400, "EXPIRED_NICKNAME_TICKET"],
+  [400, "INVALID_NICKNAME_TICKET"],
+  [409, "NICKNAME_ALREADY_EXISTS"],
+])("닉네임 오류 %s/%s 뒤 폼에서 새 후보로 재시도한다", async (status, code) => {
+  const nextCandidate = { ...candidate, nickname: "행복한 나무 D4E5F", nicknameTicket: "next-ticket" };
+  const refresh = jest.fn(async () => {
+    jest.mocked(useNicknameCandidate).mockReturnValue({
+      candidate: nextCandidate, status: "ready", error: null, refresh,
+    });
   });
+  jest.mocked(useNicknameCandidate).mockReturnValue({ candidate, status: "ready", error: null, refresh });
+  jest.mocked(clientAxios.post)
+    .mockRejectedValueOnce({ response: { status, data: { code } } })
+    .mockResolvedValueOnce({ data: { success: true, data: { id: 42 } } });
   const onError = jest.fn();
-  render(<SocialSignUpForm provider="google" providerUserId="synthetic-user"
+  const onSuccess = jest.fn();
+  const props = { provider: "google" as const, providerUserId: "synthetic-user", onSuccess, onError, onCancel: jest.fn() };
+  const { rerender } = render(<SocialSignUpForm {...props} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
+  await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled());
+  expect(screen.getByRole("status")).toHaveTextContent("다시 뽑아주세요");
+  expect(onError).not.toHaveBeenCalled();
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "다시 뽑기" })); });
+  rerender(<SocialSignUpForm {...props} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
+  await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(42));
+  expect((jest.mocked(clientAxios.post).mock.calls[1][1] as FormData).get("nicknameTicket")).toBe("next-ticket");
+});
+
+it("이메일 중복 409는 닉네임 재발급을 요구하지 않는다", async () => {
+  jest.mocked(clientAxios.post).mockRejectedValue({ response: { status: 409, data: { code: "EMAIL_ALREADY_EXISTS" } } });
+  const onError = jest.fn();
+  render(<SocialSignUpForm provider="google" signupProof="synthetic-proof"
     onSuccess={jest.fn()} onError={onError} onCancel={jest.fn()} />);
   await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
-  await waitFor(() => expect(onError).toHaveBeenCalledWith(expect.stringContaining("다시 뽑아주세요")));
-  expect(onError).toHaveBeenCalledWith(expect.stringContaining("페이지를 새로고침"));
-  expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
+  expect(await screen.findByRole("alert")).toHaveTextContent("이미 가입된 이메일");
+  expect(screen.getByRole("status")).not.toHaveTextContent("다시 뽑아주세요");
+  expect(onError).not.toHaveBeenCalled();
 });
 
 it("소셜 가입의 기타 4xx도 서버 메시지와 최신 화면 갱신 방법을 보여준다", async () => {
@@ -88,6 +118,6 @@ it("소셜 가입의 기타 4xx도 서버 메시지와 최신 화면 갱신 방�
   await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
   await waitFor(() => expect(onError).toHaveBeenCalledWith(
-    expect.stringContaining("가입 양식을 갱신해주세요.")));
+    expect.stringContaining("회원가입 요청을 처리하지 못했습니다.")));
   expect(onError).toHaveBeenCalledWith(expect.stringContaining("페이지를 새로고침"));
 });

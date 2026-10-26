@@ -202,7 +202,12 @@ export default function SignUpPage() {
 
       const result = await response.json();
 
-      if (response.status === 409) {
+      if (response.status === 409 && result.code === "EMAIL_ALREADY_EXISTS") {
+        setEmailCheckStatus("unavailable");
+        form.setError("email", { message: "이미 가입된 이메일입니다. 다른 이메일을 사용해주세요." });
+        throw new Error("이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.");
+      }
+      if (response.status === 409 && result.code === "NICKNAME_ALREADY_EXISTS") {
         setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
         throw new Error(`닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`);
       }

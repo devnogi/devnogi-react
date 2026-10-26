@@ -62,6 +62,7 @@ export default function SocialSignUpForm({
   const [isLoading, setIsLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
+  const [emailSubmissionError, setEmailSubmissionError] = useState<string | null>(null);
   const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
 
   const form = useForm<SocialSignUpFormData>({
@@ -102,7 +103,7 @@ export default function SocialSignUpForm({
     if (nicknameStatus !== "ready" || !candidate ||
         data.nickname !== candidate.nickname || nicknameSubmissionError ||
         Date.parse(candidate.expiresAt) <= Date.now()) {
-      onError("닉네임을 다시 발급받아주세요.");
+      setNicknameSubmissionError("닉네임을 다시 발급받아주세요.");
       return;
     }
 
@@ -141,18 +142,20 @@ export default function SocialSignUpForm({
     } catch (error) {
       const response = (error as { response?: { status?: number; data?: { code?: string; message?: string } } }).response;
       const status = response?.status;
-      if (status === 409) {
+      if (status === 409 && response?.data?.code === "EMAIL_ALREADY_EXISTS") {
+        setEmailSubmissionError("이미 가입된 이메일입니다. 로그인하거나 다른 계정으로 다시 시도해주세요.");
+        return;
+      }
+      if (status === 409 && response?.data?.code === "NICKNAME_ALREADY_EXISTS") {
         setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
-        onError(`닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`);
         return;
       }
       if (status === 400 && ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(response?.data?.code ?? "")) {
         setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
-        onError(`${response?.data?.message || "닉네임 사용 시간이 지났거나 유효하지 않습니다."} 다시 뽑아주세요. ${refreshSignupHint}`);
         return;
       }
       if (status && status >= 400 && status < 500) {
-        onError(`${response?.data?.message || "회원가입에 실패했습니다."} ${refreshSignupHint}`);
+        onError(`회원가입 요청을 처리하지 못했습니다. ${refreshSignupHint}`);
         return;
       }
       const errorMessage =
@@ -188,6 +191,7 @@ export default function SocialSignUpForm({
           추가 정보를 입력하여 회원가입을 완료해주세요
         </p>
         {email && <p className="text-xs text-gray-500 mt-1">이메일: {email}</p>}
+        {emailSubmissionError && <p role="alert" className="text-sm text-red-600 mt-2">{emailSubmissionError}</p>}
       </div>
 
       <Form {...form}>
@@ -308,7 +312,7 @@ export default function SocialSignUpForm({
               disabled={
                 isLoading ||
                 nicknameStatus !== "ready" ||
-                !candidate || !!nicknameSubmissionError
+                !candidate || !!nicknameSubmissionError || !!emailSubmissionError
               }
               className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200"
             >
