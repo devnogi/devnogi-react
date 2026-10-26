@@ -39,6 +39,21 @@ it("소셜 가입에서 수동 입력을 막고 발급 후보와 티켓을 함�
   await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(42));
 });
 
+it("새 OAuth 교환 뒤에는 서버 발급 가입 증명만 보내고 클라이언트 신원 필드를 보내지 않는다", async () => {
+  jest.mocked(clientAxios.post).mockResolvedValue({ data: { success: true, data: { id: 42 } } });
+  render(<SocialSignUpForm provider="google" signupProof="synthetic-proof" email="user@example.test"
+    onSuccess={jest.fn()} onError={jest.fn()} onCancel={jest.fn()} />);
+
+  await waitFor(() => expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled());
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "회원가입" })); });
+  await waitFor(() => expect(clientAxios.post).toHaveBeenCalledTimes(1));
+  const [, formData] = jest.mocked(clientAxios.post).mock.calls[0];
+  expect((formData as FormData).get("signupProof")).toBe("synthetic-proof");
+  expect((formData as FormData).get("provider")).toBeNull();
+  expect((formData as FormData).get("providerUserId")).toBeNull();
+  expect((formData as FormData).get("email")).toBeNull();
+});
+
 it("후보가 없으면 소셜 가입을 비활성화한다", async () => {
   jest.mocked(useNicknameCandidate).mockReturnValue({
     candidate: null, status: "error", error: "다시 시도해주세요", refresh: jest.fn(),

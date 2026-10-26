@@ -42,8 +42,9 @@ const refreshSignupHint = "이전 화면이 열려 있다면 페이지를 새로
 
 interface SocialSignUpFormProps {
   provider: SocialProvider;
-  providerUserId: string;
+  providerUserId?: string;
   email?: string;
+  signupProof?: string;
   onSuccess: (userId: number) => void;
   onError: (errorMessage: string) => void;
   onCancel: () => void;
@@ -53,6 +54,7 @@ export default function SocialSignUpForm({
   provider,
   providerUserId,
   email,
+  signupProof,
   onSuccess,
   onError,
   onCancel,
@@ -108,9 +110,17 @@ export default function SocialSignUpForm({
 
     try {
       const formData = new FormData();
-      formData.append("provider", provider.toUpperCase());
-      formData.append("providerUserId", providerUserId);
-      formData.append("email", email || "");
+      if (signupProof) {
+        formData.append("signupProof", signupProof);
+      } else if (providerUserId) {
+        // 구형 Auth와의 짧은 호환 기간에만 이전 계약을 사용한다.
+        formData.append("provider", provider.toUpperCase());
+        formData.append("providerUserId", providerUserId);
+        formData.append("email", email || "");
+      } else {
+        onError(`소셜 인증 정보가 만료되었습니다. ${refreshSignupHint}`);
+        return;
+      }
       formData.append("nickname", data.nickname);
       formData.append("nicknameTicket", candidate.nicknameTicket);
 

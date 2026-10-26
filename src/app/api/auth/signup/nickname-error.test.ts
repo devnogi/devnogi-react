@@ -28,3 +28,22 @@ it.each([
   });
   expect(errorLog).toHaveBeenCalledTimes(1);
 });
+
+it("소셜 가입 BFF는 결합 쿠키만 Auth에 전달한다", async () => {
+  const binding = "a".repeat(43);
+  const post = jest.fn().mockResolvedValue({ data: { success: true, data: { id: 42 } }, headers: {} });
+  createClient.mockReturnValue({ post } as unknown as ReturnType<typeof createPublicAuthServerAxios>);
+  const body = new FormData();
+  body.set("signupProof", "synthetic-proof");
+  const request = new NextRequest("http://localhost/api/auth/signup/social", {
+    method: "POST", headers: { cookie: `oauth_flow_binding=${binding}; unrelated=secret` }, body,
+  });
+
+  const response = await socialSignup(request);
+
+  expect(response.status).toBe(200);
+  expect(response.headers.get("Cache-Control")).toBe("no-store");
+  expect(post).toHaveBeenCalledWith("/das/api/auth/signup/social", expect.any(FormData), {
+    headers: { Cookie: `oauth_flow_binding=${binding}` },
+  });
+});

@@ -2,6 +2,10 @@
 import { QueryClient } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
+function isSensitiveAuthRequest(url?: string): boolean {
+  return url === "/auth/oauth/exchange" || url === "/auth/signup/social";
+}
+
 /**
  * 클라이언트 사이드 API 요청 로깅 인터셉터 추가
  * 브라우저 콘솔에서 API 요청/응답을 확인할 수 있습니다
@@ -12,6 +16,9 @@ function addClientLoggingInterceptors(instance: AxiosInstance): void {
     (config: InternalAxiosRequestConfig) => {
       const startTime = Date.now();
       (config as InternalAxiosRequestConfig & { _startTime: number })._startTime = startTime;
+
+      // 교환 코드와 가입 증명은 요청·응답·헤더 모두 콘솔에 남기지 않는다.
+      if (isSensitiveAuthRequest(config.url)) return config;
 
       const params = config.params
         ? "?" + new URLSearchParams(config.params).toString()
@@ -66,7 +73,7 @@ function addClientLoggingInterceptors(instance: AxiosInstance): void {
       return config;
     },
     (error) => {
-      console.error("%c❌ Request Error:", "color: red; font-weight: bold", error.message);
+      console.error("%c❌ Request Error", "color: red; font-weight: bold");
       return Promise.reject(error);
     }
   );
@@ -75,6 +82,7 @@ function addClientLoggingInterceptors(instance: AxiosInstance): void {
   instance.interceptors.response.use(
     (response) => {
       const config = response.config as InternalAxiosRequestConfig & { _startTime?: number };
+      if (isSensitiveAuthRequest(config.url)) return response;
       const duration = config._startTime ? Date.now() - config._startTime : 0;
 
       console.group(
@@ -91,6 +99,7 @@ function addClientLoggingInterceptors(instance: AxiosInstance): void {
     },
     (error) => {
       const config = error.config as InternalAxiosRequestConfig & { _startTime?: number };
+      if (!config || isSensitiveAuthRequest(config.url)) return Promise.reject(error);
       const duration = config?._startTime ? Date.now() - config._startTime : 0;
 
       console.group(
