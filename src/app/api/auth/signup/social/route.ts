@@ -25,15 +25,17 @@ export async function POST(request: NextRequest) {
     return nextResponse;
 
   } catch (error: unknown) {
-    console.error("소셜 회원가입 API 에러:", error);
+    // AxiosError에는 요청 FormData가 포함될 수 있으므로 티켓을 로그에 남기지 않는다.
+    console.error("소셜 회원가입 API 에러");
 
     if (error && typeof error === "object" && "response" in error) {
-      const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+      const axiosError = error as { response?: { status: number; data?: { message?: string; code?: string } } };
       if (axiosError.response) {
         return NextResponse.json(
           {
             success: false,
             message: axiosError.response.data?.message || "소셜 회원가입에 실패했습니다",
+            code: axiosError.response.data?.code,
           },
           { status: axiosError.response.status }
         );

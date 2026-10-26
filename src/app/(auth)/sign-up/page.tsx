@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,11 +27,14 @@ import {
   CheckCircle2,
   XCircle,
   Camera,
+  Shuffle,
 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import Image from "next/image";
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from "@/components/page/auth/TermsOfService";
+import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 
 const signUpSchema = z
   .object({
@@ -49,13 +52,7 @@ const signUpSchema = z
         message: "특수문자(@$!%*#?&)를 포함해야 합니다",
       }),
     passwordConfirm: z.string().min(1, { message: "비밀번호 확인은 필수입니다" }),
-    nickname: z
-      .string()
-      .min(2, { message: "닉네임은 최소 2자 이상이어야 합니다" })
-      .max(20, { message: "닉네임은 최대 20자까지 가능합니다" })
-      .regex(/^[가-힣a-zA-Z0-9]{2,20}$/, {
-        message: "한글, 영문, 숫자만 사용 가능합니다 (2-20자)",
-      }),
+    nickname: z.string().min(1, { message: "닉네임을 다시 발급받아주세요" }),
     agreeTerms: z.boolean().refine((val) => val === true, {
       message: "이용약관에 동의해주세요",
     }),
@@ -79,7 +76,8 @@ export default function SignUpPage() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [termsContent, setTermsContent] = useState("");
   const [emailCheckStatus, setEmailCheckStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
-  const [nicknameCheckStatus, setNicknameCheckStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
+  const [nicknameConflict, setNicknameConflict] = useState(false);
+  const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
   const router = useRouter();
@@ -99,6 +97,15 @@ export default function SignUpPage() {
   });
 
   const password = form.watch("password");
+
+  useEffect(() => {
+    form.setValue("nickname", candidate?.nickname ?? "", { shouldValidate: true });
+  }, [candidate, form]);
+
+  const rerollNickname = () => {
+    setNicknameConflict(false);
+    void refreshNickname();
+  };
 
   // 비밀번호 강도 검사
   const getPasswordStrength = (pwd: string) => {
@@ -142,28 +149,6 @@ export default function SignUpPage() {
     }
   };
 
-  const checkNicknameAvailability = async (nickname: string) => {
-    if (!nickname || !nickname.match(/^[가-힣a-zA-Z0-9]{2,20}$/)) {
-      setNicknameCheckStatus("idle");
-      return;
-    }
-
-    setNicknameCheckStatus("checking");
-    try {
-      const response = await fetch(`/api/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
-      const data = await response.json();
-
-      if (data.success && data.data === true) {
-        setNicknameCheckStatus("available");
-      } else {
-        setNicknameCheckStatus("unavailable");
-      }
-    } catch (error) {
-      console.error("닉네임 중복 확인 실패:", error);
-      setNicknameCheckStatus("idle");
-    }
-  };
-
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -183,14 +168,16 @@ export default function SignUpPage() {
   };
 
   const onSubmit = async (data: SignUpFormData) => {
-    // 이메일, 닉네임 중복 체크 확인
+    // 이메일 확인과 서버 발급 닉네임 증명을 확인한다.
     if (emailCheckStatus !== "available") {
       alert("이메일 중복 확인을 해주세요");
       return;
     }
 
-    if (nicknameCheckStatus !== "available") {
-      alert("닉네임 중복 확인을 해주세요");
+    if (nicknameStatus !== "ready" || !candidate ||
+        data.nickname !== candidate.nickname || nicknameConflict ||
+        Date.parse(candidate.expiresAt) <= Date.now()) {
+      alert("닉네임을 다시 발급받아주세요");
       return;
     }
 
@@ -201,6 +188,7 @@ export default function SignUpPage() {
       formData.append("email", data.email);
       formData.append("password", data.password);
       formData.append("nickname", data.nickname);
+      formData.append("nicknameTicket", candidate.nicknameTicket);
 
       if (profileImage) {
         formData.append("file", profileImage);
@@ -213,6 +201,15 @@ export default function SignUpPage() {
 
       const result = await response.json();
 
+      if (response.status === 409) {
+        setNicknameConflict(true);
+        throw new Error("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+      }
+      if (response.status === 400 &&
+          ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(result.code)) {
+        setNicknameConflict(true);
+        throw new Error("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+      }
       if (!response.ok) {
         throw new Error(result.message || "회원가입에 실패했습니다");
       }
@@ -258,8 +255,7 @@ export default function SignUpPage() {
                 </p>
               </div>
               <div className="rounded-2xl border border-white/20 bg-black/10 p-4 text-sm text-white/90">
-                가입 후 닉네임과 프로필 이미지는 마이페이지에서 언제든 변경할 수
-                있습니다.
+                인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.
                 <p className="mt-2 text-xs text-white/80">
                   메모노기는 공식 사이트가 아닌 NEXON OPEN API 기반 비공식
                   서비스입니다.
@@ -506,48 +502,31 @@ export default function SignUpPage() {
                   name="nickname"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-cream-800">
-                        닉네임 <span className="text-sunset-500">*</span>
-                      </FormLabel>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                      <div className="flex items-center gap-2">
+                        <FormLabel className="text-sm font-semibold text-cream-800">
+                          닉네임 <span className="text-sunset-500">*</span>
+                        </FormLabel>
+                        <NicknamePolicyHelp />
+                      </div>
+                      <div className="flex gap-2">
                         <FormControl>
                           <Input
-                            placeholder="커뮤니티에서 사용할 닉네임"
-                            className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                            placeholder={nicknameStatus === "loading" ? "닉네임을 발급받는 중..." : "닉네임을 발급받아주세요"}
+                            className="h-12 border-cream-300 bg-cream-50 rounded-xl"
                             {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              setNicknameCheckStatus("idle");
-                            }}
-                            onBlur={(e) => {
-                              field.onBlur();
-                              checkNicknameAvailability(e.target.value);
-                            }}
+                            readOnly
+                            aria-describedby="signup-nickname-status"
                           />
                         </FormControl>
-                        {nicknameCheckStatus !== "idle" && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
-                            {nicknameCheckStatus === "checking" && (
-                              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                            )}
-                            {nicknameCheckStatus === "available" && (
-                              <CheckCircle2 className="w-5 h-5 text-green-500" />
-                            )}
-                            {nicknameCheckStatus === "unavailable" && (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
-                          </div>
-                        )}
+                        <Button type="button" variant="outline" onClick={rerollNickname}
+                          disabled={nicknameStatus === "loading" || isLoading} className="h-12 shrink-0">
+                          {nicknameStatus === "loading" ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Shuffle className="mr-1 h-4 w-4" />}
+                          다시 뽑기
+                        </Button>
                       </div>
-                      {nicknameCheckStatus === "unavailable" && (
-                        <p className="text-sm text-red-500 mt-1">이미 사용 중인 닉네임입니다</p>
-                      )}
-                      {nicknameCheckStatus === "available" && (
-                        <p className="text-sm text-green-500 mt-1">사용 가능한 닉네임입니다</p>
-                      )}
-                      <FormDescription className="text-xs text-cream-500 mt-2">
-                        한글, 영문, 숫자만 사용 가능 (2-20자)
+                      <FormDescription id="signup-nickname-status" role="status" aria-live="polite" className="text-xs text-cream-500 mt-2">
+                        {nicknameConflict ? "이미 사용 중인 닉네임입니다. 다시 뽑아주세요." :
+                          nicknameError ?? (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -659,10 +638,10 @@ export default function SignUpPage() {
                       <div className="border-t border-cream-200 bg-white p-5 sm:p-6">
                         <Button
                           type="submit"
-                          disabled={isLoading || !form.formState.isValid}
+                          disabled={isLoading || !form.formState.isValid || nicknameStatus !== "ready" || !candidate || nicknameConflict}
                           className={clsx(
                             "h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
-                            (!form.formState.isValid || isLoading) && "opacity-50",
+                            (!form.formState.isValid || isLoading || nicknameStatus !== "ready" || nicknameConflict) && "opacity-50",
                           )}
                         >
                           {isLoading ? (

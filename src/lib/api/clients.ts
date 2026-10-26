@@ -51,7 +51,9 @@ function addClientLoggingInterceptors(instance: AxiosInstance): void {
         if (config.data instanceof FormData) {
           const formDataObj: Record<string, string | File> = {};
           config.data.forEach((value, key) => {
-            formDataObj[key] = value instanceof File ? `[File: ${value.name}]` : value;
+            formDataObj[key] = key === "nicknameTicket"
+              ? "[REDACTED]"
+              : value instanceof File ? `[File: ${value.name}]` : value;
           });
           console.log("%cBody (FormData):", "font-weight: bold", formDataObj);
         } else {
