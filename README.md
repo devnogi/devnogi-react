@@ -292,6 +292,9 @@ TypeScript 및 Jest 설정에서 모두 지원됩니다.
 이 프로젝트는 실제 배포 전까지는 단순하고 지속적인 배포를 지향하는 GitHub Flow를 따릅니다:
 
 - `main`: 항상 배포 가능한 상태를 유지하는 기본 브랜치
+- `dev`: 검증을 거쳐 빠르게 통합하는 브랜치. 운영 배포는 2026-12-31 23:59:59 KST까지 별도 승인 후 수동으로만 허용합니다.
+
+작업 PR의 대상은 변경을 통합할 `dev` 또는 `main`으로 정합니다. 두 브랜치 모두 PR 검증을 거치며, 운영 배포는 PR 병합과 별도로 승인받아 수동 실행합니다.
 
 ### 브랜치 작업 플로우
 
@@ -299,20 +302,21 @@ TypeScript 및 Jest 설정에서 모두 지원됩니다.
 
 1. 새로운 작업 시작
 ```bash
-git switch main
-git pull origin main
+target_branch=dev # main을 대상으로 할 때는 main으로 변경
+git switch "$target_branch"
+git pull origin "$target_branch"
 git switch -c 브랜치명
 # 개발 작업 수행
 git add .
 git commit -m "작업 설명"
 git push origin 브랜치명
-# PR 생성: 브랜치명 -> main
+# PR 생성: 브랜치명 -> $target_branch
 ```
 
 2. PR(Pull Request) 프로세스
    - PR 생성 시 작업 내용 상세히 설명
    - 코드 리뷰 진행
-   - 승인 후 main 브랜치에 머지
+   - 승인 후 선택한 대상 브랜치에 머지
 
 3. 머지 완료 후 포크 저장소 최신화
 
@@ -426,6 +430,8 @@ docker-compose -f docker-compose-local.yml up
 ```
 
 ### 프로덕션 배포
+
+`main`과 `dev`의 운영 배포는 GitHub Actions의 수동 workflow와 `production` 환경 승인을 사용합니다. `dev` 배포는 2026-12-31까지 허용하며, 실행한 커밋의 `dev-<SHA>` 이미지를 사용합니다. `dev` push나 PR은 운영 배포를 시작하지 않습니다.
 
 ```bash
 # 프로덕션 빌드 및 실행

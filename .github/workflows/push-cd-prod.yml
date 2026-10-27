@@ -7,13 +7,42 @@ permissions:
   contents: read
 
 jobs:
+  dev-window:
+    runs-on: ubuntu-latest
+    steps:
+      # 빠른 개선을 위한 dev 브랜치 운영 배포 허용: 2026-12-31까지 (KST)
+      - name: Check temporary dev production window
+        env:
+          DEPLOY_REF: ${{ github.ref }}
+        run: |
+          if [[ "$DEPLOY_REF" != "refs/heads/main" && "$DEPLOY_REF" != "refs/heads/dev" ]]; then
+            echo "Production deployment requires main or dev." >&2
+            exit 1
+          fi
+          if [[ "$DEPLOY_REF" == "refs/heads/dev" ]] &&
+             [[ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]]; then
+            echo "The temporary dev production window ended at 2027-01-01 00:00 KST." >&2
+            exit 1
+          fi
+
   ci-cd-prod:
     name: Test, Build, and Deploy to Production Server
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    needs: dev-window
     environment: production
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_IMAGE_TAG: ${{ github.ref == 'refs/heads/dev' && format('dev-{0}', github.sha) || 'prod' }}
 
     steps:
+      - name: Recheck temporary dev production window
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          if [[ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]]; then
+            echo "The temporary dev production window expired while awaiting approval." >&2
+            exit 1
+          fi
+
       # ========================================
       # CI Stage: Test & Lint
       # ========================================
@@ -49,7 +78,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push main Docker image
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -66,9 +96,39 @@ jobs:
             NODE_ENV=production
             NEXT_TELEMETRY_DISABLED=1
 
+      - name: Build and push immutable dev Docker image
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          cutoff="$(date -u -d '2026-12-31 15:00:00 UTC' +%s)"
+          remaining="$((cutoff - $(date -u +%s)))"
+          if (( remaining <= 0 )); then
+            echo "The temporary dev production window expired before image publication." >&2
+            exit 1
+          fi
+          timeout --signal=TERM --kill-after=1s "${remaining}s" \
+            docker buildx build \
+              --file ./Dockerfile \
+              --platform linux/amd64,linux/arm64 \
+              --tag "${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:dev-${{ github.sha }}" \
+              --build-arg NODE_ENV=production \
+              --build-arg NEXT_TELEMETRY_DISABLED=1 \
+              --push .
+          if (( $(date -u +%s) >= cutoff )); then
+            echo "The temporary dev production window expired during image publication." >&2
+            exit 1
+          fi
+
       # ========================================
       # Deploy Stage: SSH & Deploy
       # ========================================
+      - name: Recheck temporary dev window before SSH
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          if [[ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]]; then
+            echo "The temporary dev production window expired before deployment." >&2
+            exit 1
+          fi
+
       - name: Setup SSH key and config
         run: |
           set -e
@@ -106,24 +166,59 @@ jobs:
 
       - name: Create app directory on server
         run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]] &&
+             [[ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]]; then
+            echo "The temporary dev production window expired before SSH." >&2
+            exit 1
+          fi
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} "mkdir -p ~/devnogi-react"
 
       - name: Copy deployment files to server
         run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]] &&
+             [[ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]]; then
+            echo "The temporary dev production window expired before SCP." >&2
+            exit 1
+          fi
           scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/
 
       - name: Deploy to Production Server
         run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]] &&
+             [[ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]]; then
+            echo "The temporary dev production window expired before SSH." >&2
+            exit 1
+          fi
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+            set -e
+            if [ "${{ github.ref }}" = "refs/heads/dev" ] &&
+               [ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]; then
+              echo "The temporary dev production window expired before server changes." >&2
+              exit 1
+            fi
             cd ~/devnogi-react
 
             # Write .env.prod content from GitHub Secret
             echo "${{ secrets.ENV_FILE_PROD }}" > .env.prod
 
-            # Pull latest production image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod
+            # Pull the exact image before stopping the current service.
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            export DOCKER_REPO=${{ secrets.DOCKER_REPO }}
+            export DOCKER_IMAGE_TAG=${{ env.DEPLOY_IMAGE_TAG }}
+            EXPECTED_IMAGE="$DOCKER_USERNAME/$DOCKER_REPO:$DOCKER_IMAGE_TAG"
+            if ! docker compose -f docker-compose-prod.yml --env-file .env.prod config --images | grep -Fxq "$EXPECTED_IMAGE"; then
+              echo "Compose does not select the requested image." >&2
+              exit 1
+            fi
+            docker pull "$EXPECTED_IMAGE"
+            docker image inspect "$EXPECTED_IMAGE" >/dev/null
 
             # Stop and remove existing containers
+            if [ "${{ github.ref }}" = "refs/heads/dev" ] &&
+               [ "$(date -u +%s)" -ge "$(date -u -d '2026-12-31 15:00:00 UTC' +%s)" ]; then
+              echo "The temporary dev production window expired before restart." >&2
+              exit 1
+            fi
             docker compose -f docker-compose-prod.yml --env-file .env.prod down
 
             # Start new containers
@@ -213,7 +308,7 @@ jobs:
         if: success()
         run: |
           echo "✅ Production deployment successful!"
-          echo "🐳 Image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod"
+          echo "🐳 Image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ env.DEPLOY_IMAGE_TAG }}"
           echo "📦 Commit: ${{ github.sha }}"
           echo "🔗 Next.js App: http://${{ secrets.PROD_SERVER_HOST }}:3010"
           echo "⚠️  Configure your host Nginx to proxy to localhost:3010"

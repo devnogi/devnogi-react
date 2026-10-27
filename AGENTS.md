@@ -6,4 +6,4 @@
 - 승인된 기획 revision의 범위만 구현하고, 독립 리뷰에는 실제 diff와 검증 결과를 제공한다.
 - `.env.local` 등 실제 환경 파일을 추가하거나 출력하지 않는다. 샘플은 `.env.example`에 가짜 값만 둔다. 기존 추적 파일은 `.gitignore`만으로 추적 해제되지 않는다.
 - 로컬 Docker는 `docs/local-development.md`를 따른다. 운영 주소나 운영 Compose를 로컬 기본값으로 사용하지 않는다.
-- PR 검증은 `verify` 검사다. 배포 workflow는 별도 승인을 받은 사람이 `main`에서 수동 실행하며, push/PR로 배포하지 않는다.
+- PR 검증은 `verify` 검사다. 운영 배포 workflow는 별도 승인을 받은 사람이 `main`에서 수동 실행한다. 승인된 기획 v1에 따라 `dev`도 2026-12-31 23:59:59 KST까지 수동 운영 배포를 허용하며, 기한 검사를 통과해야 한다. push/PR로 배포하지 않는다.
