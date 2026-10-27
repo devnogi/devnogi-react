@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,22 +15,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Upload, X, User } from "lucide-react";
+import { Loader2, Shuffle, Upload, X, User } from "lucide-react";
 import Image from "next/image";
 import { clientAxios } from "@/lib/api/clients";
 import { SocialProvider } from "@/lib/auth/socialAuth";
+import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const socialSignUpSchema = z.object({
-  nickname: z
-    .string()
-    .min(2, { message: "닉네임은 2자 이상 입력해주세요" })
-    .max(20, { message: "닉네임은 20자 이하로 입력해주세요" })
-    .regex(/^[a-zA-Z0-9가-힣_]+$/, {
-      message: "닉네임은 한글, 영문, 숫자, 언더스코어(_)만 사용 가능합니다",
-    }),
+  nickname: z.string().min(1, { message: "닉네임을 다시 발급받아주세요" }),
   profileImage: z
     .custom<File>()
     .refine((file) => !file || file.size <= MAX_FILE_SIZE, "파일 크기는 5MB 이하여야 합니다")
@@ -42,11 +38,13 @@ const socialSignUpSchema = z.object({
 });
 
 type SocialSignUpFormData = z.infer<typeof socialSignUpSchema>;
+const refreshSignupHint = "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
 
 interface SocialSignUpFormProps {
   provider: SocialProvider;
-  providerUserId: string;
+  providerUserId?: string;
   email?: string;
+  signupProof?: string;
   onSuccess: (userId: number) => void;
   onError: (errorMessage: string) => void;
   onCancel: () => void;
@@ -56,17 +54,16 @@ export default function SocialSignUpForm({
   provider,
   providerUserId,
   email,
+  signupProof,
   onSuccess,
   onError,
   onCancel,
 }: SocialSignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [nicknameCheckStatus, setNicknameCheckStatus] = useState<{
-    checked: boolean;
-    available: boolean;
-    message: string;
-  }>({ checked: false, available: false, message: "" });
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
+  const [emailSubmissionError, setEmailSubmissionError] = useState<string | null>(null);
+  const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
 
   const form = useForm<SocialSignUpFormData>({
     resolver: zodResolver(socialSignUpSchema),
@@ -75,6 +72,15 @@ export default function SocialSignUpForm({
       profileImage: undefined,
     },
   });
+
+  useEffect(() => {
+    form.setValue("nickname", candidate?.nickname ?? "", { shouldValidate: true });
+  }, [candidate, form]);
+
+  const rerollNickname = () => {
+    setNicknameSubmissionError(null);
+    void refreshNickname();
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,42 +99,11 @@ export default function SocialSignUpForm({
     setPreviewUrl(null);
   };
 
-  const checkNicknameAvailability = async () => {
-    const nickname = form.getValues("nickname");
-    if (!nickname || nickname.length < 2) {
-      return;
-    }
-
-    try {
-      const response = await clientAxios.get<{
-        success: boolean;
-        data: boolean;
-        message?: string;
-      }>(`/auth/check-nickname?nickname=${encodeURIComponent(nickname)}`);
-
-      if (response.data.success) {
-        setNicknameCheckStatus({
-          checked: true,
-          available: response.data.data,
-          message: response.data.data
-            ? "사용 가능한 닉네임입니다"
-            : "이미 사용 중인 닉네임입니다",
-        });
-      }
-    } catch (error) {
-      console.error("닉네임 중복 확인 실패:", error);
-      setNicknameCheckStatus({
-        checked: true,
-        available: false,
-        message: "닉네임 확인에 실패했습니다",
-      });
-    }
-  };
-
   const onSubmit = async (data: SocialSignUpFormData) => {
-    // 닉네임 중복 체크 확인
-    if (!nicknameCheckStatus.checked || !nicknameCheckStatus.available) {
-      alert("닉네임 중복 확인을 먼저 해주세요");
+    if (nicknameStatus !== "ready" || !candidate ||
+        data.nickname !== candidate.nickname || nicknameSubmissionError ||
+        Date.parse(candidate.expiresAt) <= Date.now()) {
+      setNicknameSubmissionError("닉네임을 다시 발급받아주세요.");
       return;
     }
 
@@ -136,10 +111,19 @@ export default function SocialSignUpForm({
 
     try {
       const formData = new FormData();
-      formData.append("provider", provider.toUpperCase());
-      formData.append("providerUserId", providerUserId);
-      formData.append("email", email || "");
+      if (signupProof) {
+        formData.append("signupProof", signupProof);
+      } else if (providerUserId) {
+        // 구형 Auth와의 짧은 호환 기간에만 이전 계약을 사용한다.
+        formData.append("provider", provider.toUpperCase());
+        formData.append("providerUserId", providerUserId);
+        formData.append("email", email || "");
+      } else {
+        onError(`소셜 인증 정보가 만료되었습니다. ${refreshSignupHint}`);
+        return;
+      }
       formData.append("nickname", data.nickname);
+      formData.append("nicknameTicket", candidate.nicknameTicket);
 
       if (data.profileImage) {
         formData.append("file", data.profileImage);
@@ -156,7 +140,24 @@ export default function SocialSignUpForm({
         throw new Error("회원가입에 실패했습니다");
       }
     } catch (error) {
-      console.error("소셜 회원가입 실패:", error);
+      const response = (error as { response?: { status?: number; data?: { code?: string; message?: string } } }).response;
+      const status = response?.status;
+      if (status === 409 && response?.data?.code === "EMAIL_ALREADY_EXISTS") {
+        setEmailSubmissionError("이미 가입된 이메일입니다. 로그인하거나 다른 계정으로 다시 시도해주세요.");
+        return;
+      }
+      if (status === 409 && response?.data?.code === "NICKNAME_ALREADY_EXISTS") {
+        setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+        return;
+      }
+      if (status === 400 && ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(response?.data?.code ?? "")) {
+        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+        return;
+      }
+      if (status && status >= 400 && status < 500) {
+        onError(`회원가입 요청을 처리하지 못했습니다. ${refreshSignupHint}`);
+        return;
+      }
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -190,6 +191,7 @@ export default function SocialSignUpForm({
           추가 정보를 입력하여 회원가입을 완료해주세요
         </p>
         {email && <p className="text-xs text-gray-500 mt-1">이메일: {email}</p>}
+        {emailSubmissionError && <p role="alert" className="text-sm text-red-600 mt-2">{emailSubmissionError}</p>}
       </div>
 
       <Form {...form}>
@@ -260,46 +262,35 @@ export default function SocialSignUpForm({
             name="nickname"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-semibold text-gray-700">
-                  닉네임 *
-                </FormLabel>
+                <div className="flex items-center gap-2">
+                  <FormLabel className="text-sm font-semibold text-gray-700">닉네임 *</FormLabel>
+                  <NicknamePolicyHelp />
+                </div>
                 <div className="flex gap-2">
                   <FormControl>
                     <Input
-                      placeholder="닉네임을 입력하세요"
-                      className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                      placeholder={nicknameStatus === "loading" ? "닉네임을 발급받는 중..." : "닉네임을 발급받아주세요"}
+                      className="h-12 border-gray-300 bg-gray-50 rounded-lg"
                       {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setNicknameCheckStatus({
-                          checked: false,
-                          available: false,
-                          message: "",
-                        });
-                      }}
+                      readOnly
+                      aria-describedby="social-nickname-status"
                     />
                   </FormControl>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={checkNicknameAvailability}
-                    disabled={!field.value || field.value.length < 2}
+                    onClick={rerollNickname}
+                    disabled={nicknameStatus === "loading" || isLoading}
                     className="h-12 px-4 whitespace-nowrap"
                   >
-                    중복확인
+                    {nicknameStatus === "loading" ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Shuffle className="mr-1 h-4 w-4" />}
+                    다시 뽑기
                   </Button>
                 </div>
-                {nicknameCheckStatus.checked && (
-                  <p
-                    className={`text-sm ${
-                      nicknameCheckStatus.available
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {nicknameCheckStatus.message}
-                  </p>
-                )}
+                <FormDescription id="social-nickname-status" role="status" aria-live="polite">
+                  {nicknameSubmissionError ?? nicknameError ??
+                    (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -320,8 +311,8 @@ export default function SocialSignUpForm({
               type="submit"
               disabled={
                 isLoading ||
-                !nicknameCheckStatus.checked ||
-                !nicknameCheckStatus.available
+                nicknameStatus !== "ready" ||
+                !candidate || !!nicknameSubmissionError || !!emailSubmissionError
               }
               className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200"
             >

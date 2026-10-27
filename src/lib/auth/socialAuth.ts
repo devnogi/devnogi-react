@@ -4,6 +4,10 @@
 
 export type SocialProvider = "google" | "kakao" | "naver";
 
+export type SocialExchangeResult =
+  | { type: "LOGIN_SUCCESS" }
+  | { type: "SIGNUP_REQUIRED"; provider: string; email: string; signupProof: string };
+
 export interface SocialAuthResponse {
   success: boolean;
   code: string;

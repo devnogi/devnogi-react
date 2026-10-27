@@ -16,7 +16,9 @@ export async function PUT(request: NextRequest) {
     // FormData 내용 로깅
     const formDataEntries: Record<string, string> = {};
     formData.forEach((value, key) => {
-      if (value instanceof File) {
+      if (key === "nicknameTicket") {
+        formDataEntries[key] = "[REDACTED]";
+      } else if (value instanceof File) {
         formDataEntries[key] = `[File: ${value.name}, size: ${value.size} bytes, type: ${value.type}]`;
       } else {
         formDataEntries[key] = String(value);
@@ -45,7 +47,7 @@ export async function PUT(request: NextRequest) {
         message: axiosError.message,
       };
 
-      logger.error(`Axios 에러: status=${status}`, payload);
+      logger.error(`Axios 에러: status=${status}`);
       logger.error("========== PUT /api/user/info 요청 실패 ==========");
 
       return NextResponse.json(payload, { status });

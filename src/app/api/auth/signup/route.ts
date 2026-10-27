@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     return nextResponse;
 
   } catch (error: unknown) {
-    console.error("회원가입 API 에러:", error);
+    // AxiosError에는 요청 FormData가 포함될 수 있으므로 티켓을 로그에 남기지 않는다.
+    console.error("회원가입 API 에러");
 
     // Axios 에러인 경우
     if (error && typeof error === "object" && "response" in error) {

@@ -33,6 +33,8 @@ import VerificationTab from "@/components/page/mypage/VerificationTab";
 import PostList from "@/components/page/community/PostList";
 import { useVerificationInfo } from "@/hooks/useUserVerification";
 import { useUnreadNoticeCount } from "@/hooks/useNotices";
+import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 
 // TODO: 실제 API 연동 시 교체
 interface ExtendedUser {
@@ -513,12 +515,13 @@ function EditProfileModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [nickname, setNickname] = useState(user.nickname);
+  const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate(false);
+  const nickname = candidate?.nickname ?? user.nickname;
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     user.profileImageUrl,
   );
-  const [isGeneratingNickname, setIsGeneratingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isVerified = user.verified === true;
@@ -560,36 +563,9 @@ function EditProfileModal({
     }
   };
 
-  const handleGenerateNickname = async () => {
-    setIsGeneratingNickname(true);
-
-    try {
-      const response = await clientAxios.get<{
-        success: boolean;
-        data: string;
-      }>("/auth/random-nickname");
-
-      if (response.data.success && response.data.data) {
-        setNickname(response.data.data);
-        toast.success("랜덤 닉네임을 불러왔습니다.");
-      } else {
-        toast.error("랜덤 닉네임을 불러오지 못했습니다.");
-      }
-    } catch (error: unknown) {
-      const axiosError = error as {
-        response?: {
-          data?: {
-            message?: string;
-          };
-        };
-      };
-      toast.error(
-        axiosError.response?.data?.message ||
-          "랜덤 닉네임을 불러오지 못했습니다.",
-      );
-    } finally {
-      setIsGeneratingNickname(false);
-    }
+  const handleGenerateNickname = () => {
+    setNicknameSubmissionError(null);
+    void refreshNickname();
   };
 
   const handleSave = async () => {
@@ -607,6 +583,12 @@ function EditProfileModal({
       return;
     }
 
+    if (nicknameChanged && (nicknameStatus !== "ready" || !candidate ||
+        nicknameSubmissionError || Date.parse(candidate.expiresAt) <= Date.now())) {
+      toast.warning("닉네임을 다시 발급받아주세요.");
+      return;
+    }
+
     if (!nicknameChanged && !imageChanged) {
       toast.info("변경된 내용이 없습니다.");
       onClose();
@@ -617,6 +599,9 @@ function EditProfileModal({
     try {
       const formData = new FormData();
       formData.append("nickname", nickname.trim());
+      if (nicknameChanged && candidate) {
+        formData.append("nicknameTicket", candidate.nicknameTicket);
+      }
 
       // 프로필 이미지가 선택된 경우에만 추가
       if (profileImage) {
@@ -628,13 +613,13 @@ function EditProfileModal({
       toast.success("프로필이 수정되었습니다.");
       onSuccess();
     } catch (error: unknown) {
-      console.error("Failed to update profile:", error);
 
       // 에러 메시지 상세화
       interface AxiosErrorResponse {
         response?: {
           data?: {
             message?: string;
+            code?: string;
           };
           status?: number;
         };
@@ -643,7 +628,14 @@ function EditProfileModal({
       const errorMessage =
         axiosError.response?.data?.message || "프로필 수정에 실패했습니다.";
 
-      if (axiosError.response?.status === 401) {
+      if (axiosError.response?.status === 409 && nicknameChanged) {
+        setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+        toast.error("닉네임이 중복되었습니다. 다시 뽑아주세요.");
+      } else if (nicknameChanged && axiosError.response?.status === 400 &&
+          ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(axiosError.response.data?.code ?? "")) {
+        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+        toast.error("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+      } else if (axiosError.response?.status === 401) {
         toast.error("로그인이 필요합니다. 다시 로그인해주세요.");
       } else if (axiosError.response?.status === 400) {
         toast.error(errorMessage);
@@ -729,31 +721,32 @@ function EditProfileModal({
           {/* Nickname */}
           <div>
             <div className="mb-2 flex items-center justify-between gap-3">
-              <label className="block text-sm font-semibold text-gray-700">
+              <label htmlFor="profile-nickname" className="block text-sm font-semibold text-gray-700">
                 닉네임
               </label>
+              <NicknamePolicyHelp legacy />
               {!isVerified && (
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={handleGenerateNickname}
-                  disabled={isSubmitting || isGeneratingNickname}
+                  disabled={isSubmitting || nicknameStatus === "loading"}
                   className="shrink-0"
                 >
-                  {isGeneratingNickname ? (
+                  {nicknameStatus === "loading" ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <Shuffle className="w-4 h-4 mr-2" />
                   )}
-                  랜덤 닉네임
+                  다시 뽑기
                 </Button>
               )}
             </div>
             <input
+              id="profile-nickname"
               type="text"
               value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
               className={clsx(
                 "w-full h-12 px-4 border rounded-xl",
                 isVerified
@@ -763,14 +756,18 @@ function EditProfileModal({
               placeholder={
                 isVerified
                   ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다"
-                  : "직접 입력하거나 랜덤 닉네임을 생성하세요"
+                  : "다시 뽑기를 눌러 닉네임을 변경하세요"
               }
+              readOnly
               disabled={isSubmitting || isVerified}
+              aria-describedby="profile-nickname-status"
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p id="profile-nickname-status" role="status" aria-live="polite" className="text-xs text-gray-500 mt-2">
               {isVerified
                 ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다. 닉네임을 바꾸려면 인증 정보를 다시 갱신해야 합니다."
-                : "닉네임 변경은 서버가 허용하는 랜덤 닉네임 조합 형식을 따라야 합니다."}
+                : nicknameSubmissionError ?? nicknameError ??
+                  (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." :
+                    "기존 닉네임은 변경 전까지 유지됩니다. 인증 전에는 다시 뽑기로 생성한 이름만 사용할 수 있습니다.")}
             </p>
           </div>
 
@@ -836,7 +833,7 @@ function EditProfileModal({
           <Button
             onClick={handleSave}
             className="flex-1 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl"
-            disabled={isSubmitting || !nickname.trim()}
+            disabled={isSubmitting || !nickname.trim() || nicknameStatus === "loading" || !!nicknameSubmissionError}
           >
             {isSubmitting ? (
               <>
