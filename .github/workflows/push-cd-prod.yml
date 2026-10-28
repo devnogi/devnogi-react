@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: react-production-deploy
+  cancel-in-progress: false
+
 jobs:
   ci-cd-prod:
     name: Test, Build, and Deploy to Production Server
@@ -55,6 +59,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        id: image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -75,6 +80,8 @@ jobs:
       # Deploy Stage: SSH & Deploy
       # ========================================
       - name: Setup SSH key and config
+        env:
+          PROD_KNOWN_HOSTS: ${{ secrets.PROD_KNOWN_HOSTS }}
         run: |
           set -e
           mkdir -p ~/.ssh
@@ -91,19 +98,16 @@ jobs:
 
           echo "SSH key written successfully ($(wc -l < ~/.ssh/my-key.pem) lines)"
 
-          # Add server to known_hosts
-          echo "Adding ${{ secrets.PROD_SERVER_HOST }}:${{ secrets.PROD_SSH_PORT }} to known_hosts..."
-          ssh-keyscan -p ${{ secrets.PROD_SSH_PORT }} -H ${{ secrets.PROD_SERVER_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
-            echo "Warning: ssh-keyscan failed, but continuing..."
-            echo "You may need to manually verify the host key on first connection"
-          }
+          test -n "$PROD_KNOWN_HOSTS" || { echo 'PROD_KNOWN_HOSTS is required' >&2; exit 1; }
+          printf '%s\n' "$PROD_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-          # Configure SSH keep-alive and disable strict host checking for automation
+          # Require a previously verified host key.
           cat >> ~/.ssh/config << 'EOF'
           Host *
             ServerAliveInterval 60
             ServerAliveCountMax 3
-            StrictHostKeyChecking no
+            StrictHostKeyChecking yes
             UserKnownHostsFile ~/.ssh/known_hosts
           EOF
 
@@ -115,24 +119,31 @@ jobs:
 
       - name: Copy deployment files to server
         run: |
-          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/
+          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/.candidate-compose-${{ github.run_id }}-${{ github.run_attempt }}.yml
 
       - name: Deploy to Production Server
         run: |
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+            set -e
+            umask 077
             cd ~/devnogi-react
 
+            test -s docker-compose-prod.yml
+            test -s .env.prod
+            cp docker-compose-prod.yml .previous-compose.yml
+            cp .env.prod .previous-env.prod
             # Write .env.prod content from GitHub Secret
-            echo "${{ secrets.ENV_FILE_PROD }}" > .env.prod
+            echo "${{ secrets.ENV_FILE_PROD }}" > .next-env.prod
 
-            # Pull latest production image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod
-
-            # Stop and remove existing containers
-            docker compose -f docker-compose-prod.yml --env-file .env.prod down
-
-            # Start new containers
-            docker compose -f docker-compose-prod.yml --env-file .env.prod up -d
+            old_image=$(docker inspect --format '{{.Image}}' nextjs-app-prod 2>/dev/null || true)
+            test -n "$old_image" || { echo 'No previous image available for rollback' >&2; exit 1; }
+            printf '%s\n' "$old_image" > .previous-image-id
+            export IMAGE_REF='${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}@${{ steps.image.outputs.digest }}'
+            docker pull "$IMAGE_REF"
+            printf '%s\n' '${{ github.run_id }}-${{ github.run_attempt }}' > .deployment-in-progress
+            cp '.candidate-compose-${{ github.run_id }}-${{ github.run_attempt }}.yml' docker-compose-prod.yml
+            cp .next-env.prod .env.prod
+            docker compose -f docker-compose-prod.yml --env-file .env.prod up -d --no-deps nextjs-app
 
             echo "✅ Production deployment complete"
           EOF
@@ -143,6 +154,8 @@ jobs:
       - name: Comprehensive Health Check
         run: |
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+            set -e
+            cd ~/devnogi-react
             echo "=== Starting Production Health Check ==="
 
             # 1. Check if Next.js container is running
@@ -212,27 +225,46 @@ jobs:
 
             echo "=== Health Check Complete ==="
             docker ps --filter "name=nextjs-app-prod"
+            test "$(cat .deployment-in-progress)" = '${{ github.run_id }}-${{ github.run_attempt }}'
+            rm -f .deployment-in-progress
           EOF
 
       - name: Display deployment info
         if: success()
         run: |
           echo "✅ Production deployment successful!"
-          echo "🐳 Image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod"
+          echo "🐳 Image digest: ${{ steps.image.outputs.digest }}"
           echo "📦 Commit: ${{ github.sha }}"
-          echo "🔗 Next.js App: http://${{ secrets.PROD_SERVER_HOST }}:3010"
-          echo "⚠️  Configure your host Nginx to proxy to localhost:3010"
-          echo "⚠️  Please verify the production deployment manually"
 
       # ========================================
-      # Rollback on Failure (Optional)
+      # Rollback on Failure
       # ========================================
       - name: Rollback on failure
         if: failure()
         run: |
-          echo "❌ Deployment failed! Consider manual rollback if needed."
-          echo "To rollback, SSH to server and run:"
-          echo "  cd ~/devnogi-react"
-          echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:prod-<previous-sha>"
-          echo "  docker compose -f docker-compose-prod.yml --env-file .env.prod down"
-          echo "  docker compose -f docker-compose-prod.yml --env-file .env.prod up -d"
+          ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+            set -e
+            cd ~/devnogi-react
+            if [ "$(cat .deployment-in-progress 2>/dev/null || true)" != '${{ github.run_id }}-${{ github.run_attempt }}' ]; then
+              echo 'No deployment started by this run; nothing to roll back.'
+              exit 0
+            fi
+            test -s .previous-image-id
+            test -s .previous-compose.yml
+            test -s .previous-env.prod
+            cp .previous-env.prod .env.prod
+            export IMAGE_REF="$(cat .previous-image-id)"
+            printf 'services:\n  nextjs-app:\n    image: "%s"\n' "$IMAGE_REF" > .rollback-image.yml
+            docker compose -f .previous-compose.yml -f .rollback-image.yml --env-file .env.prod up -d --no-deps nextjs-app
+            for i in $(seq 1 60); do
+              if curl -fsS http://localhost:3010/api/health | grep -q '"status":"ok"'; then
+                cp .previous-compose.yml docker-compose-prod.yml
+                rm -f .deployment-in-progress
+                echo 'Previous image restored and healthy.'
+                exit 0
+              fi
+              sleep 10
+            done
+            echo 'Rollback health check failed.' >&2
+            exit 1
+          EOF
