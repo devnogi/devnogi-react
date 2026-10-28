@@ -37,4 +37,5 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: node --test scripts/test-production-workflow.mjs
       - run: npm run verify

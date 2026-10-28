@@ -6,7 +6,7 @@ services:
   # Next.js Application
   nextjs-app:
     # Docker Hub에서 pull한 이미지 사용 (GitHub Actions에서 빌드된 이미지)
-    image: ${DOCKER_USERNAME}/${DOCKER_REPO}:prod
+    image: ${IMAGE_REF:?Set the immutable image reference}
     platform: linux/amd64  # Apple Silicon에서 AMD64 이미지 사용 (에뮬레이션)
     container_name: nextjs-app-prod
     # host 네트워크 모드: 컨테이너가 호스트의 네트워크 스택을 직접 사용
@@ -84,4 +84,4 @@ services:
 
 networks:
   devnogi-gateway_app-network:
-    external: true 
+    external: true
