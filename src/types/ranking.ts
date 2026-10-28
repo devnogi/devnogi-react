@@ -19,22 +19,6 @@ export interface VolumeRankingResponse {
 }
 
 /**
- * 가격 랭킹 응답
- * Backend: PriceRankingResponse
- */
-export interface PriceRankingResponse {
-  rank: number;
-  itemName: string;
-  itemTopCategory: string;
-  itemSubCategory: string;
-  maxPrice: number;
-  avgPrice: number;
-  totalVolume: number;
-  totalQuantity: number;
-  dateAuctionBuy: string; // yyyy-MM-dd
-}
-
-/**
  * 가격 변동 랭킹 응답
  * Backend: PriceChangeRankingResponse
  */
@@ -78,23 +62,6 @@ export interface AllTimeRankingResponse {
   itemCount: number;
   totalPrice: number;
   dateAuctionBuy: string; // ISO 8601 (yyyy-MM-dd'T'HH:mm:ss'Z')
-}
-
-/**
- * 랭킹 검색 요청 파라미터
- * Backend: RankingSearchRequest
- */
-export interface RankingSearchRequest {
-  limit?: number; // 기본값 100
-}
-
-/**
- * 카테고리별 랭킹 검색 요청 파라미터
- * Backend: CategoryRankingSearchRequest
- */
-export interface CategoryRankingSearchRequest extends RankingSearchRequest {
-  topCategory: string;
-  subCategory?: string;
 }
 
 /**

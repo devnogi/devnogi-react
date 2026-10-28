@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const RECENT_SEARCHES_KEY = "auction_recent_searches";
 const MAX_RECENT_SEARCHES = 10;
@@ -93,12 +93,3 @@ export function useRecentSearches() {
 }
 
 // 카테고리 ID 생성 유틸 함수
-export function getCategoryId(
-  topCategory?: string,
-  subCategory?: string
-): string | undefined {
-  if (topCategory && subCategory) {
-    return `${topCategory}/${subCategory}`;
-  }
-  return undefined;
-}

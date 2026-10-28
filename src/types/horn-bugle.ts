@@ -9,7 +9,7 @@ export interface HornBugleItem {
 }
 
 // 페이지 메타 정보
-export interface HornBuglePageMeta {
+interface HornBuglePageMeta {
   currentPage: number;
   pageSize: number;
   totalPages: number;
@@ -34,4 +34,3 @@ export interface HornBugleSearchParams {
 
 // 서버 목록
 export const HORN_BUGLE_SERVERS = ["류트", "만돌린", "하프", "울프"] as const;
-export type HornBugleServer = (typeof HORN_BUGLE_SERVERS)[number];

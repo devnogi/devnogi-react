@@ -22,7 +22,7 @@ export interface OptionCategory {
 }
 
 // 카테고리별 optionType 매핑
-export const OPTION_CATEGORIES: OptionCategory[] = [
+const OPTION_CATEGORIES: OptionCategory[] = [
   {
     id: "itemAttribute",
     label: "아이템 속성",

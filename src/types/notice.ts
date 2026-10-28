@@ -20,8 +20,3 @@ export interface Notice {
   isRead: boolean;
   noticeType?: NoticeType;
 }
-
-export interface NoticeListParams {
-  userId: number;
-  day?: number;
-}

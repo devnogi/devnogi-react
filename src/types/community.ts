@@ -22,59 +22,6 @@ export interface BoardListData {
   boards: Board[];
 }
 
-// 사용자 타입
-export interface Author {
-  id: number;
-  username: string;
-  nickname: string;
-  profileImage?: string;
-  verified?: boolean;
-}
-
-// 게시글 타입
-export interface Post {
-  id: number;
-  boardId: number;
-  boardName: string;
-  title: string;
-  content: string;
-  author: Author;
-  images?: string[];
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  isLiked?: boolean;
-}
-
-// 게시글 목록 응답 타입
-export interface PostsResponse {
-  posts: Post[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-  hasNext: boolean;
-}
-
-// 게시글 상세 타입 (목록과 동일하지만 명시적 구분)
-export type PostDetail = Post;
-
-// 댓글 타입
-export interface Comment {
-  id: number;
-  postId: number;
-  parentCommentId: number | null;
-  content: string;
-  author: Author;
-  createdAt: string;
-  updatedAt: string;
-  likeCount: number;
-  isLiked?: boolean;
-  replies?: Comment[];
-}
-
 // 백엔드 댓글 응답 아이템 타입
 export interface CommentPageResponseItem {
   id: number;
@@ -92,7 +39,7 @@ export interface CommentPageResponseItem {
 }
 
 // 페이지 메타 정보
-export interface PageMeta {
+interface PageMeta {
   currentPage: number;
   pageSize: number;
   totalPages: number;
@@ -105,62 +52,4 @@ export interface PageMeta {
 export interface BackendCommentsResponse {
   items: CommentPageResponseItem[];
   meta: PageMeta;
-}
-
-// 댓글 목록 응답 타입
-export interface CommentsResponse {
-  comments: Comment[];
-  totalCount: number;
-}
-
-// 게시글 작성/수정 요청 타입
-export interface PostFormData {
-  boardId: number;
-  title: string;
-  content: string;
-  images?: string[];
-  tags?: string[];
-}
-
-// 댓글 작성 요청 타입
-export interface CommentFormData {
-  content: string;
-  parentCommentId?: number;
-}
-
-// 댓글 좋아요 토글 요청 타입
-export interface CommentLikeToggleRequest {
-  commentId: number;
-}
-
-// 게시글 좋아요 토글 요청 타입
-export interface PostLikeToggleRequest {
-  postId: number;
-}
-
-// 게시글 작성 요청 타입
-export interface PostCreateRequest {
-  boardId: number;
-  title: string;
-  content: string;
-  isDraft: 0 | 1;
-  tags: string[];
-}
-
-// 게시글 수정 요청 타입
-export interface PostUpdateRequest {
-  title?: string;
-  content?: string;
-}
-
-// 정렬 옵션
-export type SortOption = "latest" | "popular" | "comments" | "views";
-
-// 게시글 목록 쿼리 파라미터
-export interface PostsQueryParams {
-  boardId?: number;
-  page?: number;
-  size?: number;
-  sort?: SortOption;
-  search?: string;
 }

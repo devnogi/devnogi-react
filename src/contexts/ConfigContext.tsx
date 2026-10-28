@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface RuntimeConfig {
   gatewayUrl: string;
@@ -54,22 +54,4 @@ export function useConfig() {
     throw new Error("useConfig must be used within a ConfigProvider");
   }
   return context;
-}
-
-/**
- * 게이트웨이 URL을 반환합니다.
- * 설정이 로드되지 않은 경우 에러를 throw합니다.
- */
-export function useGatewayUrl(): string {
-  const { config, isLoading, error } = useConfig();
-
-  if (isLoading) {
-    throw new Error("Config is still loading");
-  }
-
-  if (error || !config) {
-    throw new Error(error || "Config not available");
-  }
-
-  return config.gatewayUrl;
 }

@@ -26,16 +26,6 @@ export function formatChangeRate(rate: number): string {
 }
 
 /**
- * 날짜를 한국식으로 포맷팅 (MM.DD)
- */
-export function formatDateShort(dateString: string): string {
-  const date = new Date(dateString);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${month}.${day}`;
-}
-
-/**
  * ISO 날짜/시간을 한국식으로 포맷팅
  */
 export function formatDateTime(dateString: string): string {

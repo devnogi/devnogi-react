@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/types/community";
+
 import { AuctionHistorySearchParams } from "@/types/auction-history";
+import { ApiResponse } from "@/types/community";
 
 export interface ItemOption {
   id: string;
@@ -25,7 +26,7 @@ export interface AuctionHistoryItem {
   itemOptions: ItemOption[];
 }
 
-export interface PageMeta {
+interface PageMeta {
   currentPage: number;
   pageSize: number;
   totalPages: number;

@@ -19,7 +19,7 @@ export interface SearchOptionsApiResponse {
   timestamp: string;
 }
 
-export interface FilterValue {
+interface FilterValue {
   [key: string]: string | number | undefined;
 }
 
@@ -28,14 +28,4 @@ export interface ActiveFilter {
   searchOptionName: string;
   searchCondition: Record<string, FieldMetadata>;
   values: FilterValue;
-}
-
-export type FilterInputType = "range" | "valueWithStandard" | "enum" | "text";
-
-export interface ParsedFieldGroup {
-  type: FilterInputType;
-  fields: {
-    name: string;
-    metadata: FieldMetadata;
-  }[];
 }
