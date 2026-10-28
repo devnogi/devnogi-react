@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   mkdtempSync,
+  readFileSync,
   renameSync,
   rmSync,
   unlinkSync,
@@ -16,16 +18,56 @@ const checker = fileURLToPath(new URL("./format-check.mjs", import.meta.url));
 
 test("checks changed working and staged files without shell interpolation", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "memonogi-format-test-"));
+  const parentGit = (...args) => {
+    const result = spawnSync("git", args, { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    return result.stdout.trim();
+  };
+  const commonConfig = path.resolve(
+    parentGit("rev-parse", "--git-common-dir"),
+    "config",
+  );
+  const worktreeConfig = path.resolve(
+    parentGit("rev-parse", "--git-path", "config.worktree"),
+  );
+  const snapshot = (file) => {
+    try {
+      return createHash("sha256").update(readFileSync(file)).digest("hex");
+    } catch (error) {
+      if (error.code === "ENOENT") return null;
+      throw error;
+    }
+  };
+  const before = [snapshot(commonConfig), snapshot(worktreeConfig)];
   const localEnvNames = spawnSync("git", ["rev-parse", "--local-env-vars"], {
     encoding: "utf8",
   });
   assert.equal(localEnvNames.status, 0, localEnvNames.stderr);
   const localKeys = new Set(localEnvNames.stdout.trim().split(/\r?\n/));
+  const hookEnv = {
+    ...process.env,
+    GIT_DIR: path.join(dir, "poison-parent.git"),
+    GIT_WORK_TREE: parentGit("rev-parse", "--show-toplevel"),
+    GIT_PREFIX: "poison/",
+    GIT_INDEX_FILE: path.join(dir, "poison-index"),
+  };
   const childEnv = Object.fromEntries(
-    Object.entries(process.env).filter(
+    Object.entries(hookEnv).filter(
       ([key]) => !localKeys.has(key.toUpperCase()),
     ),
   );
+  for (const key of [
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_PREFIX",
+    "GIT_INDEX_FILE",
+  ]) {
+    assert.ok(
+      localKeys.has(key),
+      `${key} must be identified as repository-local`,
+    );
+    assert.equal(childEnv[key], undefined);
+  }
   const run = (cmd, args, options = {}) =>
     spawnSync(cmd, args, {
       cwd: dir,
@@ -94,5 +136,10 @@ test("checks changed working and staged files without shell interpolation", () =
   } finally {
     assert.equal(path.dirname(path.resolve(dir)), path.resolve(tmpdir()));
     rmSync(dir, { recursive: true, force: true });
+    assert.deepEqual(
+      [snapshot(commonConfig), snapshot(worktreeConfig)],
+      before,
+      "parent Git config changed",
+    );
   }
 });
