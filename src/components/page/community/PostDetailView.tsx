@@ -1,33 +1,28 @@
 "use client";
 
-import { usePostDetail } from "@/hooks/usePostDetail";
-import {
-  ArrowLeft,
-  Hash,
-  Heart,
-  MessageCircle,
-  Share2,
-  Eye,
-  Pencil,
-  Trash2,
-  MoreVertical,
-  X,
-  Check,
-  Loader2,
-  Flag,
-} from "lucide-react";
-import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
+  ArrowLeft,
+  Check,
+  Eye,
+  Flag,
+  Hash,
+  Heart,
+  Loader2,
+  MessageCircle,
+  MoreVertical,
+  Pencil,
+  Share2,
+  Trash2,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,14 +33,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { clientAxios } from "@/lib/api/clients";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import ReportDialog from "./ReportDialog";
-import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePostDetail } from "@/hooks/usePostDetail";
+import { clientAxios } from "@/lib/api/clients";
+
+import ReportDialog from "./ReportDialog";
 
 interface PostDetailViewProps {
   postId: string;
@@ -124,7 +126,9 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
   if (isError || !post) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500 dark:text-red-400">게시글을 불러오는데 실패했습니다.</p>
+        <p className="text-red-500 dark:text-red-400">
+          게시글을 불러오는데 실패했습니다.
+        </p>
         <p className="text-sm text-muted-foreground mt-2">
           {error instanceof Error ? error.message : "알 수 없는 오류"}
         </p>
@@ -283,7 +287,9 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                     {displayName}
                     {post.verified === true && <VerifiedBadge size="sm" />}
                   </span>
-                  <span className="text-gray-300 dark:text-gray-500 text-sm">·</span>
+                  <span className="text-gray-300 dark:text-gray-500 text-sm">
+                    ·
+                  </span>
                   <span className="text-gray-500 dark:text-gray-400 text-sm">
                     {relativeTime}
                   </span>
@@ -364,7 +370,10 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                   <div className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
                     미리보기
                   </div>
-                  <MarkdownRenderer content={editContent} className="text-gray-800 dark:text-gray-200" />
+                  <MarkdownRenderer
+                    content={editContent}
+                    className="text-gray-800 dark:text-gray-200"
+                  />
                 </div>
               )}
               <div className="space-y-2">
@@ -412,7 +421,9 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
                 </Button>
                 <Button
                   onClick={handleEditSubmit}
-                  disabled={isSubmitting || !editTitle.trim() || !editContent.trim()}
+                  disabled={
+                    isSubmitting || !editTitle.trim() || !editContent.trim()
+                  }
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-4 h-4 mr-1 animate-spin" />
@@ -428,7 +439,10 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-snug">
                 {post.title}
               </h1>
-              <MarkdownRenderer content={post.content} className="text-gray-700 dark:text-gray-200" />
+              <MarkdownRenderer
+                content={post.content}
+                className="text-gray-700 dark:text-gray-200"
+              />
               {imageUrls.length > 0 && (
                 <div
                   className={`mt-5 grid gap-3 ${

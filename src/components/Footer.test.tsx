@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import Footer from "./Footer";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { toast } from "sonner";
+
+import Footer from "./Footer";
 
 jest.mock("sonner", () => ({
   toast: jest.fn(),
@@ -22,7 +23,7 @@ describe("Footer", () => {
     render(<Footer />);
 
     expect(
-      screen.getAllByText("Data provided by NEXON Open API").length
+      screen.getAllByText("Data provided by NEXON Open API").length,
     ).toBeGreaterThan(0);
   });
 
@@ -55,7 +56,7 @@ describe("Footer", () => {
 
     expect(toast).toHaveBeenCalledWith(
       "죄송합니다. 해당 메뉴는 오픈 준비 중입니다",
-      { description: "빠른 시일 내에 준비하겠습니다!" }
+      { description: "빠른 시일 내에 준비하겠습니다!" },
     );
   });
 
@@ -67,7 +68,7 @@ describe("Footer", () => {
 
     expect(toast).toHaveBeenCalledWith(
       "죄송합니다. 해당 메뉴는 오픈 준비 중입니다",
-      { description: "빠른 시일 내에 준비하겠습니다!" }
+      { description: "빠른 시일 내에 준비하겠습니다!" },
     );
   });
 
@@ -79,7 +80,7 @@ describe("Footer", () => {
 
     expect(toast).toHaveBeenCalledWith(
       "죄송합니다. 해당 메뉴는 오픈 준비 중입니다",
-      { description: "빠른 시일 내에 준비하겠습니다!" }
+      { description: "빠른 시일 내에 준비하겠습니다!" },
     );
   });
 });

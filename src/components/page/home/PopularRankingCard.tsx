@@ -1,9 +1,11 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
+
 import { useTodayPopularRanking } from "@/hooks/useRankings";
-import { formatKoreanNumber, getRankMedal } from "./utils";
+
 import RankingCardSkeleton from "./RankingCardSkeleton";
+import { formatKoreanNumber, getRankMedal } from "./utils";
 
 export default function PopularRankingCard() {
   const { data, isLoading, error } = useTodayPopularRanking(10);

@@ -1,24 +1,24 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
+
 import { clientAxios } from "@/lib/api/clients";
-import {
-  HornBugleResponse,
-  HornBugleSearchParams,
-} from "@/types/horn-bugle";
 import { ApiResponse } from "@/types/community";
+import { HornBugleResponse, HornBugleSearchParams } from "@/types/horn-bugle";
 
 async function fetchHornBugle(
-  params: HornBugleSearchParams
+  params: HornBugleSearchParams,
 ): Promise<HornBugleResponse> {
   const response = await clientAxios.get<ApiResponse<HornBugleResponse>>(
     "/horn-bugle",
-    { params }
+    { params },
   );
   return response.data.data;
 }
 
-export function useInfiniteHornBugle(params: Omit<HornBugleSearchParams, "page">) {
+export function useInfiniteHornBugle(
+  params: Omit<HornBugleSearchParams, "page">,
+) {
   return useInfiniteQuery({
     queryKey: ["horn-bugle", params],
     queryFn: ({ pageParam = 1 }) =>

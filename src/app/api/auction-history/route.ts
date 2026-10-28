@@ -1,7 +1,8 @@
-import { AUCTION_HISTORY_ENDPOINT } from "@/lib/api/constants";
-import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { AUCTION_HISTORY_ENDPOINT } from "@/lib/api/constants";
+import { createServerAxios } from "@/lib/api/server";
 
 // auction-history 요청 캐싱 기간 30분(초)
 export const dynamic = "force-dynamic";

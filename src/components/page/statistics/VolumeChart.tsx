@@ -1,17 +1,19 @@
 "use client";
 
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
+
 import { useTheme } from "@/contexts/ThemeContext";
 import { StatisticsBase } from "@/types/statistics";
+
 import StatisticsChartTooltip from "./StatisticsChartTooltip";
 
 interface VolumeChartProps {
@@ -38,8 +40,18 @@ export default function VolumeChart({ data }: VolumeChartProps) {
   }));
 
   const colors = isDarkMode
-    ? { volume: "#FF6B9D", quantity: "#FFB3C6", grid: "#2a2a45", text: "#9CA3AF" }
-    : { volume: "#7FB4FA", quantity: "#EEB233", grid: "#E5E7EB", text: "#6B7280" };
+    ? {
+        volume: "#FF6B9D",
+        quantity: "#FFB3C6",
+        grid: "#2a2a45",
+        text: "#9CA3AF",
+      }
+    : {
+        volume: "#7FB4FA",
+        quantity: "#EEB233",
+        grid: "#E5E7EB",
+        text: "#6B7280",
+      };
 
   return (
     <div className="bg-white dark:bg-navy-700 rounded-2xl p-4 md:p-6 shadow-xl border border-gray-100 dark:border-navy-600">

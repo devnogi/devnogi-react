@@ -1,17 +1,19 @@
 "use client";
 
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
+
 import { useTheme } from "@/contexts/ThemeContext";
 import { StatisticsBase } from "@/types/statistics";
+
 import StatisticsChartTooltip from "./StatisticsChartTooltip";
 
 interface PriceChartProps {
@@ -38,8 +40,20 @@ export default function PriceChart({ data }: PriceChartProps) {
   }));
 
   const colors = isDarkMode
-    ? { min: "#FF6B9D", max: "#FFB3C6", avg: "#FFCCD9", grid: "#2a2a45", text: "#9CA3AF" }
-    : { min: "#3B82F6", max: "#EEB233", avg: "#7FB4FA", grid: "#E5E7EB", text: "#6B7280" };
+    ? {
+        min: "#FF6B9D",
+        max: "#FFB3C6",
+        avg: "#FFCCD9",
+        grid: "#2a2a45",
+        text: "#9CA3AF",
+      }
+    : {
+        min: "#3B82F6",
+        max: "#EEB233",
+        avg: "#7FB4FA",
+        grid: "#E5E7EB",
+        text: "#6B7280",
+      };
 
   return (
     <div className="bg-white dark:bg-navy-700 rounded-2xl p-4 md:p-6 shadow-xl border border-gray-100 dark:border-navy-600">

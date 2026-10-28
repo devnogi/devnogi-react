@@ -1,20 +1,27 @@
+import { AxiosError } from "axios";
+import { NextRequest, NextResponse } from "next/server";
+
 import { USER_VERIFICATION_ENDPOINT } from "@/lib/api/constants";
 import { createAuthServerAxios } from "@/lib/api/server";
 import { createLogger } from "@/lib/logger";
-import { AxiosError } from "axios";
-import { NextRequest, NextResponse } from "next/server";
 
 const logger = createLogger("API/user/verification/token");
 
 export async function GET(request: NextRequest) {
-  logger.info("========== GET /api/user/verification/token 요청 시작 ==========");
+  logger.info(
+    "========== GET /api/user/verification/token 요청 시작 ==========",
+  );
 
   try {
     const axios = createAuthServerAxios(request);
-    const { data, status } = await axios.get(`${USER_VERIFICATION_ENDPOINT}/token`);
+    const { data, status } = await axios.get(
+      `${USER_VERIFICATION_ENDPOINT}/token`,
+    );
 
     logger.info(`Gateway 응답: status=${status}`, data);
-    logger.info("========== GET /api/user/verification/token 요청 완료 ==========");
+    logger.info(
+      "========== GET /api/user/verification/token 요청 완료 ==========",
+    );
 
     return NextResponse.json(data, { status });
   } catch (error: unknown) {
@@ -23,7 +30,9 @@ export async function GET(request: NextRequest) {
     if ((error as AxiosError).isAxiosError) {
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status ?? 500;
-      const payload = axiosError.response?.data ?? { message: axiosError.message };
+      const payload = axiosError.response?.data ?? {
+        message: axiosError.message,
+      };
 
       logger.error(`Axios 에러: status=${status}`, payload);
       return NextResponse.json(payload, { status });
@@ -36,14 +45,20 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  logger.info("========== POST /api/user/verification/token 요청 시작 ==========");
+  logger.info(
+    "========== POST /api/user/verification/token 요청 시작 ==========",
+  );
 
   try {
     const axios = createAuthServerAxios(request);
-    const { data, status } = await axios.post(`${USER_VERIFICATION_ENDPOINT}/token`);
+    const { data, status } = await axios.post(
+      `${USER_VERIFICATION_ENDPOINT}/token`,
+    );
 
     logger.info(`Gateway 응답: status=${status}`, data);
-    logger.info("========== POST /api/user/verification/token 요청 완료 ==========");
+    logger.info(
+      "========== POST /api/user/verification/token 요청 완료 ==========",
+    );
 
     return NextResponse.json(data, { status });
   } catch (error: unknown) {
@@ -52,7 +67,9 @@ export async function POST(request: NextRequest) {
     if ((error as AxiosError).isAxiosError) {
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status ?? 500;
-      const payload = axiosError.response?.data ?? { message: axiosError.message };
+      const payload = axiosError.response?.data ?? {
+        message: axiosError.message,
+      };
 
       logger.error(`Axios 에러: status=${status}`, payload);
       return NextResponse.json(payload, { status });

@@ -1,39 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import clsx from "clsx";
+import {
+  ArrowLeft,
+  Camera,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  Shuffle,
+  User,
+  XCircle,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+
+import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import {
+  PRIVACY_POLICY,
+  TERMS_OF_SERVICE,
+} from "@/components/page/auth/TermsOfService";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
-import {
-  Eye,
-  EyeOff,
-  Lock,
-  ArrowLeft,
-  User,
-  Loader2,
-  Mail,
-  CheckCircle2,
-  XCircle,
-  Camera,
-  Shuffle,
-} from "lucide-react";
-import Link from "next/link";
-import clsx from "clsx";
-import Image from "next/image";
-import { TERMS_OF_SERVICE, PRIVACY_POLICY } from "@/components/page/auth/TermsOfService";
-import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import { Input } from "@/components/ui/input";
 import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 
 const signUpSchema = z
@@ -51,7 +55,9 @@ const signUpSchema = z
       .regex(/[@$!%*#?&]/, {
         message: "특수문자(@$!%*#?&)를 포함해야 합니다",
       }),
-    passwordConfirm: z.string().min(1, { message: "비밀번호 확인은 필수입니다" }),
+    passwordConfirm: z
+      .string()
+      .min(1, { message: "비밀번호 확인은 필수입니다" }),
     nickname: z.string().min(1, { message: "닉네임을 다시 발급받아주세요" }),
     agreeTerms: z.boolean().refine((val) => val === true, {
       message: "이용약관에 동의해주세요",
@@ -67,7 +73,8 @@ const signUpSchema = z
   });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
-const refreshSignupHint = "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
+const refreshSignupHint =
+  "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -76,11 +83,22 @@ export default function SignUpPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [termsContent, setTermsContent] = useState("");
-  const [emailCheckStatus, setEmailCheckStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
-  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
-  const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
+  const [emailCheckStatus, setEmailCheckStatus] = useState<
+    "idle" | "checking" | "available" | "unavailable"
+  >("idle");
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<
+    string | null
+  >(null);
+  const {
+    candidate,
+    status: nicknameStatus,
+    error: nicknameError,
+    refresh: refreshNickname,
+  } = useNicknameCandidate();
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    null,
+  );
   const router = useRouter();
 
   const form = useForm<SignUpFormData>({
@@ -100,7 +118,9 @@ export default function SignUpPage() {
   const password = form.watch("password");
 
   useEffect(() => {
-    form.setValue("nickname", candidate?.nickname ?? "", { shouldValidate: true });
+    form.setValue("nickname", candidate?.nickname ?? "", {
+      shouldValidate: true,
+    });
   }, [candidate, form]);
 
   const rerollNickname = () => {
@@ -119,8 +139,7 @@ export default function SignUpPage() {
     if (/\d/.test(pwd)) strength++;
     if (/[@$!%*#?&]/.test(pwd)) strength++;
 
-    if (strength <= 2)
-      return { strength, label: "약함", color: "bg-red-500" };
+    if (strength <= 2) return { strength, label: "약함", color: "bg-red-500" };
     if (strength <= 3)
       return { strength, label: "보통", color: "bg-yellow-500" };
     return { strength, label: "강함", color: "bg-green-500" };
@@ -136,7 +155,9 @@ export default function SignUpPage() {
 
     setEmailCheckStatus("checking");
     try {
-      const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+      const response = await fetch(
+        `/api/auth/check-email?email=${encodeURIComponent(email)}`,
+      );
       const data = await response.json();
 
       if (data.success && data.data === true) {
@@ -175,9 +196,13 @@ export default function SignUpPage() {
       return;
     }
 
-    if (nicknameStatus !== "ready" || !candidate ||
-        data.nickname !== candidate.nickname || nicknameSubmissionError ||
-        Date.parse(candidate.expiresAt) <= Date.now()) {
+    if (
+      nicknameStatus !== "ready" ||
+      !candidate ||
+      data.nickname !== candidate.nickname ||
+      nicknameSubmissionError ||
+      Date.parse(candidate.expiresAt) <= Date.now()
+    ) {
       alert("닉네임을 다시 발급받아주세요");
       return;
     }
@@ -204,22 +229,42 @@ export default function SignUpPage() {
 
       if (response.status === 409 && result.code === "EMAIL_ALREADY_EXISTS") {
         setEmailCheckStatus("unavailable");
-        form.setError("email", { message: "이미 가입된 이메일입니다. 다른 이메일을 사용해주세요." });
-        throw new Error("이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.");
+        form.setError("email", {
+          message: "이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.",
+        });
+        throw new Error(
+          "이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.",
+        );
       }
-      if (response.status === 409 && result.code === "NICKNAME_ALREADY_EXISTS") {
+      if (
+        response.status === 409 &&
+        result.code === "NICKNAME_ALREADY_EXISTS"
+      ) {
         setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
-        throw new Error(`닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`);
+        throw new Error(
+          `닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`,
+        );
       }
-      if (response.status === 400 &&
-          ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(result.code)) {
-        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
-        throw new Error(`${result.message || "닉네임 사용 시간이 지났거나 유효하지 않습니다."} 다시 뽑아주세요. ${refreshSignupHint}`);
+      if (
+        response.status === 400 &&
+        ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(
+          result.code,
+        )
+      ) {
+        setNicknameSubmissionError(
+          "닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.",
+        );
+        throw new Error(
+          `${result.message || "닉네임 사용 시간이 지났거나 유효하지 않습니다."} 다시 뽑아주세요. ${refreshSignupHint}`,
+        );
       }
       if (!response.ok) {
         const message = result.message || "회원가입에 실패했습니다";
-        throw new Error(response.status >= 400 && response.status < 500
-          ? `${message} ${refreshSignupHint}` : message);
+        throw new Error(
+          response.status >= 400 && response.status < 500
+            ? `${message} ${refreshSignupHint}`
+            : message,
+        );
       }
 
       alert("회원가입이 완료되었습니다!");
@@ -281,7 +326,9 @@ export default function SignUpPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     로그인으로 돌아가기
                   </Link>
-                  <h1 className="text-3xl font-bold text-clover-700">회원가입</h1>
+                  <h1 className="text-3xl font-bold text-clover-700">
+                    회원가입
+                  </h1>
                   <p className="mt-2 text-sm text-cream-600">
                     메모노기와 함께 마비노기를 더 즐겁게!
                   </p>
@@ -298,357 +345,410 @@ export default function SignUpPage() {
                       className="flex h-full min-h-0 flex-col"
                     >
                       <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
-                {/* Profile Image */}
-                <div className="flex flex-col items-center mb-6">
-                  <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-clover-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
-                      {profileImagePreview ? (
-                        <Image
-                          src={profileImagePreview}
-                          alt="Profile Preview"
-                          width={96}
-                          height={96}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : (
-                        <User className="w-12 h-12" />
-                      )}
-                    </div>
-                    <label
-                      htmlFor="profile-image"
-                      className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-cream-200 flex items-center justify-center hover:bg-cream-50 transition-colors cursor-pointer"
-                    >
-                      <Camera className="w-4 h-4 text-cream-600" />
-                    </label>
-                    <input
-                      id="profile-image"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleProfileImageChange}
-                      className="hidden"
-                    />
-                  </div>
-                  <p className="text-xs text-cream-500 mt-2">프로필 이미지 (선택사항)</p>
-                </div>
-
-                {/* Email */}
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-semibold text-cream-800">
-                        이메일 <span className="text-sunset-500">*</span>
-                      </FormLabel>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="example@email.com"
-                            className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              setEmailCheckStatus("idle");
-                            }}
-                            onBlur={(e) => {
-                              field.onBlur();
-                              checkEmailAvailability(e.target.value);
-                            }}
-                          />
-                        </FormControl>
-                        {emailCheckStatus !== "idle" && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
-                            {emailCheckStatus === "checking" && (
-                              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                            )}
-                            {emailCheckStatus === "available" && (
-                              <CheckCircle2 className="w-5 h-5 text-green-500" />
-                            )}
-                            {emailCheckStatus === "unavailable" && (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            )}
+                        {/* Profile Image */}
+                        <div className="flex flex-col items-center mb-6">
+                          <div className="relative">
+                            <div className="w-24 h-24 rounded-full bg-clover-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                              {profileImagePreview ? (
+                                <Image
+                                  src={profileImagePreview}
+                                  alt="Profile Preview"
+                                  width={96}
+                                  height={96}
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : (
+                                <User className="w-12 h-12" />
+                              )}
+                            </div>
+                            <label
+                              htmlFor="profile-image"
+                              className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-cream-200 flex items-center justify-center hover:bg-cream-50 transition-colors cursor-pointer"
+                            >
+                              <Camera className="w-4 h-4 text-cream-600" />
+                            </label>
+                            <input
+                              id="profile-image"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleProfileImageChange}
+                              className="hidden"
+                            />
                           </div>
-                        )}
-                      </div>
-                      {emailCheckStatus === "unavailable" && (
-                        <p className="text-sm text-red-500 mt-1">이미 사용 중인 이메일입니다</p>
-                      )}
-                      {emailCheckStatus === "available" && (
-                        <p className="text-sm text-green-500 mt-1">사용 가능한 이메일입니다</p>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Password */}
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-semibold text-cream-800">
-                        비밀번호 <span className="text-sunset-500">*</span>
-                      </FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
-                        <FormControl>
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="영문, 숫자, 특수문자 포함 8-30자"
-                            className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="w-5 h-5" />
-                          ) : (
-                            <Eye className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Password Strength Indicator */}
-                      {password && (
-                        <div className="mt-2 space-y-2">
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map((level) => (
-                              <div
-                                key={level}
-                                className={clsx(
-                                  "h-1 flex-1 rounded-full transition-all",
-                                  level <= passwordStrength.strength
-                                    ? passwordStrength.color
-                                    : "bg-gray-200",
-                                )}
-                              />
-                            ))}
-                          </div>
-                          <p
-                            className={clsx(
-                              "text-xs font-medium",
-                              passwordStrength.strength <= 2 && "text-red-500",
-                              passwordStrength.strength === 3 &&
-                                "text-yellow-600",
-                              passwordStrength.strength >= 4 &&
-                                "text-green-600",
-                            )}
-                          >
-                            비밀번호 강도: {passwordStrength.label}
+                          <p className="text-xs text-cream-500 mt-2">
+                            프로필 이미지 (선택사항)
                           </p>
                         </div>
-                      )}
 
-                      <FormDescription className="text-xs text-cream-500 mt-2">
-                        영문 대/소문자, 숫자, 특수문자(@$!%*#?&)를 모두 포함해야
-                        합니다
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Password Confirm */}
-                <FormField
-                  control={form.control}
-                  name="passwordConfirm"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-semibold text-cream-800">
-                        비밀번호 확인 <span className="text-sunset-500">*</span>
-                      </FormLabel>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
-                        <FormControl>
-                          <Input
-                            type={showPasswordConfirm ? "text" : "password"}
-                            placeholder="비밀번호를 다시 입력하세요"
-                            className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
-                            {...field}
-                          />
-                        </FormControl>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowPasswordConfirm(!showPasswordConfirm)
-                          }
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
-                        >
-                          {showPasswordConfirm ? (
-                            <EyeOff className="w-5 h-5" />
-                          ) : (
-                            <Eye className="w-5 h-5" />
+                        {/* Email */}
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-cream-800">
+                                이메일{" "}
+                                <span className="text-sunset-500">*</span>
+                              </FormLabel>
+                              <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                                <FormControl>
+                                  <Input
+                                    type="email"
+                                    placeholder="example@email.com"
+                                    className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                                    {...field}
+                                    onChange={(e) => {
+                                      field.onChange(e);
+                                      setEmailCheckStatus("idle");
+                                    }}
+                                    onBlur={(e) => {
+                                      field.onBlur();
+                                      checkEmailAvailability(e.target.value);
+                                    }}
+                                  />
+                                </FormControl>
+                                {emailCheckStatus !== "idle" && (
+                                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
+                                    {emailCheckStatus === "checking" && (
+                                      <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                                    )}
+                                    {emailCheckStatus === "available" && (
+                                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                    )}
+                                    {emailCheckStatus === "unavailable" && (
+                                      <XCircle className="w-5 h-5 text-red-500" />
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              {emailCheckStatus === "unavailable" && (
+                                <p className="text-sm text-red-500 mt-1">
+                                  이미 사용 중인 이메일입니다
+                                </p>
+                              )}
+                              {emailCheckStatus === "available" && (
+                                <p className="text-sm text-green-500 mt-1">
+                                  사용 가능한 이메일입니다
+                                </p>
+                              )}
+                              <FormMessage />
+                            </FormItem>
                           )}
-                        </button>
-                      </div>
-                      {form.watch("passwordConfirm") &&
-                        form.watch("password") ===
-                          form.watch("passwordConfirm") && (
-                          <div className="flex items-center gap-1 mt-2">
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
-                            <span className="text-xs text-green-600 font-medium">
-                              비밀번호가 일치합니다
-                            </span>
-                          </div>
-                        )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        />
 
-                {/* Nickname */}
-                <FormField
-                  control={form.control}
-                  name="nickname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center gap-2">
-                        <FormLabel className="text-sm font-semibold text-cream-800">
-                          닉네임 <span className="text-sunset-500">*</span>
-                        </FormLabel>
-                        <NicknamePolicyHelp />
-                      </div>
-                      <div className="flex gap-2">
-                        <FormControl>
-                          <Input
-                            placeholder={nicknameStatus === "loading" ? "닉네임을 발급받는 중..." : "닉네임을 발급받아주세요"}
-                            className="h-12 border-cream-300 bg-cream-50 rounded-xl"
-                            {...field}
-                            readOnly
-                            aria-describedby="signup-nickname-status"
+                        {/* Password */}
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-cream-800">
+                                비밀번호{" "}
+                                <span className="text-sunset-500">*</span>
+                              </FormLabel>
+                              <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                                <FormControl>
+                                  <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="영문, 숫자, 특수문자 포함 8-30자"
+                                    className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="w-5 h-5" />
+                                  ) : (
+                                    <Eye className="w-5 h-5" />
+                                  )}
+                                </button>
+                              </div>
+
+                              {/* Password Strength Indicator */}
+                              {password && (
+                                <div className="mt-2 space-y-2">
+                                  <div className="flex gap-1">
+                                    {[1, 2, 3, 4, 5].map((level) => (
+                                      <div
+                                        key={level}
+                                        className={clsx(
+                                          "h-1 flex-1 rounded-full transition-all",
+                                          level <= passwordStrength.strength
+                                            ? passwordStrength.color
+                                            : "bg-gray-200",
+                                        )}
+                                      />
+                                    ))}
+                                  </div>
+                                  <p
+                                    className={clsx(
+                                      "text-xs font-medium",
+                                      passwordStrength.strength <= 2 &&
+                                        "text-red-500",
+                                      passwordStrength.strength === 3 &&
+                                        "text-yellow-600",
+                                      passwordStrength.strength >= 4 &&
+                                        "text-green-600",
+                                    )}
+                                  >
+                                    비밀번호 강도: {passwordStrength.label}
+                                  </p>
+                                </div>
+                              )}
+
+                              <FormDescription className="text-xs text-cream-500 mt-2">
+                                영문 대/소문자, 숫자, 특수문자(@$!%*#?&)를 모두
+                                포함해야 합니다
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Password Confirm */}
+                        <FormField
+                          control={form.control}
+                          name="passwordConfirm"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-semibold text-cream-800">
+                                비밀번호 확인{" "}
+                                <span className="text-sunset-500">*</span>
+                              </FormLabel>
+                              <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                                <FormControl>
+                                  <Input
+                                    type={
+                                      showPasswordConfirm ? "text" : "password"
+                                    }
+                                    placeholder="비밀번호를 다시 입력하세요"
+                                    className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setShowPasswordConfirm(!showPasswordConfirm)
+                                  }
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
+                                >
+                                  {showPasswordConfirm ? (
+                                    <EyeOff className="w-5 h-5" />
+                                  ) : (
+                                    <Eye className="w-5 h-5" />
+                                  )}
+                                </button>
+                              </div>
+                              {form.watch("passwordConfirm") &&
+                                form.watch("password") ===
+                                  form.watch("passwordConfirm") && (
+                                  <div className="flex items-center gap-1 mt-2">
+                                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                    <span className="text-xs text-green-600 font-medium">
+                                      비밀번호가 일치합니다
+                                    </span>
+                                  </div>
+                                )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Nickname */}
+                        <FormField
+                          control={form.control}
+                          name="nickname"
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="flex items-center gap-2">
+                                <FormLabel className="text-sm font-semibold text-cream-800">
+                                  닉네임{" "}
+                                  <span className="text-sunset-500">*</span>
+                                </FormLabel>
+                                <NicknamePolicyHelp />
+                              </div>
+                              <div className="flex gap-2">
+                                <FormControl>
+                                  <Input
+                                    placeholder={
+                                      nicknameStatus === "loading"
+                                        ? "닉네임을 발급받는 중..."
+                                        : "닉네임을 발급받아주세요"
+                                    }
+                                    className="h-12 border-cream-300 bg-cream-50 rounded-xl"
+                                    {...field}
+                                    readOnly
+                                    aria-describedby="signup-nickname-status"
+                                  />
+                                </FormControl>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={rerollNickname}
+                                  disabled={
+                                    nicknameStatus === "loading" || isLoading
+                                  }
+                                  className="h-12 shrink-0"
+                                >
+                                  {nicknameStatus === "loading" ? (
+                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Shuffle className="mr-1 h-4 w-4" />
+                                  )}
+                                  다시 뽑기
+                                </Button>
+                              </div>
+                              <FormDescription
+                                id="signup-nickname-status"
+                                role="status"
+                                aria-live="polite"
+                                className="text-xs text-cream-500 mt-2"
+                              >
+                                {nicknameSubmissionError ??
+                                  nicknameError ??
+                                  (nicknameStatus === "loading"
+                                    ? "새 닉네임을 불러오고 있습니다."
+                                    : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Divider */}
+                        <div className="border-t border-cream-200 my-6" />
+
+                        {/* Terms Agreement */}
+                        <div className="space-y-4">
+                          <h3 className="text-sm font-semibold text-cream-800">
+                            약관 동의
+                          </h3>
+
+                          {/* Terms of Service */}
+                          <FormField
+                            control={form.control}
+                            name="agreeTerms"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                                  />
+                                </FormControl>
+                                <div className="flex-1">
+                                  <FormLabel className="text-sm font-normal cursor-pointer">
+                                    <span className="text-sunset-500">
+                                      [필수]
+                                    </span>{" "}
+                                    이용약관에 동의합니다
+                                    <button
+                                      type="button"
+                                      onClick={openTermsModal}
+                                      className="ml-2 text-clover-600 hover:underline text-xs"
+                                    >
+                                      전문보기
+                                    </button>
+                                  </FormLabel>
+                                  <FormMessage />
+                                </div>
+                              </FormItem>
+                            )}
                           />
-                        </FormControl>
-                        <Button type="button" variant="outline" onClick={rerollNickname}
-                          disabled={nicknameStatus === "loading" || isLoading} className="h-12 shrink-0">
-                          {nicknameStatus === "loading" ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Shuffle className="mr-1 h-4 w-4" />}
-                          다시 뽑기
-                        </Button>
-                      </div>
-                      <FormDescription id="signup-nickname-status" role="status" aria-live="polite" className="text-xs text-cream-500 mt-2">
-                        {nicknameSubmissionError ?? nicknameError ??
-                          (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                {/* Divider */}
-                <div className="border-t border-cream-200 my-6" />
-
-                {/* Terms Agreement */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-cream-800">
-                    약관 동의
-                  </h3>
-
-                  {/* Terms of Service */}
-                  <FormField
-                    control={form.control}
-                    name="agreeTerms"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                          {/* Privacy Policy */}
+                          <FormField
+                            control={form.control}
+                            name="agreePrivacy"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                                  />
+                                </FormControl>
+                                <div className="flex-1">
+                                  <FormLabel className="text-sm font-normal cursor-pointer">
+                                    <span className="text-sunset-500">
+                                      [필수]
+                                    </span>{" "}
+                                    개인정보처리방침에 동의합니다
+                                    <button
+                                      type="button"
+                                      onClick={openPrivacyModal}
+                                      className="ml-2 text-clover-600 hover:underline text-xs"
+                                    >
+                                      전문보기
+                                    </button>
+                                  </FormLabel>
+                                  <FormMessage />
+                                </div>
+                              </FormItem>
+                            )}
                           />
-                        </FormControl>
-                        <div className="flex-1">
-                          <FormLabel className="text-sm font-normal cursor-pointer">
-                            <span className="text-sunset-500">[필수]</span>{" "}
-                            이용약관에 동의합니다
-                            <button
-                              type="button"
-                              onClick={openTermsModal}
-                              className="ml-2 text-clover-600 hover:underline text-xs"
-                            >
-                              전문보기
-                            </button>
-                          </FormLabel>
-                          <FormMessage />
+
+                          {/* Marketing (Optional) */}
+                          <FormField
+                            control={form.control}
+                            name="agreeMarketing"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                                  />
+                                </FormControl>
+                                <div className="flex-1">
+                                  <FormLabel className="text-sm font-normal cursor-pointer">
+                                    <span className="text-cream-500">
+                                      [선택]
+                                    </span>{" "}
+                                    마케팅 정보 수신에 동의합니다
+                                  </FormLabel>
+                                  <FormDescription className="text-xs text-cream-500 mt-1">
+                                    이벤트, 혜택 정보를 이메일로 받아보실 수
+                                    있습니다
+                                  </FormDescription>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
                         </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Privacy Policy */}
-                  <FormField
-                    control={form.control}
-                    name="agreePrivacy"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
-                          />
-                        </FormControl>
-                        <div className="flex-1">
-                          <FormLabel className="text-sm font-normal cursor-pointer">
-                            <span className="text-sunset-500">[필수]</span>{" "}
-                            개인정보처리방침에 동의합니다
-                            <button
-                              type="button"
-                              onClick={openPrivacyModal}
-                              className="ml-2 text-clover-600 hover:underline text-xs"
-                            >
-                              전문보기
-                            </button>
-                          </FormLabel>
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Marketing (Optional) */}
-                  <FormField
-                    control={form.control}
-                    name="agreeMarketing"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
-                          />
-                        </FormControl>
-                        <div className="flex-1">
-                          <FormLabel className="text-sm font-normal cursor-pointer">
-                            <span className="text-cream-500">[선택]</span>{" "}
-                            마케팅 정보 수신에 동의합니다
-                          </FormLabel>
-                          <FormDescription className="text-xs text-cream-500 mt-1">
-                            이벤트, 혜택 정보를 이메일로 받아보실 수 있습니다
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
                       </div>
 
                       <div className="border-t border-cream-200 bg-white p-5 sm:p-6">
                         <Button
                           type="submit"
-                          disabled={isLoading || !form.formState.isValid || nicknameStatus !== "ready" || !candidate || !!nicknameSubmissionError}
+                          disabled={
+                            isLoading ||
+                            !form.formState.isValid ||
+                            nicknameStatus !== "ready" ||
+                            !candidate ||
+                            !!nicknameSubmissionError
+                          }
                           className={clsx(
                             "h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
-                            (!form.formState.isValid || isLoading || nicknameStatus !== "ready" || nicknameSubmissionError) && "opacity-50",
+                            (!form.formState.isValid ||
+                              isLoading ||
+                              nicknameStatus !== "ready" ||
+                              nicknameSubmissionError) &&
+                              "opacity-50",
                           )}
                         >
                           {isLoading ? (

@@ -1,6 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import AuctionSearch from "./Search";
+import { fireEvent, render, screen } from "@testing-library/react";
+
 import { ItemCategory } from "@/data/item-category";
+
+import AuctionSearch from "./Search";
 
 jest.mock("@/hooks/useItemInfos", () => ({
   useItemInfos: () => ({ data: [], isLoading: false }),

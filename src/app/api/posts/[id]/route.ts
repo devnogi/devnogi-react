@@ -1,7 +1,8 @@
-import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
-import { createLogger } from "@/lib/logger";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
+import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/posts/[id]");
 
@@ -11,7 +12,7 @@ export const revalidate = 300;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const { searchParams } = new URL(request.url);
@@ -76,7 +77,7 @@ export async function GET(
 // 게시글 수정
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const startTime = Date.now();
@@ -133,7 +134,7 @@ export async function PATCH(
 // 게시글 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const startTime = Date.now();

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface EnchantSearchFilterProps {
   prefixList: string[];
@@ -42,7 +42,10 @@ function EnchantInput({
   useEffect(() => {
     if (!showDropdown) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setShowDropdown(false);
         if (!selected) {
           setInputText("");
@@ -55,7 +58,9 @@ function EnchantInput({
 
   const filteredList =
     inputText && !selected
-      ? list.filter((item) => item.toLowerCase().includes(inputText.toLowerCase()))
+      ? list.filter((item) =>
+          item.toLowerCase().includes(inputText.toLowerCase()),
+        )
       : list;
 
   const handleSelect = (value: string) => {

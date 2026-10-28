@@ -1,7 +1,8 @@
-import { USER_ENDPOINT } from "@/lib/api/constants";
-import { createAuthServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { USER_ENDPOINT } from "@/lib/api/constants";
+import { createAuthServerAxios } from "@/lib/api/server";
 
 // 회원 탈퇴
 export async function PATCH(request: NextRequest) {

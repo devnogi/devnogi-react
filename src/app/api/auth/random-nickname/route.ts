@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server";
+
 import { AUTH_ENDPOINT } from "@/lib/api/constants";
 import { createPublicAuthServerAxios } from "@/lib/api/server";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   try {

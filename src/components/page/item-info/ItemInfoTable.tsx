@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ItemInfoResponse } from "@/types/item-info";
 import { ChevronDown, ChevronUp, Package } from "lucide-react";
+import { useState } from "react";
+
+import { ItemInfoResponse } from "@/types/item-info";
 
 interface ItemInfoTableProps {
   items: ItemInfoResponse[];
@@ -48,7 +49,9 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
               {item.inventoryWidth && item.inventoryHeight && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">인벤토리 크기: </span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    인벤토리 크기:{" "}
+                  </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.inventoryWidth} x {item.inventoryHeight}
                   </span>
@@ -56,7 +59,9 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.inventoryMaxBundleCount && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">최대 번들: </span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    최대 번들:{" "}
+                  </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.inventoryMaxBundleCount}개
                   </span>
@@ -64,13 +69,19 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.weaponType && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">무기 타입: </span>
-                  <span className="text-[var(--color-ds-text)]">{item.weaponType}</span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    무기 타입:{" "}
+                  </span>
+                  <span className="text-[var(--color-ds-text)]">
+                    {item.weaponType}
+                  </span>
                 </div>
               )}
               {item.maxAlterationCount && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">최대 개조: </span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    최대 개조:{" "}
+                  </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.maxAlterationCount}회
                   </span>
@@ -78,7 +89,9 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.storeSalesPrice && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">상점 판매가: </span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    상점 판매가:{" "}
+                  </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.storeSalesPrice}
                   </span>
@@ -86,19 +99,29 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.repair && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">수리 정보: </span>
-                  <span className="text-[var(--color-ds-text)]">{item.repair}</span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    수리 정보:{" "}
+                  </span>
+                  <span className="text-[var(--color-ds-text)]">
+                    {item.repair}
+                  </span>
                 </div>
               )}
               {item.history && (
                 <div className="col-span-full">
-                  <span className="text-[var(--color-ds-disabled)]">역사: </span>
-                  <span className="text-[var(--color-ds-text)]">{item.history}</span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    역사:{" "}
+                  </span>
+                  <span className="text-[var(--color-ds-text)]">
+                    {item.history}
+                  </span>
                 </div>
               )}
               {item.acquisitionMethod && (
                 <div className="col-span-full">
-                  <span className="text-[var(--color-ds-disabled)]">입수 방법: </span>
+                  <span className="text-[var(--color-ds-disabled)]">
+                    입수 방법:{" "}
+                  </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.acquisitionMethod}
                   </span>
@@ -112,7 +135,10 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
   );
 }
 
-export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) {
+export default function ItemInfoTable({
+  items,
+  isLoading,
+}: ItemInfoTableProps) {
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
@@ -160,7 +186,10 @@ export default function ItemInfoTable({ items, isLoading }: ItemInfoTableProps) 
           </thead>
           <tbody>
             {items.map((item) => (
-              <ItemInfoRow key={`${item.topCategory}-${item.subCategory}-${item.name}`} item={item} />
+              <ItemInfoRow
+                key={`${item.topCategory}-${item.subCategory}-${item.name}`}
+                item={item}
+              />
             ))}
           </tbody>
         </table>

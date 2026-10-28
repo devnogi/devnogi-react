@@ -1,9 +1,10 @@
-import { POSTS_ENDPOINT } from "@/lib/api/constants";
-import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
-import { GatewayConfigError } from "@/lib/api/gateway-selector";
-import { createLogger } from "@/lib/logger";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { POSTS_ENDPOINT } from "@/lib/api/constants";
+import { GatewayConfigError } from "@/lib/api/gateway-selector";
+import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
+import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/posts");
 
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
           code: "GATEWAY_CONFIG_ERROR",
           message: "서버 설정 오류가 발생했습니다. 관리자에게 문의하세요.",
         },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: err.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -131,7 +132,7 @@ export async function GET(request: NextRequest) {
           code: "GATEWAY_CONFIG_ERROR",
           message: "서버 설정 오류가 발생했습니다. 관리자에게 문의하세요.",
         },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
@@ -165,7 +166,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: err.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

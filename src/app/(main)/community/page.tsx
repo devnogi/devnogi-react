@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { Loader2, Plus, UserRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+
 import Category from "@/components/page/community/Category";
-import PostList from "@/components/page/community/PostList";
 import PopularPostsHighlight from "@/components/page/community/PopularPostsHighlight";
-import { Plus, Loader2, UserRound } from "lucide-react";
 import PostCreateModal from "@/components/page/community/PostCreateModal";
+import PostList from "@/components/page/community/PostList";
 import { useAuth } from "@/contexts/AuthContext";
 
 type SortType = "latest" | "popular" | "mostLiked";
@@ -61,25 +62,25 @@ function CommunityPageContent() {
               </select>
               {isAuthenticated && (
                 <button
-                onClick={() => setShowMyPosts((prev) => !prev)}
-                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
-                  showMyPosts
-                    ? "bg-[var(--color-ds-primary)] text-white border-[var(--color-ds-primary)]"
-                    : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
-                }`}
-              >
-                <UserRound className="w-4 h-4" />
-                내 글
-              </button>
+                  onClick={() => setShowMyPosts((prev) => !prev)}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
+                    showMyPosts
+                      ? "bg-[var(--color-ds-primary)] text-white border-[var(--color-ds-primary)]"
+                      : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
+                  }`}
+                >
+                  <UserRound className="w-4 h-4" />내 글
+                </button>
               )}
             </div>
 
             {/* Info: 인기순/좋아요순은 게시판 선택 필요 */}
-            {(sortOption === "popular" || sortOption === "mostLiked") && !selectedBoardId && (
-              <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
-                인기순/좋아요순은 게시판을 선택해야 적용됩니다.
-              </div>
-            )}
+            {(sortOption === "popular" || sortOption === "mostLiked") &&
+              !selectedBoardId && (
+                <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
+                  인기순/좋아요순은 게시판을 선택해야 적용됩니다.
+                </div>
+              )}
 
             {/* Post List */}
             <PostList

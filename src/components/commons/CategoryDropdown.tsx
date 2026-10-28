@@ -1,9 +1,10 @@
 "use client";
 
-import { ItemCategory } from "@/data/item-category";
-import { ChevronDown, ChevronRight, Menu } from "lucide-react";
 import clsx from "clsx";
+import { ChevronDown, ChevronRight, Menu } from "lucide-react";
 import { useEffect, useRef } from "react";
+
+import { ItemCategory } from "@/data/item-category";
 
 const RecursiveCategoryItem = ({
   category,
@@ -42,7 +43,7 @@ const RecursiveCategoryItem = ({
           "px-2 py-1.5 cursor-pointer text-sm rounded-lg flex items-center transition-colors",
           isSelected
             ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-            : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+            : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
         )}
         onClick={handleSelect}
       >
@@ -153,7 +154,7 @@ export default function CategoryDropdown({
           "flex items-center justify-center w-8 h-8 rounded-xl transition-colors",
           isOpen
             ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]"
-            : "hover:bg-cream-100 text-cream-600"
+            : "hover:bg-cream-100 text-cream-600",
         )}
         aria-label="카테고리 메뉴 열기"
         aria-expanded={isOpen}

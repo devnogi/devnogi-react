@@ -1,4 +1,4 @@
-import { isAxiosError, type AxiosResponse } from "axios";
+import { type AxiosResponse, isAxiosError } from "axios";
 import { NextResponse } from "next/server";
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -6,37 +6,55 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 /** Auth CommonResponse만 성공으로 전달한다. OAuth HTML/redirect는 사용자 JSON이 아니다. */
-export function authResponse(response: AxiosResponse, requiresUser = false): NextResponse {
+export function authResponse(
+  response: AxiosResponse,
+  requiresUser = false,
+): NextResponse {
   const data: unknown = response.data;
   if (
-    response.status < 200 || response.status >= 300 ||
-    !isObject(data) || data.success !== true || !("data" in data) ||
-    (requiresUser && (!isObject(data.data) ||
-      typeof data.data.userId !== "number" || typeof data.data.email !== "string" ||
-      typeof data.data.nickname !== "string"))
+    response.status < 200 ||
+    response.status >= 300 ||
+    !isObject(data) ||
+    data.success !== true ||
+    !("data" in data) ||
+    (requiresUser &&
+      (!isObject(data.data) ||
+        typeof data.data.userId !== "number" ||
+        typeof data.data.email !== "string" ||
+        typeof data.data.nickname !== "string"))
   ) {
     return NextResponse.json(
       { success: false, message: "인증 서버의 응답을 확인할 수 없습니다." },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
   const result = NextResponse.json(data, { status: response.status });
   const cookies = response.headers["set-cookie"];
-  for (const cookie of Array.isArray(cookies) ? cookies : cookies ? [cookies] : []) {
+  for (const cookie of Array.isArray(cookies)
+    ? cookies
+    : cookies
+      ? [cookies]
+      : []) {
     result.headers.append("Set-Cookie", cookie);
   }
   return result;
 }
 
-export function authErrorResponse(error: unknown, message: string): NextResponse {
+export function authErrorResponse(
+  error: unknown,
+  message: string,
+): NextResponse {
   if (isAxiosError(error) && error.response) {
     const { status, data } = error.response;
     if (status >= 400 && status <= 599) {
       return NextResponse.json(
-        isObject(data) && data.success === false && typeof data.message === "string"
-          ? data : { success: false, message },
-        { status }
+        isObject(data) &&
+          data.success === false &&
+          typeof data.message === "string"
+          ? data
+          : { success: false, message },
+        { status },
       );
     }
   }
@@ -50,7 +68,12 @@ export function clearAuthCookies(response: NextResponse): NextResponse {
   const options = {
     httpOnly: true,
     secure: process.env.JWT_COOKIE_SECURE !== "false",
-    sameSite: sameSite === "lax" ? "lax" as const : sameSite === "strict" ? "strict" as const : "none" as const,
+    sameSite:
+      sameSite === "lax"
+        ? ("lax" as const)
+        : sameSite === "strict"
+          ? ("strict" as const)
+          : ("none" as const),
     maxAge: 0,
     path: "/",
     domain: (process.env.JWT_COOKIE_DOMAIN ?? ".memonogi.com") || undefined,

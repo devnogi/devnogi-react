@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import clsx from "clsx";
 import {
   Bell,
-  Heart,
-  MessageCircle,
-  Reply,
-  Megaphone,
-  Info,
-  Gift,
-  Flag,
-  ShieldAlert,
   ExternalLink,
   Filter,
+  Flag,
+  Gift,
+  Heart,
+  Info,
+  Megaphone,
+  MessageCircle,
+  Reply,
+  ShieldAlert,
 } from "lucide-react";
-import clsx from "clsx";
-import { Notice, NoticeType } from "@/types/notice";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+
 import { useNotices } from "@/hooks/useNotices";
+import { Notice, NoticeType } from "@/types/notice";
 
 const NOTICE_TYPE_CONFIG: Record<
   NoticeType,
@@ -272,15 +273,14 @@ export default function NotificationList({ userId }: NotificationListProps) {
                       "w-full text-left px-5 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-navy-700 flex items-start gap-4",
                       idx < group.notices.length - 1 &&
                         "border-b border-gray-100 dark:border-navy-600",
-                      !notice.isRead &&
-                        "bg-blue-50/40 dark:bg-blue-950/20"
+                      !notice.isRead && "bg-blue-50/40 dark:bg-blue-950/20",
                     )}
                   >
                     {/* Icon */}
                     <div
                       className={clsx(
                         "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-                        config.bgColor
+                        config.bgColor,
                       )}
                     >
                       <Icon className={clsx("w-5 h-5", config.color)} />
@@ -294,7 +294,7 @@ export default function NotificationList({ userId }: NotificationListProps) {
                             "text-sm font-medium truncate",
                             !notice.isRead
                               ? "text-gray-900 dark:text-gray-100"
-                              : "text-gray-600 dark:text-gray-400"
+                              : "text-gray-600 dark:text-gray-400",
                           )}
                         >
                           {notice.title}
@@ -315,7 +315,7 @@ export default function NotificationList({ userId }: NotificationListProps) {
                             className={clsx(
                               "text-xs px-1.5 py-0.5 rounded-md font-medium",
                               config.bgColor,
-                              config.color
+                              config.color,
                             )}
                           >
                             {config.label}

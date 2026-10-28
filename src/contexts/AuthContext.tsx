@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 export interface User {
   userId: number;
@@ -98,7 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     const data = await response.json().catch(() => null);
     if (!response.ok || !data?.success || !data?.data) {
-      throw new Error(typeof data?.message === "string" ? data.message : "로그인에 실패했습니다. 다시 시도해주세요.");
+      throw new Error(
+        typeof data?.message === "string"
+          ? data.message
+          : "로그인에 실패했습니다. 다시 시도해주세요.",
+      );
     }
     setUser(data.data);
   };
@@ -114,7 +118,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error("서버 로그아웃을 확인할 수 없습니다.");
       }
     } catch {
-      throw new Error("서버 로그아웃을 확인할 수 없습니다. 로컬 로그인 상태만 해제했습니다.");
+      throw new Error(
+        "서버 로그아웃을 확인할 수 없습니다. 로컬 로그인 상태만 해제했습니다.",
+      );
     } finally {
       setUser(null);
     }

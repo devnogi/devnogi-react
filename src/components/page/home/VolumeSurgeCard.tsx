@@ -1,9 +1,11 @@
 "use client";
 
 import { Zap } from "lucide-react";
+
 import { useVolumeSurgeRanking } from "@/hooks/useRankings";
-import { formatKoreanNumber, formatChangeRate, getRankMedal } from "./utils";
+
 import RankingCardSkeleton from "./RankingCardSkeleton";
+import { formatChangeRate, formatKoreanNumber, getRankMedal } from "./utils";
 
 export default function VolumeSurgeCard() {
   const { data, isLoading, error } = useVolumeSurgeRanking(10);

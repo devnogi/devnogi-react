@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { clientAxios } from "@/lib/api/clients";
-import { toast } from "sonner";
 
 interface CommentFormProps {
   postId: string;
@@ -73,7 +74,9 @@ export default function CommentForm({
               : "댓글을 작성하세요..."
         }
         className={`w-full px-4 py-3 border border-gray-200 dark:border-navy-500 rounded-xl bg-white dark:bg-navy-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] resize-none ${
-          !isAuthenticated ? "bg-gray-100 dark:bg-navy-700 cursor-not-allowed" : ""
+          !isAuthenticated
+            ? "bg-gray-100 dark:bg-navy-700 cursor-not-allowed"
+            : ""
         }`}
         rows={parentCommentId ? 2 : 3}
         disabled={isSubmitting || !isAuthenticated}
@@ -97,9 +100,7 @@ export default function CommentForm({
           disabled={isSubmitting || (isAuthenticated && !content.trim())}
           onClick={!isAuthenticated ? handleDisabledClick : undefined}
           className={`rounded-xl ${
-            !isAuthenticated
-              ? "opacity-50 saturate-50 cursor-not-allowed"
-              : ""
+            !isAuthenticated ? "opacity-50 saturate-50 cursor-not-allowed" : ""
           }`}
         >
           {isSubmitting ? (

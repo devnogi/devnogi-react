@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { ArrowUpDown, Info } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useItemInfoDetail } from "@/hooks/useItemInfoDetail";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useItemInfoCategories } from "@/hooks/useItemInfoCategories";
+import { useItemInfoDetail } from "@/hooks/useItemInfoDetail";
 import { ItemInfoSearchParams } from "@/types/item-info";
+
 import ItemInfoCategoryFilter from "./ItemInfoCategoryFilter";
-import ItemInfoTable from "./ItemInfoTable";
 import ItemInfoPagination from "./ItemInfoPagination";
-import { Info, ArrowUpDown } from "lucide-react";
+import ItemInfoTable from "./ItemInfoTable";
 
 const PAGE_SIZE = 20;
 const DEFAULT_SORT_DIRECTION: "ASC" | "DESC" = "ASC";
@@ -30,14 +32,16 @@ export default function ItemInfoPage() {
   const pathname = usePathname();
   const urlSearchParams = useSearchParams();
   const lastSyncedQueryRef = useRef<string>("");
-  const { data: categories = [], isLoading: isCategoriesLoading } = useItemInfoCategories();
+  const { data: categories = [], isLoading: isCategoriesLoading } =
+    useItemInfoCategories();
 
   const [topCategory, setTopCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [appliedName, setAppliedName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortDirection, setSortDirection] =
-    useState<"ASC" | "DESC">(DEFAULT_SORT_DIRECTION);
+  const [sortDirection, setSortDirection] = useState<"ASC" | "DESC">(
+    DEFAULT_SORT_DIRECTION,
+  );
 
   // URL -> state 동기화
   useEffect(() => {
@@ -129,7 +133,15 @@ export default function ItemInfoPage() {
     router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
       scroll: false,
     });
-  }, [topCategory, subCategory, appliedName, currentPage, sortDirection, router, pathname]);
+  }, [
+    topCategory,
+    subCategory,
+    appliedName,
+    currentPage,
+    sortDirection,
+    router,
+    pathname,
+  ]);
 
   const searchParams: ItemInfoSearchParams | null = topCategory
     ? {
@@ -142,7 +154,11 @@ export default function ItemInfoPage() {
       }
     : null;
 
-  const { data: pageData, isLoading, isFetching } = useItemInfoDetail(searchParams);
+  const {
+    data: pageData,
+    isLoading,
+    isFetching,
+  } = useItemInfoDetail(searchParams);
 
   const handleTopCategoryChange = useCallback((category: string) => {
     setTopCategory(category);
@@ -217,7 +233,9 @@ export default function ItemInfoPage() {
               )}
             </span>
             {isFetching && (
-              <span className="ml-2 text-[var(--color-ds-primary)]">로딩 중...</span>
+              <span className="ml-2 text-[var(--color-ds-primary)]">
+                로딩 중...
+              </span>
             )}
           </div>
 

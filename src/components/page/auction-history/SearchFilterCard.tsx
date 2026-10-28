@@ -1,6 +1,21 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  RotateCcw,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
+import MetalwareSearchFilter, {
+  MetalwareFilterItem,
+} from "@/components/commons/MetalwareSearchFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,21 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSearchOptions } from "@/hooks/useSearchOptions";
+import { LayoutMode } from "@/hooks/useAuctionHistoryLayout";
 import { useEnchantFullnames } from "@/hooks/useEnchantFullnames";
 import { useMetalwareInfos } from "@/hooks/useMetalwareInfos";
-import {
-  SearchOptionMetadata,
-  FieldMetadata,
-  ActiveFilter,
-} from "@/types/search-filter";
+import { useSearchOptions } from "@/hooks/useSearchOptions";
 import { AuctionHistorySearchParams } from "@/types/auction-history";
-import { LayoutMode } from "@/hooks/useAuctionHistoryLayout";
-import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
-import MetalwareSearchFilter, {
-  MetalwareFilterItem,
-} from "@/components/commons/MetalwareSearchFilter";
-import { Plus, X, RotateCcw, ChevronDown, ChevronUp, ArrowUp, ArrowDown, Check } from "lucide-react";
+import {
+  ActiveFilter,
+  FieldMetadata,
+  SearchOptionMetadata,
+} from "@/types/search-filter";
 
 interface SearchFilterCardProps {
   onFilterApply: (filters: AuctionHistorySearchParams) => void;
@@ -45,9 +55,15 @@ function getDatePresetRange(preset: DatePreset): { from: string; to: string } {
   const from = new Date(today);
 
   switch (preset) {
-    case "1week": from.setDate(from.getDate() - 7); break;
-    case "1month": from.setMonth(from.getMonth() - 1); break;
-    case "3months": from.setMonth(from.getMonth() - 3); break;
+    case "1week":
+      from.setDate(from.getDate() - 7);
+      break;
+    case "1month":
+      from.setMonth(from.getMonth() - 1);
+      break;
+    case "3months":
+      from.setMonth(from.getMonth() - 3);
+      break;
   }
 
   return { from: from.toISOString().split("T")[0], to };
@@ -82,7 +98,11 @@ export default function SearchFilterCard({
       ? "max(16px, calc(50% - 710px))"
       : "max(16px, calc(50% - 728px))";
   const { data: searchOptions = [], isLoading } = useSearchOptions();
-  const { prefixList, suffixList, isLoading: isEnchantLoading } = useEnchantFullnames();
+  const {
+    prefixList,
+    suffixList,
+    isLoading: isEnchantLoading,
+  } = useEnchantFullnames();
   const { metalwareList, isLoading: isMetalwareLoading } = useMetalwareInfos();
   const enchantRef = useRef<{ prefix: string | null; suffix: string | null }>({
     prefix: null,
@@ -99,7 +119,8 @@ export default function SearchFilterCard({
     dateFrom: defaultDateRange.from,
     dateTo: defaultDateRange.to,
   });
-  const [selectedDatePreset, setSelectedDatePreset] = useState<DatePreset | null>("1month");
+  const [selectedDatePreset, setSelectedDatePreset] =
+    useState<DatePreset | null>("1month");
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
   const [isDateCollapsed, setIsDateCollapsed] = useState(false);
   const addFilterDropdownRef = useRef<HTMLDivElement>(null);
@@ -194,7 +215,9 @@ export default function SearchFilterCard({
     if (basicFilters.priceMin || basicFilters.priceMax) {
       searchParams.priceSearchRequest = {};
       if (basicFilters.priceMin) {
-        searchParams.priceSearchRequest.priceFrom = Number(basicFilters.priceMin);
+        searchParams.priceSearchRequest.priceFrom = Number(
+          basicFilters.priceMin,
+        );
       }
       if (basicFilters.priceMax) {
         searchParams.priceSearchRequest.priceTo = Number(basicFilters.priceMax);
@@ -205,10 +228,12 @@ export default function SearchFilterCard({
     if (basicFilters.dateFrom || basicFilters.dateTo) {
       searchParams.dateAuctionBuyRequest = {};
       if (basicFilters.dateFrom) {
-        searchParams.dateAuctionBuyRequest.dateAuctionBuyFrom = basicFilters.dateFrom;
+        searchParams.dateAuctionBuyRequest.dateAuctionBuyFrom =
+          basicFilters.dateFrom;
       }
       if (basicFilters.dateTo) {
-        searchParams.dateAuctionBuyRequest.dateAuctionBuyTo = basicFilters.dateTo;
+        searchParams.dateAuctionBuyRequest.dateAuctionBuyTo =
+          basicFilters.dateTo;
       }
     }
 
@@ -216,10 +241,12 @@ export default function SearchFilterCard({
     if (enchantRef.current.prefix || enchantRef.current.suffix) {
       searchParams.enchantSearchRequest = {};
       if (enchantRef.current.prefix) {
-        searchParams.enchantSearchRequest.enchantPrefix = enchantRef.current.prefix;
+        searchParams.enchantSearchRequest.enchantPrefix =
+          enchantRef.current.prefix;
       }
       if (enchantRef.current.suffix) {
-        searchParams.enchantSearchRequest.enchantSuffix = enchantRef.current.suffix;
+        searchParams.enchantSearchRequest.enchantSuffix =
+          enchantRef.current.suffix;
       }
     }
 
@@ -252,12 +279,26 @@ export default function SearchFilterCard({
           }
 
           // Initialize nested object if not exists
-          if (!searchParams.itemOptionSearchRequest![optionSearchKey as keyof typeof searchParams.itemOptionSearchRequest]) {
-            (searchParams.itemOptionSearchRequest as Record<string, Record<string, unknown>>)[optionSearchKey] = {};
+          if (
+            !searchParams.itemOptionSearchRequest![
+              optionSearchKey as keyof typeof searchParams.itemOptionSearchRequest
+            ]
+          ) {
+            (
+              searchParams.itemOptionSearchRequest as Record<
+                string,
+                Record<string, unknown>
+              >
+            )[optionSearchKey] = {};
           }
 
           // Set the value
-          (searchParams.itemOptionSearchRequest as Record<string, Record<string, unknown>>)[optionSearchKey][key] = value;
+          (
+            searchParams.itemOptionSearchRequest as Record<
+              string,
+              Record<string, unknown>
+            >
+          )[optionSearchKey][key] = value;
         });
       });
     }
@@ -295,7 +336,8 @@ export default function SearchFilterCard({
 
       // Check for enum
       const hasEnum = Object.values(searchCondition).some(
-        (metadata) => metadata.allowedValues && metadata.allowedValues.length > 0,
+        (metadata) =>
+          metadata.allowedValues && metadata.allowedValues.length > 0,
       );
       if (hasEnum) return "enum";
 
@@ -343,14 +385,17 @@ export default function SearchFilterCard({
 
       if (type === "valueWithStandard") {
         const fieldNames = Object.keys(filter.searchCondition);
-        const valueField = fieldNames.find((name) => !name.endsWith("Standard"));
+        const valueField = fieldNames.find(
+          (name) => !name.endsWith("Standard"),
+        );
         const standardField = fieldNames.find((name) =>
           name.endsWith("Standard"),
         );
 
         if (!valueField || !standardField) return null;
 
-        const currentStandard = (filter.values[standardField] as string) || "UP";
+        const currentStandard =
+          (filter.values[standardField] as string) || "UP";
         const isUp = currentStandard === "UP";
 
         return (
@@ -407,7 +452,11 @@ export default function SearchFilterCard({
             </SelectTrigger>
             <SelectContent className="rounded-xl border-gray-200 dark:border-navy-500 dark:bg-navy-700">
               {enumMetadata.allowedValues?.map((val) => (
-                <SelectItem key={val} value={val} className="rounded-lg dark:text-gray-200 dark:hover:bg-navy-600">
+                <SelectItem
+                  key={val}
+                  value={val}
+                  className="rounded-lg dark:text-gray-200 dark:hover:bg-navy-600"
+                >
                   {val}
                 </SelectItem>
               ))}
@@ -440,14 +489,19 @@ export default function SearchFilterCard({
   if (isLoading) {
     const loadingContent = (
       <div className="bg-white dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-4 flex items-center justify-center">
-        <div className="text-gray-500 dark:text-gray-400 text-sm">로딩 중...</div>
+        <div className="text-gray-500 dark:text-gray-400 text-sm">
+          로딩 중...
+        </div>
       </div>
     );
 
     if (isModal) {
       return (
         <>
-          <div className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm" onClick={onClose} />
+          <div
+            className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm"
+            onClick={onClose}
+          />
           <div className="fixed inset-x-4 top-20 bottom-20 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-80 md:top-24 md:bottom-24 z-50">
             {loadingContent}
           </div>
@@ -504,7 +558,9 @@ export default function SearchFilterCard({
               : "border border-gray-300 dark:border-navy-400 bg-white dark:bg-navy-600"
           }`}
         >
-          {isExactItemName && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+          {isExactItemName && (
+            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+          )}
         </div>
         <span
           className={`text-xs font-medium leading-none ${
@@ -589,7 +645,10 @@ export default function SearchFilterCard({
                   value={basicFilters.dateFrom}
                   onChange={(e) => {
                     setSelectedDatePreset(null);
-                    setBasicFilters({ ...basicFilters, dateFrom: e.target.value });
+                    setBasicFilters({
+                      ...basicFilters,
+                      dateFrom: e.target.value,
+                    });
                   }}
                   className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
                 />
@@ -599,7 +658,10 @@ export default function SearchFilterCard({
                   value={basicFilters.dateTo}
                   onChange={(e) => {
                     setSelectedDatePreset(null);
-                    setBasicFilters({ ...basicFilters, dateTo: e.target.value });
+                    setBasicFilters({
+                      ...basicFilters,
+                      dateTo: e.target.value,
+                    });
                   }}
                   className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
                 />

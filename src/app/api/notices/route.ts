@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { createServerAxios } from "@/lib/api/server";
 export const dynamic = "force-dynamic";
 
@@ -11,20 +12,20 @@ export async function GET(request: NextRequest) {
   if (!userId) {
     return NextResponse.json(
       { success: false, message: "userId is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   try {
     const response = await serverAxios.get(
-      `/dcs/api/notices?userId=${userId}&day=${day}`
+      `/dcs/api/notices?userId=${userId}&day=${day}`,
     );
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Failed to fetch notices:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch notices" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

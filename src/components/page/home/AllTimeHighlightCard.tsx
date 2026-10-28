@@ -1,8 +1,10 @@
 "use client";
 
 import { Crown } from "lucide-react";
+
 import { useAllTimeHighestPriceRanking } from "@/hooks/useRankings";
-import { formatKoreanNumber, formatDateTime } from "./utils";
+
+import { formatDateTime, formatKoreanNumber } from "./utils";
 
 export default function AllTimeHighlightCard() {
   const { data, isLoading, error } = useAllTimeHighestPriceRanking(5);

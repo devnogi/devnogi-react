@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * 경매장 거래 내역 화면 레이아웃 모드
@@ -65,7 +65,7 @@ interface UseAuctionHistoryLayoutReturn {
 export function useAuctionHistoryLayout(): UseAuctionHistoryLayoutReturn {
   // SSR/CSR 첫 렌더를 일치시키기 위해 window 값을 초기 렌더에서 직접 읽지 않는다.
   const [windowWidth, setWindowWidth] = useState<number>(
-    LAYOUT_CONSTANTS.TAILWIND_2XL
+    LAYOUT_CONSTANTS.TAILWIND_2XL,
   );
 
   const calculateLayoutMode = useCallback((width: number): LayoutMode => {
@@ -149,7 +149,8 @@ export function useAuctionHistoryLayout(): UseAuctionHistoryLayoutReturn {
   return {
     layoutMode: effectiveLayoutMode,
     showCategorySidebar: effectiveLayoutMode === "desktop",
-    showFilterSidebar: effectiveLayoutMode === "desktop" || effectiveLayoutMode === "tablet",
+    showFilterSidebar:
+      effectiveLayoutMode === "desktop" || effectiveLayoutMode === "tablet",
     showMobileFilter: effectiveLayoutMode === "mobile",
     windowWidth,
     hasOverlapRisk,

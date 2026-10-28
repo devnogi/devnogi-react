@@ -1,9 +1,11 @@
 "use client";
 
 import { DollarSign } from "lucide-react";
+
 import { useMonthLargestVolumeRanking } from "@/hooks/useRankings";
-import { formatKoreanNumber, formatDateTime, getRankMedal } from "./utils";
+
 import RankingCardSkeleton from "./RankingCardSkeleton";
+import { formatDateTime, formatKoreanNumber, getRankMedal } from "./utils";
 
 export default function MonthLargestCard() {
   const { data, isLoading, error } = useMonthLargestVolumeRanking(10);

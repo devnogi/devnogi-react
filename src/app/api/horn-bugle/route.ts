@@ -1,7 +1,8 @@
-import { createServerAxios } from "@/lib/api/server";
-import { HORN_BUGLE_ENDPOINT } from "@/lib/api/constants";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { HORN_BUGLE_ENDPOINT } from "@/lib/api/constants";
+import { createServerAxios } from "@/lib/api/server";
 
 // 캐싱 5분
 export const dynamic = "force-dynamic";

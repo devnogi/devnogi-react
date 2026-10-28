@@ -1,12 +1,13 @@
 // app/Providers.tsx
 "use client";
 
+import React, { ReactNode } from "react";
+import { Toaster } from "sonner";
+
 import TanStackQueryProvider from "@/app/_providers/TanStackQueryProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ConfigProvider } from "@/contexts/ConfigContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import React, { ReactNode } from "react";
-import { Toaster } from "sonner";
 
 const providers = [
   // ThemeProvider가 가장 먼저 로드되어야 다크모드가 즉시 적용됨
@@ -22,7 +23,10 @@ const providers = [
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <>
-      {providers.reduce((acc, Provider) => Provider(acc), children as ReactNode)}
+      {providers.reduce(
+        (acc, Provider) => Provider(acc),
+        children as ReactNode,
+      )}
       <Toaster
         position="top-center"
         richColors

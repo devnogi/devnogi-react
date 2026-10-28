@@ -1,12 +1,14 @@
 "use client";
 
+import { Info } from "lucide-react";
 import { useMemo, useState } from "react";
+
 import { useItemOptionInfos } from "@/hooks/useItemOptionInfos";
 import { ItemOptionInfo, ItemOptionInfoGroup } from "@/types/item-option-info";
-import ItemOptionSearchBar from "./ItemOptionSearchBar";
+
 import ItemOptionFilterTabs, { FILTER_TABS } from "./ItemOptionFilterTabs";
 import ItemOptionGroupCard from "./ItemOptionGroupCard";
-import { Info } from "lucide-react";
+import ItemOptionSearchBar from "./ItemOptionSearchBar";
 
 function groupByOptionType(items: ItemOptionInfo[]): ItemOptionInfoGroup[] {
   const grouped = items.reduce(
@@ -18,7 +20,7 @@ function groupByOptionType(items: ItemOptionInfo[]): ItemOptionInfoGroup[] {
       acc[type].push(item);
       return acc;
     },
-    {} as Record<string, ItemOptionInfo[]>
+    {} as Record<string, ItemOptionInfo[]>,
   );
 
   return Object.entries(grouped)
@@ -31,40 +33,40 @@ function groupByOptionType(items: ItemOptionInfo[]): ItemOptionInfoGroup[] {
 
 function filterByTab(
   groups: ItemOptionInfoGroup[],
-  tabId: string
+  tabId: string,
 ): ItemOptionInfoGroup[] {
   if (tabId === "all") return groups;
 
   const tab = FILTER_TABS.find((t) => t.id === tabId);
   if (!tab || tab.keywords.length === 0) {
     if (tabId === "etc") {
-      const usedKeywords = FILTER_TABS.filter((t) => t.id !== "all" && t.id !== "etc")
-        .flatMap((t) => t.keywords);
+      const usedKeywords = FILTER_TABS.filter(
+        (t) => t.id !== "all" && t.id !== "etc",
+      ).flatMap((t) => t.keywords);
       return groups.filter(
         (group) =>
           !usedKeywords.some(
             (keyword) =>
               group.optionType.includes(keyword) ||
-              group.items.some((item) => item.optionDesc?.includes(keyword))
-          )
+              group.items.some((item) => item.optionDesc?.includes(keyword)),
+          ),
       );
     }
     return groups;
   }
 
-  return groups.filter(
-    (group) =>
-      tab.keywords.some(
-        (keyword) =>
-          group.optionType.includes(keyword) ||
-          group.items.some((item) => item.optionDesc?.includes(keyword))
-      )
+  return groups.filter((group) =>
+    tab.keywords.some(
+      (keyword) =>
+        group.optionType.includes(keyword) ||
+        group.items.some((item) => item.optionDesc?.includes(keyword)),
+    ),
   );
 }
 
 function filterBySearch(
   groups: ItemOptionInfoGroup[],
-  searchQuery: string
+  searchQuery: string,
 ): ItemOptionInfoGroup[] {
   if (!searchQuery.trim()) return groups;
 
@@ -82,7 +84,7 @@ function filterBySearch(
           item.optionSubType?.toLowerCase().includes(query) ||
           item.optionValue?.toLowerCase().includes(query) ||
           item.optionValue2?.toLowerCase().includes(query) ||
-          item.optionDesc?.toLowerCase().includes(query)
+          item.optionDesc?.toLowerCase().includes(query),
       );
 
       if (filteredItems.length === 0) return null;
@@ -111,7 +113,7 @@ export default function ItemOptionInfoPage() {
 
   const totalCount = filteredGroups.reduce(
     (sum, group) => sum + group.items.length,
-    0
+    0,
   );
 
   if (isLoading) {
@@ -179,7 +181,11 @@ export default function ItemOptionInfoPage() {
         <div className="flex items-center gap-2 text-sm text-[var(--color-ds-disabled)]">
           <Info className="w-4 h-4" />
           <span>
-            총 <span className="font-semibold text-[var(--color-ds-text)]">{totalCount}</span>개의 옵션이 있습니다.
+            총{" "}
+            <span className="font-semibold text-[var(--color-ds-text)]">
+              {totalCount}
+            </span>
+            개의 옵션이 있습니다.
           </span>
         </div>
 

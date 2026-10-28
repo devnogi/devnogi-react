@@ -1,6 +1,7 @@
-import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createServerAxios } from "@/lib/api/server";
 
 // posts 검색 요청 캐싱 기간 1분(초)
 export const dynamic = "force-dynamic";
@@ -9,7 +10,7 @@ export const revalidate = 60;
 // 게시판별 게시글 키워드 검색
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id: boardId } = await params;
   const { searchParams } = new URL(request.url);
@@ -28,7 +29,7 @@ export async function GET(
           size,
           keyword,
         },
-      }
+      },
     );
     return NextResponse.json(data, { status });
   } catch (error: unknown) {

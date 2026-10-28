@@ -1,8 +1,9 @@
+import { AxiosError } from "axios";
+import { NextRequest, NextResponse } from "next/server";
+
 import { USER_ENDPOINT } from "@/lib/api/constants";
 import { createAuthServerAxios } from "@/lib/api/server";
 import { createLogger } from "@/lib/logger";
-import { AxiosError } from "axios";
-import { NextRequest, NextResponse } from "next/server";
 
 const logger = createLogger("API/user/info");
 
@@ -19,7 +20,8 @@ export async function PUT(request: NextRequest) {
       if (key === "nicknameTicket") {
         formDataEntries[key] = "[REDACTED]";
       } else if (value instanceof File) {
-        formDataEntries[key] = `[File: ${value.name}, size: ${value.size} bytes, type: ${value.type}]`;
+        formDataEntries[key] =
+          `[File: ${value.name}, size: ${value.size} bytes, type: ${value.type}]`;
       } else {
         formDataEntries[key] = String(value);
       }

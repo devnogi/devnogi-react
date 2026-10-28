@@ -1,7 +1,8 @@
-import { STATISTICS_WEEKLY_TOP_CATEGORIES_ENDPOINT } from "@/lib/api/constants";
-import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { STATISTICS_WEEKLY_TOP_CATEGORIES_ENDPOINT } from "@/lib/api/constants";
+import { createServerAxios } from "@/lib/api/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 300;

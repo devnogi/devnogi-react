@@ -1,17 +1,19 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { useCallback } from "react";
+
+import { Button } from "@/components/ui/button";
 import { clientAxios } from "@/lib/api/clients";
 import {
   ApiResponse,
   BackendCommentsResponse,
   CommentPageResponseItem,
 } from "@/types/community";
-import CommentItem from "./CommentItem";
+
 import CommentForm from "./CommentForm";
-import { Loader2 } from "lucide-react";
-import { useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import CommentItem from "./CommentItem";
 
 interface CommentListProps {
   postId: string;
@@ -67,7 +69,9 @@ export default function CommentList({ postId }: CommentListProps) {
   if (isError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500 dark:text-red-400">댓글을 불러오는데 실패했습니다.</p>
+        <p className="text-red-500 dark:text-red-400">
+          댓글을 불러오는데 실패했습니다.
+        </p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {error instanceof Error ? error.message : "알 수 없는 오류"}
         </p>
@@ -75,8 +79,7 @@ export default function CommentList({ postId }: CommentListProps) {
     );
   }
 
-  const comments =
-    data?.pages.flatMap((page) => page.data?.items || []) || [];
+  const comments = data?.pages.flatMap((page) => page.data?.items || []) || [];
   const totalCount = data?.pages[0]?.data?.meta?.totalElements || 0;
 
   // 대댓글 구조로 변환
@@ -97,13 +100,16 @@ export default function CommentList({ postId }: CommentListProps) {
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-        댓글 <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
+        댓글{" "}
+        <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
       </h3>
 
       {/* Comments */}
       {comments.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500 dark:text-gray-400">첫 댓글을 작성해보세요!</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            첫 댓글을 작성해보세요!
+          </p>
         </div>
       ) : (
         <div className="space-y-2.5">

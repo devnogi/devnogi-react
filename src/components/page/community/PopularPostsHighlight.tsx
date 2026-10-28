@@ -1,17 +1,24 @@
 "use client";
 
-import { Flame, Heart, Eye, MessageCircle, ChevronRight } from "lucide-react";
-import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { ChevronRight, Eye, Flame, Heart, MessageCircle } from "lucide-react";
+import Link from "next/link";
+
 import { usePopularPosts } from "@/hooks/usePopularPosts";
 
 interface PopularPostsHighlightProps {
   boardId?: number;
 }
 
-export default function PopularPostsHighlight({ boardId }: PopularPostsHighlightProps) {
-  const { data: posts, isLoading, isError } = usePopularPosts({ boardId, limit: 5 });
+export default function PopularPostsHighlight({
+  boardId,
+}: PopularPostsHighlightProps) {
+  const {
+    data: posts,
+    isLoading,
+    isError,
+  } = usePopularPosts({ boardId, limit: 5 });
 
   if (isLoading) {
     return <PopularPostsSkeleton />;
@@ -33,9 +40,7 @@ export default function PopularPostsHighlight({ boardId }: PopularPostsHighlight
             지금 뜨는 글
           </h2>
         </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          TOP 5
-        </span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">TOP 5</span>
       </div>
 
       {/* Post List */}
@@ -54,7 +59,7 @@ export default function PopularPostsHighlight({ boardId }: PopularPostsHighlight
                   ? "bg-orange-500 text-white"
                   : index === 1
                     ? "bg-gray-400 text-white"
-                  : index === 2
+                    : index === 2
                       ? "bg-amber-600 text-white"
                       : "bg-gray-100 dark:bg-navy-500 text-gray-600 dark:text-gray-300"
               }`}
@@ -106,10 +111,7 @@ function PopularPostsSkeleton() {
       </div>
       <div className="space-y-1.5">
         {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 p-2.5 rounded-xl"
-          >
+          <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl">
             <div className="w-6 h-6 bg-gray-200 dark:bg-navy-600 rounded-md animate-pulse flex-shrink-0" />
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="h-3.5 bg-gray-200 dark:bg-navy-600 rounded animate-pulse w-3/4" />

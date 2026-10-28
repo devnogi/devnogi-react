@@ -1,9 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+
 import {
-  SearchOptionsApiResponse,
   SearchOptionMetadata,
+  SearchOptionsApiResponse,
 } from "@/types/search-filter";
 
 async function fetchSearchOptions(): Promise<SearchOptionMetadata[]> {

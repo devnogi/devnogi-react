@@ -1,17 +1,20 @@
+import { AxiosError } from "axios";
+import { NextRequest, NextResponse } from "next/server";
+
 import { USER_VERIFICATION_ENDPOINT } from "@/lib/api/constants";
 import { createServerAxios } from "@/lib/api/server";
 import { createLogger } from "@/lib/logger";
-import { AxiosError } from "axios";
-import { NextRequest, NextResponse } from "next/server";
 
 const logger = createLogger("API/user/verification/public/users/summary");
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   const { userId } = await params;
-  logger.info(`========== GET /api/user/verification/public/users/${userId}/summary 요청 시작 ==========`);
+  logger.info(
+    `========== GET /api/user/verification/public/users/${userId}/summary 요청 시작 ==========`,
+  );
 
   try {
     const { searchParams } = new URL(request.url);
@@ -20,20 +23,26 @@ export async function GET(
     const axios = createServerAxios(request);
     const { data, status } = await axios.get(
       `${USER_VERIFICATION_ENDPOINT}/public/users/${userId}/summary`,
-      { params: { limit } }
+      { params: { limit } },
     );
 
     logger.info(`Gateway 응답: status=${status}`, data);
-    logger.info(`========== GET /api/user/verification/public/users/${userId}/summary 요청 완료 ==========`);
+    logger.info(
+      `========== GET /api/user/verification/public/users/${userId}/summary 요청 완료 ==========`,
+    );
 
     return NextResponse.json(data, { status });
   } catch (error: unknown) {
-    logger.error(`GET /api/user/verification/public/users/${userId}/summary 에러 발생`);
+    logger.error(
+      `GET /api/user/verification/public/users/${userId}/summary 에러 발생`,
+    );
 
     if ((error as AxiosError).isAxiosError) {
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status ?? 500;
-      const payload = axiosError.response?.data ?? { message: axiosError.message };
+      const payload = axiosError.response?.data ?? {
+        message: axiosError.message,
+      };
 
       logger.error(`Axios 에러: status=${status}`, payload);
       return NextResponse.json(payload, { status });

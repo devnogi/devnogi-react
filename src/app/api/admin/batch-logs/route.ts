@@ -1,5 +1,6 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
 import {
   BATCH_LOGS_ENDPOINT,
   BATCH_LOGS_LATEST_ENDPOINT,
@@ -21,7 +22,7 @@ function parsePositiveInt(
   raw: string | null,
   fallback: number,
   min: number,
-  max: number
+  max: number,
 ): number {
   if (!raw) return fallback;
   const parsed = Number(raw);
@@ -43,7 +44,7 @@ function buildForbiddenResponse() {
       code: "ACCESS_DENIED",
       message: "관리자 전용 조회 API입니다.",
     },
-    { status: 403 }
+    { status: 403 },
   );
 }
 
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
           code: "BATCH_LATEST_LOGS_FETCHED",
           data: latestResponse.data ?? [],
         },
-        { status: latestResponse.status ?? 200 }
+        { status: latestResponse.status ?? 200 },
       );
     }
 
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
           message:
             "batchType은 AUCTION_HISTORY_BATCH, ITEM_INFO_SYNC, METALWARE_ATTRIBUTE_SYNC 중 하나여야 합니다.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
         code: "BATCH_LOGS_FETCHED",
         data: listResponse.data,
       },
-      { status: listResponse.status ?? 200 }
+      { status: listResponse.status ?? 200 },
     );
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
           message,
           data: responseData,
         },
-        { status }
+        { status },
       );
     }
 
@@ -135,7 +136,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "알 수 없는 오류가 발생했습니다.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

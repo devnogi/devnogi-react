@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ItemOptionInfo } from "@/types/item-option-info";
+
 import { ApiResponse } from "@/types/community";
+import { ItemOptionInfo } from "@/types/item-option-info";
 
 async function fetchItemOptionInfos(): Promise<ItemOptionInfo[]> {
   const response = await fetch("/api/item-option-infos");

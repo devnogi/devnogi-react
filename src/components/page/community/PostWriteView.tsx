@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import {
-  Image as ImageIcon,
-  X,
-  Hash,
-  Smile,
-  Globe,
-  FileText,
   ChevronDown,
+  FileText,
+  Globe,
+  Hash,
+  Image as ImageIcon,
   Loader2,
+  Smile,
+  X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { clientAxios } from "@/lib/api/clients";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Board, ApiResponse, BoardListData } from "@/types/community";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+
 import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { clientAxios } from "@/lib/api/clients";
+import { ApiResponse, Board, BoardListData } from "@/types/community";
 
 type VisibilityOption = "public" | "draft";
 
@@ -124,7 +125,9 @@ export default function PostWriteView() {
       return;
     }
 
-    const selectedBoardData = boardOptions.find((b) => b.id === selectedBoardId);
+    const selectedBoardData = boardOptions.find(
+      (b) => b.id === selectedBoardId,
+    );
     if (!selectedBoardData) {
       toast.error("게시판을 선택해주세요.");
       return;
@@ -145,7 +148,7 @@ export default function PostWriteView() {
       };
       formData.append(
         "data",
-        new Blob([JSON.stringify(postData)], { type: "application/json" })
+        new Blob([JSON.stringify(postData)], { type: "application/json" }),
       );
 
       // 이미지 파일 추가
@@ -208,7 +211,8 @@ export default function PostWriteView() {
               className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <span className="text-sm font-medium text-gray-700">
-                {boardOptions.find((b) => b.id === selectedBoardId)?.name || "게시판 선택"}
+                {boardOptions.find((b) => b.id === selectedBoardId)?.name ||
+                  "게시판 선택"}
               </span>
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </button>
@@ -255,7 +259,9 @@ export default function PostWriteView() {
 
           {content.trim() && (
             <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
-              <div className="mb-2 text-xs font-semibold text-gray-600">미리보기</div>
+              <div className="mb-2 text-xs font-semibold text-gray-600">
+                미리보기
+              </div>
               <MarkdownRenderer content={content} className="text-gray-800" />
             </div>
           )}
@@ -390,7 +396,8 @@ export default function PostWriteView() {
           {/* Character Count */}
           <div className="mt-3 flex justify-between items-center text-xs text-gray-500">
             <span>
-              {images.length > 0 && `${images.length}/${MAX_IMAGE_COUNT} 이미지`}
+              {images.length > 0 &&
+                `${images.length}/${MAX_IMAGE_COUNT} 이미지`}
               {tags.length > 0 &&
                 ` • ${tags.length}/10 태그${images.length > 0 ? "" : ""}`}
             </span>
@@ -418,7 +425,9 @@ export default function PostWriteView() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-600 font-bold">•</span>
-            <span>마크다운으로 제목, 목록, 코드 블록 등을 표현할 수 있습니다.</span>
+            <span>
+              마크다운으로 제목, 목록, 코드 블록 등을 표현할 수 있습니다.
+            </span>
           </li>
         </ul>
       </div>
