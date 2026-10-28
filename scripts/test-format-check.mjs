@@ -16,8 +16,23 @@ const checker = fileURLToPath(new URL("./format-check.mjs", import.meta.url));
 
 test("checks changed working and staged files without shell interpolation", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "memonogi-format-test-"));
+  const localEnvNames = spawnSync("git", ["rev-parse", "--local-env-vars"], {
+    encoding: "utf8",
+  });
+  assert.equal(localEnvNames.status, 0, localEnvNames.stderr);
+  const localKeys = new Set(localEnvNames.stdout.trim().split(/\r?\n/));
+  const childEnv = Object.fromEntries(
+    Object.entries(process.env).filter(
+      ([key]) => !localKeys.has(key.toUpperCase()),
+    ),
+  );
   const run = (cmd, args, options = {}) =>
-    spawnSync(cmd, args, { cwd: dir, encoding: "utf8", ...options });
+    spawnSync(cmd, args, {
+      cwd: dir,
+      encoding: "utf8",
+      env: childEnv,
+      ...options,
+    });
   const git = (...args) => {
     const result = run("git", args);
     assert.equal(result.status, 0, result.stderr);
@@ -36,7 +51,7 @@ test("checks changed working and staged files without shell interpolation", () =
     const base = git("rev-parse", "HEAD");
     const check = () =>
       run(process.execPath, [checker], {
-        env: { ...process.env, FORMAT_BASE_REF: base },
+        env: { ...childEnv, FORMAT_BASE_REF: base },
       });
     assert.equal(check().status, 0, "empty change list");
 
