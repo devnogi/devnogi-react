@@ -1,6 +1,13 @@
 "use client";
 
-import { DollarSign, Settings, FolderTree, TextSearch, Sparkles, Hammer } from "lucide-react";
+import {
+  DollarSign,
+  FolderTree,
+  Hammer,
+  Settings,
+  Sparkles,
+  TextSearch,
+} from "lucide-react";
 
 interface MobileFilterChipsProps {
   activeFilters: {

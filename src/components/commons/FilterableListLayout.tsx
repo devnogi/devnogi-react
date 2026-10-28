@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
 import AuctionCategory from "@/components/commons/Category";
 import AuctionSearch from "@/components/commons/Search";
 import { ItemCategory } from "@/data/item-category";
@@ -103,7 +104,10 @@ export default function FilterableListLayout({
           <div className="w-44 flex-shrink-0 overflow-auto lg:flex hidden">
             <div className="flex-1 space-y-2">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-6 bg-gray-200 rounded animate-pulse" />
+                <div
+                  key={i}
+                  className="h-6 bg-gray-200 rounded animate-pulse"
+                />
               ))}
             </div>
           </div>

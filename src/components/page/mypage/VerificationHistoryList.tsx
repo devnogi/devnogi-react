@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { useVerificationHistory } from "@/hooks/useUserVerification";
-import {
-  History,
-  CheckCircle2,
-  XCircle,
-  ArrowUpDown,
-  Server,
-  Gamepad2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
 import clsx from "clsx";
+import {
+  ArrowUpDown,
+  CheckCircle2,
+  Gamepad2,
+  History,
+  Server,
+  XCircle,
+} from "lucide-react";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { useVerificationHistory } from "@/hooks/useUserVerification";
 
 interface VerificationHistoryListProps {
   enabled: boolean;

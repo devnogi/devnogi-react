@@ -1,12 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/types/community";
+
 import {
-  ItemCategory,
   itemCategories,
+  ItemCategory,
   mergeCategoriesWithFallback,
 } from "@/data/item-category";
+import { ApiResponse } from "@/types/community";
 
 interface ItemCategoriesData {
   categories: ItemCategory[];
@@ -15,7 +16,7 @@ interface ItemCategoriesData {
 // 타임아웃이 있는 fetch
 async function fetchWithTimeout(
   url: string,
-  timeoutMs: number
+  timeoutMs: number,
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -31,7 +32,10 @@ async function fetchWithTimeout(
 }
 
 // retry 로직을 포함한 fetch (3번 시도, 타임아웃 5초씩 증가: 5초, 10초, 15초)
-async function fetchWithRetry(url: string, maxRetries: number = 3): Promise<Response> {
+async function fetchWithRetry(
+  url: string,
+  maxRetries: number = 3,
+): Promise<Response> {
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {

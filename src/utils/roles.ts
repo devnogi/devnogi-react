@@ -1,6 +1,6 @@
-﻿export const ADMIN_ROLES = ["ADMIN", "SUPER_ADMIN"] as const;
+﻿const ADMIN_ROLES = ["ADMIN", "SUPER_ADMIN"] as const;
 
-export type AdminRole = (typeof ADMIN_ROLES)[number];
+type AdminRole = (typeof ADMIN_ROLES)[number];
 
 const ADMIN_ROLE_SET = new Set<AdminRole>(ADMIN_ROLES);
 

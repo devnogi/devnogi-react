@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { Board, ApiResponse, BoardListData } from "@/types/community";
-import CategorySkeleton from "./CategorySkeleton";
+import { useCallback, useEffect, useState } from "react";
+
 import DataFetchError from "@/components/commons/DataFetchError";
+import { ApiResponse, Board, BoardListData } from "@/types/community";
+
+import CategorySkeleton from "./CategorySkeleton";
 
 interface CategoryProps {
   selectedBoardId: number | undefined;
@@ -76,7 +78,7 @@ function Category({ selectedBoardId, setSelectedBoardId }: CategoryProps) {
           "px-4 py-2 rounded-xl text-sm font-medium transition-all flex-shrink-0",
           selectedBoardId === undefined
             ? "bg-[var(--color-ds-primary)] text-white shadow-md"
-            : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
+            : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600",
         )}
       >
         전체
@@ -91,7 +93,7 @@ function Category({ selectedBoardId, setSelectedBoardId }: CategoryProps) {
             "px-4 py-2 rounded-xl text-sm font-medium transition-all flex-shrink-0 relative group",
             selectedBoardId === category.id
               ? "bg-[var(--color-ds-primary)] text-white shadow-md"
-              : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
+              : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600",
           )}
         >
           <span>{category.name}</span>

@@ -1,14 +1,15 @@
 "use client";
 
+import { Menu } from "lucide-react";
+import React, { useMemo, useRef, useState } from "react";
+
+import Autocomplete from "@/components/commons/Autocomplete";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ItemCategory } from "@/data/item-category";
-import React, { useRef, useState, useMemo } from "react";
-import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
-import Autocomplete from "@/components/commons/Autocomplete";
-import { Menu } from "lucide-react";
+import { ItemInfo, useItemInfos } from "@/hooks/useItemInfos";
 
 export default function SearchSection({
   path,

@@ -1,6 +1,7 @@
-import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createServerAxios } from "@/lib/api/server";
 
 // posts 검색 요청 캐싱 기간 1분(초)
 export const dynamic = "force-dynamic";

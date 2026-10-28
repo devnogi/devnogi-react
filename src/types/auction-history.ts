@@ -7,7 +7,7 @@
  * 검색 기준 (이상/이하/같음)
  * Backend: SearchStandard enum
  */
-export type SearchStandard = "UP" | "DOWN" | "EQUAL";
+type SearchStandard = "UP" | "DOWN" | "EQUAL";
 
 /**
  * 가격 검색 조건
@@ -22,7 +22,7 @@ export interface PriceSearchRequest {
  * 거래 일자 조건
  * Backend: DateAuctionBuyRequest
  */
-export interface DateAuctionBuyRequest {
+interface DateAuctionBuyRequest {
   dateAuctionBuyFrom?: string; // yyyy-MM-dd
   dateAuctionBuyTo?: string; // yyyy-MM-dd
 }
@@ -31,7 +31,7 @@ export interface DateAuctionBuyRequest {
  * 밸런스 검색 조건
  * Backend: BalanceSearchRequest
  */
-export interface BalanceSearchRequest {
+interface BalanceSearchRequest {
   balance?: number;
   balanceStandard?: SearchStandard;
 }
@@ -40,7 +40,7 @@ export interface BalanceSearchRequest {
  * 크리티컬 검색 조건
  * Backend: CriticalSearchRequest
  */
-export interface CriticalSearchRequest {
+interface CriticalSearchRequest {
   critical?: number;
   criticalStandard?: SearchStandard;
 }
@@ -49,7 +49,7 @@ export interface CriticalSearchRequest {
  * 방어력 검색 조건
  * Backend: DefenseSearchRequest
  */
-export interface DefenseSearchRequest {
+interface DefenseSearchRequest {
   defense?: number;
   defenseStandard?: SearchStandard;
 }
@@ -58,7 +58,7 @@ export interface DefenseSearchRequest {
  * 에르그 검색 조건 (범위)
  * Backend: ErgSearchRequest
  */
-export interface ErgSearchRequest {
+interface ErgSearchRequest {
   ergFrom?: number;
   ergTo?: number;
 }
@@ -67,7 +67,7 @@ export interface ErgSearchRequest {
  * 에르그 등급 검색 조건
  * Backend: ErgRankSearchRequest
  */
-export interface ErgRankSearchRequest {
+interface ErgRankSearchRequest {
   ergRank?: string;
 }
 
@@ -75,7 +75,7 @@ export interface ErgRankSearchRequest {
  * 마법 방어력 검색 조건
  * Backend: MagicDefenseSearchRequest
  */
-export interface MagicDefenseSearchRequest {
+interface MagicDefenseSearchRequest {
   magicDefense?: number;
   magicDefenseStandard?: SearchStandard;
 }
@@ -84,7 +84,7 @@ export interface MagicDefenseSearchRequest {
  * 마법 보호 검색 조건
  * Backend: MagicProtectSearchRequest
  */
-export interface MagicProtectSearchRequest {
+interface MagicProtectSearchRequest {
   magicProtect?: number;
   magicProtectStandard?: SearchStandard;
 }
@@ -93,7 +93,7 @@ export interface MagicProtectSearchRequest {
  * 최대 공격력 검색 조건
  * Backend: MaxAttackSearchRequest
  */
-export interface MaxAttackSearchRequest {
+interface MaxAttackSearchRequest {
   maxAttackFrom?: number;
   maxAttackTo?: number;
 }
@@ -102,7 +102,7 @@ export interface MaxAttackSearchRequest {
  * 최대 내구력 검색 조건
  * Backend: MaximumDurabilitySearchRequest
  */
-export interface MaximumDurabilitySearchRequest {
+interface MaximumDurabilitySearchRequest {
   maximumDurability?: number;
   maximumDurabilityStandard?: SearchStandard;
 }
@@ -111,7 +111,7 @@ export interface MaximumDurabilitySearchRequest {
  * 최대 부상률 검색 조건
  * Backend: MaxInjuryRateSearchRequest
  */
-export interface MaxInjuryRateSearchRequest {
+interface MaxInjuryRateSearchRequest {
   maxInjuryRateFrom?: number;
   maxInjuryRateTo?: number;
 }
@@ -120,7 +120,7 @@ export interface MaxInjuryRateSearchRequest {
  * 숙련도 검색 조건
  * Backend: ProficiencySearchRequest
  */
-export interface ProficiencySearchRequest {
+interface ProficiencySearchRequest {
   proficiency?: number;
   proficiencyStandard?: SearchStandard;
 }
@@ -129,7 +129,7 @@ export interface ProficiencySearchRequest {
  * 보호 검색 조건
  * Backend: ProtectSearchRequest
  */
-export interface ProtectSearchRequest {
+interface ProtectSearchRequest {
   protect?: number;
   protectStandard?: SearchStandard;
 }
@@ -138,7 +138,7 @@ export interface ProtectSearchRequest {
  * 남은 거래 횟수 검색 조건
  * Backend: RemainingTransactionCountSearchRequest
  */
-export interface RemainingTransactionCountSearchRequest {
+interface RemainingTransactionCountSearchRequest {
   remainingTransactionCount?: number;
   remainingTransactionCountStandard?: SearchStandard;
 }
@@ -147,7 +147,7 @@ export interface RemainingTransactionCountSearchRequest {
  * 남은 전용 해제 가능 횟수 검색 조건
  * Backend: RemainingUnsealCountSearchRequest
  */
-export interface RemainingUnsealCountSearchRequest {
+interface RemainingUnsealCountSearchRequest {
   remainingUnsealCount?: number;
   remainingUnsealCountStandard?: SearchStandard;
 }
@@ -156,7 +156,7 @@ export interface RemainingUnsealCountSearchRequest {
  * 남은 사용 횟수 검색 조건
  * Backend: RemainingUseCountSearchRequest
  */
-export interface RemainingUseCountSearchRequest {
+interface RemainingUseCountSearchRequest {
   remainingUseCount?: number;
   remainingUseCountStandard?: SearchStandard;
 }
@@ -165,7 +165,7 @@ export interface RemainingUseCountSearchRequest {
  * 착용 제한 검색 조건
  * Backend: WearingRestrictionsSearchRequest
  */
-export interface WearingRestrictionsSearchRequest {
+interface WearingRestrictionsSearchRequest {
   wearingRestrictions?: string;
 }
 
@@ -215,7 +215,7 @@ export interface MetalwareSearchRequest {
  * 경매 거래내역 검색 조건
  * Backend: AuctionHistorySearchRequest
  */
-export interface AuctionHistorySearchRequest {
+interface AuctionHistorySearchRequest {
   itemName?: string;
   isExactItemName?: boolean;
   itemTopCategory?: string;
@@ -231,7 +231,8 @@ export interface AuctionHistorySearchRequest {
  * 경매 히스토리 검색 파라미터 (페이지네이션 포함)
  * Backend: PageRequestDto + AuctionHistorySearchRequest
  */
-export interface AuctionHistorySearchParams extends AuctionHistorySearchRequest {
+export interface AuctionHistorySearchParams
+  extends AuctionHistorySearchRequest {
   // 페이지네이션
   page?: number;
   size?: number;

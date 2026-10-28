@@ -1,5 +1,5 @@
-export type TokenStatus = "ACTIVE" | "VERIFIED" | "REVOKED" | "EXPIRED";
-export type VerificationState = "VERIFIED" | "UNVERIFIED";
+type TokenStatus = "ACTIVE" | "VERIFIED" | "REVOKED" | "EXPIRED";
+type VerificationState = "VERIFIED" | "UNVERIFIED";
 
 export interface UserVerificationTokenIssueResponse {
   verificationCode: string;
@@ -29,7 +29,7 @@ export interface UserVerificationInfoResponse {
   latestTokenId: number | null;
 }
 
-export interface UserVerificationHistoryItem {
+interface UserVerificationHistoryItem {
   historyId: number;
   serverName: string | null;
   characterName: string | null;
@@ -46,14 +46,4 @@ export interface UserVerificationHistoryListResponse {
   limit: number;
   count: number;
   items: UserVerificationHistoryItem[];
-}
-
-export interface UserVerificationPublicSummaryResponse {
-  userId: number;
-  verified: boolean;
-  serverName: string | null;
-  characterName: string | null;
-  lastVerifiedAt: string | null;
-  verificationCount: number;
-  histories: UserVerificationHistoryItem[];
 }

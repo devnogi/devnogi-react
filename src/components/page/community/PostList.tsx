@@ -1,11 +1,13 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
+
+import DataFetchError from "@/components/commons/DataFetchError";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+
 import PostCard from "./PostCard";
 import PostListSkeleton from "./PostListSkeleton";
-import DataFetchError from "@/components/commons/DataFetchError";
-import { useEffect, useRef } from "react";
-import { Loader2 } from "lucide-react";
 
 interface PostListProps {
   boardId?: number;
@@ -14,7 +16,12 @@ interface PostListProps {
   userId?: number;
 }
 
-export default function PostList({ boardId, keyword, sortType, userId }: PostListProps) {
+export default function PostList({
+  boardId,
+  keyword,
+  sortType,
+  userId,
+}: PostListProps) {
   const {
     data,
     fetchNextPage,

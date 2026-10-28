@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import clsx from "clsx";
+import { Eye, EyeOff, Loader2, Lock, Mail, X } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -14,17 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
-  Loader2,
-  X,
-} from "lucide-react";
-import Link from "next/link";
-import clsx from "clsx";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConfig } from "@/contexts/ConfigContext";
 
@@ -80,11 +74,18 @@ const KakaoIcon = () => (
 
 const NaverIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5">
-    <path fill="#03C75A" d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
+    <path
+      fill="#03C75A"
+      d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"
+    />
   </svg>
 );
 
-export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
+export default function LoginModal({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+}: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const { login, refreshUser } = useAuth();
   const { config, isLoading: isConfigLoading } = useConfig();

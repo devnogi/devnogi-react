@@ -1,6 +1,5 @@
 "use client";
 
-import { ItemInfoCategory } from "@/types/item-info";
 import {
   Select,
   SelectContent,
@@ -8,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ItemInfoCategory } from "@/types/item-info";
 
 interface ItemInfoCategoryFilterProps {
   categories: ItemInfoCategory[];
@@ -49,7 +49,10 @@ export default function ItemInfoCategoryFilter({
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
-                <SelectItem key={category.topCategory} value={category.topCategory}>
+                <SelectItem
+                  key={category.topCategory}
+                  value={category.topCategory}
+                >
                   {category.topCategory}
                 </SelectItem>
               ))}
@@ -63,7 +66,9 @@ export default function ItemInfoCategoryFilter({
           </label>
           <Select
             value={subCategoryValue}
-            onValueChange={(value) => onSubCategoryChange(value === "__all__" ? "" : value)}
+            onValueChange={(value) =>
+              onSubCategoryChange(value === "__all__" ? "" : value)
+            }
             disabled={subCategories.length === 0}
           >
             <SelectTrigger className="w-full h-11 bg-white dark:bg-navy-800 border-[var(--color-ds-neutral-tone)] text-[var(--color-ds-text)]">

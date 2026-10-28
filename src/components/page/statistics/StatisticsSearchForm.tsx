@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { Search, Clock, X } from "lucide-react";
 import clsx from "clsx";
+import { Clock, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { StatisticsTabType } from "./StatisticsTabs";
+
 import { useItemCategories } from "@/hooks/useItemCategories";
-import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
-import { useRecentSearches, RecentSearch } from "@/hooks/useRecentSearches";
+import { ItemInfo, useItemInfos } from "@/hooks/useItemInfos";
+import { RecentSearch, useRecentSearches } from "@/hooks/useRecentSearches";
+
+import { StatisticsTabType } from "./StatisticsTabs";
 
 interface StatisticsSearchFormProps {
   activeTab: StatisticsTabType;
@@ -49,17 +51,21 @@ export default function StatisticsSearchForm({
 
   const topCategories = useMemo(() => {
     const topNodes =
-      categories.find((category) => category.id === "all" && category.children?.length)?.children ||
-      categories.filter((category) => category.id !== "all");
+      categories.find(
+        (category) => category.id === "all" && category.children?.length,
+      )?.children || categories.filter((category) => category.id !== "all");
     return topNodes.map((category) => category.name);
   }, [categories]);
 
   const subCategories = useMemo(() => {
     const topNodes =
-      categories.find((category) => category.id === "all" && category.children?.length)?.children ||
-      categories.filter((category) => category.id !== "all");
+      categories.find(
+        (category) => category.id === "all" && category.children?.length,
+      )?.children || categories.filter((category) => category.id !== "all");
 
-    const selectedTop = topNodes.find((category) => category.name === topCategory);
+    const selectedTop = topNodes.find(
+      (category) => category.name === topCategory,
+    );
     return selectedTop?.children?.map((child) => child.name) ?? [];
   }, [categories, topCategory]);
 
@@ -168,12 +174,20 @@ export default function StatisticsSearchForm({
       return;
     }
 
-    if (itemName.trim().length > 0 && selectedIndex >= 0 && filteredItems[selectedIndex]) {
+    if (
+      itemName.trim().length > 0 &&
+      selectedIndex >= 0 &&
+      filteredItems[selectedIndex]
+    ) {
       handleItemSelect(filteredItems[selectedIndex]);
       return;
     }
 
-    if (itemName.trim().length === 0 && selectedIndex >= 0 && recentSearches[selectedIndex]) {
+    if (
+      itemName.trim().length === 0 &&
+      selectedIndex >= 0 &&
+      recentSearches[selectedIndex]
+    ) {
       handleRecentSearchClick(recentSearches[selectedIndex]);
       return;
     }
@@ -270,7 +284,8 @@ export default function StatisticsSearchForm({
                   refreshRecentSearches();
                 }}
                 onKeyDown={(e) => {
-                  const items = itemName.trim().length > 0 ? filteredItems : recentSearches;
+                  const items =
+                    itemName.trim().length > 0 ? filteredItems : recentSearches;
                   const maxIndex = items.length - 1;
 
                   if (e.key === "Enter") {
@@ -348,7 +363,9 @@ export default function StatisticsSearchForm({
                                   : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                               )}
                             >
-                              <div className="font-medium text-sm">{item.name}</div>
+                              <div className="font-medium text-sm">
+                                {item.name}
+                              </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {item.topCategory} › {item.subCategory}
                               </div>
@@ -399,7 +416,9 @@ export default function StatisticsSearchForm({
                           >
                             <Clock className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm">{search.itemName}</div>
+                              <div className="font-medium text-sm">
+                                {search.itemName}
+                              </div>
                               {search.topCategory && search.subCategory && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   {search.topCategory} › {search.subCategory}

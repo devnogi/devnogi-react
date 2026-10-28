@@ -1,8 +1,9 @@
+import { AxiosError } from "axios";
+import { NextRequest, NextResponse } from "next/server";
+
 import { USER_VERIFICATION_ENDPOINT } from "@/lib/api/constants";
 import { createAuthServerAxios } from "@/lib/api/server";
 import { createLogger } from "@/lib/logger";
-import { AxiosError } from "axios";
-import { NextRequest, NextResponse } from "next/server";
 
 const logger = createLogger("API/user/verification/history");
 

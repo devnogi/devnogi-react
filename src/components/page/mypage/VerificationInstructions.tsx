@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import clsx from "clsx";
 import {
+  CheckCircle2,
   ChevronDown,
+  FileEdit,
   KeyRound,
   Monitor,
-  FileEdit,
-  CheckCircle2,
 } from "lucide-react";
-import clsx from "clsx";
+import { useState } from "react";
 
 const steps = [
   {

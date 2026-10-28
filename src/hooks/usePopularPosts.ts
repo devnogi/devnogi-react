@@ -1,12 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { clientAxios } from "@/lib/api/clients";
-import type {
-  BackendPostSummary,
-  PostSummary,
-} from "@/hooks/useInfinitePosts";
+
+import type { BackendPostSummary, PostSummary } from "@/hooks/useInfinitePosts";
 import { normalizePostSummary } from "@/hooks/useInfinitePosts";
+import { clientAxios } from "@/lib/api/clients";
 
 interface PageMeta {
   currentPage: number;
@@ -40,7 +38,10 @@ interface UsePopularPostsParams {
  * - boardId가 있으면: 해당 게시판의 인기글 API 호출
  * - boardId가 없으면: 전체 최신글에서 좋아요순 정렬
  */
-export function usePopularPosts({ boardId, limit = 5 }: UsePopularPostsParams = {}) {
+export function usePopularPosts({
+  boardId,
+  limit = 5,
+}: UsePopularPostsParams = {}) {
   return useQuery<PostSummary[]>({
     queryKey: ["popularPosts", boardId, limit],
     queryFn: async () => {
@@ -48,14 +49,17 @@ export function usePopularPosts({ boardId, limit = 5 }: UsePopularPostsParams = 
         // 게시판별 인기글 API 호출
         const response = await clientAxios.get<ApiResponse<BackendPostsData>>(
           `/posts/${boardId}/popular`,
-          { params: { page: 1, size: limit } }
+          { params: { page: 1, size: limit } },
         );
         return response.data.data.items.map(normalizePostSummary);
       } else {
         // 전체 게시글에서 좋아요순 정렬 (백엔드 전체 인기글 API 미지원)
-        const response = await clientAxios.get<ApiResponse<BackendPostsData>>("/posts", {
-          params: { page: 1, size: 50 },
-        });
+        const response = await clientAxios.get<ApiResponse<BackendPostsData>>(
+          "/posts",
+          {
+            params: { page: 1, size: 50 },
+          },
+        );
         // 클라이언트에서 좋아요순 정렬 후 상위 N개 반환
         return response.data.data.items
           .map(normalizePostSummary)

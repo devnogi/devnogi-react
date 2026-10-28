@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { usePriceSurgeRanking, usePriceDropRanking } from "@/hooks/useRankings";
-import { formatKoreanNumber, formatChangeRate, getRankMedal } from "./utils";
-import RankingCardSkeleton from "./RankingCardSkeleton";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+
+import { usePriceDropRanking, usePriceSurgeRanking } from "@/hooks/useRankings";
 import { PriceChangeRankingResponse } from "@/types/ranking";
+
+import RankingCardSkeleton from "./RankingCardSkeleton";
+import { formatChangeRate, formatKoreanNumber, getRankMedal } from "./utils";
 
 interface PriceChangeCardContentProps {
   data: PriceChangeRankingResponse[] | undefined;
@@ -86,7 +88,7 @@ function PriceChangeCardContent({
 }
 
 // Surge Card Component
-export function PriceSurgeCard() {
+function PriceSurgeCard() {
   const { data, isLoading, error } = usePriceSurgeRanking(10);
 
   return (
@@ -118,7 +120,7 @@ export function PriceSurgeCard() {
 }
 
 // Drop Card Component
-export function PriceDropCard() {
+function PriceDropCard() {
   const { data, isLoading, error } = usePriceDropRanking(10);
 
   return (

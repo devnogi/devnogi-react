@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
-import { ItemInfo } from "@/hooks/useItemInfos";
 import clsx from "clsx";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { ItemInfo } from "@/hooks/useItemInfos";
 
 interface AutocompleteProps {
   items: ItemInfo[];

@@ -1,5 +1,6 @@
 ﻿import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
 import {
   AUCTION_HISTORY_BATCH_ENDPOINT,
   ENCHANT_INFO_SYNC_ENDPOINT,
@@ -57,7 +58,7 @@ function buildUnknownTaskResponse(task: string) {
       code: "UNKNOWN_ADMIN_TASK",
       message: `지원하지 않는 작업입니다: ${task}`,
     },
-    { status: 404 }
+    { status: 404 },
   );
 }
 
@@ -65,10 +66,7 @@ type TaskRouteContext = {
   params: Promise<{ task: string }>;
 };
 
-export async function POST(
-  request: NextRequest,
-  { params }: TaskRouteContext
-) {
+export async function POST(request: NextRequest, { params }: TaskRouteContext) {
   const { task } = await params;
   const taskConfig = TASK_CONFIG[task as TaskKey];
 
@@ -79,8 +77,7 @@ export async function POST(
   try {
     const authAxios = createAuthServerAxios(request);
     const userResponse = await authAxios.get(`${USER_ENDPOINT}/info`);
-    const role =
-      userResponse.data?.data?.role ?? userResponse.data?.role ?? "";
+    const role = userResponse.data?.data?.role ?? userResponse.data?.role ?? "";
     const normalizedRole = normalizeRole(role);
 
     if (!isAdminRole(normalizedRole)) {
@@ -90,7 +87,7 @@ export async function POST(
           code: "ACCESS_DENIED",
           message: "관리자 전용 작업입니다.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -106,7 +103,7 @@ export async function POST(
         data: response.data ?? null,
         task,
       },
-      { status: response.status ?? 200 }
+      { status: response.status ?? 200 },
     );
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -125,7 +122,7 @@ export async function POST(
           data: responseData,
           task,
         },
-        { status }
+        { status },
       );
     }
 
@@ -141,8 +138,7 @@ export async function POST(
         message: fallbackMessage,
         task,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

@@ -1,14 +1,20 @@
 "use client";
 
-import { CommentPageResponseItem } from "@/types/community";
-import { Heart, MessageCircle, Pencil, Trash2, X, Check, Loader2, Flag } from "lucide-react";
-import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import { useState, useEffect, useCallback } from "react";
-import CommentForm from "./CommentForm";
-import { useAuth } from "@/contexts/AuthContext";
-import { clientAxios } from "@/lib/api/clients";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
+import {
+  Check,
+  Flag,
+  Heart,
+  Loader2,
+  MessageCircle,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,8 +25,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import { useAuth } from "@/contexts/AuthContext";
+import { clientAxios } from "@/lib/api/clients";
+import { CommentPageResponseItem } from "@/types/community";
+
+import CommentForm from "./CommentForm";
 import ReportDialog from "./ReportDialog";
 
 interface CommentItemProps {
@@ -78,7 +89,9 @@ export default function CommentItem({
 
     const handlePopState = (e: PopStateEvent) => {
       if (hasUnsavedChanges) {
-        const confirmLeave = window.confirm("수정 중인 내용이 사라집니다. 계속하시겠습니까?");
+        const confirmLeave = window.confirm(
+          "수정 중인 내용이 사라집니다. 계속하시겠습니까?",
+        );
         if (!confirmLeave) {
           e.preventDefault();
           window.history.pushState(null, "", window.location.href);
@@ -193,16 +206,18 @@ export default function CommentItem({
   // 삭제되거나 차단된 댓글 표시
   if (comment.isDeleted || comment.isBlocked) {
     return (
-      <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}>
+      <div
+        className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}
+      >
         <div className="bg-gray-50 dark:bg-navy-600/40 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-navy-500" />
-            <span className="text-gray-500 dark:text-gray-400 text-sm">알 수 없음</span>
+            <span className="text-gray-500 dark:text-gray-400 text-sm">
+              알 수 없음
+            </span>
           </div>
           <p className="text-gray-500 dark:text-gray-400 text-sm italic">
-            {comment.isDeleted
-              ? "삭제된 댓글입니다."
-              : "차단된 댓글입니다."}
+            {comment.isDeleted ? "삭제된 댓글입니다." : "차단된 댓글입니다."}
           </p>
         </div>
       </div>
@@ -210,7 +225,9 @@ export default function CommentItem({
   }
 
   return (
-    <div className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}>
+    <div
+      className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}
+    >
       <div className="bg-gray-50 dark:bg-navy-600/40 rounded-xl p-3">
         {/* Header: Avatar + Nickname + Date + Actions (같은 행) */}
         <div className="flex items-center justify-between mb-2">
@@ -395,7 +412,10 @@ export default function CommentItem({
       </AlertDialog>
 
       {/* Cancel Edit Confirmation Dialog */}
-      <AlertDialog open={showCancelEditDialog} onOpenChange={setShowCancelEditDialog}>
+      <AlertDialog
+        open={showCancelEditDialog}
+        onOpenChange={setShowCancelEditDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>수정 취소</AlertDialogTitle>

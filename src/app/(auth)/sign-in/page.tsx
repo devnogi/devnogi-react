@@ -1,12 +1,24 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import clsx from "clsx";
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  ShieldCheck,
+  Sparkles,
+  User,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -15,20 +27,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Eye,
-  EyeOff,
-  Lock,
-  ArrowLeft,
-  User,
-  Loader2,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-import Link from "next/link";
-import clsx from "clsx";
-import { useConfig } from "@/contexts/ConfigContext";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { useConfig } from "@/contexts/ConfigContext";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "올바른 이메일 주소를 입력해주세요" }),
@@ -69,7 +70,10 @@ const KakaoIcon = () => (
 
 const NaverIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5">
-    <path fill="#03C75A" d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
+    <path
+      fill="#03C75A"
+      d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"
+    />
   </svg>
 );
 
@@ -100,7 +104,7 @@ export default function Page() {
       }
       // social_login_cancel은 별도 처리 불필요
     },
-    [refreshUser, router]
+    [refreshUser, router],
   );
 
   // 메시지 리스너 등록
@@ -153,7 +157,11 @@ export default function Page() {
       succeeded = true;
       router.push(returnUrl);
     } catch (error) {
-      setLoginError(error instanceof Error ? error.message : "로그인에 실패했습니다. 다시 시도해주세요.");
+      setLoginError(
+        error instanceof Error
+          ? error.message
+          : "로그인에 실패했습니다. 다시 시도해주세요.",
+      );
     } finally {
       if (!succeeded) {
         submitting.current = false;
@@ -190,12 +198,11 @@ export default function Page() {
               </p>
               <h2 className="text-3xl font-bold leading-tight">
                 마비노기 정보를
-                <br />
-                더 빠르게 확인하세요.
+                <br />더 빠르게 확인하세요.
               </h2>
               <p className="text-sm text-white/85">
-                로그인 후 경매장 분석, 실시간 데이터, 커뮤니티 활동을 바로 이용할
-                수 있습니다.
+                로그인 후 경매장 분석, 실시간 데이터, 커뮤니티 활동을 바로
+                이용할 수 있습니다.
               </p>
             </div>
             <div className="rounded-2xl border border-white/20 bg-black/10 p-4">
@@ -225,7 +232,8 @@ export default function Page() {
                   계정 정보를 입력하고 메모노기를 시작하세요.
                 </p>
                 <p className="mt-1 text-xs text-cream-500">
-                  메모노기는 NEXON OPEN API를 활용한 비공식 커뮤니티 서비스입니다.
+                  메모노기는 NEXON OPEN API를 활용한 비공식 커뮤니티
+                  서비스입니다.
                 </p>
               </header>
 
@@ -291,9 +299,7 @@ export default function Page() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-cream-400 transition-colors hover:text-cream-600"
                             aria-label={
-                              showPassword
-                                ? "비밀번호 숨기기"
-                                : "비밀번호 보기"
+                              showPassword ? "비밀번호 숨기기" : "비밀번호 보기"
                             }
                           >
                             {showPassword ? (
@@ -309,7 +315,9 @@ export default function Page() {
                   />
 
                   {loginError && (
-                    <p role="alert" className="text-sm text-red-600">{loginError}</p>
+                    <p role="alert" className="text-sm text-red-600">
+                      {loginError}
+                    </p>
                   )}
 
                   <Button

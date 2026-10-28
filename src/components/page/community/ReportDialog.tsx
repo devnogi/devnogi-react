@@ -1,6 +1,10 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,10 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { clientAxios } from "@/lib/api/clients";
-import { toast } from "sonner";
 
 const REPORT_CATEGORIES = [
   { value: "SPAM", label: "스팸/도배" },
@@ -96,7 +97,9 @@ export default function ReportDialog({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">신고 카테고리</label>
+            <label className="text-sm font-medium text-foreground">
+              신고 카테고리
+            </label>
             <Select value={categoryCd} onValueChange={setCategoryCd}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="카테고리를 선택하세요" />
@@ -112,7 +115,9 @@ export default function ReportDialog({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">신고 사유</label>
+            <label className="text-sm font-medium text-foreground">
+              신고 사유
+            </label>
             <Textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}

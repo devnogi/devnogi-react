@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { ItemInfoCategory } from "@/types/item-info";
+
 import {
-  ItemCategory,
   itemCategories,
+  ItemCategory,
   mergeCategoriesWithFallback,
 } from "@/data/item-category";
+import { ItemInfoCategory } from "@/types/item-info";
 
 interface CategoryApiResponse {
   topCategory: string;
@@ -21,7 +22,10 @@ interface ApiResponse<T> {
 
 function extractTopCategories(categories: ItemCategory[]): ItemCategory[] {
   const allNode = categories.find(
-    (category) => category.id === "all" && category.children && category.children.length > 0,
+    (category) =>
+      category.id === "all" &&
+      category.children &&
+      category.children.length > 0,
   );
 
   if (allNode?.children) {
@@ -36,7 +40,12 @@ function toItemInfoCategories(categories: ItemCategory[]): ItemInfoCategory[] {
     .map((category) => ({
       topCategory: category.name || category.id,
       subCategories: (category.children || [])
-        .map((subCategory) => subCategory.name || subCategory.id.split("/").pop() || subCategory.id)
+        .map(
+          (subCategory) =>
+            subCategory.name ||
+            subCategory.id.split("/").pop() ||
+            subCategory.id,
+        )
         .filter(Boolean),
     }))
     .filter((category) => category.subCategories.length > 0);
@@ -45,7 +54,7 @@ function toItemInfoCategories(categories: ItemCategory[]): ItemInfoCategory[] {
 // 타임아웃이 있는 fetch
 async function fetchWithTimeout(
   url: string,
-  timeoutMs: number
+  timeoutMs: number,
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -61,7 +70,10 @@ async function fetchWithTimeout(
 }
 
 // retry 로직을 포함한 fetch (3번 시도, 타임아웃 5초씩 증가: 5초, 10초, 15초)
-async function fetchWithRetry(url: string, maxRetries: number = 3): Promise<Response> {
+async function fetchWithRetry(
+  url: string,
+  maxRetries: number = 3,
+): Promise<Response> {
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -120,12 +132,16 @@ async function fetchItemInfoCategories(): Promise<ItemInfoCategory[]> {
     categoryMap.set(topCategory, existing);
   });
 
-  const categoriesFromApi: ItemInfoCategory[] = Array.from(categoryMap.entries()).map(([topCategory, subCategories]) => ({
+  const categoriesFromApi: ItemInfoCategory[] = Array.from(
+    categoryMap.entries(),
+  ).map(([topCategory, subCategories]) => ({
     topCategory,
     subCategories,
   }));
 
-  const merged = mergeCategoriesWithFallback(buildCategoryTree(categoriesFromApi));
+  const merged = mergeCategoriesWithFallback(
+    buildCategoryTree(categoriesFromApi),
+  );
   return toItemInfoCategories(merged);
 }
 

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { clientAxios } from "@/lib/api/clients";
 import { Notice } from "@/types/notice";
 
@@ -15,7 +16,7 @@ export function useNotices(userId: number | undefined, day: number = 7) {
     queryKey: ["notices", userId, day],
     queryFn: async () => {
       const res = await clientAxios.get<NoticesResponse>(
-        `/notices?userId=${userId}&day=${day}`
+        `/notices?userId=${userId}&day=${day}`,
       );
       return res.data.data ?? [];
     },
@@ -25,7 +26,10 @@ export function useNotices(userId: number | undefined, day: number = 7) {
   });
 }
 
-export function useUnreadNoticeCount(userId: number | undefined, day: number = 7) {
+export function useUnreadNoticeCount(
+  userId: number | undefined,
+  day: number = 7,
+) {
   const { data: notices = [] } = useNotices(userId, day);
   return notices.filter((n) => !n.isRead).length;
 }

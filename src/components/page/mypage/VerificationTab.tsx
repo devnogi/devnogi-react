@@ -1,10 +1,11 @@
 "use client";
 
 import { useVerificationInfo } from "@/hooks/useUserVerification";
+
+import VerificationHistoryList from "./VerificationHistoryList";
+import VerificationInstructions from "./VerificationInstructions";
 import VerificationStatusCard from "./VerificationStatusCard";
 import VerificationTokenCard from "./VerificationTokenCard";
-import VerificationInstructions from "./VerificationInstructions";
-import VerificationHistoryList from "./VerificationHistoryList";
 
 interface VerificationTabProps {
   userId: number | undefined;

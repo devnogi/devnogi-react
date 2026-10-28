@@ -1,6 +1,14 @@
 "use client";
 
-import { DollarSign, Calendar, Settings, FolderTree, TextSearch, Sparkles, Hammer } from "lucide-react";
+import {
+  Calendar,
+  DollarSign,
+  FolderTree,
+  Hammer,
+  Settings,
+  Sparkles,
+  TextSearch,
+} from "lucide-react";
 
 interface MobileFilterChipsProps {
   activeFilters: {

@@ -1,8 +1,16 @@
 "use client";
 
-import { UserVerificationInfoResponse } from "@/types/verification";
-import { BadgeCheck, AlertCircle, Server, Gamepad2, Calendar, Hash } from "lucide-react";
 import clsx from "clsx";
+import {
+  AlertCircle,
+  BadgeCheck,
+  Calendar,
+  Gamepad2,
+  Hash,
+  Server,
+} from "lucide-react";
+
+import { UserVerificationInfoResponse } from "@/types/verification";
 
 interface VerificationStatusCardProps {
   info: UserVerificationInfoResponse | null | undefined;
@@ -37,7 +45,7 @@ export default function VerificationStatusCard({
             "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
             isVerified
               ? "bg-green-50 dark:bg-green-900/20"
-              : "bg-amber-50 dark:bg-amber-900/20"
+              : "bg-amber-50 dark:bg-amber-900/20",
           )}
         >
           {isVerified ? (
@@ -55,7 +63,7 @@ export default function VerificationStatusCard({
               "inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mt-0.5",
               isVerified
                 ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
             )}
           >
             {isVerified ? "인증 완료" : "미인증"}
@@ -66,17 +74,23 @@ export default function VerificationStatusCard({
       {isVerified ? (
         <div className="space-y-3">
           <InfoRow
-            icon={<Server className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
+            icon={
+              <Server className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            }
             label="서버"
             value={info.serverName ?? "-"}
           />
           <InfoRow
-            icon={<Gamepad2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
+            icon={
+              <Gamepad2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            }
             label="캐릭터"
             value={info.characterName ?? "-"}
           />
           <InfoRow
-            icon={<Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
+            icon={
+              <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            }
             label="마지막 인증일"
             value={info.lastVerifiedAt ? formatDate(info.lastVerifiedAt) : "-"}
           />
@@ -89,7 +103,8 @@ export default function VerificationStatusCard({
       ) : (
         <div className="bg-amber-50 dark:bg-amber-900/10 rounded-2xl p-4">
           <p className="text-sm text-amber-800 dark:text-amber-300">
-            아직 캐릭터 인증이 완료되지 않았습니다. 아래에서 인증을 시작해주세요.
+            아직 캐릭터 인증이 완료되지 않았습니다. 아래에서 인증을
+            시작해주세요.
           </p>
         </div>
       )}

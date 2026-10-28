@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+
 import { clientAxios } from "@/lib/api/clients";
 import {
   UserVerificationHistoryListResponse,
   UserVerificationInfoResponse,
-  UserVerificationPublicSummaryResponse,
   UserVerificationTokenIssueResponse,
   UserVerificationTokenResponse,
 } from "@/types/verification";
@@ -122,38 +122,5 @@ export function useReissueVerificationToken() {
       queryClient.invalidateQueries({ queryKey: ["verification", "token"] });
       queryClient.invalidateQueries({ queryKey: ["verification", "info"] });
     },
-  });
-}
-
-export function usePublicVerificationInfo(userId: number | undefined) {
-  return useQuery<UserVerificationInfoResponse | null>({
-    queryKey: ["verification", "public", "info", userId],
-    queryFn: async () => {
-      const res = await clientAxios.get<
-        CommonResponse<UserVerificationInfoResponse>
-      >(`/user/verification/users/${userId}/info`);
-      return res.data.data ?? null;
-    },
-    enabled: !!userId,
-    staleTime: 60000,
-  });
-}
-
-export function usePublicVerificationSummary(
-  userId: number | undefined,
-  limit: number = 5,
-) {
-  return useQuery<UserVerificationPublicSummaryResponse | null>({
-    queryKey: ["verification", "public", "summary", userId, limit],
-    queryFn: async () => {
-      const res = await clientAxios.get<
-        CommonResponse<UserVerificationPublicSummaryResponse>
-      >(`/user/verification/public/users/${userId}/summary`, {
-        params: { limit },
-      });
-      return res.data.data ?? null;
-    },
-    enabled: !!userId,
-    staleTime: 60000,
   });
 }

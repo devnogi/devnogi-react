@@ -1,7 +1,8 @@
-import { RANKINGS_ALL_TIME_ENDPOINT } from "@/lib/api/constants";
-import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { RANKINGS_ALL_TIME_ENDPOINT } from "@/lib/api/constants";
+import { createServerAxios } from "@/lib/api/server";
 
 // 랭킹 데이터 캐싱 기간 5분(초)
 export const dynamic = "force-dynamic";

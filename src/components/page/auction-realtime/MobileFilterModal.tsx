@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import clsx from "clsx";
+import { ArrowDown, ArrowUp, Plus, RotateCcw, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
+import MetalwareSearchFilter, {
+  MetalwareFilterItem,
+} from "@/components/commons/MetalwareSearchFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,19 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, RotateCcw, ArrowUp, ArrowDown } from "lucide-react";
-import { useSearchOptions } from "@/hooks/useSearchOptions";
+import { ItemCategory } from "@/data/item-category";
 import { useEnchantFullnames } from "@/hooks/useEnchantFullnames";
 import { useMetalwareInfos } from "@/hooks/useMetalwareInfos";
-import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
-import MetalwareSearchFilter, { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
+import { useSearchOptions } from "@/hooks/useSearchOptions";
 import {
-  SearchOptionMetadata,
-  FieldMetadata,
   ActiveFilter,
+  FieldMetadata,
+  SearchOptionMetadata,
 } from "@/types/search-filter";
-import { ItemCategory } from "@/data/item-category";
-import clsx from "clsx";
 
 interface MobileFilterModalProps {
   isOpen: boolean;
@@ -58,12 +61,19 @@ export default function MobileFilterModal({
   onApply,
 }: MobileFilterModalProps) {
   const { data: searchOptions = [] } = useSearchOptions();
-  const { prefixList, suffixList, isLoading: isEnchantLoading } = useEnchantFullnames();
+  const {
+    prefixList,
+    suffixList,
+    isLoading: isEnchantLoading,
+  } = useEnchantFullnames();
   const { metalwareList, isLoading: isMetalwareLoading } = useMetalwareInfos();
-  const [currentTab, setCurrentTab] = useState<"category" | "price" | "options" | "enchant" | "metalware">(initialFilterType);
+  const [currentTab, setCurrentTab] = useState<
+    "category" | "price" | "options" | "enchant" | "metalware"
+  >(initialFilterType);
   const topCategories =
-    categories.find((category) => category.id === "all" && category.children?.length)?.children ||
-    categories.filter((category) => category.id !== "all");
+    categories.find(
+      (category) => category.id === "all" && category.children?.length,
+    )?.children || categories.filter((category) => category.id !== "all");
 
   // Parse initialData.selectedCategory to extract top and sub category
   const parseSelectedCategory = (selected: string) => {
@@ -80,23 +90,27 @@ export default function MobileFilterModal({
   };
 
   const parsed = parseSelectedCategory(initialData?.selectedCategory || "all");
-  const [selectedTopCategory, setSelectedTopCategory] = useState<string>(parsed.top);
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string>(parsed.sub);
+  const [selectedTopCategory, setSelectedTopCategory] = useState<string>(
+    parsed.top,
+  );
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>(
+    parsed.sub,
+  );
 
   const [priceMin, setPriceMin] = useState(initialData?.priceMin || "");
   const [priceMax, setPriceMax] = useState(initialData?.priceMax || "");
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>(
-    initialData?.activeFilters || []
+    initialData?.activeFilters || [],
   );
   const [enchantPrefix, setEnchantPrefix] = useState<string | null>(
-    initialData?.enchantPrefix ?? null
+    initialData?.enchantPrefix ?? null,
   );
   const [enchantSuffix, setEnchantSuffix] = useState<string | null>(
-    initialData?.enchantSuffix ?? null
+    initialData?.enchantSuffix ?? null,
   );
   const [enchantResetKey, setEnchantResetKey] = useState(0);
   const [metalwareItems, setMetalwareItems] = useState<MetalwareFilterItem[]>(
-    initialData?.metalwareItems ?? []
+    initialData?.metalwareItems ?? [],
   );
   const [metalwareResetKey, setMetalwareResetKey] = useState(0);
   const [showAddFilterDropdown, setShowAddFilterDropdown] = useState(false);
@@ -168,14 +182,14 @@ export default function MobileFilterModal({
       setActiveFilters([...activeFilters, newFilter]);
       setShowAddFilterDropdown(false);
     },
-    [activeFilters]
+    [activeFilters],
   );
 
   const handleRemoveFilter = useCallback(
     (filterId: number) => {
       setActiveFilters(activeFilters.filter((f) => f.id !== filterId));
     },
-    [activeFilters]
+    [activeFilters],
   );
 
   const handleFilterValueChange = useCallback(
@@ -187,11 +201,11 @@ export default function MobileFilterModal({
                 ...filter,
                 values: { ...filter.values, [fieldName]: value },
               }
-            : filter
-        )
+            : filter,
+        ),
       );
     },
-    [activeFilters]
+    [activeFilters],
   );
 
   const analyzeFilterType = useCallback(
@@ -200,7 +214,7 @@ export default function MobileFilterModal({
       const hasFromTo = fieldNames.some(
         (name) =>
           name.endsWith("From") &&
-          fieldNames.includes(name.replace("From", "To"))
+          fieldNames.includes(name.replace("From", "To")),
       );
       if (hasFromTo) return "range";
 
@@ -208,13 +222,14 @@ export default function MobileFilterModal({
       if (hasStandard) return "valueWithStandard";
 
       const hasEnum = Object.values(searchCondition).some(
-        (metadata) => metadata.allowedValues && metadata.allowedValues.length > 0
+        (metadata) =>
+          metadata.allowedValues && metadata.allowedValues.length > 0,
       );
       if (hasEnum) return "enum";
 
       return "text";
     },
-    []
+    [],
   );
 
   const renderFilterInputs = useCallback(
@@ -255,14 +270,17 @@ export default function MobileFilterModal({
 
       if (type === "valueWithStandard") {
         const fieldNames = Object.keys(filter.searchCondition);
-        const valueField = fieldNames.find((name) => !name.endsWith("Standard"));
+        const valueField = fieldNames.find(
+          (name) => !name.endsWith("Standard"),
+        );
         const standardField = fieldNames.find((name) =>
-          name.endsWith("Standard")
+          name.endsWith("Standard"),
         );
 
         if (!valueField || !standardField) return null;
 
-        const currentStandard = (filter.values[standardField] as string) || "UP";
+        const currentStandard =
+          (filter.values[standardField] as string) || "UP";
         const isUp = currentStandard === "UP";
 
         return (
@@ -281,7 +299,7 @@ export default function MobileFilterModal({
                 handleFilterValueChange(
                   filter.id,
                   standardField,
-                  isUp ? "DOWN" : "UP"
+                  isUp ? "DOWN" : "UP",
                 )
               }
               className="h-10 w-10 rounded-lg border border-[var(--color-ds-neutral-tone)] flex items-center justify-center hover:bg-[var(--color-ds-neutral-50)] transition-colors"
@@ -299,7 +317,7 @@ export default function MobileFilterModal({
       if (type === "enum") {
         const fieldNames = Object.keys(filter.searchCondition);
         const enumField = fieldNames.find(
-          (name) => filter.searchCondition[name].allowedValues
+          (name) => filter.searchCondition[name].allowedValues,
         );
 
         if (!enumField) return null;
@@ -340,11 +358,11 @@ export default function MobileFilterModal({
         />
       );
     },
-    [analyzeFilterType, handleFilterValueChange]
+    [analyzeFilterType, handleFilterValueChange],
   );
 
   const availableOptions = searchOptions.filter(
-    (opt) => !activeFilters.some((f) => f.id === opt.id)
+    (opt) => !activeFilters.some((f) => f.id === opt.id),
   );
 
   if (!isOpen) return null;
@@ -370,7 +388,9 @@ export default function MobileFilterModal({
       <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl min-h-[80dvh] max-h-[90dvh] overflow-hidden flex flex-col animate-slide-up pb-16">
         {/* Header with Close Button */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-ds-neutral-tone)]">
-          <h3 className="text-lg font-bold text-[var(--color-ds-text)]">필터</h3>
+          <h3 className="text-lg font-bold text-[var(--color-ds-text)]">
+            필터
+          </h3>
           <button
             onClick={onClose}
             className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
@@ -406,7 +426,9 @@ export default function MobileFilterModal({
                 ref={topCategoryScrollRef}
                 className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3 h-full overflow-y-auto"
               >
-                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">상위 카테고리</h4>
+                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">
+                  상위 카테고리
+                </h4>
                 {/* 전체 옵션 */}
                 <button
                   onClick={() => {
@@ -417,7 +439,7 @@ export default function MobileFilterModal({
                     "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                     selectedTopCategory === "all"
                       ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                      : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+                      : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
                   )}
                 >
                   전체
@@ -437,7 +459,7 @@ export default function MobileFilterModal({
                         "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                         isSelected
                           ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
                       )}
                     >
                       {category.name}
@@ -451,7 +473,9 @@ export default function MobileFilterModal({
                 ref={subCategoryScrollRef}
                 className="space-y-1 pl-3 h-full overflow-y-auto"
               >
-                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">하위 카테고리</h4>
+                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">
+                  하위 카테고리
+                </h4>
                 {selectedTopCategory !== "all" ? (
                   <>
                     {/* 전체 옵션 */}
@@ -461,7 +485,7 @@ export default function MobileFilterModal({
                         "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                         selectedSubCategory === "all"
                           ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
                       )}
                     >
                       전체
@@ -470,17 +494,20 @@ export default function MobileFilterModal({
                     {topCategories
                       .find((cat) => cat.id === selectedTopCategory)
                       ?.children?.map((subCategory) => {
-                        const isSelected = selectedSubCategory === subCategory.id;
+                        const isSelected =
+                          selectedSubCategory === subCategory.id;
 
                         return (
                           <button
                             key={subCategory.id}
-                            onClick={() => setSelectedSubCategory(subCategory.id)}
+                            onClick={() =>
+                              setSelectedSubCategory(subCategory.id)
+                            }
                             className={clsx(
                               "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
                               isSelected
                                 ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                                : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+                                : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
                             )}
                           >
                             {subCategory.name}
@@ -556,7 +583,9 @@ export default function MobileFilterModal({
               <div className="relative">
                 <Button
                   variant="outline"
-                  onClick={() => setShowAddFilterDropdown(!showAddFilterDropdown)}
+                  onClick={() =>
+                    setShowAddFilterDropdown(!showAddFilterDropdown)
+                  }
                   className="w-full h-12 rounded-xl flex items-center justify-center gap-2"
                   disabled={availableOptions.length === 0}
                 >

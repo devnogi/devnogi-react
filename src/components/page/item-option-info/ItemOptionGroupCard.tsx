@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+
 import { ItemOptionInfoGroup } from "@/types/item-option-info";
+
 import ItemOptionRow from "./ItemOptionRow";
 
 interface ItemOptionGroupCardProps {
@@ -40,7 +42,10 @@ export default function ItemOptionGroupCard({
       {isExpanded && (
         <div className="divide-y divide-[var(--color-ds-neutral-50)]">
           {group.items.map((item, idx) => (
-            <ItemOptionRow key={`${item.optionType}-${item.optionSubType}-${item.optionValue}-${idx}`} item={item} />
+            <ItemOptionRow
+              key={`${item.optionType}-${item.optionSubType}-${item.optionValue}-${idx}`}
+              item={item}
+            />
           ))}
         </div>
       )}

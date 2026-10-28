@@ -55,7 +55,7 @@ export function maskAuthHeader(authHeader: string | null | undefined): string {
 /**
  * 요청 정보를 포맷팅
  */
-export interface RequestLogInfo {
+interface RequestLogInfo {
   method: string;
   url: string;
   fullUrl?: string;
@@ -67,7 +67,7 @@ export interface RequestLogInfo {
 /**
  * 응답 정보를 포맷팅
  */
-export interface ResponseLogInfo {
+interface ResponseLogInfo {
   status: number;
   statusText?: string;
   data?: unknown;
@@ -148,9 +148,12 @@ class Logger {
     if (!shouldLog("DEBUG")) return;
 
     const duration = durationMs ? ` (${durationMs}ms)` : "";
-    this.debug(`<<< RESPONSE: ${info.status} ${info.statusText || ""}${duration}`, {
-      data: info.data,
-    });
+    this.debug(
+      `<<< RESPONSE: ${info.status} ${info.statusText || ""}${duration}`,
+      {
+        data: info.data,
+      },
+    );
   }
 
   /**
@@ -170,8 +173,3 @@ class Logger {
 export function createLogger(context: string): Logger {
   return new Logger(context);
 }
-
-/**
- * 기본 로거 (컨텍스트 없음)
- */
-export const logger = new Logger("App");

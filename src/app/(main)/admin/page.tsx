@@ -1,7 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import axios from "axios";
 import {
   Activity,
@@ -14,12 +12,15 @@ import {
   Sparkles,
   Waves,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { clientAxios } from "@/lib/api/clients";
 import { isAdminRole, normalizeRole } from "@/utils/roles";
-import { toast } from "sonner";
 
 const ADMIN_TASKS = [
   {
@@ -65,7 +66,8 @@ const ADMIN_TASKS = [
   {
     key: "enchant-info-sync",
     title: "인챈트 정보 동기화",
-    description: "auction_history_item_option을 기반으로 enchant_info를 업서트합니다.",
+    description:
+      "auction_history_item_option을 기반으로 enchant_info를 업서트합니다.",
     backendEndpoint: "POST /oab/api/enchant-infos/sync",
     category: "Sync",
     icon: Sparkles,
@@ -177,13 +179,16 @@ export default function AdminPage() {
   const normalizedRole = normalizeRole(user?.role);
   const isAdminUser = isAdminRole(normalizedRole);
 
-  const [taskStates, setTaskStates] = useState<TaskStateMap>(() => buildInitialTaskStates());
+  const [taskStates, setTaskStates] = useState<TaskStateMap>(() =>
+    buildInitialTaskStates(),
+  );
 
   const [latestLogs, setLatestLogs] = useState<BatchExecutionLog[]>([]);
   const [isLatestLoading, setIsLatestLoading] = useState(false);
 
-  const [selectedBatchType, setSelectedBatchType] =
-    useState<BatchType>("AUCTION_HISTORY_BATCH");
+  const [selectedBatchType, setSelectedBatchType] = useState<BatchType>(
+    "AUCTION_HISTORY_BATCH",
+  );
   const [batchPage, setBatchPage] = useState(1);
   const [batchLogs, setBatchLogs] = useState<BatchExecutionLog[]>([]);
   const [batchMeta, setBatchMeta] = useState<PageMeta | null>(null);
@@ -198,10 +203,13 @@ export default function AdminPage() {
   }, [isLoading, isAuthenticated, isAdminUser]);
 
   const latestLogMap = useMemo(() => {
-    return latestLogs.reduce((acc, log) => {
-      acc[log.batchType] = log;
-      return acc;
-    }, {} as Partial<Record<BatchType, BatchExecutionLog>>);
+    return latestLogs.reduce(
+      (acc, log) => {
+        acc[log.batchType] = log;
+        return acc;
+      },
+      {} as Partial<Record<BatchType, BatchExecutionLog>>,
+    );
   }, [latestLogs]);
 
   const fetchLatestLogs = useCallback(async () => {
@@ -226,32 +234,35 @@ export default function AdminPage() {
     }
   }, [pageState]);
 
-  const fetchBatchLogs = useCallback(async (batchType: BatchType, page: number) => {
-    if (pageState !== "ready") return;
+  const fetchBatchLogs = useCallback(
+    async (batchType: BatchType, page: number) => {
+      if (pageState !== "ready") return;
 
-    setIsBatchLogLoading(true);
-    setBatchLogError(null);
+      setIsBatchLogLoading(true);
+      setBatchLogError(null);
 
-    try {
-      const response = await clientAxios.get("/admin/batch-logs", {
-        params: {
-          batchType,
-          page,
-          size: 20,
-        },
-      });
-      const payload: BatchLogPageResponse | undefined = response.data?.data;
-      setBatchLogs(payload?.items ?? []);
-      setBatchMeta(payload?.meta ?? null);
-    } catch (error) {
-      const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || error.message
-        : "배치 로그 조회 중 오류가 발생했습니다.";
-      setBatchLogError(message);
-    } finally {
-      setIsBatchLogLoading(false);
-    }
-  }, [pageState]);
+      try {
+        const response = await clientAxios.get("/admin/batch-logs", {
+          params: {
+            batchType,
+            page,
+            size: 20,
+          },
+        });
+        const payload: BatchLogPageResponse | undefined = response.data?.data;
+        setBatchLogs(payload?.items ?? []);
+        setBatchMeta(payload?.meta ?? null);
+      } catch (error) {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.message || error.message
+          : "배치 로그 조회 중 오류가 발생했습니다.";
+        setBatchLogError(message);
+      } finally {
+        setIsBatchLogLoading(false);
+      }
+    },
+    [pageState],
+  );
 
   const runTask = async (taskKey: AdminTaskKey, taskTitle: string) => {
     setTaskStates((prev) => ({
@@ -260,9 +271,13 @@ export default function AdminPage() {
     }));
 
     try {
-      const response = await clientAxios.post(`/admin/tasks/${taskKey}`, undefined, {
-        timeout: 3 * 60 * 1000,
-      });
+      const response = await clientAxios.post(
+        `/admin/tasks/${taskKey}`,
+        undefined,
+        {
+          timeout: 3 * 60 * 1000,
+        },
+      );
       setTaskStates((prev) => ({
         ...prev,
         [taskKey]: {
@@ -276,14 +291,15 @@ export default function AdminPage() {
       }));
       toast.success(`${taskTitle} 작업이 실행되었습니다.`);
 
-      await Promise.all([fetchLatestLogs(), fetchBatchLogs(selectedBatchType, batchPage)]);
+      await Promise.all([
+        fetchLatestLogs(),
+        fetchBatchLogs(selectedBatchType, batchPage),
+      ]);
     } catch (error) {
       const statusCode = axios.isAxiosError(error)
         ? error.response?.status
         : undefined;
-      const payload = axios.isAxiosError(error)
-        ? error.response?.data
-        : null;
+      const payload = axios.isAxiosError(error) ? error.response?.data : null;
       const message = axios.isAxiosError(error)
         ? payload?.message || error.message
         : error instanceof Error
@@ -331,7 +347,9 @@ export default function AdminPage() {
       <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-10 text-center space-y-4">
         <ShieldCheck className="w-12 h-12 mx-auto text-gray-400" />
         <h1 className="text-2xl font-bold">로그인이 필요합니다</h1>
-        <p className="text-gray-500">관리자 작업에 접근하려면 먼저 로그인해주세요.</p>
+        <p className="text-gray-500">
+          관리자 작업에 접근하려면 먼저 로그인해주세요.
+        </p>
         <div className="flex justify-center gap-3">
           <Link href="/sign-in">
             <Button className="rounded-xl">로그인 하러가기</Button>
@@ -350,9 +368,12 @@ export default function AdminPage() {
     return (
       <div className="bg-white dark:bg-navy-800 rounded-3xl border border-red-200 dark:border-red-900/40 p-10 text-center space-y-4">
         <ShieldCheck className="w-12 h-12 mx-auto text-red-400" />
-        <h1 className="text-2xl font-bold text-red-500">접근 권한이 없습니다</h1>
+        <h1 className="text-2xl font-bold text-red-500">
+          접근 권한이 없습니다
+        </h1>
         <p className="text-gray-500">
-          ADMIN 또는 SUPER_ADMIN 권한이 있는 계정만 이 화면을 이용할 수 있습니다.
+          ADMIN 또는 SUPER_ADMIN 권한이 있는 계정만 이 화면을 이용할 수
+          있습니다.
         </p>
         <Link href="/home">
           <Button variant="outline" className="rounded-xl">
@@ -374,8 +395,8 @@ export default function AdminPage() {
           </div>
         </div>
         <p className="text-gray-600 dark:text-gray-300">
-          오픈 API 배치 서버의 배치 및 동기화 작업을 직접 실행할 수 있는 관리 도구입니다. 모든 작업은
-          즉시 실행되며, 실행 기록이 화면에 남습니다.
+          오픈 API 배치 서버의 배치 및 동기화 작업을 직접 실행할 수 있는 관리
+          도구입니다. 모든 작업은 즉시 실행되며, 실행 기록이 화면에 남습니다.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Badge className="bg-gray-900 text-white px-3 py-1 rounded-full text-xs tracking-wide">
@@ -456,13 +477,17 @@ export default function AdminPage() {
                       </dd>
                     </div>
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="text-gray-500 dark:text-gray-400">실행 유형</dt>
+                      <dt className="text-gray-500 dark:text-gray-400">
+                        실행 유형
+                      </dt>
                       <dd className="font-medium text-gray-800 dark:text-gray-100">
                         {log ? formatTriggerTypeLabel(log.triggerType) : "-"}
                       </dd>
                     </div>
                     <div className="flex items-start justify-between gap-2">
-                      <dt className="text-gray-500 dark:text-gray-400">처리 건수</dt>
+                      <dt className="text-gray-500 dark:text-gray-400">
+                        처리 건수
+                      </dt>
                       <dd className="font-mono text-gray-800 dark:text-gray-100">
                         {log ? log.recordCount.toLocaleString() : "-"}
                       </dd>
@@ -512,7 +537,9 @@ export default function AdminPage() {
                 variant="outline"
                 size="sm"
                 className="rounded-xl"
-                onClick={() => void fetchBatchLogs(selectedBatchType, batchPage)}
+                onClick={() =>
+                  void fetchBatchLogs(selectedBatchType, batchPage)
+                }
                 disabled={isBatchLogLoading}
               >
                 {isBatchLogLoading ? (
@@ -567,13 +594,17 @@ export default function AdminPage() {
 
                   <dl className="mt-3 grid gap-2 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
                     <div>
-                      <dt className="text-gray-500 dark:text-gray-400">완료 시각</dt>
+                      <dt className="text-gray-500 dark:text-gray-400">
+                        완료 시각
+                      </dt>
                       <dd className="font-medium text-gray-800 dark:text-gray-100">
                         {formatTimestamp(log.completedAt)}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-gray-500 dark:text-gray-400">처리 건수</dt>
+                      <dt className="text-gray-500 dark:text-gray-400">
+                        처리 건수
+                      </dt>
                       <dd className="font-mono text-gray-800 dark:text-gray-100">
                         {log.recordCount.toLocaleString()}
                       </dd>
@@ -610,7 +641,9 @@ export default function AdminPage() {
                 variant="outline"
                 size="sm"
                 className="rounded-xl"
-                disabled={isBatchLogLoading || !!batchMeta?.isLast || !batchMeta}
+                disabled={
+                  isBatchLogLoading || !!batchMeta?.isLast || !batchMeta
+                }
                 onClick={() => setBatchPage((prev) => prev + 1)}
               >
                 다음
@@ -643,7 +676,9 @@ export default function AdminPage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {task.description}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">{task.backendEndpoint}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {task.backendEndpoint}
+                    </p>
                   </div>
                 </div>
                 <Badge className="rounded-full px-3 py-1 text-xs bg-blaanid-50 text-blaanid-600 dark:bg-coral-500/20 dark:text-coral-200">
@@ -680,7 +715,9 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <dt className="text-gray-500">API 경로</dt>
-                  <dd className="font-mono text-xs text-gray-600">/api/admin/tasks/{task.key}</dd>
+                  <dd className="font-mono text-xs text-gray-600">
+                    /api/admin/tasks/{task.key}
+                  </dd>
                 </div>
               </dl>
 

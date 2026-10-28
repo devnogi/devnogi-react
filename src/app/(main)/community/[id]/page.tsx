@@ -1,6 +1,6 @@
-import PostDetailView from "@/components/page/community/PostDetailView";
 import CommentList from "@/components/page/community/CommentList";
 import PopularPostsHighlight from "@/components/page/community/PopularPostsHighlight";
+import PostDetailView from "@/components/page/community/PostDetailView";
 import RelatedPostsSection from "@/components/page/community/RelatedPostsSection";
 
 interface PostPageProps {

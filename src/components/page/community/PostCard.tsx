@@ -1,11 +1,12 @@
 "use client";
 
-import { Heart, MessageCircle, Eye } from "lucide-react";
-import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import type { PostSummary } from "@/hooks/useInfinitePosts";
+import { Eye, Heart, MessageCircle } from "lucide-react";
+import Link from "next/link";
+
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
+import type { PostSummary } from "@/hooks/useInfinitePosts";
 
 interface PostCardProps {
   post: PostSummary;

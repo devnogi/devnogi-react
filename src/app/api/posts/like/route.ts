@@ -1,7 +1,8 @@
-import { createAuthServerAxios } from "@/lib/api/server";
-import { createLogger } from "@/lib/logger";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createAuthServerAxios } from "@/lib/api/server";
+import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/posts/like");
 

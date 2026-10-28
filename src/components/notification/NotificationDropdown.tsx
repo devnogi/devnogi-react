@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Bell, X, ExternalLink } from "lucide-react";
 import clsx from "clsx";
-import { Notice } from "@/types/notice";
+import { Bell, ExternalLink, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+
 import { useNotices } from "@/hooks/useNotices";
+import { Notice } from "@/types/notice";
 
 interface NotificationDropdownProps {
   userId: number | undefined;
@@ -153,7 +154,7 @@ export default function NotificationDropdown({
                   onClick={() => handleNoticeClick(notice)}
                   className={clsx(
                     "w-full text-left px-4 py-3 border-b border-gray-50 last:border-b-0 transition-colors hover:bg-gray-50",
-                    !notice.isRead && "bg-blue-50/50"
+                    !notice.isRead && "bg-blue-50/50",
                   )}
                   role="menuitem"
                 >
@@ -172,7 +173,7 @@ export default function NotificationDropdown({
                       <p
                         className={clsx(
                           "text-sm font-medium truncate",
-                          !notice.isRead ? "text-gray-900" : "text-gray-600"
+                          !notice.isRead ? "text-gray-900" : "text-gray-600",
                         )}
                       >
                         {notice.title}

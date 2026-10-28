@@ -1,14 +1,15 @@
-import { createAuthServerAxios } from "@/lib/api/server";
-import { createLogger } from "@/lib/logger";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createAuthServerAxios } from "@/lib/api/server";
+import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/comments/manage");
 
 // 댓글 수정
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const startTime = Date.now();
@@ -27,7 +28,9 @@ export async function PATCH(
     const { data, status } = await axios.patch(targetUrl, body);
 
     const duration = Date.now() - startTime;
-    logger.info(`PATCH /comments/manage/${id} - 성공 (${status}) [${duration}ms]`);
+    logger.info(
+      `PATCH /comments/manage/${id} - 성공 (${status}) [${duration}ms]`,
+    );
     logger.debug(`Response data:`, data);
 
     return NextResponse.json(data, { status });
@@ -41,7 +44,9 @@ export async function PATCH(
         message: axiosError.message,
       };
 
-      logger.error(`PATCH /comments/manage/${id} - 실패 (${status}) [${duration}ms]`);
+      logger.error(
+        `PATCH /comments/manage/${id} - 실패 (${status}) [${duration}ms]`,
+      );
       logger.error(`Error details:`, {
         status,
         message: axiosError.message,
@@ -65,7 +70,7 @@ export async function PATCH(
 // 댓글 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const startTime = Date.now();
@@ -81,7 +86,9 @@ export async function DELETE(
     const { status } = await axios.delete(targetUrl);
 
     const duration = Date.now() - startTime;
-    logger.info(`DELETE /comments/manage/${id} - 성공 (${status}) [${duration}ms]`);
+    logger.info(
+      `DELETE /comments/manage/${id} - 성공 (${status}) [${duration}ms]`,
+    );
 
     if (status === 204) {
       return new Response(null, { status: 204 });
@@ -98,7 +105,9 @@ export async function DELETE(
         message: axiosError.message,
       };
 
-      logger.error(`DELETE /comments/manage/${id} - 실패 (${status}) [${duration}ms]`);
+      logger.error(
+        `DELETE /comments/manage/${id} - 실패 (${status}) [${duration}ms]`,
+      );
       logger.error(`Error details:`, {
         status,
         message: axiosError.message,

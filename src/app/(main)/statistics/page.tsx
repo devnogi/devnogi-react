@@ -1,20 +1,28 @@
 "use client";
 
-import { Suspense, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import StatisticsTabs, {
-  StatisticsTabType,
-} from "@/components/page/statistics/StatisticsTabs";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import DateRangeSelector from "@/components/page/statistics/DateRangeSelector";
 import PeriodToggle, {
   PeriodType,
 } from "@/components/page/statistics/PeriodToggle";
-import DateRangeSelector from "@/components/page/statistics/DateRangeSelector";
-import StatisticsSearchForm from "@/components/page/statistics/StatisticsSearchForm";
 import PriceChart from "@/components/page/statistics/PriceChart";
-import VolumeChart from "@/components/page/statistics/VolumeChart";
-import StatisticsTable from "@/components/page/statistics/StatisticsTable";
-import StatisticsSummaryCards from "@/components/page/statistics/StatisticsSummaryCards";
+import StatisticsSearchForm from "@/components/page/statistics/StatisticsSearchForm";
 import StatisticsSkeleton from "@/components/page/statistics/StatisticsSkeleton";
+import StatisticsSummaryCards from "@/components/page/statistics/StatisticsSummaryCards";
+import StatisticsTable from "@/components/page/statistics/StatisticsTable";
+import StatisticsTabs, {
+  StatisticsTabType,
+} from "@/components/page/statistics/StatisticsTabs";
+import VolumeChart from "@/components/page/statistics/VolumeChart";
 import {
   useItemDailyStatistics,
   useItemWeeklyStatistics,
@@ -25,9 +33,9 @@ import {
 } from "@/hooks/useStatistics";
 import {
   ItemStatisticsParams,
+  StatisticsBase,
   SubcategoryStatisticsParams,
   TopCategoryStatisticsParams,
-  StatisticsBase,
 } from "@/types/statistics";
 
 function StatisticsPageContent() {
@@ -83,8 +91,10 @@ function StatisticsPageContent() {
         if (item.topCategory) params.set("top_category", item.topCategory);
         if (item.subCategory) params.set("sub_category", item.subCategory);
       } else if (tab === "subcategory") {
-        if (subcategory.topCategory) params.set("top_category", subcategory.topCategory);
-        if (subcategory.subCategory) params.set("sub_category", subcategory.subCategory);
+        if (subcategory.topCategory)
+          params.set("top_category", subcategory.topCategory);
+        if (subcategory.subCategory)
+          params.set("sub_category", subcategory.subCategory);
       } else if (topCategory.topCategory) {
         params.set("top_category", topCategory.topCategory);
       }
@@ -105,13 +115,9 @@ function StatisticsPageContent() {
     const rawPeriod = urlSearchParams.get("period");
     const nextPeriod: PeriodType = rawPeriod === "weekly" ? "weekly" : "daily";
     const nextDateFrom =
-      urlSearchParams.get("date_from") ||
-      urlSearchParams.get("dateFrom") ||
-      "";
+      urlSearchParams.get("date_from") || urlSearchParams.get("dateFrom") || "";
     const nextDateTo =
-      urlSearchParams.get("date_to") ||
-      urlSearchParams.get("dateTo") ||
-      "";
+      urlSearchParams.get("date_to") || urlSearchParams.get("dateTo") || "";
     const nextTopCategory =
       urlSearchParams.get("top_category") ||
       urlSearchParams.get("topCategory") ||
@@ -121,9 +127,7 @@ function StatisticsPageContent() {
       urlSearchParams.get("subCategory") ||
       "";
     const nextItemName =
-      urlSearchParams.get("item_name") ||
-      urlSearchParams.get("itemName") ||
-      "";
+      urlSearchParams.get("item_name") || urlSearchParams.get("itemName") || "";
 
     const normalizedQuery = buildStatisticsQuery(
       nextTab,
@@ -216,15 +220,11 @@ function StatisticsPageContent() {
   // Hook calls (all always called, but `enabled` controls fetching)
   const itemDaily = useItemDailyStatistics(itemParamsWithDates);
   const itemWeekly = useItemWeeklyStatistics(itemParamsWithDates);
-  const subcatDaily = useSubcategoryDailyStatistics(
-    subcategoryParamsWithDates,
-  );
+  const subcatDaily = useSubcategoryDailyStatistics(subcategoryParamsWithDates);
   const subcatWeekly = useSubcategoryWeeklyStatistics(
     subcategoryParamsWithDates,
   );
-  const topCatDaily = useTopCategoryDailyStatistics(
-    topCategoryParamsWithDates,
-  );
+  const topCatDaily = useTopCategoryDailyStatistics(topCategoryParamsWithDates);
   const topCatWeekly = useTopCategoryWeeklyStatistics(
     topCategoryParamsWithDates,
   );
@@ -264,41 +264,40 @@ function StatisticsPageContent() {
     return !!topCategoryParams.topCategory;
   }, [activeTab, itemParams, subcategoryParams, topCategoryParams]);
 
-  const handleSearch = useCallback((params: {
-    topCategory: string;
-    subCategory: string;
-    itemName: string;
-  }) => {
-    if (activeTab === "item") {
-      const nextItemParams = {
-        itemName: params.itemName,
-        subCategory: params.subCategory,
-        topCategory: params.topCategory,
-      };
-      setItemParams(nextItemParams);
-    } else if (activeTab === "subcategory") {
-      const nextSubcategoryParams = {
-        topCategory: params.topCategory,
-        subCategory: params.subCategory,
-      };
-      setSubcategoryParams(nextSubcategoryParams);
-    } else {
-      const nextTopCategoryParams = {
-        topCategory: params.topCategory,
-      };
-      setTopCategoryParams(nextTopCategoryParams);
-    }
-  }, [activeTab]);
-
-  const handleTabChange = useCallback(
-    (tab: StatisticsTabType) => {
-      setActiveTab(tab);
+  const handleSearch = useCallback(
+    (params: {
+      topCategory: string;
+      subCategory: string;
+      itemName: string;
+    }) => {
+      if (activeTab === "item") {
+        const nextItemParams = {
+          itemName: params.itemName,
+          subCategory: params.subCategory,
+          topCategory: params.topCategory,
+        };
+        setItemParams(nextItemParams);
+      } else if (activeTab === "subcategory") {
+        const nextSubcategoryParams = {
+          topCategory: params.topCategory,
+          subCategory: params.subCategory,
+        };
+        setSubcategoryParams(nextSubcategoryParams);
+      } else {
+        const nextTopCategoryParams = {
+          topCategory: params.topCategory,
+        };
+        setTopCategoryParams(nextTopCategoryParams);
+      }
     },
-    [],
+    [activeTab],
   );
 
-  const maxRange =
-    period === "daily" ? "최대 30일" : "최대 4개월";
+  const handleTabChange = useCallback((tab: StatisticsTabType) => {
+    setActiveTab(tab);
+  }, []);
+
+  const maxRange = period === "daily" ? "최대 30일" : "최대 4개월";
 
   return (
     <div className="select-none min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
@@ -358,7 +357,10 @@ function StatisticsPageContent() {
               if (activeTab === "item") {
                 setItemParams((prev) => ({ ...prev, subCategory: value }));
               } else if (activeTab === "subcategory") {
-                setSubcategoryParams((prev) => ({ ...prev, subCategory: value }));
+                setSubcategoryParams((prev) => ({
+                  ...prev,
+                  subCategory: value,
+                }));
               }
             }}
             onItemNameChange={(value) => {
@@ -424,10 +426,7 @@ function StatisticsPageContent() {
             <VolumeChart data={chartData} />
 
             {/* Data Table */}
-            <StatisticsTable
-              data={chartData}
-              isWeekly={period === "weekly"}
-            />
+            <StatisticsTable data={chartData} isWeekly={period === "weekly"} />
           </div>
         )}
       </div>

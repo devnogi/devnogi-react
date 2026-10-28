@@ -1,25 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import clsx from "clsx";
 import {
-  useVerificationToken,
+  Check,
+  Clock,
+  Copy,
+  KeyRound,
+  Loader2,
+  PartyPopper,
+  RefreshCw,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import {
   useIssueVerificationToken,
   useReissueVerificationToken,
+  useVerificationToken,
 } from "@/hooks/useUserVerification";
-import { Button } from "@/components/ui/button";
-import {
-  KeyRound,
-  Copy,
-  Check,
-  RefreshCw,
-  Loader2,
-  Clock,
-  PartyPopper,
-} from "lucide-react";
-import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import clsx from "clsx";
 import { UserVerificationInfoResponse } from "@/types/verification";
 
 interface VerificationTokenCardProps {

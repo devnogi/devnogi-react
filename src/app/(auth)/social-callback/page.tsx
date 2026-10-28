@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { clientAxios } from "@/lib/api/clients";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+
 import SocialSignUpForm from "@/components/auth/SocialSignUpForm";
+import { useAuth } from "@/contexts/AuthContext";
+import { clientAxios } from "@/lib/api/clients";
 import {
-  handleSocialLoginCallback,
-  getSocialLoginReturnUrl,
   clearSocialLoginReturnUrl,
-  type SocialProvider,
+  getSocialLoginReturnUrl,
+  handleSocialLoginCallback,
   type SocialAuthResponse,
   type SocialExchangeResult,
+  type SocialProvider,
 } from "@/lib/auth/socialAuth";
-import { useAuth } from "@/contexts/AuthContext";
 
 function SocialCallbackContent() {
   const searchParams = useSearchParams();
@@ -39,7 +40,11 @@ function SocialCallbackContent() {
     const responseData = searchParams.get("data");
     const errorMsg = searchParams.get("error");
     // code와 구형 data는 다른 비동기 작업보다 먼저 브라우저 기록에서 제거한다.
-    window.history.replaceState(window.history.state, "", window.location.pathname);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      window.location.pathname,
+    );
 
     if (errorMsg) {
       setStatus("error");
@@ -61,7 +66,7 @@ function SocialCallbackContent() {
       if (window.opener) {
         window.opener.postMessage(
           { type: "social_login_success" },
-          window.location.origin
+          window.location.origin,
         );
         window.close();
       } else {
@@ -71,11 +76,13 @@ function SocialCallbackContent() {
 
     const handleCallback = async () => {
       if (code) {
-        const response = await clientAxios.post<{ success: boolean; data: SocialExchangeResult }>(
-          "/auth/oauth/exchange", { code }
-        );
+        const response = await clientAxios.post<{
+          success: boolean;
+          data: SocialExchangeResult;
+        }>("/auth/oauth/exchange", { code });
         const result = response.data.data;
-        if (!response.data.success || !result) throw new Error("Invalid exchange response");
+        if (!response.data.success || !result)
+          throw new Error("Invalid exchange response");
         if (result.type === "LOGIN_SUCCESS") {
           await finishLogin();
           return;
@@ -84,7 +91,11 @@ function SocialCallbackContent() {
           throw new Error("Invalid signup exchange response");
         }
         const provider = result.provider.toLowerCase();
-        if (provider !== "google" && provider !== "kakao" && provider !== "naver") {
+        if (
+          provider !== "google" &&
+          provider !== "kakao" &&
+          provider !== "naver"
+        ) {
           throw new Error("Unsupported social provider");
         }
         setStatus("signup");
@@ -103,10 +114,12 @@ function SocialCallbackContent() {
         await finishLogin();
       } else {
         const providerUserId = result.data.data?.providerUserId;
-        if (!providerUserId) throw new Error("Missing legacy provider identity");
+        if (!providerUserId)
+          throw new Error("Missing legacy provider identity");
         setStatus("signup");
         setSocialData({
-          provider: (result.data.data?.provider?.toLowerCase() || "google") as SocialProvider,
+          provider: (result.data.data?.provider?.toLowerCase() ||
+            "google") as SocialProvider,
           providerUserId,
           email: result.data.data?.email,
         });
@@ -115,7 +128,9 @@ function SocialCallbackContent() {
 
     void handleCallback().catch(() => {
       setStatus("error");
-      setError("소셜 인증 정보가 만료되었거나 유효하지 않습니다. 페이지를 새로고침하고 다시 시도해주세요.");
+      setError(
+        "소셜 인증 정보가 만료되었거나 유효하지 않습니다. 페이지를 새로고침하고 다시 시도해주세요.",
+      );
     });
   }, [searchParams, router, refreshUser]);
 
@@ -128,7 +143,7 @@ function SocialCallbackContent() {
     if (window.opener) {
       window.opener.postMessage(
         { type: "social_signup_success" },
-        window.location.origin
+        window.location.origin,
       );
       window.close();
     } else {
@@ -142,7 +157,9 @@ function SocialCallbackContent() {
 
   const handleSignUpError = () => {
     // 오류 원문에는 계정 정보가 포함될 수 있으므로 화면과 부모 창에 전달하지 않는다.
-    setError("회원가입을 완료하지 못했습니다. 페이지를 새로고침하고 다시 시도해주세요.");
+    setError(
+      "회원가입을 완료하지 못했습니다. 페이지를 새로고침하고 다시 시도해주세요.",
+    );
     setStatus("error");
   };
 
@@ -152,7 +169,7 @@ function SocialCallbackContent() {
     if (window.opener) {
       window.opener.postMessage(
         { type: "social_login_cancel" },
-        window.location.origin
+        window.location.origin,
       );
       window.close();
     } else {

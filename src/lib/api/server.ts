@@ -1,8 +1,10 @@
-import { initMockServer } from "@/mocks/initServer";
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { NextRequest } from "next/server";
-import { selectServerGatewayUrl } from "./gateway-selector";
+
 import { createLogger, maskAuthHeader, maskJwt } from "@/lib/logger";
+import { initMockServer } from "@/mocks/initServer";
+
+import { selectServerGatewayUrl } from "./gateway-selector";
 
 const serverLogger = createLogger("ServerAxios");
 
@@ -11,7 +13,7 @@ const serverLogger = createLogger("ServerAxios");
  */
 function extractCookieValue(
   cookieHeader: string | null,
-  cookieName: string
+  cookieName: string,
 ): string | null {
   if (!cookieHeader) return null;
 
@@ -46,13 +48,16 @@ function parseCookies(cookieHeader: string | null): Record<string, string> {
  * 쿠키 값을 마스킹하여 로깅용 문자열 생성
  * access_token, refresh_token 등 민감한 쿠키는 일부만 표시
  */
-function maskCookiesForLogging(cookies: Record<string, string>): Record<string, string> {
+function maskCookiesForLogging(
+  cookies: Record<string, string>,
+): Record<string, string> {
   const masked: Record<string, string> = {};
   const sensitiveKeys = ["access_token", "refresh_token", "session", "sid"];
 
   for (const [key, value] of Object.entries(cookies)) {
     if (sensitiveKeys.some((sk) => key.toLowerCase().includes(sk))) {
-      masked[key] = value.length > 20 ? `${value.substring(0, 20)}...***` : value;
+      masked[key] =
+        value.length > 20 ? `${value.substring(0, 20)}...***` : value;
     } else {
       masked[key] = value;
     }
@@ -65,13 +70,15 @@ function maskCookiesForLogging(cookies: Record<string, string>): Record<string, 
  */
 function addLoggingInterceptors(
   instance: AxiosInstance,
-  logger: ReturnType<typeof createLogger>
+  logger: ReturnType<typeof createLogger>,
 ): void {
   // 요청 interceptor
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       // 요청 시작 시간 저장 (응답에서 duration 계산용)
-      (config as InternalAxiosRequestConfig & { _startTime: number })._startTime = Date.now();
+      (
+        config as InternalAxiosRequestConfig & { _startTime: number }
+      )._startTime = Date.now();
 
       // 전체 URL 구성
       const baseURL = config.baseURL || "";
@@ -83,7 +90,9 @@ function addLoggingInterceptors(
 
       logger.debug(`>>> REQUEST: ${config.method?.toUpperCase()} ${url}`);
       logger.debug(`    Full URL: ${fullUrl}`);
-      logger.debug(`    Authorization: ${maskAuthHeader(config.headers?.Authorization as string)}`);
+      logger.debug(
+        `    Authorization: ${maskAuthHeader(config.headers?.Authorization as string)}`,
+      );
 
       if (config.headers?.Cookie) {
         const cookieStr = config.headers.Cookie as string;
@@ -113,16 +122,20 @@ function addLoggingInterceptors(
     (error) => {
       logger.error(`✖ REQUEST ERROR: ${error.message}`);
       return Promise.reject(error);
-    }
+    },
   );
 
   // 응답 interceptor
   instance.interceptors.response.use(
     (response) => {
-      const config = response.config as InternalAxiosRequestConfig & { _startTime?: number };
+      const config = response.config as InternalAxiosRequestConfig & {
+        _startTime?: number;
+      };
       const duration = config._startTime ? Date.now() - config._startTime : 0;
 
-      logger.debug(`<<< RESPONSE: ${response.status} ${response.statusText} (${duration}ms)`);
+      logger.debug(
+        `<<< RESPONSE: ${response.status} ${response.statusText} (${duration}ms)`,
+      );
       logger.debug(`    URL: ${config.url}`);
 
       // 응답 데이터 요약 (너무 길면 자름)
@@ -136,12 +149,16 @@ function addLoggingInterceptors(
       return response;
     },
     (error) => {
-      const config = error.config as InternalAxiosRequestConfig & { _startTime?: number };
+      const config = error.config as InternalAxiosRequestConfig & {
+        _startTime?: number;
+      };
       const duration = config?._startTime ? Date.now() - config._startTime : 0;
 
       if (error.response) {
         // 서버가 응답을 반환한 경우 (4xx, 5xx)
-        logger.error(`✖ RESPONSE ERROR: ${error.response.status} (${duration}ms)`);
+        logger.error(
+          `✖ RESPONSE ERROR: ${error.response.status} (${duration}ms)`,
+        );
         logger.error(`    URL: ${config?.url}`);
         logger.error(`    Full URL: ${config?.baseURL}${config?.url}`);
         logger.error(`    Method: ${config?.method?.toUpperCase()}`);
@@ -160,7 +177,7 @@ function addLoggingInterceptors(
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 }
 
@@ -173,7 +190,8 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
   // Cookie에서 access_token 추출하여 Authorization 헤더로 변환
   const accessToken = extractCookieValue(cookieHeader, "access_token");
   const authHeader = request.headers.get("authorization");
-  const authorization = authHeader || (accessToken ? `Bearer ${accessToken}` : "");
+  const authorization =
+    authHeader || (accessToken ? `Bearer ${accessToken}` : "");
 
   // 쿠키 파싱 및 로깅
   const parsedCookies = parseCookies(cookieHeader);
@@ -189,12 +207,18 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
   serverLogger.info(`Cookie count: ${Object.keys(parsedCookies).length}`);
   serverLogger.debug(`All cookies (masked):`, maskedCookies);
   serverLogger.info(`--- Authentication Information ---`);
-  serverLogger.info(`Access token from cookie: ${accessToken ? "EXISTS" : "MISSING"}`);
+  serverLogger.info(
+    `Access token from cookie: ${accessToken ? "EXISTS" : "MISSING"}`,
+  );
   serverLogger.debug(`Access token value: ${maskJwt(accessToken)}`);
-  serverLogger.info(`Auth header from request: ${authHeader ? "EXISTS" : "MISSING"}`);
+  serverLogger.info(
+    `Auth header from request: ${authHeader ? "EXISTS" : "MISSING"}`,
+  );
   serverLogger.debug(`Auth header value: ${maskAuthHeader(authHeader)}`);
   serverLogger.info(`Final Authorization: ${authorization ? "SET" : "EMPTY"}`);
-  serverLogger.debug(`Final Authorization value: ${maskAuthHeader(authorization)}`);
+  serverLogger.debug(
+    `Final Authorization value: ${maskAuthHeader(authorization)}`,
+  );
   serverLogger.info("====================================================");
 
   const instance = axios.create({
@@ -220,7 +244,7 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
  */
 export function createAuthServerAxios(
   request: NextRequest,
-  credentials: "access" | "refresh" | "none" = "access"
+  credentials: "access" | "refresh" | "none" = "access",
 ): AxiosInstance {
   initMockServer();
 
@@ -228,7 +252,8 @@ export function createAuthServerAxios(
   const cookieHeader = request.headers.get("cookie");
   if (credentials === "access") {
     const accessToken = extractCookieValue(cookieHeader, "access_token");
-    const authorization = request.headers.get("authorization") ||
+    const authorization =
+      request.headers.get("authorization") ||
       (accessToken ? `Bearer ${accessToken}` : "");
     if (authorization) headers.Authorization = authorization;
     if (cookieHeader) headers.Cookie = cookieHeader;

@@ -1,7 +1,8 @@
 import { Suspense } from "react";
-import ThreeTierNav from "@/components/navigation/ThreeTierNav";
-import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
+
+import Footer from "@/components/Footer";
+import ThreeTierNav from "@/components/navigation/ThreeTierNav";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function RootLayout({

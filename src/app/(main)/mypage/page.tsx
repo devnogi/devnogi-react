@@ -1,40 +1,41 @@
 "use client";
 
-import React, { Suspense, useState, useEffect, useRef } from "react";
+import clsx from "clsx";
 import {
-  User,
-  Mail,
-  Calendar,
-  Shield,
-  Clock,
-  LogOut,
-  Edit,
-  Camera,
-  Key,
-  Loader2,
   AlertTriangle,
+  BadgeCheck,
   Bell,
+  Calendar,
+  Camera,
+  Clock,
+  Edit,
   FileText,
   Gamepad2,
-  Swords,
-  BadgeCheck,
+  Key,
+  Loader2,
+  LogOut,
+  Mail,
+  Shield,
   Shuffle,
+  Swords,
+  User,
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { Suspense, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
+import LoginModal from "@/components/auth/LoginModal";
+import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import PostList from "@/components/page/community/PostList";
+import NotificationList from "@/components/page/mypage/NotificationList";
+import VerificationTab from "@/components/page/mypage/VerificationTab";
 import { Button } from "@/components/ui/button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
-import LoginModal from "@/components/auth/LoginModal";
-import { clientAxios } from "@/lib/api/clients";
-import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
-import clsx from "clsx";
-import NotificationList from "@/components/page/mypage/NotificationList";
-import VerificationTab from "@/components/page/mypage/VerificationTab";
-import PostList from "@/components/page/community/PostList";
-import { useVerificationInfo } from "@/hooks/useUserVerification";
-import { useUnreadNoticeCount } from "@/hooks/useNotices";
-import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
 import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
+import { useUnreadNoticeCount } from "@/hooks/useNotices";
+import { useVerificationInfo } from "@/hooks/useUserVerification";
+import { clientAxios } from "@/lib/api/clients";
 
 // TODO: 실제 API 연동 시 교체
 interface ExtendedUser {
@@ -130,7 +131,11 @@ function MyPageContent() {
     try {
       await logout();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "서버 로그아웃을 확인할 수 없습니다.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "서버 로그아웃을 확인할 수 없습니다.",
+      );
     }
   };
 
@@ -515,9 +520,16 @@ function EditProfileModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate(false);
+  const {
+    candidate,
+    status: nicknameStatus,
+    error: nicknameError,
+    refresh: refreshNickname,
+  } = useNicknameCandidate(false);
   const nickname = candidate?.nickname ?? user.nickname;
-  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<
+    string | null
+  >(null);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     user.profileImageUrl,
@@ -583,8 +595,13 @@ function EditProfileModal({
       return;
     }
 
-    if (nicknameChanged && (nicknameStatus !== "ready" || !candidate ||
-        nicknameSubmissionError || Date.parse(candidate.expiresAt) <= Date.now())) {
+    if (
+      nicknameChanged &&
+      (nicknameStatus !== "ready" ||
+        !candidate ||
+        nicknameSubmissionError ||
+        Date.parse(candidate.expiresAt) <= Date.now())
+    ) {
       toast.warning("닉네임을 다시 발급받아주세요.");
       return;
     }
@@ -613,7 +630,6 @@ function EditProfileModal({
       toast.success("프로필이 수정되었습니다.");
       onSuccess();
     } catch (error: unknown) {
-
       // 에러 메시지 상세화
       interface AxiosErrorResponse {
         response?: {
@@ -631,10 +647,19 @@ function EditProfileModal({
       if (axiosError.response?.status === 409 && nicknameChanged) {
         setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
         toast.error("닉네임이 중복되었습니다. 다시 뽑아주세요.");
-      } else if (nicknameChanged && axiosError.response?.status === 400 &&
-          ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(axiosError.response.data?.code ?? "")) {
-        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
-        toast.error("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+      } else if (
+        nicknameChanged &&
+        axiosError.response?.status === 400 &&
+        ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(
+          axiosError.response.data?.code ?? "",
+        )
+      ) {
+        setNicknameSubmissionError(
+          "닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.",
+        );
+        toast.error(
+          "닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.",
+        );
       } else if (axiosError.response?.status === 401) {
         toast.error("로그인이 필요합니다. 다시 로그인해주세요.");
       } else if (axiosError.response?.status === 400) {
@@ -721,7 +746,10 @@ function EditProfileModal({
           {/* Nickname */}
           <div>
             <div className="mb-2 flex items-center justify-between gap-3">
-              <label htmlFor="profile-nickname" className="block text-sm font-semibold text-gray-700">
+              <label
+                htmlFor="profile-nickname"
+                className="block text-sm font-semibold text-gray-700"
+              >
                 닉네임
               </label>
               <NicknamePolicyHelp legacy />
@@ -762,12 +790,19 @@ function EditProfileModal({
               disabled={isSubmitting || isVerified}
               aria-describedby="profile-nickname-status"
             />
-            <p id="profile-nickname-status" role="status" aria-live="polite" className="text-xs text-gray-500 mt-2">
+            <p
+              id="profile-nickname-status"
+              role="status"
+              aria-live="polite"
+              className="text-xs text-gray-500 mt-2"
+            >
               {isVerified
                 ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다. 닉네임을 바꾸려면 인증 정보를 다시 갱신해야 합니다."
-                : nicknameSubmissionError ?? nicknameError ??
-                  (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." :
-                    "기존 닉네임은 변경 전까지 유지됩니다. 인증 전에는 다시 뽑기로 생성한 이름만 사용할 수 있습니다.")}
+                : (nicknameSubmissionError ??
+                  nicknameError ??
+                  (nicknameStatus === "loading"
+                    ? "새 닉네임을 불러오고 있습니다."
+                    : "기존 닉네임은 변경 전까지 유지됩니다. 인증 전에는 다시 뽑기로 생성한 이름만 사용할 수 있습니다."))}
             </p>
           </div>
 
@@ -833,7 +868,12 @@ function EditProfileModal({
           <Button
             onClick={handleSave}
             className="flex-1 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl"
-            disabled={isSubmitting || !nickname.trim() || nicknameStatus === "loading" || !!nicknameSubmissionError}
+            disabled={
+              isSubmitting ||
+              !nickname.trim() ||
+              nicknameStatus === "loading" ||
+              !!nicknameSubmissionError
+            }
           >
             {isSubmitting ? (
               <>

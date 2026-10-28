@@ -1,5 +1,9 @@
-import { renderHook, act } from "@testing-library/react";
-import { useAuctionHistoryLayout, LAYOUT_CONSTANTS } from "./useAuctionHistoryLayout";
+import { act, renderHook } from "@testing-library/react";
+
+import {
+  LAYOUT_CONSTANTS,
+  useAuctionHistoryLayout,
+} from "./useAuctionHistoryLayout";
 
 // window.innerWidth를 모킹하기 위한 헬퍼
 const mockWindowWidth = (width: number) => {

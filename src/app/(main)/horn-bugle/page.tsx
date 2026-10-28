@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useState, useEffect, useRef, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
-import { useInfiniteHornBugle } from "@/hooks/useInfiniteHornBugle";
-import HornBugleList from "@/components/page/horn-bugle/HornBugleList";
-import { HORN_BUGLE_SERVERS } from "@/types/horn-bugle";
 import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+
+import HornBugleList from "@/components/page/horn-bugle/HornBugleList";
+import { useInfiniteHornBugle } from "@/hooks/useInfiniteHornBugle";
+import { HORN_BUGLE_SERVERS } from "@/types/horn-bugle";
 
 const SERVER_TABS = ["전체", ...HORN_BUGLE_SERVERS] as const;
 
@@ -23,7 +24,7 @@ function HornBugleContent() {
       serverName: selectedServer === "전체" ? undefined : selectedServer,
       keyword: keyword || undefined,
     }),
-    [selectedServer, keyword]
+    [selectedServer, keyword],
   );
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
@@ -31,7 +32,7 @@ function HornBugleContent() {
 
   const allItems = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
-    [data]
+    [data],
   );
 
   const itemCountLabel = hasNextPage
@@ -46,7 +47,7 @@ function HornBugleContent() {
           fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     const currentRef = loadMoreRef.current;
@@ -71,7 +72,7 @@ function HornBugleContent() {
                   "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                   selectedServer === server
                     ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    : "text-gray-600 hover:text-gray-900",
                 )}
               >
                 {server}
@@ -82,16 +83,17 @@ function HornBugleContent() {
 
         {/* 결과 카운트 */}
         {allItems.length > 0 && (
-          <div className="mb-4 text-sm text-gray-500">
-            {itemCountLabel}
-          </div>
+          <div className="mb-4 text-sm text-gray-500">{itemCountLabel}</div>
         )}
 
         {/* 리스트 */}
         <HornBugleList items={allItems} isLoading={isLoading} />
 
         {/* 무한 스크롤 트리거 */}
-        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+        <div
+          ref={loadMoreRef}
+          className="h-20 flex items-center justify-center"
+        >
           {isFetchingNextPage && (
             <div className="text-sm text-gray-400">로딩 중...</div>
           )}

@@ -1,16 +1,22 @@
 "use client";
 
-import AuctionRealtimeList from "@/components/page/auction-realtime/AuctionRealtimeList";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  type ReadonlyURLSearchParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import CategorySection from "@/components/commons/Category";
 import CategoryDropdown from "@/components/commons/CategoryDropdown";
-import SearchFilterCard from "@/components/page/auction-realtime/SearchFilterCard";
+import { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
+import AuctionRealtimeList from "@/components/page/auction-realtime/AuctionRealtimeList";
 import MobileFilterChips from "@/components/page/auction-realtime/MobileFilterChips";
 import MobileFilterModal from "@/components/page/auction-realtime/MobileFilterModal";
+import SearchFilterCard from "@/components/page/auction-realtime/SearchFilterCard";
 import ItemInfoPagination from "@/components/page/item-info/ItemInfoPagination";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,20 +27,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useItemCategories } from "@/hooks/useItemCategories";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ItemCategory } from "@/data/item-category";
-import { useAuctionRealtime } from "@/hooks/useAuctionRealtime";
 import { useAuctionHistoryLayout } from "@/hooks/useAuctionHistoryLayout";
+import { useAuctionRealtime } from "@/hooks/useAuctionRealtime";
+import { useItemCategories } from "@/hooks/useItemCategories";
 import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 import { ActiveFilter } from "@/types/search-filter";
-import { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import {
-  type ReadonlyURLSearchParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
 
 const DEFAULT_PAGE_SIZE = 20;
 const MIN_PAGE_SIZE = 10;
@@ -118,9 +119,10 @@ function setNestedValue(
 
   const lastKey = parts[parts.length - 1];
   const numberValue = Number(rawValue);
-  current[lastKey] = Number.isFinite(numberValue) && rawValue.trim() !== ""
-    ? numberValue
-    : rawValue;
+  current[lastKey] =
+    Number.isFinite(numberValue) && rawValue.trim() !== ""
+      ? numberValue
+      : rawValue;
 }
 
 function setIndexedNestedValue(
@@ -227,7 +229,9 @@ function buildNestedQueryParams(
   return params;
 }
 
-function categoryIdFromSearchParams(params: AuctionRealtimeSearchParams): string {
+function categoryIdFromSearchParams(
+  params: AuctionRealtimeSearchParams,
+): string {
   if (!params.itemTopCategory) return "all";
   if (!params.itemSubCategory) return params.itemTopCategory;
   return `${params.itemTopCategory}/${params.itemSubCategory}`;
@@ -252,9 +256,9 @@ function extractCategoryParts(categoryId: string): {
   };
 }
 
-function normalizeCategorySelection<T extends { itemTopCategory?: string; itemSubCategory?: string }>(
-  params: T,
-): T {
+function normalizeCategorySelection<
+  T extends { itemTopCategory?: string; itemSubCategory?: string },
+>(params: T): T {
   const { itemTopCategory, itemSubCategory } = params;
   if (itemTopCategory && itemSubCategory) {
     const prefix = `${itemTopCategory}/`;
@@ -365,7 +369,13 @@ function parseSearchParamsFromUrl(
       return;
     }
 
-    if (setIndexedNestedValue(parsed as unknown as Record<string, unknown>, key, value)) {
+    if (
+      setIndexedNestedValue(
+        parsed as unknown as Record<string, unknown>,
+        key,
+        value,
+      )
+    ) {
       return;
     }
 
@@ -376,7 +386,9 @@ function parseSearchParamsFromUrl(
 }
 
 function serializeSearchParams(params: AuctionRealtimeSearchParams): string {
-  const normalized: AuctionRealtimeSearchParams = normalizeCategorySelection({ ...params });
+  const normalized: AuctionRealtimeSearchParams = normalizeCategorySelection({
+    ...params,
+  });
 
   if (
     normalized.page === undefined ||
@@ -449,22 +461,32 @@ export default function Page() {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-  const [skipExactItemNameWarning, setSkipExactItemNameWarning] = useState(false);
-  const [showExactItemNameWarning, setShowExactItemNameWarning] = useState(false);
-  const [dontShowExactItemNameWarningAgain, setDontShowExactItemNameWarningAgain] =
+  const [skipExactItemNameWarning, setSkipExactItemNameWarning] =
     useState(false);
+  const [showExactItemNameWarning, setShowExactItemNameWarning] =
+    useState(false);
+  const [
+    dontShowExactItemNameWarningAgain,
+    setDontShowExactItemNameWarningAgain,
+  ] = useState(false);
 
   const [mobileFilterType, setMobileFilterType] = useState<
     "category" | "price" | "options" | "enchant" | "metalware" | null
   >(null);
   const [mobilePriceMin, setMobilePriceMin] = useState("");
   const [mobilePriceMax, setMobilePriceMax] = useState("");
-  const [mobileActiveFilters, setMobileActiveFilters] = useState<ActiveFilter[]>(
-    [],
+  const [mobileActiveFilters, setMobileActiveFilters] = useState<
+    ActiveFilter[]
+  >([]);
+  const [mobileEnchantPrefix, setMobileEnchantPrefix] = useState<string | null>(
+    null,
   );
-  const [mobileEnchantPrefix, setMobileEnchantPrefix] = useState<string | null>(null);
-  const [mobileEnchantSuffix, setMobileEnchantSuffix] = useState<string | null>(null);
-  const [mobileMetalwareItems, setMobileMetalwareItems] = useState<MetalwareFilterItem[]>([]);
+  const [mobileEnchantSuffix, setMobileEnchantSuffix] = useState<string | null>(
+    null,
+  );
+  const [mobileMetalwareItems, setMobileMetalwareItems] = useState<
+    MetalwareFilterItem[]
+  >([]);
 
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemCategories();
@@ -476,18 +498,14 @@ export default function Page() {
     showMobileFilter,
   } = useAuctionHistoryLayout();
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-  } = useAuctionRealtime(searchParams);
+  const { data, isLoading, isFetching } = useAuctionRealtime(searchParams);
 
   const allItems = data?.items ?? [];
   const meta = data?.meta;
   const totalElements = meta?.totalElements ?? 0;
-  const currentPage = meta?.currentPage ?? (searchParams.page ?? 1);
+  const currentPage = meta?.currentPage ?? searchParams.page ?? 1;
   const totalPages = meta?.totalPages ?? 1;
-  const pageSize = meta?.pageSize ?? (searchParams.size ?? DEFAULT_PAGE_SIZE);
+  const pageSize = meta?.pageSize ?? searchParams.size ?? DEFAULT_PAGE_SIZE;
 
   const selectedSortOption =
     SORT_OPTIONS.find(
@@ -554,7 +572,10 @@ export default function Page() {
   useEffect(() => {
     if (!isSortDropdownOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(e.target as Node)
+      ) {
         setIsSortDropdownOpen(false);
       }
     };
@@ -596,13 +617,21 @@ export default function Page() {
 
   const handleExactItemNameChange = useCallback(
     (value: boolean) => {
-      if (!!searchParams.isExactItemName && !value && !skipExactItemNameWarning) {
+      if (
+        !!searchParams.isExactItemName &&
+        !value &&
+        !skipExactItemNameWarning
+      ) {
         setShowExactItemNameWarning(true);
         return;
       }
       applyExactItemNameChange(value);
     },
-    [applyExactItemNameChange, searchParams.isExactItemName, skipExactItemNameWarning],
+    [
+      applyExactItemNameChange,
+      searchParams.isExactItemName,
+      skipExactItemNameWarning,
+    ],
   );
 
   const handleConfirmDisableExactItemName = useCallback(() => {
@@ -704,7 +733,10 @@ export default function Page() {
         delete next.enchantSearchRequest;
       }
 
-      if (filters.metalwareSearchRequests && filters.metalwareSearchRequests.length > 0) {
+      if (
+        filters.metalwareSearchRequests &&
+        filters.metalwareSearchRequests.length > 0
+      ) {
         next.metalwareSearchRequests = filters.metalwareSearchRequests;
       } else {
         delete next.metalwareSearchRequests;
@@ -717,14 +749,17 @@ export default function Page() {
     setMobilePriceMax(filters.priceSearchRequest?.priceTo?.toString() ?? "");
     setMobileEnchantPrefix(filters.enchantSearchRequest?.enchantPrefix ?? null);
     setMobileEnchantSuffix(filters.enchantSearchRequest?.enchantSuffix ?? null);
-    if (filters.metalwareSearchRequests && filters.metalwareSearchRequests.length > 0) {
+    if (
+      filters.metalwareSearchRequests &&
+      filters.metalwareSearchRequests.length > 0
+    ) {
       setMobileMetalwareItems(
         filters.metalwareSearchRequests.map((r, i) => ({
           id: `mw-${i}`,
           name: r.metalware,
           levelFrom: r.levelFrom?.toString() ?? "",
           levelTo: r.levelTo?.toString() ?? "",
-        }))
+        })),
       );
     } else {
       setMobileMetalwareItems([]);
@@ -755,9 +790,12 @@ export default function Page() {
     if (data.activeFilters !== undefined) {
       setMobileActiveFilters(data.activeFilters);
     }
-    if (data.enchantPrefix !== undefined) setMobileEnchantPrefix(data.enchantPrefix);
-    if (data.enchantSuffix !== undefined) setMobileEnchantSuffix(data.enchantSuffix);
-    if (data.metalwareItems !== undefined) setMobileMetalwareItems(data.metalwareItems);
+    if (data.enchantPrefix !== undefined)
+      setMobileEnchantPrefix(data.enchantPrefix);
+    if (data.enchantSuffix !== undefined)
+      setMobileEnchantSuffix(data.enchantSuffix);
+    if (data.metalwareItems !== undefined)
+      setMobileMetalwareItems(data.metalwareItems);
 
     setSearchParams((prev) => {
       const next: AuctionRealtimeSearchParams = {
@@ -784,8 +822,10 @@ export default function Page() {
         }
       }
 
-      const minPrice = data.priceMin !== undefined ? data.priceMin : mobilePriceMin;
-      const maxPrice = data.priceMax !== undefined ? data.priceMax : mobilePriceMax;
+      const minPrice =
+        data.priceMin !== undefined ? data.priceMin : mobilePriceMin;
+      const maxPrice =
+        data.priceMax !== undefined ? data.priceMax : mobilePriceMax;
       if (minPrice || maxPrice) {
         next.priceSearchRequest = {};
         if (minPrice) next.priceSearchRequest.priceFrom = Number(minPrice);
@@ -795,7 +835,9 @@ export default function Page() {
       }
 
       const filters =
-        data.activeFilters !== undefined ? data.activeFilters : mobileActiveFilters;
+        data.activeFilters !== undefined
+          ? data.activeFilters
+          : mobileActiveFilters;
       if (filters.length > 0) {
         next.itemOptionSearchRequest = {};
 
@@ -843,18 +885,31 @@ export default function Page() {
         delete next.itemOptionSearchRequest;
       }
 
-      const enchantPrefixVal = data.enchantPrefix !== undefined ? data.enchantPrefix : mobileEnchantPrefix;
-      const enchantSuffixVal = data.enchantSuffix !== undefined ? data.enchantSuffix : mobileEnchantSuffix;
+      const enchantPrefixVal =
+        data.enchantPrefix !== undefined
+          ? data.enchantPrefix
+          : mobileEnchantPrefix;
+      const enchantSuffixVal =
+        data.enchantSuffix !== undefined
+          ? data.enchantSuffix
+          : mobileEnchantSuffix;
       if (enchantPrefixVal || enchantSuffixVal) {
         next.enchantSearchRequest = {};
-        if (enchantPrefixVal) next.enchantSearchRequest.enchantPrefix = enchantPrefixVal;
-        if (enchantSuffixVal) next.enchantSearchRequest.enchantSuffix = enchantSuffixVal;
+        if (enchantPrefixVal)
+          next.enchantSearchRequest.enchantPrefix = enchantPrefixVal;
+        if (enchantSuffixVal)
+          next.enchantSearchRequest.enchantSuffix = enchantSuffixVal;
       } else {
         delete next.enchantSearchRequest;
       }
 
-      const metalwareItemsVal = data.metalwareItems !== undefined ? data.metalwareItems : mobileMetalwareItems;
-      const validMetalwares = metalwareItemsVal.filter((f) => f.name.trim() !== "");
+      const metalwareItemsVal =
+        data.metalwareItems !== undefined
+          ? data.metalwareItems
+          : mobileMetalwareItems;
+      const validMetalwares = metalwareItemsVal.filter(
+        (f) => f.name.trim() !== "",
+      );
       if (validMetalwares.length > 0) {
         next.metalwareSearchRequests = validMetalwares.map((f) => ({
           metalware: f.name.trim(),
@@ -907,11 +962,7 @@ export default function Page() {
 
       <div
         className={`min-h-full flex justify-center [scrollbar-gutter:stable] ${
-          showCategorySidebar
-            ? "px-72"
-            : showFilterSidebar
-              ? "pr-72"
-              : ""
+          showCategorySidebar ? "px-72" : showFilterSidebar ? "pr-72" : ""
         }`}
       >
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
@@ -924,9 +975,13 @@ export default function Page() {
                   hasPrice: !!(mobilePriceMin || mobilePriceMax),
                   hasOptions: mobileActiveFilters.length > 0,
                   hasEnchant: !!(mobileEnchantPrefix || mobileEnchantSuffix),
-                  hasMetalware: mobileMetalwareItems.some((f) => f.name.trim() !== ""),
+                  hasMetalware: mobileMetalwareItems.some(
+                    (f) => f.name.trim() !== "",
+                  ),
                 }}
-                onExactItemNameToggle={() => handleExactItemNameChange(!searchParams.isExactItemName)}
+                onExactItemNameToggle={() =>
+                  handleExactItemNameChange(!searchParams.isExactItemName)
+                }
                 onCategoryClick={() => setMobileFilterType("category")}
                 onPriceClick={() => setMobileFilterType("price")}
                 onOptionsClick={() => setMobileFilterType("options")}
@@ -975,14 +1030,12 @@ export default function Page() {
                       {itemName}
                     </span>{" "}
                     검색결과
-                    {resultCountNode}
-                    개
+                    {resultCountNode}개
                   </>
                 ) : (
                   <>
                     검색결과
-                    {resultCountNode}
-                    개
+                    {resultCountNode}개
                   </>
                 )}
               </div>
@@ -991,7 +1044,9 @@ export default function Page() {
                   onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
                   className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
                 >
-                  <span className="font-medium">{selectedSortOption.label}</span>
+                  <span className="font-medium">
+                    {selectedSortOption.label}
+                  </span>
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${isSortDropdownOpen ? "rotate-180" : ""}`}
                     fill="none"
@@ -1038,7 +1093,9 @@ export default function Page() {
 
             {isFetching && !isLoading && (
               <div className="h-12 flex items-center justify-center">
-                <div className="text-sm text-[var(--color-ds-disabled)]">로딩 중...</div>
+                <div className="text-sm text-[var(--color-ds-disabled)]">
+                  로딩 중...
+                </div>
               </div>
             )}
 

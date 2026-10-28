@@ -1,12 +1,13 @@
 "use client";
 
-import { Sparkles, BarChart3 } from "lucide-react";
+import { BarChart3, Sparkles } from "lucide-react";
+
 import {
+  AllTimeHighlightCard,
+  MonthLargestCard,
   PopularRankingCard,
   PriceChangeCard,
-  AllTimeHighlightCard,
   VolumeSurgeCard,
-  MonthLargestCard,
 } from "@/components/page/home";
 
 export default function HomePage() {

@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/types/community";
-import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 
-export interface ItemOption {
+import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
+import { ApiResponse } from "@/types/community";
+
+interface ItemOption {
   id: string;
   optionType: string;
   optionSubType: string | null;
@@ -26,7 +27,7 @@ export interface AuctionRealtimeItem {
   itemOptions: ItemOption[];
 }
 
-export interface PageMeta {
+interface PageMeta {
   currentPage: number;
   pageSize: number;
   totalPages: number;
@@ -116,4 +117,3 @@ export function useAuctionRealtime(params: AuctionRealtimeSearchParams) {
     gcTime: 5 * 60 * 1000,
   });
 }
-

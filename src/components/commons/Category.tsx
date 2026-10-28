@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import { ItemCategory } from "@/data/item-category";
 
 const RecursiveCategoryItem = ({
@@ -118,7 +119,9 @@ export default function ItemCategorySection({
   return (
     <div className="flex flex-col h-full bg-white dark:bg-navy-700 rounded-[20px] border border-cream-200 dark:border-navy-500 shadow-[0_8px_24px_rgba(61,56,47,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-colors duration-300">
       <div className="text-center border-b border-cream-200 dark:border-navy-600 py-3 px-4 bg-cream-50 dark:bg-navy-800 rounded-t-[20px]">
-        <h3 className="font-semibold text-cream-900 dark:text-white">카테고리</h3>
+        <h3 className="font-semibold text-cream-900 dark:text-white">
+          카테고리
+        </h3>
       </div>
       <div
         ref={containerRef}

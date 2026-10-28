@@ -1,6 +1,7 @@
-import { createServerAxios } from "@/lib/api/server";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createServerAxios } from "@/lib/api/server";
 
 // posts 요청 캐싱 기간 5분(초)
 export const dynamic = "force-dynamic";
@@ -9,7 +10,7 @@ export const revalidate = 300;
 // 유저별 게시글 리스트 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   const { userId } = await params;
   const { searchParams } = new URL(request.url);

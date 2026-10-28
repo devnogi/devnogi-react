@@ -1,13 +1,17 @@
 # 로컬 개발과 검증
 
-Node.js 20과 npm을 사용합니다. `package-lock.json`을 보존하고 `npm ci`로 설치합니다.
+Node.js 20.19 이상(20.x)과 npm을 사용합니다. `package-lock.json`을 보존하고 `npm ci`로 설치합니다.
 
 ```sh
 npm ci
 npm run verify
 ```
 
-`verify`는 lint, TypeScript 검사, Jest, Next.js build를 순서대로 실행하고 첫 실패에서 중단합니다. CI의 `verify`도 같은 명령을 실행합니다. build만 성공해도 lint가 성공한 것은 아닙니다. 테스트 데이터는 기존 `src/mocks/`와 테스트 파일의 fixture를 사용합니다. 운영 자격 증명은 필요하지 않습니다.
+`npm ci`는 Husky hook을 설치합니다. 커밋 전 staged 파일에 Prettier와 ESLint 자동 수정을 적용하고, push 전 `verify`가 lint, TypeScript, Knip, Jest, Next.js build를 순서대로 실행해 첫 실패에서 중단합니다. CI의 `verify`도 같은 명령을 실행합니다. 수동 검사는 `npm run lint`, `npm run typecheck`, `npm run deadcode`로 각각 실행할 수 있습니다. 테스트 데이터는 기존 `src/mocks/`와 테스트 파일의 fixture를 사용합니다. 운영 자격 증명은 필요하지 않습니다.
+
+`verify`는 변경된 파일의 Prettier 형식도 확인합니다. 로컬에서는 `origin/main`과 현재 브랜치, stage 및 작업 트리 변경을 비교합니다. 다른 기준이 필요하면 `FORMAT_BASE_REF`에 Git ref를 지정하세요. PR에서는 CI가 대상 브랜치를 기준으로 검사합니다. 기존 미변경 파일 전체에 Prettier를 적용하지는 않습니다.
+
+Knip의 dependency 예외는 flat ESLint 설정의 `eslint-config-next`와 `eslint-config-prettier`, TypeScript Jest 설정 로더 `ts-node`입니다. linked worktree에서는 hook 경로를 해당 worktree 설정에 설치하며, 기존 다른 hook 경로가 있으면 자동으로 덮어쓰지 않습니다.
 
 ## Docker 개발 서버
 

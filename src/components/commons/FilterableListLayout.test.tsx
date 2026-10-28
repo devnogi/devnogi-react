@@ -1,6 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import FilterableListLayout from "./FilterableListLayout";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
+
+import FilterableListLayout from "./FilterableListLayout";
 
 jest.mock("@/hooks/useItemCategories", () => {
   const categories = [
@@ -45,12 +46,6 @@ jest.mock("@/components/commons/Category", () => {
 jest.mock("@/components/commons/Search", () => {
   return function MockAuctionSearch() {
     return <span data-testid="auction-search" />;
-  };
-});
-
-jest.mock("@/components/page/auction/List", () => {
-  return function MockAuctionList() {
-    return <span data-testid="auction-list" />;
   };
 });
 

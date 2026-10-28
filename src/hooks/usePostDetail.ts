@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+
 import { clientAxios } from "@/lib/api/clients";
 
 export interface PostDetail {
@@ -36,7 +37,7 @@ export function usePostDetail(postId: number) {
     queryKey: ["post", postId],
     queryFn: async () => {
       const response = await clientAxios.get<ApiResponse<PostDetail>>(
-        `/posts/details/${postId}`
+        `/posts/details/${postId}`,
       );
       return response.data.data;
     },

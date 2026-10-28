@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { usePostDetail } from "@/hooks/usePostDetail";
-import { useInfinitePosts } from "@/hooks/useInfinitePosts";
-import PostCard from "./PostCard";
+import { useMemo, useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+import { usePostDetail } from "@/hooks/usePostDetail";
+
+import PostCard from "./PostCard";
 
 interface RelatedPostsSectionProps {
   postId: string;
@@ -95,7 +97,8 @@ export default function RelatedPostsSection({
   const visiblePosts = relatedPosts.slice(0, visibleCount);
   const canShowMoreFromLoaded = visibleCount < relatedPosts.length;
   const canLoadMoreFromServer = !!hasNextBoardPage || !!hasNextFallbackPage;
-  const isFetchingNextPage = isFetchingNextBoardPage || isFetchingNextFallbackPage;
+  const isFetchingNextPage =
+    isFetchingNextBoardPage || isFetchingNextFallbackPage;
 
   const handleShowMore = async () => {
     if (canShowMoreFromLoaded) {
@@ -115,7 +118,11 @@ export default function RelatedPostsSection({
     }
   };
 
-  if (isPostLoading || isBoardLoading || (shouldEnableFallback && isFallbackLoading)) {
+  if (
+    isPostLoading ||
+    isBoardLoading ||
+    (shouldEnableFallback && isFallbackLoading)
+  ) {
     return (
       <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 md:p-5">
         <div className="flex items-center justify-between mb-4">

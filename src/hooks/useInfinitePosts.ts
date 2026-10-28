@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
+
 import { clientAxios } from "@/lib/api/clients";
 
 type SortType = "latest" | "popular" | "mostLiked";
@@ -85,7 +86,6 @@ export function useInfinitePosts({
   userId,
   enabled = true,
 }: UseInfinitePostsParams = {}) {
-
   return useInfiniteQuery<PostsData>({
     queryKey: ["posts", boardId, keyword, sortType, userId],
     queryFn: async ({ pageParam = 1 }) => {
@@ -97,9 +97,7 @@ export function useInfinitePosts({
       }
       // 검색어가 있는 경우
       else if (keyword && keyword.trim()) {
-        endpoint = boardId
-          ? `/posts/${boardId}/search`
-          : "/posts/search";
+        endpoint = boardId ? `/posts/${boardId}/search` : "/posts/search";
       }
       // 인기순/좋아요순인 경우 (boardId 필수)
       else if (sortType === "popular" && boardId) {
@@ -112,13 +110,18 @@ export function useInfinitePosts({
         endpoint = boardId ? `/posts/${boardId}` : "/posts";
       }
 
-      const response = await clientAxios.get<ApiResponse<BackendPostsData>>(endpoint, {
-        params: {
-          page: pageParam as number,
-          size,
-          ...(!userId && keyword && keyword.trim() ? { keyword: keyword.trim() } : {}),
+      const response = await clientAxios.get<ApiResponse<BackendPostsData>>(
+        endpoint,
+        {
+          params: {
+            page: pageParam as number,
+            size,
+            ...(!userId && keyword && keyword.trim()
+              ? { keyword: keyword.trim() }
+              : {}),
+          },
         },
-      });
+      );
 
       const { items, meta } = response.data.data;
 

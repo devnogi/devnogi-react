@@ -1,26 +1,27 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Image as ImageIcon,
-  X,
-  Hash,
-  Smile,
-  Globe,
-  FileText,
   ChevronDown,
+  FileText,
+  Globe,
+  Hash,
+  Image as ImageIcon,
+  Loader2,
   Maximize2,
   Minimize2,
-  Loader2,
+  Smile,
+  X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { clientAxios } from "@/lib/api/clients";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Board, ApiResponse, BoardListData } from "@/types/community";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+
 import MarkdownRenderer from "@/components/commons/MarkdownRenderer";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { clientAxios } from "@/lib/api/clients";
+import { ApiResponse, Board, BoardListData } from "@/types/community";
 
 type VisibilityOption = "public" | "draft";
 
@@ -137,7 +138,9 @@ export default function PostCreateModal({
       return;
     }
 
-    const selectedBoardData = boardOptions.find((b) => b.id === selectedBoardId);
+    const selectedBoardData = boardOptions.find(
+      (b) => b.id === selectedBoardId,
+    );
     if (!selectedBoardData) {
       toast.error("게시판을 선택해주세요.");
       return;
@@ -157,7 +160,7 @@ export default function PostCreateModal({
       };
       formData.append(
         "data",
-        new Blob([JSON.stringify(postData)], { type: "application/json" })
+        new Blob([JSON.stringify(postData)], { type: "application/json" }),
       );
 
       images.forEach((image) => {
@@ -188,7 +191,8 @@ export default function PostCreateModal({
   };
 
   const handleClose = () => {
-    const hasContent = title.trim() || content.trim() || images.length > 0 || tags.length > 0;
+    const hasContent =
+      title.trim() || content.trim() || images.length > 0 || tags.length > 0;
 
     if (hasContent) {
       const confirmed = window.confirm(
@@ -273,7 +277,9 @@ export default function PostCreateModal({
                   <div className="flex items-center gap-2">
                     <Button
                       onClick={handleSubmit}
-                      disabled={!title.trim() || !content.trim() || isSubmitting}
+                      disabled={
+                        !title.trim() || !content.trim() || isSubmitting
+                      }
                       className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                     >
                       {isSubmitting ? (
@@ -313,7 +319,8 @@ export default function PostCreateModal({
                       }`}
                     >
                       <span className="text-sm font-medium text-gray-700">
-                        {boardOptions.find((b) => b.id === selectedBoardId)?.name || "게시판 선택"}
+                        {boardOptions.find((b) => b.id === selectedBoardId)
+                          ?.name || "게시판 선택"}
                       </span>
                       <ChevronDown className="w-4 h-4 text-gray-500" />
                     </button>
@@ -381,8 +388,13 @@ export default function PostCreateModal({
                         transition={{ duration: 0.2 }}
                         className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4"
                       >
-                        <div className="mb-2 text-xs font-semibold text-gray-600">미리보기</div>
-                        <MarkdownRenderer content={content} className="text-gray-800" />
+                        <div className="mb-2 text-xs font-semibold text-gray-600">
+                          미리보기
+                        </div>
+                        <MarkdownRenderer
+                          content={content}
+                          className="text-gray-800"
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>

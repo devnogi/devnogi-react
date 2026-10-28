@@ -1,13 +1,13 @@
 "use client";
 
-import { AuctionRealtimeItem } from "@/hooks/useAuctionRealtime";
+import ItemOptionPopover from "@/components/page/auction-history/ItemOptionPopover";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import ItemOptionPopover from "@/components/page/auction-history/ItemOptionPopover";
+import { AuctionRealtimeItem } from "@/hooks/useAuctionRealtime";
 
 interface AuctionRealtimeListProps {
   items: AuctionRealtimeItem[];
@@ -32,7 +32,9 @@ export default function AuctionRealtimeList({
     return (
       <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
         <div className="text-center">
-          <p className="text-[var(--color-ds-disabled)] text-lg">검색 결과가 없습니다.</p>
+          <p className="text-[var(--color-ds-disabled)] text-lg">
+            검색 결과가 없습니다.
+          </p>
           <p className="text-[var(--color-ds-disabled)] text-sm mt-2">
             다른 검색 조건으로 시도해보세요.
           </p>
@@ -101,71 +103,87 @@ export default function AuctionRealtimeList({
       <div className="md:hidden">
         <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
           <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
-          {items.map((item, index) => (
-            <Popover key={`${item.auctionId}-${index}`}>
-              <PopoverTrigger asChild>
-                <div className="px-4 py-4 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
-                  {/* 1st Line: Enchants (축복받은/신성한 + 접두/접미 인챈트) - 항상 공간 유지 */}
-                  <div className="text-[10px] text-[var(--color-ds-disabled)] mb-1 min-h-[14px]">
-                    {getEnchantPrefix(item.itemDisplayName, item.itemName) || '\u00A0'}
-                  </div>
-
-                  {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
-                  <div className="flex justify-between items-center mb-1.5 gap-2">
-                    <h3 className="font-semibold text-[var(--color-ds-text)] text-[0.96rem] flex-1 min-w-0 truncate">
-                      {getItemNameWithoutAttributes(item.itemName)}
-                    </h3>
-                    <div className="flex items-center flex-shrink-0 whitespace-nowrap">
-                      <span className="font-bold text-[var(--color-ds-primary)] text-[0.96rem]">
-                        {formatPrice(item.auctionPricePerUnit)}
-                      </span>
-                      <span className="text-sm text-[var(--color-ds-disabled)] ml-1">G</span>
+            {items.map((item, index) => (
+              <Popover key={`${item.auctionId}-${index}`}>
+                <PopoverTrigger asChild>
+                  <div className="px-4 py-4 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
+                    {/* 1st Line: Enchants (축복받은/신성한 + 접두/접미 인챈트) - 항상 공간 유지 */}
+                    <div className="text-[10px] text-[var(--color-ds-disabled)] mb-1 min-h-[14px]">
+                      {getEnchantPrefix(item.itemDisplayName, item.itemName) ||
+                        "\u00A0"}
                     </div>
-                  </div>
 
-                  {/* 3rd Line: Attribute Tags (Left) + Date (Right) */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-wrap gap-1.5 items-center">
-                      {getItemAttributes(item.itemName).length > 0 ? (
-                        getItemAttributes(item.itemName).map((attr, idx) => (
-                          <span key={idx} className="text-xs text-[var(--color-ds-disabled)]">
-                            #{attr}
-                          </span>
-                        ))
-                      ) : (
-                        <span></span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {item.itemCount > 1 && (
-                        <span className="text-xs text-[var(--color-ds-disabled)]">
-                          ×{item.itemCount}
+                    {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
+                    <div className="flex justify-between items-center mb-1.5 gap-2">
+                      <h3 className="font-semibold text-[var(--color-ds-text)] text-[0.96rem] flex-1 min-w-0 truncate">
+                        {getItemNameWithoutAttributes(item.itemName)}
+                      </h3>
+                      <div className="flex items-center flex-shrink-0 whitespace-nowrap">
+                        <span className="font-bold text-[var(--color-ds-primary)] text-[0.96rem]">
+                          {formatPrice(item.auctionPricePerUnit)}
                         </span>
-                      )}
-                      <span className="flex items-center gap-1 text-xs text-[var(--color-ds-disabled)]">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {formatDateShort(item.dateAuctionExpire)}
-                      </span>
+                        <span className="text-sm text-[var(--color-ds-disabled)] ml-1">
+                          G
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 3rd Line: Attribute Tags (Left) + Date (Right) */}
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {getItemAttributes(item.itemName).length > 0 ? (
+                          getItemAttributes(item.itemName).map((attr, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs text-[var(--color-ds-disabled)]"
+                            >
+                              #{attr}
+                            </span>
+                          ))
+                        ) : (
+                          <span></span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {item.itemCount > 1 && (
+                          <span className="text-xs text-[var(--color-ds-disabled)]">
+                            ×{item.itemCount}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-xs text-[var(--color-ds-disabled)]">
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          {formatDateShort(item.dateAuctionExpire)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </PopoverTrigger>
+                </PopoverTrigger>
 
-            <PopoverContent
-              className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
-              side="top"
-              align="center"
-            >
-              <ItemOptionPopover
-                itemDisplayName={item.itemDisplayName}
-                itemOptions={item.itemOptions}
-                price={item.auctionPricePerUnit}
-              />
-            </PopoverContent>
-          </Popover>
-          ))}
+                <PopoverContent
+                  className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
+                  side="top"
+                  align="center"
+                >
+                  <ItemOptionPopover
+                    itemDisplayName={item.itemDisplayName}
+                    itemOptions={item.itemOptions}
+                    price={item.auctionPricePerUnit}
+                  />
+                </PopoverContent>
+              </Popover>
+            ))}
           </div>
         </div>
       </div>
@@ -221,7 +239,9 @@ export default function AuctionRealtimeList({
                     <span className="font-bold text-[var(--color-ds-primary)] text-[0.85rem] whitespace-nowrap">
                       {formatPrice(item.auctionPricePerUnit)}
                     </span>
-                    <span className="text-sm text-[var(--color-ds-disabled)] ml-1 whitespace-nowrap">G</span>
+                    <span className="text-sm text-[var(--color-ds-disabled)] ml-1 whitespace-nowrap">
+                      G
+                    </span>
                   </div>
 
                   {/* Date - 만료일시 */}
@@ -234,21 +254,21 @@ export default function AuctionRealtimeList({
                     {item.itemCount}
                   </div>
                 </div>
-            </PopoverTrigger>
+              </PopoverTrigger>
 
-            <PopoverContent
-              className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
-              side="right"
-              align="start"
-            >
-              <ItemOptionPopover
-                itemDisplayName={item.itemDisplayName}
-                itemOptions={item.itemOptions}
-                price={item.auctionPricePerUnit}
-              />
-            </PopoverContent>
-          </Popover>
-        ))}
+              <PopoverContent
+                className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
+                side="right"
+                align="start"
+              >
+                <ItemOptionPopover
+                  itemDisplayName={item.itemDisplayName}
+                  itemOptions={item.itemOptions}
+                  price={item.auctionPricePerUnit}
+                />
+              </PopoverContent>
+            </Popover>
+          ))}
         </div>
       </div>
     </>

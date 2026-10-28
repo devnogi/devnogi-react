@@ -5,28 +5,20 @@
  */
 
 import {
-  SearchStandard,
-  PriceSearchRequest,
-  ItemOptionSearchRequest,
   EnchantSearchRequest,
+  ItemOptionSearchRequest,
   MetalwareSearchRequest,
+  PriceSearchRequest,
 } from "./auction-history";
 
 // Re-export shared types
-export type {
-  SearchStandard,
-  PriceSearchRequest,
-  ItemOptionSearchRequest,
-  EnchantSearchRequest,
-  MetalwareSearchRequest,
-};
 
 /**
  * 실시간 경매장 검색 조건
  * Backend: AuctionRealtimeSearchRequest
  * 거래내역과 달리 날짜 필터(dateAuctionBuyRequest)가 없음
  */
-export interface AuctionRealtimeSearchRequest {
+interface AuctionRealtimeSearchRequest {
   itemName?: string;
   isExactItemName?: boolean;
   itemTopCategory?: string;
@@ -41,7 +33,8 @@ export interface AuctionRealtimeSearchRequest {
  * 실시간 경매장 검색 파라미터 (페이지네이션 포함)
  * Backend: PageRequestDto + AuctionRealtimeSearchRequest
  */
-export interface AuctionRealtimeSearchParams extends AuctionRealtimeSearchRequest {
+export interface AuctionRealtimeSearchParams
+  extends AuctionRealtimeSearchRequest {
   // 페이지네이션
   page?: number;
   size?: number;

@@ -1,7 +1,10 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Autocomplete from "./Autocomplete";
+
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
 import { ItemInfo } from "@/hooks/useItemInfos";
+
+import Autocomplete from "./Autocomplete";
 
 const mockItems: ItemInfo[] = [
   {

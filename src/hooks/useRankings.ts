@@ -1,23 +1,23 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+
 import {
-  VolumeRankingResponse,
-  PriceRankingResponse,
-  PriceChangeRankingResponse,
-  VolumeChangeRankingResponse,
   AllTimeRankingResponse,
+  PriceChangeRankingResponse,
   RankingApiResponse,
+  VolumeChangeRankingResponse,
+  VolumeRankingResponse,
 } from "@/types/ranking";
 
 // ===== 거래량 랭킹 =====
 
 async function fetchVolumeRanking(
   type: "today" | "week",
-  limit: number
+  limit: number,
 ): Promise<VolumeRankingResponse[]> {
   const response = await fetch(
-    `/api/rankings/volume?type=${type}&limit=${limit}`
+    `/api/rankings/volume?type=${type}&limit=${limit}`,
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch volume ranking: ${response.status}`);
@@ -36,67 +36,14 @@ export function useTodayPopularRanking(limit: number = 10) {
   });
 }
 
-export function useWeekPopularRanking(limit: number = 10) {
-  return useQuery({
-    queryKey: ["ranking", "volume", "week", limit],
-    queryFn: () => fetchVolumeRanking("week", limit),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-}
-
-// ===== 가격 랭킹 =====
-
-async function fetchPriceRanking(
-  type: "today-highest" | "week-highest" | "today-largest",
-  limit: number
-): Promise<PriceRankingResponse[]> {
-  const response = await fetch(
-    `/api/rankings/price?type=${type}&limit=${limit}`
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch price ranking: ${response.status}`);
-  }
-  const result: RankingApiResponse<PriceRankingResponse[]> =
-    await response.json();
-  return result.data ?? [];
-}
-
-export function useTodayHighestPriceRanking(limit: number = 10) {
-  return useQuery({
-    queryKey: ["ranking", "price", "today-highest", limit],
-    queryFn: () => fetchPriceRanking("today-highest", limit),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-}
-
-export function useWeekHighestPriceRanking(limit: number = 10) {
-  return useQuery({
-    queryKey: ["ranking", "price", "week-highest", limit],
-    queryFn: () => fetchPriceRanking("week-highest", limit),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-}
-
-export function useTodayLargestVolumeRanking(limit: number = 10) {
-  return useQuery({
-    queryKey: ["ranking", "price", "today-largest", limit],
-    queryFn: () => fetchPriceRanking("today-largest", limit),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-}
-
 // ===== 가격 변동 랭킹 =====
 
 async function fetchPriceChangeRanking(
   type: "surge" | "drop",
-  limit: number
+  limit: number,
 ): Promise<PriceChangeRankingResponse[]> {
   const response = await fetch(
-    `/api/rankings/price-change?type=${type}&limit=${limit}`
+    `/api/rankings/price-change?type=${type}&limit=${limit}`,
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch price change ranking: ${response.status}`);
@@ -127,10 +74,10 @@ export function usePriceDropRanking(limit: number = 10) {
 // ===== 거래량 변동 랭킹 =====
 
 async function fetchVolumeSurgeRanking(
-  limit: number
+  limit: number,
 ): Promise<VolumeChangeRankingResponse[]> {
   const response = await fetch(
-    `/api/rankings/price-change?type=volume-surge&limit=${limit}`
+    `/api/rankings/price-change?type=volume-surge&limit=${limit}`,
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch volume surge ranking: ${response.status}`);
@@ -153,10 +100,10 @@ export function useVolumeSurgeRanking(limit: number = 10) {
 
 async function fetchAllTimeRanking(
   type: "highest-price" | "month-largest",
-  limit: number
+  limit: number,
 ): Promise<AllTimeRankingResponse[]> {
   const response = await fetch(
-    `/api/rankings/all-time?type=${type}&limit=${limit}`
+    `/api/rankings/all-time?type=${type}&limit=${limit}`,
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch all-time ranking: ${response.status}`);

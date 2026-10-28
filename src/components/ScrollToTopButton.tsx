@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ChevronUp } from "lucide-react";
 import clsx from "clsx";
+import { ChevronUp } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -34,7 +34,7 @@ export default function ScrollToTopButton() {
         "transition-all duration-300 transform",
         isVisible
           ? "translate-y-0 opacity-100"
-          : "translate-y-4 opacity-0 pointer-events-none"
+          : "translate-y-4 opacity-0 pointer-events-none",
       )}
       aria-label="맨 위로 이동"
     >

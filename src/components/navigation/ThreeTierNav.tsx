@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import clsx from "clsx";
+import { Clock, Home, Moon, Search, Sun, User, X } from "lucide-react";
 import Link from "next/link";
 import {
   type ReadonlyURLSearchParams,
@@ -8,19 +9,16 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import clsx from "clsx";
-import { Search, Sun, Moon, User, Home, X, Clock } from "lucide-react";
+
+import NotificationDropdown from "@/components/notification/NotificationDropdown";
 import { Input } from "@/components/ui/input";
-import { useItemInfos, ItemInfo } from "@/hooks/useItemInfos";
-import {
-  useRecentSearches,
-  RecentSearch,
-} from "@/hooks/useRecentSearches";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import NotificationDropdown from "@/components/notification/NotificationDropdown";
+import { ItemInfo, useItemInfos } from "@/hooks/useItemInfos";
+import { RecentSearch, useRecentSearches } from "@/hooks/useRecentSearches";
 import { isAdminRole } from "@/utils/roles";
 
 // Navigation menu items
@@ -270,7 +268,9 @@ export default function ThreeTierNav() {
       }
 
       // Navigate to current auction page with search params (history or realtime)
-      const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
+      const basePath = isAuctionRealtimePage
+        ? "/auction-realtime"
+        : "/auction-history";
       const params = new URLSearchParams({
         item_name: item.name,
         top_category: item.topCategory,
@@ -278,7 +278,13 @@ export default function ThreeTierNav() {
       });
       router.push(`${basePath}?${params.toString()}`);
     },
-    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage, isStatisticsPage]
+    [
+      addRecentSearch,
+      router,
+      isAuctionRealtimePage,
+      isItemInfoPage,
+      isStatisticsPage,
+    ],
   );
 
   const handleRecentSearchClick = useCallback(
@@ -318,7 +324,9 @@ export default function ThreeTierNav() {
         return;
       }
 
-      const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
+      const basePath = isAuctionRealtimePage
+        ? "/auction-realtime"
+        : "/auction-history";
       const params = new URLSearchParams({
         item_name: search.itemName,
       });
@@ -330,7 +338,13 @@ export default function ThreeTierNav() {
       }
       router.push(`${basePath}?${params.toString()}`);
     },
-    [addRecentSearch, router, isAuctionRealtimePage, isItemInfoPage, isStatisticsPage]
+    [
+      addRecentSearch,
+      router,
+      isAuctionRealtimePage,
+      isItemInfoPage,
+      isStatisticsPage,
+    ],
   );
 
   const handleClearAllRecentSearches = useCallback(() => {
@@ -339,13 +353,21 @@ export default function ThreeTierNav() {
 
   const handleSearchSubmit = useCallback(() => {
     // 자동완성 목록에서 선택된 항목이 있는 경우
-    if (searchValue.trim().length > 0 && selectedIndex >= 0 && filteredItems[selectedIndex]) {
+    if (
+      searchValue.trim().length > 0 &&
+      selectedIndex >= 0 &&
+      filteredItems[selectedIndex]
+    ) {
       handleItemSelect(filteredItems[selectedIndex]);
       return;
     }
 
     // 최근 검색어 목록에서 선택된 항목이 있는 경우
-    if (searchValue.trim().length === 0 && selectedIndex >= 0 && recentSearches[selectedIndex]) {
+    if (
+      searchValue.trim().length === 0 &&
+      selectedIndex >= 0 &&
+      recentSearches[selectedIndex]
+    ) {
       handleRecentSearchClick(recentSearches[selectedIndex]);
       return;
     }
@@ -354,7 +376,7 @@ export default function ThreeTierNav() {
     if (searchValue.trim()) {
       // 정확히 일치하는 아이템이 있는지 확인
       const matchingItem = itemInfos.find(
-        (item) => item.name.toLowerCase() === searchValue.trim().toLowerCase()
+        (item) => item.name.toLowerCase() === searchValue.trim().toLowerCase(),
       );
 
       if (matchingItem) {
@@ -369,10 +391,16 @@ export default function ThreeTierNav() {
 
         // 아이템 정보 페이지인 경우
         if (isItemInfoPage) {
-          router.push(`/item-info?item_name=${encodeURIComponent(searchValue.trim())}`);
+          router.push(
+            `/item-info?item_name=${encodeURIComponent(searchValue.trim())}`,
+          );
         } else {
-          const basePath = isAuctionRealtimePage ? "/auction-realtime" : "/auction-history";
-          router.push(`${basePath}?item_name=${encodeURIComponent(searchValue.trim())}`);
+          const basePath = isAuctionRealtimePage
+            ? "/auction-realtime"
+            : "/auction-history";
+          router.push(
+            `${basePath}?item_name=${encodeURIComponent(searchValue.trim())}`,
+          );
         }
         setIsSearchFocused(false);
         setSelectedIndex(-1);
@@ -482,14 +510,14 @@ export default function ThreeTierNav() {
       handleSearchSubmit,
       handleHornBugleSearchSubmit,
       handleCommunitySearchSubmit,
-    ]
+    ],
   );
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchValue(e.target.value);
     },
-    []
+    [],
   );
 
   const handleSearchFocus = useCallback(() => {
@@ -522,7 +550,14 @@ export default function ThreeTierNav() {
 
     const query = params.toString();
     router.push(`${pathname}${query ? `?${query}` : ""}`);
-  }, [isSearchablePage, isHornBuglePage, isCommunityPage, urlSearchParams, pathname, router]);
+  }, [
+    isSearchablePage,
+    isHornBuglePage,
+    isCommunityPage,
+    urlSearchParams,
+    pathname,
+    router,
+  ]);
 
   // 드롭다운 표시 여부: 검색 가능한 페이지에서만 + (입력값이 있거나 최근 검색어가 있을 때)
   const showDropdown =
@@ -532,7 +567,10 @@ export default function ThreeTierNav() {
 
   // URL 경로에 따른 placeholder 분기
   const searchPlaceholder = useMemo(() => {
-    if (pathname.startsWith("/auction-history") || pathname.startsWith("/auction-realtime")) {
+    if (
+      pathname.startsWith("/auction-history") ||
+      pathname.startsWith("/auction-realtime")
+    ) {
       return "아이템 검색";
     } else if (pathname.startsWith("/horn-bugle")) {
       return "캐릭터명, 메시지 검색...";
@@ -623,7 +661,7 @@ export default function ThreeTierNav() {
                         "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0",
                         selectedIndex === index
                           ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
-                          : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600"
+                          : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                       )}
                     >
                       <div className="font-medium text-sm">{item.name}</div>
@@ -671,12 +709,14 @@ export default function ThreeTierNav() {
                       "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0 flex items-start gap-3",
                       selectedIndex === index
                         ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
-                        : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600"
+                        : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                     )}
                   >
                     <Clock className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm">{search.itemName}</div>
+                      <div className="font-medium text-sm">
+                        {search.itemName}
+                      </div>
                       {search.topCategory && search.subCategory && (
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           {search.topCategory} › {search.subCategory}
@@ -706,7 +746,7 @@ export default function ThreeTierNav() {
                 "relative px-3 py-2.5 transition-colors",
                 pathname === "/home"
                   ? "text-blaanid-600 dark:text-coral-400"
-                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
               )}
               aria-label="홈"
             >
@@ -717,19 +757,18 @@ export default function ThreeTierNav() {
             </Link>
             {navItems.map(({ href, label, ready }) => {
               const isActive =
-                ready &&
-                (pathname === href || pathname.startsWith(href + "/"));
+                ready && (pathname === href || pathname.startsWith(href + "/"));
 
               return (
-              <Link
-                key={label}
-                href={buildSharedSearchPath(href)}
-                onClick={!ready ? handleNotReady : undefined}
-                className={clsx(
+                <Link
+                  key={label}
+                  href={buildSharedSearchPath(href)}
+                  onClick={!ready ? handleNotReady : undefined}
+                  className={clsx(
                     "relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
                     isActive
                       ? "text-blaanid-600 dark:text-coral-400"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
                   )}
                 >
                   {label}
@@ -746,7 +785,7 @@ export default function ThreeTierNav() {
                   "relative px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors",
                   pathname.startsWith("/admin")
                     ? "text-blaanid-600 dark:text-coral-400"
-                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
                 )}
               >
                 관리자 도구
@@ -769,7 +808,7 @@ export default function ThreeTierNav() {
         <div
           className={clsx(
             "transition-all duration-300",
-            isScrolled ? "h-0 opacity-0 overflow-hidden" : "h-14 opacity-100"
+            isScrolled ? "h-0 opacity-0 overflow-hidden" : "h-14 opacity-100",
           )}
         >
           <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
@@ -790,7 +829,9 @@ export default function ThreeTierNav() {
               {/* Theme Toggle Icon */}
               <button
                 className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
-                aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+                aria-label={
+                  isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"
+                }
                 onClick={toggleTheme}
               >
                 {isDarkMode ? (
@@ -864,7 +905,7 @@ export default function ThreeTierNav() {
         <div
           className={clsx(
             "transition-all duration-300 overflow-hidden",
-            isScrolled ? "h-0 opacity-0" : "h-12 opacity-100"
+            isScrolled ? "h-0 opacity-0" : "h-12 opacity-100",
           )}
         >
           <div className="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
@@ -882,7 +923,9 @@ export default function ThreeTierNav() {
               {/* Theme Toggle Icon */}
               <button
                 className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
-                aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+                aria-label={
+                  isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"
+                }
                 onClick={toggleTheme}
               >
                 {isDarkMode ? (

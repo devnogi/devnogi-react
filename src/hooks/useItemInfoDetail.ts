@@ -1,4 +1,5 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+
 import {
   ItemInfoResponse,
   ItemInfoSearchParams,
@@ -25,13 +26,16 @@ async function fetchItemInfoDetail(
   if (params.size) searchParams.set("size", params.size.toString());
   if (params.direction) searchParams.set("direction", params.direction);
 
-  const response = await fetch(`/api/item-infos/detail?${searchParams.toString()}`);
+  const response = await fetch(
+    `/api/item-infos/detail?${searchParams.toString()}`,
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch item info detail");
   }
 
-  const result: ApiResponse<PageResponse<ItemInfoResponse>> = await response.json();
+  const result: ApiResponse<PageResponse<ItemInfoResponse>> =
+    await response.json();
 
   if (!result.success) {
     throw new Error(result.message || "API 요청 실패");

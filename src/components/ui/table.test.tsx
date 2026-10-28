@@ -1,14 +1,15 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow,
-  TableHead,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "./table";
-import React from "react";
-import userEvent from "@testing-library/user-event";
 
 const mockData = [
   { id: 1, date: "2024-06-01", item: "아이템1", price: "1000", status: "완료" },

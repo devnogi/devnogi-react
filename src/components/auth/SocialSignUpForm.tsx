@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Shuffle, Upload, User, X } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -15,30 +18,37 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Shuffle, Upload, X, User } from "lucide-react";
-import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 import { clientAxios } from "@/lib/api/clients";
 import { SocialProvider } from "@/lib/auth/socialAuth";
-import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
-import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 
 const socialSignUpSchema = z.object({
   nickname: z.string().min(1, { message: "닉네임을 다시 발급받아주세요" }),
   profileImage: z
     .custom<File>()
-    .refine((file) => !file || file.size <= MAX_FILE_SIZE, "파일 크기는 5MB 이하여야 합니다")
+    .refine(
+      (file) => !file || file.size <= MAX_FILE_SIZE,
+      "파일 크기는 5MB 이하여야 합니다",
+    )
     .refine(
       (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
-      "JPG, JPEG, PNG, WEBP 파일만 업로드 가능합니다"
+      "JPG, JPEG, PNG, WEBP 파일만 업로드 가능합니다",
     )
     .optional(),
 });
 
 type SocialSignUpFormData = z.infer<typeof socialSignUpSchema>;
-const refreshSignupHint = "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
+const refreshSignupHint =
+  "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
 
 interface SocialSignUpFormProps {
   provider: SocialProvider;
@@ -61,9 +71,18 @@ export default function SocialSignUpForm({
 }: SocialSignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<string | null>(null);
-  const [emailSubmissionError, setEmailSubmissionError] = useState<string | null>(null);
-  const { candidate, status: nicknameStatus, error: nicknameError, refresh: refreshNickname } = useNicknameCandidate();
+  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<
+    string | null
+  >(null);
+  const [emailSubmissionError, setEmailSubmissionError] = useState<
+    string | null
+  >(null);
+  const {
+    candidate,
+    status: nicknameStatus,
+    error: nicknameError,
+    refresh: refreshNickname,
+  } = useNicknameCandidate();
 
   const form = useForm<SocialSignUpFormData>({
     resolver: zodResolver(socialSignUpSchema),
@@ -74,7 +93,9 @@ export default function SocialSignUpForm({
   });
 
   useEffect(() => {
-    form.setValue("nickname", candidate?.nickname ?? "", { shouldValidate: true });
+    form.setValue("nickname", candidate?.nickname ?? "", {
+      shouldValidate: true,
+    });
   }, [candidate, form]);
 
   const rerollNickname = () => {
@@ -100,9 +121,13 @@ export default function SocialSignUpForm({
   };
 
   const onSubmit = async (data: SocialSignUpFormData) => {
-    if (nicknameStatus !== "ready" || !candidate ||
-        data.nickname !== candidate.nickname || nicknameSubmissionError ||
-        Date.parse(candidate.expiresAt) <= Date.now()) {
+    if (
+      nicknameStatus !== "ready" ||
+      !candidate ||
+      data.nickname !== candidate.nickname ||
+      nicknameSubmissionError ||
+      Date.parse(candidate.expiresAt) <= Date.now()
+    ) {
       setNicknameSubmissionError("닉네임을 다시 발급받아주세요.");
       return;
     }
@@ -140,18 +165,37 @@ export default function SocialSignUpForm({
         throw new Error("회원가입에 실패했습니다");
       }
     } catch (error) {
-      const response = (error as { response?: { status?: number; data?: { code?: string; message?: string } } }).response;
+      const response = (
+        error as {
+          response?: {
+            status?: number;
+            data?: { code?: string; message?: string };
+          };
+        }
+      ).response;
       const status = response?.status;
       if (status === 409 && response?.data?.code === "EMAIL_ALREADY_EXISTS") {
-        setEmailSubmissionError("이미 가입된 이메일입니다. 로그인하거나 다른 계정으로 다시 시도해주세요.");
+        setEmailSubmissionError(
+          "이미 가입된 이메일입니다. 로그인하거나 다른 계정으로 다시 시도해주세요.",
+        );
         return;
       }
-      if (status === 409 && response?.data?.code === "NICKNAME_ALREADY_EXISTS") {
+      if (
+        status === 409 &&
+        response?.data?.code === "NICKNAME_ALREADY_EXISTS"
+      ) {
         setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
         return;
       }
-      if (status === 400 && ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(response?.data?.code ?? "")) {
-        setNicknameSubmissionError("닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.");
+      if (
+        status === 400 &&
+        ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(
+          response?.data?.code ?? "",
+        )
+      ) {
+        setNicknameSubmissionError(
+          "닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.",
+        );
         return;
       }
       if (status && status >= 400 && status < 500) {
@@ -191,7 +235,11 @@ export default function SocialSignUpForm({
           추가 정보를 입력하여 회원가입을 완료해주세요
         </p>
         {email && <p className="text-xs text-gray-500 mt-1">이메일: {email}</p>}
-        {emailSubmissionError && <p role="alert" className="text-sm text-red-600 mt-2">{emailSubmissionError}</p>}
+        {emailSubmissionError && (
+          <p role="alert" className="text-sm text-red-600 mt-2">
+            {emailSubmissionError}
+          </p>
+        )}
       </div>
 
       <Form {...form}>
@@ -209,7 +257,6 @@ export default function SocialSignUpForm({
                   <div className="flex flex-col items-center gap-4">
                     {previewUrl ? (
                       <div className="relative w-32 h-32">
-
                         <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-200 shadow-sm relative">
                           <Image
                             src={previewUrl}
@@ -243,7 +290,9 @@ export default function SocialSignUpForm({
                       />
                       <div className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        <span className="text-sm font-medium">이미지 업로드</span>
+                        <span className="text-sm font-medium">
+                          이미지 업로드
+                        </span>
                       </div>
                     </label>
                   </div>
@@ -263,13 +312,19 @@ export default function SocialSignUpForm({
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center gap-2">
-                  <FormLabel className="text-sm font-semibold text-gray-700">닉네임 *</FormLabel>
+                  <FormLabel className="text-sm font-semibold text-gray-700">
+                    닉네임 *
+                  </FormLabel>
                   <NicknamePolicyHelp />
                 </div>
                 <div className="flex gap-2">
                   <FormControl>
                     <Input
-                      placeholder={nicknameStatus === "loading" ? "닉네임을 발급받는 중..." : "닉네임을 발급받아주세요"}
+                      placeholder={
+                        nicknameStatus === "loading"
+                          ? "닉네임을 발급받는 중..."
+                          : "닉네임을 발급받아주세요"
+                      }
                       className="h-12 border-gray-300 bg-gray-50 rounded-lg"
                       {...field}
                       readOnly
@@ -283,13 +338,24 @@ export default function SocialSignUpForm({
                     disabled={nicknameStatus === "loading" || isLoading}
                     className="h-12 px-4 whitespace-nowrap"
                   >
-                    {nicknameStatus === "loading" ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Shuffle className="mr-1 h-4 w-4" />}
+                    {nicknameStatus === "loading" ? (
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Shuffle className="mr-1 h-4 w-4" />
+                    )}
                     다시 뽑기
                   </Button>
                 </div>
-                <FormDescription id="social-nickname-status" role="status" aria-live="polite">
-                  {nicknameSubmissionError ?? nicknameError ??
-                    (nicknameStatus === "loading" ? "새 닉네임을 불러오고 있습니다." : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
+                <FormDescription
+                  id="social-nickname-status"
+                  role="status"
+                  aria-live="polite"
+                >
+                  {nicknameSubmissionError ??
+                    nicknameError ??
+                    (nicknameStatus === "loading"
+                      ? "새 닉네임을 불러오고 있습니다."
+                      : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -312,7 +378,9 @@ export default function SocialSignUpForm({
               disabled={
                 isLoading ||
                 nicknameStatus !== "ready" ||
-                !candidate || !!nicknameSubmissionError || !!emailSubmissionError
+                !candidate ||
+                !!nicknameSubmissionError ||
+                !!emailSubmissionError
               }
               className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200"
             >

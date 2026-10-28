@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { ChevronDown, Plus, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+
 import { Input } from "@/components/ui/input";
-import { Plus, X, ChevronDown } from "lucide-react";
 
 export interface MetalwareFilterItem {
   id: string;

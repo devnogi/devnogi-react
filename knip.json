@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/app/**/{page,layout,loading,error,global-error,not-found,route,template,default}.{ts,tsx}",
+    "src/{instrumentation,middleware}.{ts,tsx}",
+    "jest.config.ts",
+    "jest.setup.ts",
+    "scripts/*.mjs"
+  ],
+  "project": ["src/**/*.{ts,tsx,css}", "!src/**/*.d.ts"],
+  "ignore": [".next/**", "coverage/**", "out/**"],
+  "ignoreDependencies": [
+    "eslint-config-next",
+    "eslint-config-prettier",
+    "ts-node"
+  ]
+}

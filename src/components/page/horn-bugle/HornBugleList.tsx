@@ -1,7 +1,8 @@
 "use client";
 
-import { HornBugleItem } from "@/types/horn-bugle";
 import { Megaphone } from "lucide-react";
+
+import { HornBugleItem } from "@/types/horn-bugle";
 
 interface HornBugleListProps {
   items: HornBugleItem[];
@@ -11,12 +12,16 @@ interface HornBugleListProps {
 // 서버별 배지 색상 (라이트/다크 모드 대응)
 const serverColors: Record<string, string> = {
   류트: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
-  만돌린: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  만돌린:
+    "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
   하프: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",
   울프: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
 };
 
-export default function HornBugleList({ items, isLoading }: HornBugleListProps) {
+export default function HornBugleList({
+  items,
+  isLoading,
+}: HornBugleListProps) {
   if (isLoading && items.length === 0) {
     return (
       <div className="space-y-4">
@@ -43,7 +48,9 @@ export default function HornBugleList({ items, isLoading }: HornBugleListProps) 
     return (
       <div className="text-center py-16">
         <Megaphone className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-        <p className="text-gray-500 dark:text-gray-400">뿔피리 내역이 없습니다.</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          뿔피리 내역이 없습니다.
+        </p>
       </div>
     );
   }

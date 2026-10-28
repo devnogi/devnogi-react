@@ -2,11 +2,11 @@
 
 import { ItemOption } from "@/hooks/useAuctionHistory";
 import {
-  groupOptionsByCategory,
+  formatEnchantType,
   GroupedOption,
+  groupOptionsByCategory,
   isPenaltyOption,
   parseOptionValue,
-  formatEnchantType,
 } from "@/lib/itemOptionUtils";
 
 interface ItemOptionPopoverProps {
@@ -90,7 +90,13 @@ function OptionGroup({ group }: { group: GroupedOption }) {
 /**
  * 기본 옵션 렌더링 (아이템 속성, 세트 아이템, 아이템 색상)
  */
-function DefaultOptions({ options, separator }: { options: ItemOption[]; separator?: string }) {
+function DefaultOptions({
+  options,
+  separator,
+}: {
+  options: ItemOption[];
+  separator?: string;
+}) {
   return (
     <>
       {options.map((option) => (
@@ -145,9 +151,13 @@ function EnchantItem({ option }: { option: ItemOption }) {
       {/* 인챈트 헤더 */}
       <div className="text-xs text-gray-600 dark:text-[#ccc]">
         {enchantType && (
-          <span className="text-blue-500 dark:text-[#7cb3ff] mr-1">{enchantType}</span>
+          <span className="text-blue-500 dark:text-[#7cb3ff] mr-1">
+            {enchantType}
+          </span>
         )}
-        <span className="text-gray-900 dark:text-white">{option.optionValue}</span>
+        <span className="text-gray-900 dark:text-white">
+          {option.optionValue}
+        </span>
       </div>
       {/* 인챈트 효과 설명 */}
       {hasDesc && (
@@ -211,15 +221,17 @@ function ReforgeItem({ option }: { option: ItemOption }) {
     <div className="mb-1 last:mb-0">
       <div className="text-xs text-gray-600 dark:text-[#ccc]">
         {option.optionSubType && (
-          <span className="text-gray-500 dark:text-[#a0a0a0] mr-1">{option.optionSubType}:</span>
+          <span className="text-gray-500 dark:text-[#a0a0a0] mr-1">
+            {option.optionSubType}:
+          </span>
         )}
         <HighlightedValue value={option.optionValue} />
       </div>
       {hasDesc && (
         <div className="ml-3 mt-0.5">
-          {option.optionDesc?.split("\n").map((line, idx) => (
-            <EffectLine key={idx} text={line} />
-          ))}
+          {option.optionDesc
+            ?.split("\n")
+            .map((line, idx) => <EffectLine key={idx} text={line} />)}
         </div>
       )}
     </div>
@@ -279,28 +291,27 @@ function ErgOptions({ options }: { options: ItemOption[] }) {
       )}
       {/* 에르그 효과 */}
       {effectOptions.map((option) => (
-<div key={option.id} className="mb-1.5 last:mb-0">
-  <div className="flex items-center text-xs whitespace-nowrap">
-    {option.optionSubType && (
-      <span className="text-gray-500 dark:text-[#b0b0b0] font-medium">
-        {option.optionSubType}
-      </span>
-    )}
+        <div key={option.id} className="mb-1.5 last:mb-0">
+          <div className="flex items-center text-xs whitespace-nowrap">
+            {option.optionSubType && (
+              <span className="text-gray-500 dark:text-[#b0b0b0] font-medium">
+                {option.optionSubType}
+              </span>
+            )}
 
-    <span className="ml-2">
-      <HighlightedValue value={option.optionValue} />
-    </span>
-  </div>
+            <span className="ml-2">
+              <HighlightedValue value={option.optionValue} />
+            </span>
+          </div>
 
-  {option.optionDesc && (
-    <div className="ml-3 mt-0.5">
-      {option.optionDesc.split("\n").map((line, idx) => (
-        <EffectLine key={idx} text={line} />
-      ))}
-    </div>
-  )}
-</div>
-
+          {option.optionDesc && (
+            <div className="ml-3 mt-0.5">
+              {option.optionDesc.split("\n").map((line, idx) => (
+                <EffectLine key={idx} text={line} />
+              ))}
+            </div>
+          )}
+        </div>
       ))}
     </>
   );
@@ -343,7 +354,10 @@ function ItemColorOptions({ options }: { options: ItemOption[] }) {
       {sortedOptions.map((option) => {
         const rgbColor = parseRgbColor(option.optionValue);
         return (
-          <div key={option.id} className="text-xs text-gray-600 dark:text-[#ccc] leading-relaxed">
+          <div
+            key={option.id}
+            className="text-xs text-gray-600 dark:text-[#ccc] leading-relaxed"
+          >
             <span
               style={{ color: rgbColor || undefined }}
               className="mr-1 text-gray-400 dark:text-[#ccc]"
@@ -364,7 +378,13 @@ function ItemColorOptions({ options }: { options: ItemOption[] }) {
 /**
  * 단일 옵션 라인 렌더링
  */
-function OptionLine({ option, separator = "~" }: { option: ItemOption; separator?: string }) {
+function OptionLine({
+  option,
+  separator = "~",
+}: {
+  option: ItemOption;
+  separator?: string;
+}) {
   const effectiveSeparator = option.optionType === "내구력" ? "/" : separator;
   const value = option.optionValue2
     ? `${option.optionValue} ${effectiveSeparator} ${option.optionValue2}`
@@ -378,10 +398,14 @@ function OptionLine({ option, separator = "~" }: { option: ItemOption; separator
 
   return (
     <div className="text-xs text-gray-600 dark:text-[#ccc] leading-relaxed">
-      <span className="text-gray-500 dark:text-[#a0a0a0]">{option.optionType}: </span>
+      <span className="text-gray-500 dark:text-[#a0a0a0]">
+        {option.optionType}:{" "}
+      </span>
       {isDurabilityLow ? (
         <>
-          <span className="text-red-500 dark:text-[#cc6666]">{option.optionValue}</span>
+          <span className="text-red-500 dark:text-[#cc6666]">
+            {option.optionValue}
+          </span>
           {` ${effectiveSeparator} `}
           <HighlightedValue value={option.optionValue2!} />
         </>
@@ -407,7 +431,9 @@ function EffectLine({ text }: { text: string }) {
   return (
     <div
       className={`text-xs leading-relaxed ${
-        isPenalty ? "text-red-500 dark:text-[#cc6666]" : "text-gray-600 dark:text-[#ccc]"
+        isPenalty
+          ? "text-red-500 dark:text-[#cc6666]"
+          : "text-gray-600 dark:text-[#ccc]"
       } ${isSubItem ? "ml-1" : ""}`}
     >
       <HighlightedValue value={trimmedText} isPenalty={isPenalty} />
@@ -434,7 +460,11 @@ function HighlightedValue({
           return (
             <span
               key={idx}
-              className={isPenalty ? "text-red-500 dark:text-[#cc6666]" : "text-blue-500 dark:text-[#7cb3ff]"}
+              className={
+                isPenalty
+                  ? "text-red-500 dark:text-[#cc6666]"
+                  : "text-blue-500 dark:text-[#7cb3ff]"
+              }
             >
               {segment.value}
             </span>

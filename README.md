@@ -84,12 +84,14 @@ devnogi-front/
 ## 주요 기능
 
 ### 인증 시스템
+
 - **이메일 로그인**: 이메일/비밀번호 기반 로그인
 - **소셜 로그인**: 구글, 카카오, 네이버 OAuth 연동
 - **회원가입**: 이메일/닉네임 중복 체크, 약관 동의
 - **세션 관리**: 쿠키 기반 인증 상태 유지
 
 ### 커뮤니티
+
 - **게시글 목록**: 카드 형태 UI, 무한 스크롤
 - **카테고리 필터**: 게시판별 분류
 - **정렬 옵션**: 최신순, 인기순, 댓글순, 조회순
@@ -97,6 +99,7 @@ devnogi-front/
 - **글쓰기**: 모달 기반 게시글 작성
 
 ### 경매 내역
+
 - **무한 스크롤**: TanStack Query 기반 페이지네이션
 - **검색 기능**: 아이템 이름 검색
 - **필터링**: 카테고리, 가격 범위, 날짜 범위, 아이템 옵션
@@ -104,6 +107,7 @@ devnogi-front/
 - **반응형 UI**: 데스크톱 사이드바 / 모바일 모달 필터
 
 ### 마이페이지
+
 - 사용자 정보 조회 및 프로필 편집
 
 ## 아키텍처
@@ -113,6 +117,7 @@ devnogi-front/
 이 프로젝트는 Next.js API Routes를 활용한 BFF 패턴을 구현합니다:
 
 **요청 흐름:**
+
 ```
 Client Component
   ↓ (clientAxios)
@@ -133,39 +138,44 @@ Backend Services
 ### API 레이어
 
 **Client-side (`src/lib/api/clients.ts`):**
+
 - `clientAxios`: 클라이언트 컴포넌트에서 사용
 - Base URL: `/api` (Next.js API Routes)
 - Timeout: 5000ms
 
 **Server-side (`src/lib/api/server.ts`):**
+
 - `createServerAxios()`: API 라우트 핸들러에서 사용
 - Base URL: `process.env.GATEWAY_URL`
 - Authorization 및 Cookie 헤더 전달
 - MSW 서버 자동 초기화
 
 **TanStack Query 설정:**
+
 - `staleTime: 200ms`
 - 윈도우 포커스, 재연결, 마운트 시 자동 refetch 비활성화
 
 ### 커스텀 Hooks
 
-| Hook | 용도 |
-|------|------|
-| `useInfiniteAuctionHistory` | 경매 내역 무한 스크롤 |
-| `useAuctionHistory` | 경매 내역 단일 페이지 조회 |
-| `useInfinitePosts` | 게시글 무한 스크롤 |
-| `usePostDetail` | 게시글 상세 조회 |
-| `useItemCategories` | 아이템 카테고리 트리 조회 |
-| `useSearchOptions` | 검색 옵션 조회 |
-| `useItemInfos` | 아이템 정보 조회 |
+| Hook                        | 용도                       |
+| --------------------------- | -------------------------- |
+| `useInfiniteAuctionHistory` | 경매 내역 무한 스크롤      |
+| `useAuctionHistory`         | 경매 내역 단일 페이지 조회 |
+| `useInfinitePosts`          | 게시글 무한 스크롤         |
+| `usePostDetail`             | 게시글 상세 조회           |
+| `useItemCategories`         | 아이템 카테고리 트리 조회  |
+| `useSearchOptions`          | 검색 옵션 조회             |
+| `useItemInfos`              | 아이템 정보 조회           |
 
 ### API 모킹 (MSW)
 
 **활성화 조건:**
+
 - `VERCEL_ENV=development|preview` AND
 - `API_MOCKING=enabled`
 
 **구성:**
+
 - Mock 핸들러: `src/mocks/server.ts`
 - Mock 데이터: `src/mocks/data/*.json`
 - 테스트 환경에서 자동 활성화 (`jest.setup.ts`)
@@ -177,19 +187,21 @@ Backend Services
 모든 API는 **게이트웨이 서버**를 통해 라우팅됩니다.
 
 **게이트웨이 서버:**
+
 ```
 http://168.107.43.221:8080/
 ```
 
 **백엔드 서비스:**
 
-| 서비스 | Prefix | Swagger | 담당 기능 |
-|--------|--------|---------|-----------|
-| OPEN API BATCH | `/oab` | [Swagger UI](http://138.2.126.248:8080/swagger-ui/index.html) | 경매장, 거래 내역 |
-| 커뮤니티 서버 | `/dcs/api` | [Swagger UI](http://3.39.119.27/swagger-ui/index.html) | 게시판, 게시글, 댓글 |
-| Auth 서버 | `/das/api` | - | 인증, 회원가입, 소셜 로그인 |
+| 서비스         | Prefix     | Swagger                                                       | 담당 기능                   |
+| -------------- | ---------- | ------------------------------------------------------------- | --------------------------- |
+| OPEN API BATCH | `/oab`     | [Swagger UI](http://138.2.126.248:8080/swagger-ui/index.html) | 경매장, 거래 내역           |
+| 커뮤니티 서버  | `/dcs/api` | [Swagger UI](http://3.39.119.27/swagger-ui/index.html)        | 게시판, 게시글, 댓글        |
+| Auth 서버      | `/das/api` | -                                                             | 인증, 회원가입, 소셜 로그인 |
 
 **커뮤니티 API 응답 구조:**
+
 ```typescript
 {
   success: boolean,
@@ -203,6 +215,7 @@ http://168.107.43.221:8080/
 ### API 라우트 목록
 
 **인증 API (`/api/auth/*`)**
+
 ```
 POST   /api/auth/login              # 로그인
 POST   /api/auth/signup             # 회원가입
@@ -214,6 +227,7 @@ POST   /api/auth/check-nickname     # 닉네임 중복 체크
 ```
 
 **커뮤니티 API (`/api/posts/*`, `/api/comments/*`)**
+
 ```
 GET    /api/posts                   # 전체 게시글 조회
 GET    /api/posts/[id]              # 게시판별 게시글 조회
@@ -224,6 +238,7 @@ GET    /api/boards                  # 게시판 목록 조회
 ```
 
 **경매 API (`/api/auction-history/*`)**
+
 ```
 GET    /api/auction-history         # 경매 내역 조회
 POST   /api/auction-history/search  # 상세 검색
@@ -235,38 +250,44 @@ GET    /api/search-option           # 검색 옵션 조회
 ### Slash Commands
 
 프로젝트에서 사용 가능한 커스텀 명령어:
+
 - `/api-spec` - 전체 API 스펙 조회
 - `/api-endpoint` - 특정 엔드포인트 상세 조회
 
 ## 개발 환경 설정
 
 0. 원본 저장소에서 프로젝트 포크
-[원본 저장소 링크](https://github.com/devnogi/devnogi-react)
+   [원본 저장소 링크](https://github.com/devnogi/devnogi-react)
 
 1. 저장소 클론
+
 ```bash
 git clone [your-repository-url]
 cd devnogi-front
 ```
 
 2. 의존성 설치
+
 ```bash
-npm install
+npm ci
 ```
 
 3. 환경 변수 설정
+
 ```bash
 # .sample_env를 참조하여 .env 파일 생성
 cp .sample_env .env
 ```
 
 **환경 변수 설명:**
+
 - `NODE_ENV` - 런타임 환경 (development/production)
 - `VERCEL_ENV` - Vercel 환경 (development/preview/production)
 - `API_MOCKING` - MSW 활성화 여부 (enabled/disabled)
 - `GATEWAY_URL` - 백엔드 게이트웨이 URL
 
 4. 개발 서버 실행
+
 ```bash
 npm run dev
 ```
@@ -298,6 +319,7 @@ TypeScript 및 Jest 설정에서 모두 지원됩니다.
 0. 작업 전 원본 저장소와 싱크 확인
 
 1. 새로운 작업 시작
+
 ```bash
 git switch main
 git pull origin main
@@ -310,6 +332,7 @@ git push origin 브랜치명
 ```
 
 2. PR(Pull Request) 프로세스
+
    - PR 생성 시 작업 내용 상세히 설명
    - 코드 리뷰 진행
    - 승인 후 main 브랜치에 머지
@@ -327,6 +350,7 @@ git push origin 브랜치명
 ```
 
 **Type:**
+
 - `feat`: 새로운 기능 추가
 - `fix`: 버그 수정
 - `docs`: 문서 수정
@@ -339,12 +363,14 @@ git push origin 브랜치명
 - `security`: 보안 관련 변경
 
 **Subject 규칙:**
+
 - 최대 50자
 - 소문자로 시작
 - 마침표 없음
 - 명령형 현재 시제 (add, fix, update, remove)
 
 **예시:**
+
 ```bash
 feat: add user login functionality
 fix: improve error handling on login
@@ -352,6 +378,7 @@ docs: update README with API documentation
 ```
 
 **Footer (선택사항):**
+
 ```
 Closes: #123
 Fixes: #456
@@ -364,18 +391,7 @@ BREAKING CHANGE: API response format changed
 
 커밋 시 Staged 파일에 대해 자동으로 다음 작업이 수행됩니다:
 
-1. **Prettier**: 코드 포맷팅
-2. **ESLint**: 코드 품질 검사 및 자동 수정
-3. **Jest**: 변경된 파일과 관련된 테스트 실행
-
-```bash
-# lint-staged 설정
-"*.{ts,tsx}": [
-  "prettier --write",
-  "eslint --fix",
-  "npm test -- --bail --findRelatedTests"
-]
-```
+`npm ci`가 Husky hook을 설치합니다. 커밋 전에 staged 변경의 whitespace와 conflict marker를 검사하고, staged 코드에 Prettier와 ESLint 자동 수정 및 import 정렬을 적용합니다. 다른 unstaged 변경은 stage하지 않습니다. push 전에는 `npm run verify`로 lint, 타입, 미사용 코드, 테스트와 빌드를 검사합니다. hook을 우회하더라도 PR CI에서 같은 검사가 실행됩니다.
 
 ### ESLint
 
@@ -433,6 +449,7 @@ docker-compose -f docker-compose-prod.yaml up -d
 ```
 
 **Docker 설정:**
+
 - 멀티 스테이지 빌드 (node:20-alpine)
 - Next.js standalone 출력 모드
 - 기본 포트: 3010
@@ -445,12 +462,14 @@ docker-compose -f docker-compose-prod.yaml up -d
 DevNogi는 **부드럽고 현대적이며 친근한** 디자인을 추구합니다:
 
 **핵심 원칙:**
+
 - **Rounded & Soft**: 넉넉한 border radius, 부드러운 모서리, 은은한 그림자
 - **Colorful but Subtle**: 파스텔톤, 그라데이션 악센트, 강한 대비 지양
 - **Clean & Minimal**: 넉넉한 여백, 명확한 계층, 깔끔한 레이아웃
 - **Friendly & Approachable**: 따뜻한 색상, 환영하는 인터랙션
 
 **영감 출처:**
+
 - Reddit: 카드 기반 레이아웃, 명확한 콘텐츠 계층
 - Threads: 부드러운 색상, 둥근 디자인, 친근한 인터랙션
 - Notion: 깔끔한 미학, 넉넉한 여백, 부드러운 애니메이션
@@ -459,14 +478,17 @@ DevNogi는 **부드럽고 현대적이며 친근한** 디자인을 추구합니�
 ### 색상 팔레트
 
 **브랜드 컬러 (Blue):**
+
 - `brand-500` (#0ea5e9): 메인 브랜드 색상 - 버튼, 링크, 강조
 - `brand-100` to `brand-900`: 배경, 호버, 텍스트용 전체 스케일
 
 **액센트 컬러 (Purple):**
+
 - `accent-500` (#a855f7): 보조 액센트 - 뱃지, 하이라이트, 특별 액션
 - `accent-100` to `accent-900`: 악센트 및 장식 요소용 전체 스케일
 
 **사용 가이드:**
+
 - Primary actions: `bg-gradient-to-r from-blue-600 to-purple-600`
 - Backgrounds: `bg-gradient-to-br from-blue-50 via-white to-purple-50`
 - Interactive elements: 색상 전환을 활용한 은은한 호버 효과
@@ -474,17 +496,18 @@ DevNogi는 **부드럽고 현대적이며 친근한** 디자인을 추구합니�
 
 ### Border Radius 표준
 
-| Element | Radius | Class | Use Case |
-|---------|--------|-------|----------|
-| Cards | 16-24px | `rounded-2xl` | 메인 콘텐츠 카드, 모달 |
-| Buttons | 8-12px | `rounded-lg` | 버튼, 폼 입력 |
-| Small elements | 6-8px | `rounded-md` | 태그, 뱃지, 필 |
-| Images | 12px | `rounded-xl` | 프로필 이미지, 썸네일 |
-| Avatars | 50% | `rounded-full` | 사용자 아바타 |
+| Element        | Radius  | Class          | Use Case               |
+| -------------- | ------- | -------------- | ---------------------- |
+| Cards          | 16-24px | `rounded-2xl`  | 메인 콘텐츠 카드, 모달 |
+| Buttons        | 8-12px  | `rounded-lg`   | 버튼, 폼 입력          |
+| Small elements | 6-8px   | `rounded-md`   | 태그, 뱃지, 필         |
+| Images         | 12px    | `rounded-xl`   | 프로필 이미지, 썸네일  |
+| Avatars        | 50%     | `rounded-full` | 사용자 아바타          |
 
 ### Typography
 
 **Primary Font: Pretendard**
+
 - 한글과 영문에 최적화된 모던한 sans-serif
 - SIL Open Font License 1.1 (상업적 사용 가능)
 - 디지털 스크린에 최적화된 가독성
@@ -494,15 +517,16 @@ DevNogi는 **부드럽고 현대적이며 친근한** 디자인을 추구합니�
 
 **Typography Scale:**
 
-| Element | Size | Weight | Usage |
-|---------|------|--------|-------|
-| H1 | 30-36px | 700 | 페이지 제목 |
-| H2 | 24-30px | 600-700 | 섹션 헤더 |
-| H3 | 20-24px | 600 | 하위 섹션 헤더 |
-| Body | 14-16px | 400 | 본문 텍스트 |
-| Small | 12-14px | 400 | 캡션, 메타데이터 |
+| Element | Size    | Weight  | Usage            |
+| ------- | ------- | ------- | ---------------- |
+| H1      | 30-36px | 700     | 페이지 제목      |
+| H2      | 24-30px | 600-700 | 섹션 헤더        |
+| H3      | 20-24px | 600     | 하위 섹션 헤더   |
+| Body    | 14-16px | 400     | 본문 텍스트      |
+| Small   | 12-14px | 400     | 캡션, 메타데이터 |
 
 **Line Height:**
+
 - Headings: 1.2-1.3
 - Body text: 1.5-1.7 (가독성을 위한 넉넉한 행간)
 - Code: 1.4
@@ -510,12 +534,14 @@ DevNogi는 **부드럽고 현대적이며 친근한** 디자인을 추구합니�
 ### Interactive Elements
 
 **Buttons:**
+
 - Primary: 그라데이션 배경 (`from-blue-600 to-purple-600`)
 - Height: `h-12` (48px) 터치 최적화
 - Hover: 약간 확대 (`hover:scale-[1.02]`), 그라데이션 강조
 - Disabled: 50% 투명도, 호버 효과 없음
 
 **Inputs:**
+
 - Height: `h-12` (48px)
 - Padding: 아이콘이 있을 때 `pl-11` (왼쪽 패딩)
 - Border: `border-gray-300`, focus: `border-blue-500`
@@ -578,6 +604,7 @@ DevNogi는 **부드럽고 현대적이며 친근한** 디자인을 추구합니�
 이 프로젝트는 오픈 소스이며, 학습 및 포트폴리오 목적으로 자유롭게 사용할 수 있습니다.
 
 **폰트 라이선스:**
+
 - **Pretendard**: SIL Open Font License 1.1 (상업적 사용 가능)
 - **Mabinogi Classic**: 저작권 제한 있음 (게임 관련 브랜딩에만 제한적 사용)
 

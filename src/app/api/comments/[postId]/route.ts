@@ -1,7 +1,8 @@
-import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
-import { createLogger } from "@/lib/logger";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
+import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/comments");
 
@@ -11,7 +12,7 @@ export const revalidate = 60;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ postId: string }> }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   const { postId } = await params;
   const { searchParams } = new URL(request.url);
@@ -22,7 +23,9 @@ export async function GET(
 
   const startTime = Date.now();
   logger.info(`GET /comments/${postId} - 댓글 목록 조회`);
-  logger.debug(`Query params: page=${page}, size=${size}, sortBy=${sortBy}, direction=${direction}`);
+  logger.debug(
+    `Query params: page=${page}, size=${size}, sortBy=${sortBy}, direction=${direction}`,
+  );
 
   try {
     const axios = createServerAxios(request);
@@ -55,7 +58,9 @@ export async function GET(
         message: axiosError.message,
       };
 
-      logger.error(`GET /comments/${postId} - 실패 (${status}) [${duration}ms]`);
+      logger.error(
+        `GET /comments/${postId} - 실패 (${status}) [${duration}ms]`,
+      );
       logger.error(`Error details:`, {
         status,
         message: axiosError.message,
@@ -80,7 +85,7 @@ export async function GET(
 // 댓글 작성
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ postId: string }> }
+  { params }: { params: Promise<{ postId: string }> },
 ) {
   const { postId } = await params;
   const startTime = Date.now();
@@ -130,7 +135,9 @@ export async function POST(
         message: axiosError.message,
       };
 
-      logger.error(`POST /comments/${postId} - 실패 (${status}) [${duration}ms]`);
+      logger.error(
+        `POST /comments/${postId} - 실패 (${status}) [${duration}ms]`,
+      );
       logger.error(`Error details:`, {
         status,
         message: axiosError.message,

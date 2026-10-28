@@ -3,11 +3,12 @@
  */
 
 import { ItemOption } from "@/hooks/useAuctionHistory";
+
 import {
-  OptionCategoryId,
-  OPTION_TYPE_TO_CATEGORY,
   CATEGORY_BY_ID,
   CATEGORY_ORDER,
+  OPTION_TYPE_TO_CATEGORY,
+  OptionCategoryId,
 } from "./itemOptionCategories";
 
 // 그룹화된 옵션 인터페이스
@@ -22,9 +23,7 @@ export interface GroupedOption {
  * @param options 아이템 옵션 배열
  * @returns 카테고리별로 그룹화된 옵션 배열 (정렬된 순서)
  */
-export function groupOptionsByCategory(
-  options: ItemOption[],
-): GroupedOption[] {
+export function groupOptionsByCategory(options: ItemOption[]): GroupedOption[] {
   // 카테고리별로 옵션 분류
   const categoryMap = new Map<OptionCategoryId, ItemOption[]>();
 
@@ -70,13 +69,7 @@ export function groupOptionsByCategory(
  */
 export function isPenaltyOption(optionValue: string): boolean {
   // 감소, 마이너스 값, 패널티 키워드 확인
-  const penaltyPatterns = [
-    /감소/,
-    /-\d+/,
-    /\d+\s*감소/,
-    /저하/,
-    /약화/,
-  ];
+  const penaltyPatterns = [/감소/, /-\d+/, /\d+\s*감소/, /저하/, /약화/];
 
   return penaltyPatterns.some((pattern) => pattern.test(optionValue));
 }
@@ -91,7 +84,9 @@ export interface ValueSegment {
   value: string;
 }
 
-export function parseOptionValue(value: string | null | undefined): ValueSegment[] {
+export function parseOptionValue(
+  value: string | null | undefined,
+): ValueSegment[] {
   // null/undefined 처리
   if (value == null) {
     return [{ type: "text", value: "" }];
@@ -147,19 +142,4 @@ export function formatEnchantType(optionSubType: string | null): string {
     return `[${optionSubType}]`;
   }
   return optionSubType;
-}
-
-/**
- * 개조 옵션의 서브 카테고리 추출
- * @param optionType 옵션 타입 (일반 개조, 특별 개조, 장인 개조, 보석 개조)
- * @returns 서브 카테고리 레이블
- */
-export function getReforgeSubCategory(optionType: string): string {
-  const mapping: Record<string, string> = {
-    "일반 개조": "일반 개조",
-    "특별 개조": "특별 개조",
-    "장인 개조": "장인 개조",
-    "보석 개조": "보석 개조",
-  };
-  return mapping[optionType] || optionType;
 }
