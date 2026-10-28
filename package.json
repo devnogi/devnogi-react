@@ -9,7 +9,19 @@
     "lint": "next lint",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run lint && npm run typecheck && npm test -- --ci --maxWorkers=2 && npm run build"
+    "prepare": "node -e \"if(require('fs').existsSync('scripts/install-hooks.mjs')) import('./scripts/install-hooks.mjs')\"",
+    "lint:staged": "lint-staged",
+    "format:check": "node scripts/format-check.mjs",
+    "test:format-check": "node --test scripts/test-format-check.mjs",
+    "deadcode": "knip",
+    "verify": "npm run format:check && npm run test:format-check && npm run lint && npm run typecheck && npm run deadcode && npm test -- --ci --maxWorkers=2 && npm run build"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "engines": {
     "node": "20.x"
@@ -52,10 +64,12 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
     "husky": "^9.1.7",
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",
     "jest-fixed-jsdom": "^0.0.9",
+    "knip": "^6.43.0",
     "lint-staged": "^16.1.2",
     "msw": "^2.10.4",
     "prettier": "3.5.3",

@@ -20,18 +20,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
       - run: node scripts/secret-scan.mjs
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
+      FORMAT_BASE_REF: refs/remotes/origin/${{ github.base_ref || 'main' }}
       GATEWAY_URL: http://127.0.0.1:8090
       API_MOCKING: disabled
       VERCEL_ENV: development
-      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
