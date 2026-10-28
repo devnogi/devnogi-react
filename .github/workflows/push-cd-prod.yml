@@ -80,6 +80,8 @@ jobs:
       # Deploy Stage: SSH & Deploy
       # ========================================
       - name: Setup SSH key and config
+        env:
+          PROD_KNOWN_HOSTS: ${{ secrets.PROD_KNOWN_HOSTS }}
         run: |
           set -e
           mkdir -p ~/.ssh
@@ -96,18 +98,16 @@ jobs:
 
           echo "SSH key written successfully ($(wc -l < ~/.ssh/my-key.pem) lines)"
 
-          # Add server to known_hosts
-          ssh-keyscan -p ${{ secrets.PROD_SSH_PORT }} -H ${{ secrets.PROD_SERVER_HOST }} >> ~/.ssh/known_hosts 2>&1 || {
-            echo "Warning: ssh-keyscan failed, but continuing..."
-            echo "You may need to manually verify the host key on first connection"
-          }
+          test -n "$PROD_KNOWN_HOSTS" || { echo 'PROD_KNOWN_HOSTS is required' >&2; exit 1; }
+          printf '%s\n' "$PROD_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-          # Configure SSH keep-alive and disable strict host checking for automation
+          # Require a previously verified host key.
           cat >> ~/.ssh/config << 'EOF'
           Host *
             ServerAliveInterval 60
             ServerAliveCountMax 3
-            StrictHostKeyChecking no
+            StrictHostKeyChecking yes
             UserKnownHostsFile ~/.ssh/known_hosts
           EOF
 
@@ -117,13 +117,9 @@ jobs:
         run: |
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} "mkdir -p ~/devnogi-react"
 
-      - name: Preserve previous deployment configuration
-        run: |
-          ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} "cd ~/devnogi-react && test -s docker-compose-prod.yml && cp docker-compose-prod.yml .previous-compose.yml"
-
       - name: Copy deployment files to server
         run: |
-          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/
+          scp -i ~/.ssh/my-key.pem -P ${{ secrets.PROD_SSH_PORT }} docker-compose-prod.yml ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }}:~/devnogi-react/.candidate-compose-${{ github.run_id }}-${{ github.run_attempt }}.yml
 
       - name: Deploy to Production Server
         run: |
@@ -132,7 +128,9 @@ jobs:
             umask 077
             cd ~/devnogi-react
 
+            test -s docker-compose-prod.yml
             test -s .env.prod
+            cp docker-compose-prod.yml .previous-compose.yml
             cp .env.prod .previous-env.prod
             # Write .env.prod content from GitHub Secret
             echo "${{ secrets.ENV_FILE_PROD }}" > .next-env.prod
@@ -142,7 +140,8 @@ jobs:
             printf '%s\n' "$old_image" > .previous-image-id
             export IMAGE_REF='${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}@${{ steps.image.outputs.digest }}'
             docker pull "$IMAGE_REF"
-            printf '%s\n' '${{ github.run_id }}' > .deployment-in-progress
+            printf '%s\n' '${{ github.run_id }}-${{ github.run_attempt }}' > .deployment-in-progress
+            cp '.candidate-compose-${{ github.run_id }}-${{ github.run_attempt }}.yml' docker-compose-prod.yml
             cp .next-env.prod .env.prod
             docker compose -f docker-compose-prod.yml --env-file .env.prod up -d --no-deps nextjs-app
 
@@ -155,6 +154,8 @@ jobs:
       - name: Comprehensive Health Check
         run: |
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
+            set -e
+            cd ~/devnogi-react
             echo "=== Starting Production Health Check ==="
 
             # 1. Check if Next.js container is running
@@ -224,6 +225,8 @@ jobs:
 
             echo "=== Health Check Complete ==="
             docker ps --filter "name=nextjs-app-prod"
+            test "$(cat .deployment-in-progress)" = '${{ github.run_id }}-${{ github.run_attempt }}'
+            rm -f .deployment-in-progress
           EOF
 
       - name: Display deployment info
@@ -242,7 +245,7 @@ jobs:
           ssh -i ~/.ssh/my-key.pem -p ${{ secrets.PROD_SSH_PORT }} ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'EOF'
             set -e
             cd ~/devnogi-react
-            if [ "$(cat .deployment-in-progress 2>/dev/null || true)" != '${{ github.run_id }}' ]; then
+            if [ "$(cat .deployment-in-progress 2>/dev/null || true)" != '${{ github.run_id }}-${{ github.run_attempt }}' ]; then
               echo 'No deployment started by this run; nothing to roll back.'
               exit 0
             fi

@@ -42,4 +42,6 @@ PR의 필수 검사 이름은 `verify`, `secret-scan`이며 승인자 수는 0�
 
 `Production Deployment`는 `main` push로 자동 실행되며, 복구할 때 `main`에서 `workflow_dispatch`로 수동 실행할 수도 있습니다. 동일 커밋을 검증하고 빌드한 이미지 digest를 배포합니다. 배포 전 기존 이미지와 Compose를 보존하고 상태 검사 실패 시 기존 이미지로 복구합니다. 이전 이미지가 없으면 배포를 중단합니다. GitHub `production` environment는 운영 secret과 배포 기록을 유지하며 `main`만 허용하도록 설정합니다.
 
+운영 접속에는 별도 경로로 검증한 서버 공개키의 OpenSSH known_hosts 항목을 `PROD_KNOWN_HOSTS` secret에 설정해야 합니다. 값이 없거나 서버 키가 일치하지 않으면 배포가 중단됩니다.
+
 이번 설정에서 `.env.local`은 로컬 파일을 보존하고 Git 추적만 해제했습니다. 기존 Git 이력은 그대로 남으므로 실제 비밀값이 있었는지는 관리자가 확인해야 합니다. 파일 내용을 출력하지 않았고 자격 증명을 교체했다고 주장하지 않습니다.
