@@ -39,9 +39,9 @@ describe("SEO host normalization middleware", () => {
     );
   });
 
-  it("does not run for API, Next static, or metadata routes", () => {
+  it("does not run for API or Next static assets, but normalizes metadata routes", () => {
     expect(config.matcher).toEqual([
-      "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)",
+      "/((?!api|_next/static|_next/image|favicon.ico).*)",
     ]);
   });
 });

@@ -32,9 +32,15 @@ jest.mock("@/components/page/community/RelatedPostsSection", () => {
   return RelatedPostsSectionMock;
 });
 jest.mock("@/components/page/community/PostDetailView", () => {
-  function PostDetailViewMock({ initialPost }: { initialPost?: PostDetail }) {
+  function PostDetailViewMock({
+    initialPost,
+    cacheScope,
+  }: {
+    initialPost?: PostDetail;
+    cacheScope?: string;
+  }) {
     return (
-      <article>
+      <article data-cache-scope={cacheScope}>
         <h1>{initialPost?.title ?? "클라이언트 로딩"}</h1>
         <p>{initialPost?.content}</p>
       </article>
@@ -82,6 +88,10 @@ describe("community post SEO", () => {
       screen.getByRole("heading", { name: "마비노기 경매장 이용 팁" }),
     ).toBeInTheDocument();
     expect(screen.getByText("공개된 게시글의 본문입니다.")).toBeInTheDocument();
+    expect(screen.getByRole("article")).toHaveAttribute(
+      "data-cache-scope",
+      "public:2026-10-29T00:00:00.000Z",
+    );
     expect(
       document.querySelector('script[type="application/ld+json"]'),
     ).toHaveTextContent('"@type":"Article"');
@@ -95,5 +105,19 @@ describe("community post SEO", () => {
     ).resolves.toMatchObject({
       robots: { index: false, follow: false },
     });
+  });
+
+  it("does not reuse a public content cache scope for a restricted response", async () => {
+    getPublicPost.mockResolvedValue({ status: "not-public" });
+
+    render(await PostPage({ params: Promise.resolve({ id: "42" }) }));
+
+    expect(screen.getByRole("article")).toHaveAttribute(
+      "data-cache-scope",
+      "restricted",
+    );
+    expect(
+      screen.queryByText("공개된 게시글의 본문입니다."),
+    ).not.toBeInTheDocument();
   });
 });

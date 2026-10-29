@@ -77,6 +77,9 @@ async function PostPage({ params }: PostPageProps) {
   }
 
   const initialPost = result.status === "available" ? result.post : undefined;
+  const cacheScope = initialPost
+    ? `public:${initialPost.updatedAt}`
+    : "restricted";
   const canonicalPath = initialPost
     ? `/community/${initialPost.id}`
     : undefined;
@@ -113,7 +116,11 @@ async function PostPage({ params }: PostPageProps) {
       <div className="md:grid md:grid-cols-[minmax(0,1fr)_320px] md:gap-6 lg:gap-8">
         <section className="min-w-0 flex flex-col gap-4 md:gap-6">
           {/* Post Detail */}
-          <PostDetailView postId={id} initialPost={initialPost} />
+          <PostDetailView
+            postId={id}
+            initialPost={initialPost}
+            cacheScope={cacheScope}
+          />
 
           {/* Mobile Popular Posts */}
           <div className="md:hidden">

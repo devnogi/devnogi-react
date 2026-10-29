@@ -53,6 +53,7 @@ import ReportDialog from "./ReportDialog";
 interface PostDetailViewProps {
   postId: string;
   initialPost?: PostDetail;
+  cacheScope?: string;
 }
 
 const MAX_TAG_COUNT = 10;
@@ -60,6 +61,7 @@ const MAX_TAG_COUNT = 10;
 export default function PostDetailView({
   postId,
   initialPost,
+  cacheScope,
 }: PostDetailViewProps) {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
@@ -69,7 +71,7 @@ export default function PostDetailView({
     isError,
     error,
     refetch,
-  } = usePostDetail(Number(postId), initialPost);
+  } = usePostDetail(Number(postId), { initialData: initialPost, cacheScope });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");

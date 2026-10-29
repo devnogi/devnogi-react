@@ -72,6 +72,7 @@ export const getPublicPost = cache(
         new URL(`/dcs/api/posts/details/${postId}`, gatewayUrl),
         {
           cache: "no-store",
+          signal: AbortSignal.timeout(5000),
           headers: { Accept: "application/json" },
         },
       );
