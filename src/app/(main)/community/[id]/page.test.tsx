@@ -5,9 +5,13 @@ import type { PostDetail } from "@/lib/community/public-post";
 import PostPage, { generateMetadata } from "./page";
 
 const getPublicPost = jest.fn();
+const mockNotFound = jest.fn();
 
 jest.mock("@/lib/community/public-post", () => ({
   getPublicPost: (...args: unknown[]) => getPublicPost(...args),
+}));
+jest.mock("next/navigation", () => ({
+  notFound: () => mockNotFound(),
 }));
 
 jest.mock("@/components/page/community/CommentList", () => {
@@ -25,8 +29,20 @@ jest.mock("@/components/page/community/PopularPostsHighlight", () => {
   return PopularPostsHighlightMock;
 });
 jest.mock("@/components/page/community/RelatedPostsSection", () => {
-  function RelatedPostsSectionMock() {
-    return <div />;
+  function RelatedPostsSectionMock({
+    boardId,
+    cacheScope,
+  }: {
+    boardId?: number;
+    cacheScope?: string;
+  }) {
+    return (
+      <div
+        data-testid="related-posts"
+        data-board-id={boardId}
+        data-cache-scope={cacheScope}
+      />
+    );
   }
 
   return RelatedPostsSectionMock;
@@ -70,6 +86,7 @@ const publicPost: PostDetail = {
 describe("community post SEO", () => {
   beforeEach(() => {
     getPublicPost.mockResolvedValue({ status: "available", post: publicPost });
+    mockNotFound.mockReset();
   });
 
   it("provides public post metadata with a canonical URL", async () => {
@@ -78,6 +95,10 @@ describe("community post SEO", () => {
     ).resolves.toMatchObject({
       title: "마비노기 경매장 이용 팁",
       alternates: { canonical: "/community/42" },
+      twitter: {
+        title: "마비노기 경매장 이용 팁",
+        description: "공개된 게시글의 본문입니다.",
+      },
     });
   });
 
@@ -89,6 +110,14 @@ describe("community post SEO", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("공개된 게시글의 본문입니다.")).toBeInTheDocument();
     expect(screen.getByRole("article")).toHaveAttribute(
+      "data-cache-scope",
+      "public:2026-10-29T00:00:00.000Z",
+    );
+    expect(screen.getByTestId("related-posts")).toHaveAttribute(
+      "data-board-id",
+      "1",
+    );
+    expect(screen.getByTestId("related-posts")).toHaveAttribute(
       "data-cache-scope",
       "public:2026-10-29T00:00:00.000Z",
     );
@@ -119,5 +148,23 @@ describe("community post SEO", () => {
     expect(
       screen.queryByText("공개된 게시글의 본문입니다."),
     ).not.toBeInTheDocument();
+    expect(screen.getByTestId("related-posts")).not.toHaveAttribute(
+      "data-board-id",
+    );
+    expect(screen.getByTestId("related-posts")).toHaveAttribute(
+      "data-cache-scope",
+      "restricted",
+    );
+  });
+
+  it("delegates a deleted post to the not-found boundary", async () => {
+    getPublicPost.mockResolvedValue({ status: "not-found" });
+    mockNotFound.mockImplementation(() => {
+      throw new Error("not-found");
+    });
+
+    await expect(
+      PostPage({ params: Promise.resolve({ id: "42" }) }),
+    ).rejects.toThrow("not-found");
   });
 });

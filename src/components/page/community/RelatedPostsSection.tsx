@@ -11,6 +11,8 @@ import PostCard from "./PostCard";
 
 interface RelatedPostsSectionProps {
   postId: string;
+  boardId?: number;
+  cacheScope?: string;
 }
 
 const INITIAL_VISIBLE_COUNT = 6;
@@ -18,6 +20,8 @@ const LOAD_MORE_STEP = 6;
 
 export default function RelatedPostsSection({
   postId,
+  boardId,
+  cacheScope,
 }: RelatedPostsSectionProps) {
   const numericPostId = Number(postId);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -27,7 +31,13 @@ export default function RelatedPostsSection({
     isLoading: isPostLoading,
     isError: isPostError,
     refetch: refetchPost,
-  } = usePostDetail(numericPostId);
+  } = usePostDetail(numericPostId, {
+    cacheScope,
+    enabled: boardId === undefined,
+  });
+
+  const currentBoardId = boardId ?? currentPost?.boardId;
+  const hasCurrentPost = boardId !== undefined || !!currentPost;
 
   const {
     data: boardData,
@@ -38,10 +48,10 @@ export default function RelatedPostsSection({
     isError: isBoardError,
     refetch: refetchBoardPosts,
   } = useInfinitePosts({
-    boardId: currentPost?.boardId,
+    boardId: currentBoardId,
     sortType: "latest",
     size: 20,
-    enabled: !!currentPost?.boardId,
+    enabled: !!currentBoardId,
   });
 
   const boardRelatedPosts = useMemo(() => {
@@ -50,7 +60,7 @@ export default function RelatedPostsSection({
   }, [boardData, numericPostId]);
 
   const shouldEnableFallback =
-    !!currentPost &&
+    hasCurrentPost &&
     !isBoardLoading &&
     !isBoardError &&
     !hasNextBoardPage &&
@@ -153,7 +163,9 @@ export default function RelatedPostsSection({
             size="sm"
             className="mt-3 rounded-xl"
             onClick={() => {
-              void refetchPost();
+              if (boardId === undefined) {
+                void refetchPost();
+              }
               void refetchBoardPosts();
             }}
           >

@@ -64,6 +64,11 @@ export async function generateMetadata({
       publishedTime: result.post.createdAt,
       modifiedTime: result.post.updatedAt,
     },
+    twitter: {
+      card: "summary",
+      title: result.post.title,
+      description: toDescription(result.post),
+    },
   };
 }
 
@@ -134,7 +139,11 @@ async function PostPage({ params }: PostPageProps) {
             </div>
           </div>
 
-          <RelatedPostsSection postId={id} />
+          <RelatedPostsSection
+            postId={id}
+            boardId={initialPost?.boardId}
+            cacheScope={cacheScope}
+          />
         </section>
 
         <aside className="hidden md:block">

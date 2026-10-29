@@ -18,11 +18,16 @@ interface ApiResponse<T> {
 interface UsePostDetailOptions {
   initialData?: PostDetail;
   cacheScope?: string;
+  enabled?: boolean;
 }
 
 export function usePostDetail(
   postId: number,
-  { initialData, cacheScope = "viewer" }: UsePostDetailOptions = {},
+  {
+    initialData,
+    cacheScope = "viewer",
+    enabled = true,
+  }: UsePostDetailOptions = {},
 ) {
   return useQuery<PostDetail>({
     queryKey: ["post", postId, cacheScope],
@@ -35,6 +40,7 @@ export function usePostDetail(
     initialData,
     initialDataUpdatedAt: initialData ? 0 : undefined,
     refetchOnMount: initialData ? "always" : undefined,
+    enabled,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });
