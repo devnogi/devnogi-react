@@ -354,7 +354,7 @@ export default function AdminPage() {
           <Link href="/sign-in">
             <Button className="rounded-xl">로그인 하러가기</Button>
           </Link>
-          <Link href="/home">
+          <Link href="/">
             <Button variant="outline" className="rounded-xl">
               홈으로
             </Button>
@@ -375,7 +375,7 @@ export default function AdminPage() {
           ADMIN 또는 SUPER_ADMIN 권한이 있는 계정만 이 화면을 이용할 수
           있습니다.
         </p>
-        <Link href="/home">
+        <Link href="/">
           <Button variant="outline" className="rounded-xl">
             홈으로 돌아가기
           </Button>
