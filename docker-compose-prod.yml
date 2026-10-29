@@ -6,13 +6,13 @@ services:
   # Next.js Application
   nextjs-app:
     # Docker Hub에서 pull한 이미지 사용 (GitHub Actions에서 빌드된 이미지)
-    image: ${IMAGE_REF:?Set the immutable image reference}
-    platform: linux/amd64  # Apple Silicon에서 AMD64 이미지 사용 (에뮬레이션)
+    image: ${IMAGE_REF:?IMAGE_REF is required}
+    platform: linux/amd64 # Apple Silicon에서 AMD64 이미지 사용 (에뮬레이션)
     container_name: nextjs-app-prod
     # host 네트워크 모드: 컨테이너가 호스트의 네트워크 스택을 직접 사용
     # network_mode: "host"
     env_file:
-      - .env.prod  # 운영 환경 변수 파일 (GitHub Actions에서 생성)
+      - .env.prod # 운영 환경 변수 파일 (GitHub Actions에서 생성)
     labels:
       autoheal: "true"
     ports:
@@ -49,7 +49,15 @@ services:
     # Health Check
     # wget을 사용한 안정적인 health check (node http.get은 비동기로 동작하여 불안정)
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010/api/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3010/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
