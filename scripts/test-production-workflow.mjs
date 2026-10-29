@@ -7,7 +7,7 @@ const read = (path) =>
     /\r\n/g,
     "\n",
   );
-const revision = "5c46d7aff8ce452b72ad8f6c18bcb5a09828384d";
+const revision = "a60862fc2e2a5117c85efc1c6bd6b4033a82b3d9";
 const ci = read(".github/workflows/pr-verify.yml");
 const production = read(".github/workflows/push-cd-prod.yml");
 
@@ -35,6 +35,7 @@ test("production uses the pinned shared workflow only on main push or dispatch",
   assert.match(production, /permissions:\n  contents: write/);
   for (const input of [
     "service-name: react",
+    "deployment-target: prod2",
     "dockerfile: Dockerfile",
     "compose-file: docker-compose-prod.yml",
     'health-timeout: "600"',
@@ -47,4 +48,12 @@ test("production uses the pinned shared workflow only on main push or dispatch",
 
 test("production Compose requires the immutable image reference", () => {
   assert.match(read("docker-compose-prod.yml"), /image: \$\{IMAGE_REF:\?/);
+});
+
+test("package and lockfile agree on the first release version", () => {
+  const pkg = JSON.parse(read("package.json"));
+  const lock = JSON.parse(read("package-lock.json"));
+  assert.equal(pkg.version, "1.0.0");
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages[""].version, pkg.version);
 });

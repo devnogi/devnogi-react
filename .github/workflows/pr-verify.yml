@@ -40,7 +40,7 @@ jobs:
       - run: node --test scripts/test-production-workflow.mjs scripts/test-production-rollback.mjs
       - run: npm run verify
   common-verification:
-    uses: devnogi/ci-workflows/.github/workflows/node-ci.yml@5c46d7aff8ce452b72ad8f6c18bcb5a09828384d
+    uses: devnogi/ci-workflows/.github/workflows/node-ci.yml@a60862fc2e2a5117c85efc1c6bd6b4033a82b3d9
     with:
       service-name: react
       dockerfile: Dockerfile
