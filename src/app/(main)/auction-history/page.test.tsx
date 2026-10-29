@@ -10,7 +10,7 @@ import React from "react";
 
 import type { AuctionHistoryItem } from "@/hooks/useAuctionHistory";
 
-import TradeLogPage from "./page";
+import TradeLogPage from "./AuctionHistoryClient";
 
 const mockRouter = { replace: jest.fn() };
 let mockUrlParams = new URLSearchParams();

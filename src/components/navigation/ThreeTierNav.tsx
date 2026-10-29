@@ -741,17 +741,17 @@ export default function ThreeTierNav() {
           <div className="flex items-center gap-1 h-full min-w-max">
             {/* HOME Icon */}
             <Link
-              href="/home"
+              href="/"
               className={clsx(
                 "relative px-3 py-2.5 transition-colors",
-                pathname === "/home"
+                pathname === "/"
                   ? "text-blaanid-600 dark:text-coral-400"
                   : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
               )}
               aria-label="홈"
             >
               <Home className="w-5 h-5" />
-              {pathname === "/home" && (
+              {pathname === "/" && (
                 <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
               )}
             </Link>

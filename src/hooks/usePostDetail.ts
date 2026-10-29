@@ -3,26 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { clientAxios } from "@/lib/api/clients";
+import { type PostDetail } from "@/lib/community/public-post";
 
-export interface PostDetail {
-  id: number;
-  boardId: number;
-  userId: number;
-  username: string;
-  title: string;
-  content: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  isDraft: boolean;
-  isBlocked: boolean;
-  isLiked: boolean;
-  createdAt: string;
-  updatedAt: string;
-  tags?: string[];
-  imageUrlList?: string[];
-  verified?: boolean;
-}
+export type { PostDetail } from "@/lib/community/public-post";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -32,15 +15,32 @@ interface ApiResponse<T> {
   timestamp: string;
 }
 
-export function usePostDetail(postId: number) {
+interface UsePostDetailOptions {
+  initialData?: PostDetail;
+  cacheScope?: string;
+  enabled?: boolean;
+}
+
+export function usePostDetail(
+  postId: number,
+  {
+    initialData,
+    cacheScope = "viewer",
+    enabled = true,
+  }: UsePostDetailOptions = {},
+) {
   return useQuery<PostDetail>({
-    queryKey: ["post", postId],
+    queryKey: ["post", postId, cacheScope],
     queryFn: async () => {
       const response = await clientAxios.get<ApiResponse<PostDetail>>(
         `/posts/details/${postId}`,
       );
       return response.data.data;
     },
+    initialData,
+    initialDataUpdatedAt: initialData ? 0 : undefined,
+    refetchOnMount: initialData ? "always" : undefined,
+    enabled,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });

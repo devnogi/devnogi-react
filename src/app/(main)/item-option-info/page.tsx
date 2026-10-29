@@ -1,7 +1,16 @@
-"use client";
+import { createPageMetadata } from "@/lib/seo/site";
 
-import { ItemOptionInfoPage } from "@/components/page/item-option-info";
+import ItemOptionInfoClient from "./ItemOptionInfoClient";
 
-export default function Page() {
-  return <ItemOptionInfoPage />;
+export const metadata = createPageMetadata({
+  title: "마비노기 아이템 옵션 정보",
+  description:
+    "마비노기 장비와 아이템 옵션 정보를 확인하고 옵션 조건을 비교해 보세요.",
+  pathname: "/item-option-info",
+});
+
+export const dynamic = "force-dynamic";
+
+export default function ItemOptionInfoPage() {
+  return <ItemOptionInfoClient />;
 }

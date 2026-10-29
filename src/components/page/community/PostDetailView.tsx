@@ -46,16 +46,23 @@ import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePostDetail } from "@/hooks/usePostDetail";
 import { clientAxios } from "@/lib/api/clients";
+import type { PostDetail } from "@/lib/community/public-post";
 
 import ReportDialog from "./ReportDialog";
 
 interface PostDetailViewProps {
   postId: string;
+  initialPost?: PostDetail;
+  cacheScope?: string;
 }
 
 const MAX_TAG_COUNT = 10;
 
-export default function PostDetailView({ postId }: PostDetailViewProps) {
+export default function PostDetailView({
+  postId,
+  initialPost,
+  cacheScope,
+}: PostDetailViewProps) {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const {
@@ -64,7 +71,7 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
     isError,
     error,
     refetch,
-  } = usePostDetail(Number(postId));
+  } = usePostDetail(Number(postId), { initialData: initialPost, cacheScope });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");

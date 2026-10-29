@@ -3,10 +3,25 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 import Providers from "@/app/_providers/Providers";
+import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_ORIGIN } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: "메모노기 - 마비노기 통계 및 커뮤니티",
-  description: "마비노기 정보 커뮤니티",
+  metadataBase: SITE_ORIGIN,
+  title: {
+    default: `${SITE_NAME} | 마비노기 경매장·시세·아이템 정보`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | 마비노기 경매장·시세·아이템 정보`,
+    description: DEFAULT_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({
