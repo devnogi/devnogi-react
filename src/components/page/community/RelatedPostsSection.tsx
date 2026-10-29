@@ -36,8 +36,9 @@ export default function RelatedPostsSection({
     enabled: boardId === undefined,
   });
 
+  const needsPostDetail = boardId === undefined;
   const currentBoardId = boardId ?? currentPost?.boardId;
-  const hasCurrentPost = boardId !== undefined || !!currentPost;
+  const hasCurrentPost = !needsPostDetail || !!currentPost;
 
   const {
     data: boardData,
@@ -129,7 +130,7 @@ export default function RelatedPostsSection({
   };
 
   if (
-    isPostLoading ||
+    (needsPostDetail && isPostLoading) ||
     isBoardLoading ||
     (shouldEnableFallback && isFallbackLoading)
   ) {
@@ -151,7 +152,7 @@ export default function RelatedPostsSection({
     );
   }
 
-  if (isPostError || isBoardError) {
+  if ((needsPostDetail && isPostError) || isBoardError) {
     return (
       <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 md:p-5">
         <div className="text-center py-4">
@@ -163,7 +164,7 @@ export default function RelatedPostsSection({
             size="sm"
             className="mt-3 rounded-xl"
             onClick={() => {
-              if (boardId === undefined) {
+              if (needsPostDetail) {
                 void refetchPost();
               }
               void refetchBoardPosts();

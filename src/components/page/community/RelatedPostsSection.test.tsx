@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import RelatedPostsSection from "./RelatedPostsSection";
 
@@ -75,5 +75,36 @@ describe("RelatedPostsSection", () => {
       cacheScope: "restricted",
       enabled: true,
     });
+  });
+
+  it("keeps server-resolved related posts visible when the optional viewer refresh fails", () => {
+    mockUsePostDetail.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      refetch: jest.fn(),
+    });
+    mockUseInfinitePosts.mockReturnValue({
+      ...emptyInfiniteResult,
+      data: {
+        pages: [
+          {
+            items: [
+              {
+                id: 99,
+                title: "같은 게시판 글",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    render(<RelatedPostsSection postId="42" boardId={1} />);
+
+    expect(
+      screen.queryByText("추천 게시글을 불러오지 못했습니다."),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("같은 게시판의 다른 글")).toBeInTheDocument();
   });
 });
