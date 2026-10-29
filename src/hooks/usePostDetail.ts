@@ -3,26 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { clientAxios } from "@/lib/api/clients";
+import { type PostDetail } from "@/lib/community/public-post";
 
-export interface PostDetail {
-  id: number;
-  boardId: number;
-  userId: number;
-  username: string;
-  title: string;
-  content: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  isDraft: boolean;
-  isBlocked: boolean;
-  isLiked: boolean;
-  createdAt: string;
-  updatedAt: string;
-  tags?: string[];
-  imageUrlList?: string[];
-  verified?: boolean;
-}
+export type { PostDetail } from "@/lib/community/public-post";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -32,7 +15,7 @@ interface ApiResponse<T> {
   timestamp: string;
 }
 
-export function usePostDetail(postId: number) {
+export function usePostDetail(postId: number, initialData?: PostDetail) {
   return useQuery<PostDetail>({
     queryKey: ["post", postId],
     queryFn: async () => {
@@ -41,6 +24,8 @@ export function usePostDetail(postId: number) {
       );
       return response.data.data;
     },
+    initialData,
+    initialDataUpdatedAt: initialData ? 0 : undefined,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });
