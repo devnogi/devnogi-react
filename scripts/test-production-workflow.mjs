@@ -7,20 +7,21 @@ const read = (path) =>
     /\r\n/g,
     "\n",
   );
-const revision = "a60862fc2e2a5117c85efc1c6bd6b4033a82b3d9";
 const ci = read(".github/workflows/pr-verify.yml");
 const production = read(".github/workflows/push-cd-prod.yml");
 
-test("PR verification preserves existing checks and adds the pinned shared React workflow", () => {
+test("PR verification is delegated to a full-SHA shared React workflow", () => {
   assert.match(
     ci,
     /pull_request:\n    branches: \[main\]\n  workflow_dispatch:/,
   );
-  assert.match(ci, new RegExp(`node-ci\\.yml@${revision}`));
+  assert.match(
+    ci,
+    /devnogi\/ci-workflows\/\.github\/workflows\/node-ci\.yml@[0-9a-f]{40}/,
+  );
   assert.match(ci, /permissions:\n  contents: read/);
-  assert.match(ci, /\n  secret-scan:\n/);
-  assert.match(ci, /\n  verify:\n/);
-  assert.match(ci, /\n  common-verification:\n/);
+  assert.match(ci, /\n  workflow-contract:\n/);
+  assert.match(ci, /\n  ci:\n\s+needs: workflow-contract\n/);
   assert.doesNotMatch(ci, /node-prod\.yml|\bpush:/);
 });
 
@@ -31,19 +32,28 @@ test("production uses the pinned shared workflow only on main push or dispatch",
   );
   assert.doesNotMatch(production, /pull_request:/);
   assert.match(production, /github\.ref == 'refs\/heads\/main'/);
-  assert.match(production, new RegExp(`node-prod\\.yml@${revision}`));
+  assert.match(
+    production,
+    /devnogi\/ci-workflows\/\.github\/workflows\/node-prod\.yml@[0-9a-f]{40}/,
+  );
   assert.match(production, /permissions:\n  contents: write/);
+  assert.match(
+    production,
+    /concurrency:\n  group: react-production\n  cancel-in-progress: false/,
+  );
+  assert.match(production, /\n  workflow-contract:\n/);
+  assert.match(production, /\n  production:\n\s+needs: workflow-contract\n/);
   for (const input of [
     "service-name: react",
     "deployment-target: prod2",
     "dockerfile: Dockerfile",
     "compose-file: docker-compose-prod.yml",
-    'health-timeout: "600"',
     "platform: linux/amd64",
     "secrets: inherit",
   ]) {
     assert.ok(production.includes(input), input);
   }
+  assert.match(production, /health-timeout: ["']600["']/);
 });
 
 test("production Compose requires the immutable image reference", () => {

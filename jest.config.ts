@@ -13,6 +13,9 @@ const config: Config = {
   // Add more setup options before each test is run
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   modulePathIgnorePatterns: ["<rootDir>/.next/"],
+  testPathIgnorePatterns: [
+    "[/\\\\]scripts[/\\\\]workflow-contract\\.test\\.mjs$",
+  ],
   // 상대 경로 매핑
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

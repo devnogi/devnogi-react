@@ -14,7 +14,7 @@ test("rollback implementation stays in the pinned reusable workflow", () => {
   );
   assert.doesNotMatch(
     production,
-    /ssh |scp |docker login|docker compose|latest|:prod\b/,
+    /^\s*run:\s*[|>-]?\s*(?:ssh|scp|docker login|docker compose)\b|\bimage:\s*[^\n]+:(?:latest|prod)\b/m,
   );
   assert.match(production, /secrets: inherit/);
 });

@@ -42,12 +42,10 @@ docker compose -f docker-compose-local.yml --env-file .env.local up nextjs-app
 
 ## CI와 배포
 
-PR의 필수 검사 이름은 `verify`, `secret-scan`이며 승인자 수는 0명입니다. 파일 추가만으로 GitHub 보호 설정이 활성화되지는 않습니다. `node scripts/secret-scan.mjs`는 현재 파일의 기본 비밀값 패턴과 추적되는 환경 파일을 검사하며, 값은 출력하지 않습니다. Git 이력 전체 검사나 유출 자격 증명 교체를 대신하지 않습니다.
+PR 검증은 `main` 대상 PR 및 수동 실행에서 고정 SHA의 공통 `node-ci` workflow를 사용합니다. 필수 검사는 `workflow-contract`, `ci / validate`, `ci / version-policy`, `ci / verify`, `ci / container`입니다. `ci / verify` 안에서 secret scan과 기존 rollback 계약 테스트, `npm run verify`를 모두 실행합니다. `node scripts/secret-scan.mjs`는 현재 파일의 기본 비밀값 패턴과 추적되는 환경 파일을 검사하며, 값은 출력하지 않습니다.
 
-공통 workflow 전환 PR에서는 기존 `verify`, `secret-scan`과 신규 `common-verification`을 함께 실행합니다. 신규 check context가 실제 PR에서 성공한 것을 확인한 뒤 GitHub Ruleset의 필수 검사를 교체하고, 보호 공백 없이 후속 PR에서 중복된 기존 job을 제거합니다.
+`Production Deployment`는 고정된 전체 commit SHA의 공개 `devnogi/ci-workflows` Node workflow를 호출합니다. `main` push로 자동 실행되며, 복구할 때 `main`에서 `workflow_dispatch`로 수동 실행할 수도 있습니다. `package.json` 버전으로 `devanted/memonogi:react-v1.0.0` 버전 태그를 게시하고, 해당 실행에서 확인한 불변 digest를 prod2에 배포한 뒤 성공한 경우에만 GitHub Release `react-v1.0.0`을 생성합니다. 배포 전 기존 이미지와 Compose를 보존하고 상태 검사 실패 시 기존 이미지로 복구합니다.
 
-`Production Deployment`는 고정된 전체 commit SHA의 비공개 `devnogi/ci-workflows` Node workflow를 호출합니다. `main` push로 자동 실행되며, 복구할 때 `main`에서 `workflow_dispatch`로 수동 실행할 수도 있습니다. `package.json` 버전으로 `devanted/memonogi:react-v<version>` 이미지를 만들고, 동일 digest를 배포한 뒤 성공한 경우에만 같은 태그의 GitHub Release를 생성합니다. 배포 전 기존 이미지와 Compose를 보존하고 상태 검사 실패 시 기존 이미지로 복구합니다. 이전 이미지가 없으면 배포를 중단합니다. GitHub `production` environment는 운영 secret과 배포 기록을 유지하며 `main`만 허용하도록 설정합니다.
-
-운영 접속에는 별도 경로로 검증한 서버 공개키의 OpenSSH known_hosts 항목을 `PROD_KNOWN_HOSTS` secret에 설정해야 합니다. 값이 없거나 서버 키가 일치하지 않으면 배포가 중단됩니다.
+운영 접속은 production Environment의 prod2 설정과 `PROD2_HOST_FINGERPRINT`를 사용합니다. SSH host fingerprint가 일치하지 않거나 필수 Secret/Variable이 누락되면 배포가 중단됩니다.
 
 이번 설정에서 `.env.local`은 로컬 파일을 보존하고 Git 추적만 해제했습니다. 기존 Git 이력은 그대로 남으므로 실제 비밀값이 있었는지는 관리자가 확인해야 합니다. 파일 내용을 출력하지 않았고 자격 증명을 교체했다고 주장하지 않습니다.
