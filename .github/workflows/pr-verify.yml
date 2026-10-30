@@ -28,7 +28,7 @@ jobs:
 
   ci:
     needs: workflow-contract
-    uses: devnogi/ci-workflows/.github/workflows/node-ci.yml@2b4fbf8f7ab7403959f4641fe6d175b832ffe331
+    uses: devnogi/ci-workflows/.github/workflows/node-ci.yml@de2abb2295c5bf23865ebfee337f1fb20bbdf498
     with:
       service-name: react
       dockerfile: Dockerfile
