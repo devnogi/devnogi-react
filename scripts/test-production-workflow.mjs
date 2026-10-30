@@ -46,6 +46,7 @@ test("production uses the pinned shared workflow only on main push or dispatch",
   for (const input of [
     "service-name: react",
     "deployment-target: prod2",
+    "public-origin: https://www.memonogi.com",
     "dockerfile: Dockerfile",
     "compose-file: docker-compose-prod.yml",
     "platform: linux/amd64",
@@ -60,10 +61,10 @@ test("production Compose requires the immutable image reference", () => {
   assert.match(read("docker-compose-prod.yml"), /image: \$\{IMAGE_REF:\?/);
 });
 
-test("package and lockfile agree on the first release version", () => {
+test("package and lockfile agree on the next release version", () => {
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(pkg.version, "1.0.0");
+  assert.equal(pkg.version, "1.0.1");
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages[""].version, pkg.version);
 });

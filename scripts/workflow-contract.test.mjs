@@ -8,7 +8,7 @@ const read = (path) =>
     "\n",
   );
 // prettier-ignore
-const pin = '2b4fbf8f7ab7403959f4641fe6d175b832ffe331';
+const pin = 'de2abb2295c5bf23865ebfee337f1fb20bbdf498';
 const ci = read(".github/workflows/pr-verify.yml");
 const production = read(".github/workflows/push-cd-prod.yml");
 
@@ -43,6 +43,7 @@ test("production caller only permits main push or manual dispatch", () => {
   for (const input of [
     "service-name: react",
     "deployment-target: prod2",
+    "public-origin: https://www.memonogi.com",
     "dockerfile: Dockerfile",
     "compose-file: docker-compose-prod.yml",
     "platform: linux/amd64",
@@ -60,11 +61,15 @@ test("release version and immutable image contract are fixed", () => {
   );
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(pkg.version, "1.0.0");
+  assert.equal(pkg.version, "1.0.1");
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages[""].version, pkg.version);
   assert.match(
     read("docker-compose-prod.yml"),
     /nextjs-app:\s*[\s\S]*?image: \$\{IMAGE_REF:\?IMAGE_REF is required\}/,
+  );
+  assert.match(
+    read("Dockerfile"),
+    /FROM node:20-alpine AS runner\s+ARG APP_REVISION\s+ENV APP_REVISION=\$\{APP_REVISION\}/,
   );
 });

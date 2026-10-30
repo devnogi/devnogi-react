@@ -29,10 +29,11 @@ jobs:
   production:
     needs: workflow-contract
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    uses: devnogi/ci-workflows/.github/workflows/node-prod.yml@2b4fbf8f7ab7403959f4641fe6d175b832ffe331
+    uses: devnogi/ci-workflows/.github/workflows/node-prod.yml@de2abb2295c5bf23865ebfee337f1fb20bbdf498
     with:
       service-name: react
       deployment-target: prod2
+      public-origin: https://www.memonogi.com
       dockerfile: Dockerfile
       compose-file: docker-compose-prod.yml
       health-timeout: "600"

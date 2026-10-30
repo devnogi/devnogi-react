@@ -31,6 +31,9 @@ RUN --mount=type=cache,target=/app/.next/cache \
 # ===================================
 FROM node:20-alpine AS runner
 
+ARG APP_REVISION
+ENV APP_REVISION=${APP_REVISION}
+
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs \

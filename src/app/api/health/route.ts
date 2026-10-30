@@ -23,6 +23,7 @@ export async function GET() {
       status: "ok",
       timestamp: new Date().toISOString(),
       service: "devnogi-react",
+      revision: process.env.APP_REVISION || "development",
       environment: process.env.NODE_ENV || "development",
       uptime: Math.round(process.uptime()),
       memory,
@@ -32,6 +33,6 @@ export async function GET() {
       headers: {
         "Cache-Control": "no-cache, no-store, must-revalidate",
       },
-    }
+    },
   );
 }
