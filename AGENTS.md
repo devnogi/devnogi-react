@@ -6,4 +6,4 @@
 - 승인된 기획 revision의 범위만 구현하고, 독립 리뷰에는 실제 diff와 검증 결과를 제공한다.
 - `.env.local` 등 실제 환경 파일을 추가하거나 출력하지 않는다. 샘플은 `.env.example`에 가짜 값만 둔다. 기존 추적 파일은 `.gitignore`만으로 추적 해제되지 않는다.
 - 로컬 Docker는 `docs/local-development.md`를 따른다. 운영 주소나 운영 Compose를 로컬 기본값으로 사용하지 않는다.
-- PR 필수 검사는 `verify`, `secret-scan`이다. `main` push는 운영 배포 workflow를 실행하며, `main`에서 `workflow_dispatch`로 수동 실행할 수도 있다. 배포 전 `npm run verify`와 secret scan을 통과해야 한다. PR 자체는 배포하지 않는다.
+- PR CI는 고정 SHA의 공통 Node workflow에서 secret scan, `npm run verify`, Docker/Compose 검증을 실행한다. `main` push는 같은 commit을 재검증해 버전 이미지를 prod2에 digest로 배포하고 Release를 생성하며, `main` 수동 실행은 복구용이다. PR 자체는 배포하지 않는다.
