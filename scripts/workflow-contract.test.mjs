@@ -8,7 +8,7 @@ const read = (path) =>
     "\n",
   );
 // prettier-ignore
-const pin = 'de2abb2295c5bf23865ebfee337f1fb20bbdf498';
+const pin = 'c5b33bfa84762986d47037f5ce3eca14a1c516ca';
 const ci = read(".github/workflows/pr-verify.yml");
 const production = read(".github/workflows/push-cd-prod.yml");
 
@@ -61,7 +61,7 @@ test("release version and immutable image contract are fixed", () => {
   );
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(pkg.version, "1.0.1");
+  assert.equal(pkg.version, "1.0.2");
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages[""].version, pkg.version);
   assert.match(
