@@ -20,6 +20,7 @@ services:
     environment:
       # === Application Configuration ===
       NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       HOST: 0.0.0.0
       HOSTNAME: 0.0.0.0
       PORT: 3010
@@ -64,10 +65,16 @@ services:
       start_period: 300s
 
     logging:
-      driver: "json-file"
+      driver: "syslog"
       options:
-        max-size: ${LOGGING_MAX_SIZE:-50m}
-        max-file: "${LOGGING_MAX_FILE:-10}"
+        syslog-address: "unixgram:///dev/log"
+        syslog-format: "rfc5424micro"
+        tag: "memonogi-react"
+        mode: "non-blocking"
+        max-buffer-size: "4m"
+        cache-disabled: "false"
+        cache-max-size: "20m"
+        cache-max-file: "5"
 
   # Autoheal: unhealthy 컨테이너 자동 재시작
   autoheal:
