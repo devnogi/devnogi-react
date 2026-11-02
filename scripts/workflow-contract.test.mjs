@@ -61,7 +61,7 @@ test("release version and immutable image contract are fixed", () => {
   );
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(pkg.version, "1.0.2");
+  assert.equal(pkg.version, "1.0.3");
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages[""].version, pkg.version);
   assert.match(
