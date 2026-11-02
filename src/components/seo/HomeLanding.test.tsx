@@ -34,5 +34,14 @@ describe("HomeLanding", () => {
       "href",
       "/item-info",
     );
+    expect(
+      screen.getByRole("heading", { name: "데이터 안내" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/NEXON Open API/)).toBeInTheDocument();
+    expect(screen.getByTestId("ranking-cards")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/게임 서버|어비스|소환의 결계/),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
   });
 });

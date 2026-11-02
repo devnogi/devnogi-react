@@ -18,7 +18,7 @@ export default function HomeRankingCards() {
         >
           오늘의 시세 현황
         </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
           <PopularRankingCard />
           <PriceChangeCard type="surge" />
           <PriceChangeCard type="drop" />
