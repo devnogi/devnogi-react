@@ -20,6 +20,7 @@ services:
     environment:
       # === Application Configuration ===
       NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       HOST: 0.0.0.0
       HOSTNAME: 0.0.0.0
       PORT: 3010
