@@ -73,3 +73,20 @@ test("release version and immutable image contract are fixed", () => {
     /FROM node:20-alpine AS runner\s+ARG APP_REVISION\s+ENV APP_REVISION=\$\{APP_REVISION\}/,
   );
 });
+
+test("production React logs use the host collector and retain diagnostic cache", () => {
+  const app = read("docker-compose-prod.yml").split("\n  autoheal:")[0];
+  for (const line of [
+    'driver: "syslog"',
+    'syslog-address: "unixgram:///dev/log"',
+    'syslog-format: "rfc5424micro"',
+    'tag: "memonogi-react"',
+    'mode: "non-blocking"',
+    'max-buffer-size: "4m"',
+    'cache-disabled: "false"',
+    'cache-max-size: "20m"',
+    'cache-max-file: "5"',
+  ]) {
+    assert.ok(app.includes(line), line);
+  }
+});
