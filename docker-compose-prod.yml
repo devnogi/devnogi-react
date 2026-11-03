@@ -16,7 +16,7 @@ services:
     labels:
       autoheal: "true"
     ports:
-      - "3010:3010"
+      - "127.0.0.1:3010:3010"
     environment:
       # === Application Configuration ===
       NODE_ENV: production

@@ -12,6 +12,13 @@ const pin = '4fd2ea877beb52972fd8614396fa26eb022494aa';
 const ci = read(".github/workflows/pr-verify.yml");
 const production = read(".github/workflows/push-cd-prod.yml");
 
+test("production Next.js port is bound to loopback", () => {
+  assert.match(
+    read("docker-compose-prod.yml"),
+    /ports:\s*\n\s*- "127\.0\.0\.1:3010:3010"/,
+  );
+});
+
 test("PR caller targets the approved reusable React CI", () => {
   assert.match(
     ci,
