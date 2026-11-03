@@ -13,9 +13,9 @@ export default function HornBugleCard() {
   const { data, isLoading, error } = useLatestHornBugle();
 
   return (
-    <div className="h-full min-w-0 rounded-lg border border-gray-200 bg-[var(--color-ds-card)] p-5 dark:border-navy-600 dark:bg-navy-800">
-      <div className="mb-4">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-50">
+    <div className="h-full min-w-0 rounded-lg border border-gray-200 bg-[var(--color-ds-card)] p-4 dark:border-navy-600 dark:bg-navy-800">
+      <div className="mb-2">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
           거대한 뿔피리
         </h3>
         <p className="text-xs text-gray-600 dark:text-gray-300">
@@ -23,7 +23,7 @@ export default function HornBugleCard() {
         </p>
       </div>
       {isLoading ? (
-        <RankingCardSkeleton rows={7} />
+        <RankingCardSkeleton rows={7} compact />
       ) : error ? (
         <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-300">
           데이터를 불러올 수 없습니다
@@ -33,10 +33,13 @@ export default function HornBugleCard() {
           뿔피리 내역이 없습니다
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="divide-y divide-gray-100 dark:divide-navy-600">
           {data.slice(0, 7).map((item) => (
-            <div key={item.id} className="min-w-0 rounded-xl p-2.5">
-              <div className="flex min-w-0 items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+            <div
+              key={item.id}
+              className="flex h-10 min-w-0 flex-col justify-center"
+            >
+              <div className="flex min-w-0 items-center gap-2 text-[11px] leading-4 text-gray-600 dark:text-gray-300">
                 <span className="shrink-0 font-semibold text-[#9a451f] dark:text-orange-300">
                   {item.serverName}
                 </span>
@@ -50,7 +53,7 @@ export default function HornBugleCard() {
                   {formatTime(item.dateSend)}
                 </time>
               </div>
-              <p className="truncate text-sm text-gray-900 dark:text-gray-100">
+              <p className="truncate text-[13px] leading-[18px] text-gray-900 dark:text-gray-100">
                 {item.message}
               </p>
             </div>
