@@ -28,10 +28,10 @@ export default function HornBugleList({
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="bg-white dark:bg-navy-700 rounded-[20px] border border-gray-200 dark:border-navy-600 p-5 animate-pulse"
+            className="bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-600 p-5 animate-pulse"
           >
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gray-200 dark:bg-navy-600 rounded-full" />
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-gray-200 dark:bg-navy-600 rounded-full" />
               <div className="flex-1 space-y-2">
                 <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-24" />
                 <div className="h-5 bg-gray-200 dark:bg-navy-600 rounded w-3/4" />
@@ -64,16 +64,13 @@ export default function HornBugleList({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white divide-y divide-gray-100 dark:border-navy-600 dark:bg-navy-800 dark:divide-navy-600">
       {items.map((item) => (
-        <div
-          key={item.id}
-          className="bg-white dark:bg-navy-700 rounded-[20px] border border-gray-200 dark:border-navy-600 shadow-[0_4px_16px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:border-gray-300 dark:hover:border-navy-500 transition-all p-5"
-        >
-          <div className="flex items-start gap-4">
+        <div key={item.id} className="px-4 py-3">
+          <div className="flex items-start gap-3">
             {/* 아이콘 */}
-            <div className="w-10 h-10 rounded-full bg-gold-100 dark:bg-gold-900/30 flex items-center justify-center flex-shrink-0">
-              <Megaphone className="w-5 h-5 text-gold-600 dark:text-gold-400" />
+            <div className="w-8 h-8 rounded-full bg-[var(--color-ds-primary-50)] flex items-center justify-center flex-shrink-0">
+              <Megaphone className="w-5 h-5 text-[var(--color-ds-primary)]" />
             </div>
 
             {/* 내용 */}
@@ -91,7 +88,7 @@ export default function HornBugleList({
               </div>
 
               {/* 메시지 */}
-              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed break-words whitespace-pre-wrap">
+              <p className="text-gray-700 dark:text-gray-300 text-[13px] leading-5 break-words whitespace-pre-wrap">
                 {item.message}
               </p>
 

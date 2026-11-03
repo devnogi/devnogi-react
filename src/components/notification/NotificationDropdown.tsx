@@ -96,12 +96,12 @@ export default function NotificationDropdown({
       <button
         ref={buttonRef}
         onClick={onToggle}
-        className="relative p-2 rounded-xl hover:bg-gray-100 transition-colors"
+        className="relative p-2 rounded-xl hover:bg-muted transition-colors"
         aria-label="알림"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <Bell className="w-5 h-5 text-gray-700" />
+        <Bell className="w-5 h-5 text-foreground" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-xs font-medium rounded-full">
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -113,13 +113,13 @@ export default function NotificationDropdown({
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl border border-gray-200 shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden z-50"
+          className="absolute right-0 top-full mt-2 w-80 bg-card rounded-lg border border-border shadow-md overflow-hidden z-50"
           role="menu"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-gray-900">알림</h3>
+              <h3 className="font-semibold text-foreground">알림</h3>
               {unreadCount > 0 && (
                 <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-medium rounded-full">
                   {unreadCount}개 새 알림
@@ -128,10 +128,10 @@ export default function NotificationDropdown({
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1 rounded-lg hover:bg-muted transition-colors"
               aria-label="닫기"
             >
-              <X className="w-4 h-4 text-gray-500" />
+              <X className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
@@ -139,13 +139,17 @@ export default function NotificationDropdown({
           <div className="max-h-[320px] overflow-y-auto">
             {isLoading ? (
               <div className="px-4 py-8 text-center">
-                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-sm text-gray-500">알림을 불러오는 중...</p>
+                <div className="w-6 h-6 border-2 border-gray-300 border-t-primary rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  알림을 불러오는 중...
+                </p>
               </div>
             ) : recentNotices.length === 0 ? (
               <div className="px-4 py-8 text-center">
                 <Bell className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">새로운 알림이 없습니다</p>
+                <p className="text-sm text-muted-foreground">
+                  새로운 알림이 없습니다
+                </p>
               </div>
             ) : (
               recentNotices.map((notice) => (
@@ -153,8 +157,8 @@ export default function NotificationDropdown({
                   key={notice.id}
                   onClick={() => handleNoticeClick(notice)}
                   className={clsx(
-                    "w-full text-left px-4 py-3 border-b border-gray-50 last:border-b-0 transition-colors hover:bg-gray-50",
-                    !notice.isRead && "bg-blue-50/50",
+                    "w-full text-left px-4 py-2 border-b border-border last:border-b-0 transition-colors hover:bg-muted/50",
+                    !notice.isRead && "bg-primary/5",
                   )}
                   role="menuitem"
                 >
@@ -162,7 +166,7 @@ export default function NotificationDropdown({
                     {/* Read indicator */}
                     <div className="flex-shrink-0 mt-1.5">
                       {!notice.isRead ? (
-                        <span className="block w-2 h-2 bg-blue-500 rounded-full" />
+                        <span className="block w-2 h-2 bg-primary rounded-full" />
                       ) : (
                         <span className="block w-2 h-2 bg-gray-300 rounded-full" />
                       )}
@@ -173,12 +177,14 @@ export default function NotificationDropdown({
                       <p
                         className={clsx(
                           "text-sm font-medium truncate",
-                          !notice.isRead ? "text-gray-900" : "text-gray-600",
+                          !notice.isRead
+                            ? "text-foreground"
+                            : "text-muted-foreground",
                         )}
                       >
                         {notice.title}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                         {notice.contents}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
@@ -196,10 +202,10 @@ export default function NotificationDropdown({
 
           {/* Footer */}
           {recentNotices.length > 0 && (
-            <div className="border-t border-gray-100">
+            <div className="border-t border-border">
               <button
                 onClick={handleViewAll}
-                className="w-full px-4 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors text-center"
+                className="w-full px-4 py-2 text-sm font-medium text-primary hover:bg-muted/50 transition-colors text-center"
               >
                 모든 알림 보기
               </button>

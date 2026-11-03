@@ -135,7 +135,7 @@ export default function RelatedPostsSection({
     (shouldEnableFallback && isFallbackLoading)
   ) {
     return (
-      <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 md:p-5">
+      <section className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="h-5 w-36 rounded bg-gray-200 dark:bg-navy-600 animate-pulse" />
           <div className="h-4 w-20 rounded bg-gray-200 dark:bg-navy-600 animate-pulse" />
@@ -144,7 +144,7 @@ export default function RelatedPostsSection({
           {[...Array(3)].map((_, index) => (
             <div
               key={index}
-              className="h-32 rounded-2xl bg-gray-100 dark:bg-navy-600/60 animate-pulse"
+              className="h-32 rounded-lg bg-gray-100 dark:bg-navy-600/60 animate-pulse"
             />
           ))}
         </div>
@@ -154,7 +154,7 @@ export default function RelatedPostsSection({
 
   if ((needsPostDetail && isPostError) || isBoardError) {
     return (
-      <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 md:p-5">
+      <section className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5">
         <div className="text-center py-4">
           <p className="text-sm text-red-500 dark:text-red-400">
             추천 게시글을 불러오지 못했습니다.
@@ -182,9 +182,9 @@ export default function RelatedPostsSection({
   }
 
   return (
-    <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 md:p-5">
+    <section className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           {boardRelatedPosts.length > 0
             ? "같은 게시판의 다른 글"
             : "다른 글 추천"}

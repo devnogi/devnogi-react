@@ -12,13 +12,20 @@ async function fetchItemOptionInfos(): Promise<ItemOptionInfo[]> {
     throw new Error(`Failed to fetch item option infos: ${response.status}`);
   }
 
-  const apiResponse: ApiResponse<ItemOptionInfo[]> = await response.json();
+  const apiResponse: ApiResponse<
+    ItemOptionInfo[] | ApiResponse<ItemOptionInfo[]>
+  > = await response.json();
 
   if (!apiResponse.success) {
     throw new Error(apiResponse.message || "Failed to fetch item option infos");
   }
 
-  return apiResponse.data || [];
+  const payload = apiResponse.data;
+  if (Array.isArray(payload)) return payload;
+  if (!payload?.success || !Array.isArray(payload.data)) {
+    throw new Error(payload?.message || "Failed to fetch item option infos");
+  }
+  return payload.data;
 }
 
 export function useItemOptionInfos() {

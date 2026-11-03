@@ -176,7 +176,7 @@ export default function PostWriteView() {
   return (
     <div className="max-w-2xl mx-auto px-4">
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/community">
@@ -189,7 +189,7 @@ export default function PostWriteView() {
           <Button
             onClick={handleSubmit}
             disabled={!content.trim() || !title.trim() || isSubmitting}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="bg-[#9a451f] hover:bg-[#803b1d] text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isSubmitting ? (
               <>
@@ -301,7 +301,7 @@ export default function PostWriteView() {
               {tags.map((tag) => (
                 <div
                   key={tag}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 rounded-full text-sm font-medium"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-50 text-[#9a451f] dark:bg-orange-950 dark:text-orange-200 rounded-full text-sm font-medium"
                 >
                   <Hash className="w-3.5 h-3.5" />
                   <span>{tag}</span>
@@ -334,7 +334,7 @@ export default function PostWriteView() {
                   className="hidden"
                   disabled={images.length >= MAX_IMAGE_COUNT}
                 />
-                <ImageIcon className="w-5 h-5 text-blue-600 group-hover:text-blue-700" />
+                <ImageIcon className="w-5 h-5 text-[#9a451f] dark:text-orange-300 group-hover:text-blue-700" />
               </label>
 
               {/* Tag Input */}
@@ -346,7 +346,7 @@ export default function PostWriteView() {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
                   disabled={tags.length >= 10}
-                  className="pl-3 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="pl-3 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)] focus:border-transparent w-32 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -409,22 +409,28 @@ export default function PostWriteView() {
       </div>
 
       {/* Tips Card */}
-      <div className="mt-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
-        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <Smile className="w-5 h-5 text-blue-600" />
+      <div className="mt-6 bg-white dark:bg-navy-800 rounded-lg p-4 border border-gray-200 dark:border-navy-600">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+          <Smile className="w-5 h-5 text-[#9a451f] dark:text-orange-300" />
           게시글 작성 팁
         </h3>
-        <ul className="space-y-2 text-sm text-gray-700">
+        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
           <li className="flex items-start gap-2">
-            <span className="text-blue-600 font-bold">•</span>
+            <span className="text-[#9a451f] dark:text-orange-300 font-bold">
+              •
+            </span>
             <span>최대 5개의 이미지를 첨부할 수 있습니다.</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-purple-600 font-bold">•</span>
+            <span className="text-[#9a451f] dark:text-orange-300 font-bold">
+              •
+            </span>
             <span>태그를 사용하여 게시글을 더 쉽게 찾을 수 있게 하세요.</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-blue-600 font-bold">•</span>
+            <span className="text-[#9a451f] dark:text-orange-300 font-bold">
+              •
+            </span>
             <span>
               마크다운으로 제목, 목록, 코드 블록 등을 표현할 수 있습니다.
             </span>

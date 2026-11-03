@@ -137,7 +137,7 @@ export default function VerificationTokenCard({
 
   if (isTokenLoading) {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-5 sm:p-8">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 sm:p-5">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-gray-200 dark:bg-navy-600 rounded w-1/3" />
           <div className="h-16 bg-gray-200 dark:bg-navy-600 rounded" />
@@ -149,12 +149,12 @@ export default function VerificationTokenCard({
   const status = token?.tokenStatus;
 
   return (
-    <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-5 sm:p-8">
+    <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 sm:p-5">
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0">
           <KeyRound className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           인증 코드
         </h3>
       </div>
@@ -180,7 +180,7 @@ export default function VerificationTokenCard({
               <Button
                 onClick={handleIssue}
                 disabled={issueToken.isPending}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl h-11 px-6"
+                className="bg-[#9a451f] hover:bg-[#803b1d] text-white rounded-xl h-11 px-6"
               >
                 {issueToken.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -197,7 +197,7 @@ export default function VerificationTokenCard({
       {/* Active token */}
       {status === "ACTIVE" && token && (
         <div className="space-y-4">
-          <div className="bg-gray-50 dark:bg-navy-700 rounded-2xl p-4 sm:p-5">
+          <div className="bg-gray-50 dark:bg-navy-700 rounded-lg p-4 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 인증 코드
@@ -261,7 +261,7 @@ export default function VerificationTokenCard({
           <div className="w-14 h-14 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
             <PartyPopper className="w-7 h-7 text-green-600 dark:text-green-400" />
           </div>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+          <p className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
             인증이 완료되었습니다!
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -290,7 +290,7 @@ export default function VerificationTokenCard({
           <Button
             onClick={handleReissue}
             disabled={reissueToken.isPending}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl h-11 px-6"
+            className="bg-[#9a451f] hover:bg-[#803b1d] text-white rounded-xl h-11 px-6"
           >
             {reissueToken.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />

@@ -22,32 +22,32 @@ export default function StatisticsTable({
   if (data.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-navy-700 rounded-2xl shadow-xl border border-gray-100 dark:border-navy-600 overflow-hidden">
+    <div className="bg-white dark:bg-navy-700 rounded-lg border border-gray-100 dark:border-navy-600 overflow-hidden">
       <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 p-4 md:p-6 pb-0 md:pb-0">
         상세 데이터
       </h3>
 
       {/* Desktop/Tablet Table */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-[13px] tabular-nums">
           <thead>
             <tr className="border-b border-gray-100 dark:border-navy-600">
-              <th className="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+              <th className="text-left px-4 py-2 font-medium text-gray-500 dark:text-gray-400">
                 {isWeekly ? "기간" : "날짜"}
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+              <th className="text-right px-4 py-2 font-medium text-gray-500 dark:text-gray-400">
                 최저가
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+              <th className="text-right px-4 py-2 font-medium text-gray-500 dark:text-gray-400">
                 최고가
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+              <th className="text-right px-4 py-2 font-medium text-gray-500 dark:text-gray-400">
                 평균가
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+              <th className="text-right px-4 py-2 font-medium text-gray-500 dark:text-gray-400">
                 거래금액
               </th>
-              <th className="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+              <th className="text-right px-4 py-2 font-medium text-gray-500 dark:text-gray-400">
                 거래수량
               </th>
             </tr>
@@ -56,29 +56,29 @@ export default function StatisticsTable({
             {data.map((item, index) => {
               const dateLabel = isWeekly
                 ? `${item.weekStart} ~ ${item.weekEnd}`
-                : item.date ?? "";
+                : (item.date ?? "");
 
               return (
                 <tr
                   key={index}
                   className="border-b border-gray-50 dark:border-navy-600/50 hover:bg-gray-50 dark:hover:bg-navy-600/50 transition-colors"
                 >
-                  <td className="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium">
+                  <td className="px-4 py-2 text-gray-900 dark:text-gray-100 font-medium">
                     {dateLabel}
                   </td>
-                  <td className="px-4 py-3 text-right text-blaanid-600 dark:text-coral-400">
+                  <td className="px-4 py-2 text-right text-[var(--color-ds-primary)]">
                     {formatPrice(item.minPrice)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gold-600 dark:text-gold-400">
+                  <td className="px-4 py-2 text-right text-gold-600 dark:text-gold-400">
                     {formatPrice(item.maxPrice)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-900 dark:text-gray-100">
+                  <td className="px-4 py-2 text-right text-gray-900 dark:text-gray-100">
                     {formatPrice(item.avgPrice)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
+                  <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">
                     {formatPrice(item.totalVolume)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
+                  <td className="px-4 py-2 text-right text-gray-700 dark:text-gray-300">
                     {item.totalQuantity.toLocaleString()}
                   </td>
                 </tr>
@@ -93,12 +93,12 @@ export default function StatisticsTable({
         {data.map((item, index) => {
           const dateLabel = isWeekly
             ? `${item.weekStart} ~ ${item.weekEnd}`
-            : item.date ?? "";
+            : (item.date ?? "");
 
           return (
             <div
               key={index}
-              className="p-3 rounded-xl bg-gray-50 dark:bg-navy-600/50 space-y-2"
+              className="p-3 rounded-lg bg-gray-50 dark:bg-navy-600/50 space-y-2"
             >
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 {dateLabel}
@@ -106,7 +106,7 @@ export default function StatisticsTable({
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-gray-400">최저가</span>
-                  <div className="font-medium text-blaanid-600 dark:text-coral-400">
+                  <div className="font-medium text-[var(--color-ds-primary)]">
                     {formatPrice(item.minPrice)}
                   </div>
                 </div>

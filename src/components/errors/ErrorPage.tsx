@@ -16,20 +16,20 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center">
-      <div className="space-y-4">
+    <div className="grid min-h-dvh place-items-center bg-background px-4 text-center text-foreground">
+      <div className="w-full max-w-md space-y-4 rounded-lg border border-border bg-card p-6 sm:p-8">
         <h2 className="text-2xl font-bold">문제가 발생했습니다!</h2>
-        <div className="flex justify-center space-x-4">
+        <div className="flex flex-wrap justify-center gap-2">
           <button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center px-4 py-2 font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 gap-2 cursor-pointer"
+            className="inline-flex items-center justify-center px-4 py-2 gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             <RotateCw className="w-4 h-4" />
             <span>다시 시도</span>
           </button>
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-4 py-2 font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 gap-2"
+            className="inline-flex items-center justify-center px-4 py-2 gap-2 rounded-full border border-border text-sm font-semibold hover:bg-muted"
           >
             <Home className="w-4 h-4" />
             <span>홈으로 가기</span>

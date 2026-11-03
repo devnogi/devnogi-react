@@ -234,7 +234,7 @@ export default function StatisticsSearchForm({
           <select
             value={topCategory}
             onChange={(e) => handleTopCategorySelect(e.target.value)}
-            className="w-full h-10 px-3 text-sm rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+            className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
           >
             <option value="">선택하세요</option>
             {topCategories.map((cat) => (
@@ -255,7 +255,7 @@ export default function StatisticsSearchForm({
               value={subCategory}
               onChange={(e) => handleSubCategorySelect(e.target.value)}
               disabled={!topCategory}
-              className="w-full h-10 px-3 text-sm rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20 disabled:opacity-50"
+              className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 disabled:opacity-50"
             >
               <option value="">선택하세요</option>
               {subCategories.map((cat) => (
@@ -311,7 +311,7 @@ export default function StatisticsSearchForm({
                   }
                 }}
                 placeholder="아이템명을 입력하세요"
-                className="w-full h-10 px-3 pr-10 text-sm rounded-xl border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                className="w-full h-10 px-4 pr-10 text-sm rounded-full border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
               />
               {itemName && (
                 <button
@@ -330,7 +330,7 @@ export default function StatisticsSearchForm({
               {showDropdown && (
                 <div
                   ref={dropdownRef}
-                  className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 shadow-[0_8px_24px_rgba(61,56,47,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] max-h-80 overflow-y-auto z-50"
+                  className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 max-h-80 overflow-y-auto z-50"
                 >
                   {itemName.trim().length > 0 ? (
                     <>
@@ -359,7 +359,7 @@ export default function StatisticsSearchForm({
                               className={clsx(
                                 "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0",
                                 selectedIndex === index
-                                  ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
+                                  ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/20 text-[var(--color-ds-primary)]"
                                   : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                               )}
                             >
@@ -410,7 +410,7 @@ export default function StatisticsSearchForm({
                             className={clsx(
                               "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0 flex items-start gap-3",
                               selectedIndex === index
-                                ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
+                                ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/20 text-[var(--color-ds-primary)]"
                                 : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                             )}
                           >
@@ -440,7 +440,7 @@ export default function StatisticsSearchForm({
         <button
           type="submit"
           disabled={isSearchDisabled()}
-          className="h-10 px-6 text-sm font-medium text-white bg-blaanid-500 dark:bg-coral-500 hover:bg-blaanid-600 dark:hover:bg-coral-600 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="h-10 px-6 text-sm font-medium text-primary-foreground bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <Search className="w-4 h-4" />
           조회

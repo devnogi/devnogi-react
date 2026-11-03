@@ -21,7 +21,7 @@ export default function ItemOptionSearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full h-12 pl-12 pr-10 rounded-xl border border-[var(--color-ds-neutral-tone)] bg-white text-[var(--color-ds-text)] placeholder:text-[var(--color-ds-disabled)] focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)] focus:border-transparent transition-all"
+        className="w-full h-10 pl-12 pr-10 rounded-full border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] text-[var(--color-ds-text)] placeholder:text-[var(--color-ds-disabled)] focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)] focus:border-transparent transition-all"
       />
       {value && (
         <button

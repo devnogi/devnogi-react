@@ -31,6 +31,8 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConfig } from "@/contexts/ConfigContext";
 
+import panelStyles from "../AuthPanel.module.css";
+
 const loginSchema = z.object({
   email: z.string().email({ message: "올바른 이메일 주소를 입력해주세요" }),
   password: z.string().min(1, { message: "비밀번호를 입력해주세요" }),
@@ -184,13 +186,18 @@ export default function Page() {
 
   const isSocialDisabled = isConfigLoading || !config;
   const socialButtonBaseClass =
-    "w-full h-12 flex items-center justify-center gap-3 rounded-xl transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50";
+    "w-full h-12 flex items-center justify-center gap-3 rounded-lg transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
-    <div className="h-dvh overflow-hidden bg-white md:bg-gradient-to-b md:from-cream-100 md:via-cream-50 md:to-white">
+    <div className="h-dvh overflow-hidden bg-background text-foreground">
       <div className="flex h-full md:mx-auto md:max-w-5xl md:px-4 md:py-4 lg:px-6 lg:py-6">
-        <div className="flex min-h-0 w-full overflow-hidden md:rounded-3xl md:border md:border-cream-200/70 md:bg-white/95 md:shadow-[0_20px_60px_rgba(31,41,55,0.10)] md:backdrop-blur-sm">
-          <aside className="hidden w-[42%] min-w-[320px] flex-col justify-between bg-gradient-to-br from-clover-700 via-clover-600 to-clover-500 p-8 text-white md:flex">
+        <div className="flex min-h-0 w-full overflow-hidden md:rounded-lg md:border md:border-border bg-card">
+          <aside
+            className={clsx(
+              panelStyles.library,
+              "hidden w-[42%] min-w-[320px] flex-col justify-between bg-stone-800 bg-cover bg-center bg-blend-multiply p-8 text-white md:flex",
+            )}
+          >
             <div className="space-y-4">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
                 <Sparkles className="h-4 w-4" />
@@ -205,7 +212,7 @@ export default function Page() {
                 이용할 수 있습니다.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/20 bg-black/10 p-4">
+            <div className="rounded-lg border border-white/20 bg-black/10 p-4">
               <p className="flex items-center gap-2 text-sm font-semibold">
                 <ShieldCheck className="h-4 w-4" />
                 안전한 계정 연결
@@ -222,16 +229,18 @@ export default function Page() {
               <header className="mb-6">
                 <Link
                   href="/"
-                  className="mb-4 inline-flex items-center text-sm text-cream-600 transition-colors hover:text-cream-900"
+                  className="mb-4 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   홈으로 돌아가기
                 </Link>
-                <h1 className="text-3xl font-bold text-clover-700">로그인</h1>
-                <p className="mt-2 text-sm text-cream-600">
+                <h1 className="text-2xl font-semibold text-foreground">
+                  로그인
+                </h1>
+                <p className="mt-2 text-sm text-muted-foreground">
                   계정 정보를 입력하고 메모노기를 시작하세요.
                 </p>
-                <p className="mt-1 text-xs text-cream-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   메모노기는 NEXON OPEN API를 활용한 비공식 커뮤니티
                   서비스입니다.
                 </p>
@@ -253,18 +262,18 @@ export default function Page() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-semibold text-cream-800">
+                        <FormLabel className="text-sm font-semibold text-foreground">
                           이메일
                         </FormLabel>
                         <div className="relative">
-                          <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
+                          <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                           <FormControl>
                             <Input
                               type="email"
                               autoComplete="username"
                               disabled={isLoading}
                               placeholder="이메일을 입력하세요"
-                              className="h-12 rounded-xl border-cream-300 pl-11 focus:border-clover-500 focus:ring-clover-500/20"
+                              className="h-12 rounded-lg border-border pl-11 focus:border-ring focus:ring-ring/20"
                               {...field}
                             />
                           </FormControl>
@@ -279,25 +288,25 @@ export default function Page() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-semibold text-cream-800">
+                        <FormLabel className="text-sm font-semibold text-foreground">
                           비밀번호
                         </FormLabel>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-cream-400" />
+                          <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                           <FormControl>
                             <Input
                               type={showPassword ? "text" : "password"}
                               autoComplete="current-password"
                               disabled={isLoading}
                               placeholder="비밀번호를 입력하세요"
-                              className="h-12 rounded-xl border-cream-300 pl-11 pr-11 focus:border-clover-500 focus:ring-clover-500/20"
+                              className="h-12 rounded-lg border-border pl-11 pr-11 focus:border-ring focus:ring-ring/20"
                               {...field}
                             />
                           </FormControl>
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-cream-400 transition-colors hover:text-cream-600"
+                            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                             aria-label={
                               showPassword ? "비밀번호 숨기기" : "비밀번호 보기"
                             }
@@ -324,7 +333,7 @@ export default function Page() {
                     type="submit"
                     disabled={isLoading || !form.formState.isValid}
                     className={clsx(
-                      "mt-2 h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
+                      "mt-2 h-12 w-full rounded-full bg-primary font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90",
                       !form.formState.isValid && "opacity-60",
                     )}
                   >
@@ -342,10 +351,12 @@ export default function Page() {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-cream-200"></div>
+                  <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-4 text-cream-500">또는</span>
+                  <span className="bg-card px-4 text-muted-foreground">
+                    또는
+                  </span>
                 </div>
               </div>
 
@@ -356,11 +367,11 @@ export default function Page() {
                   disabled={isSocialDisabled}
                   className={clsx(
                     socialButtonBaseClass,
-                    "group border border-cream-300 hover:bg-cream-50",
+                    "group border border-border hover:bg-background",
                   )}
                 >
                   <GoogleIcon />
-                  <span className="text-sm font-medium text-cream-700 group-hover:text-cream-900">
+                  <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
                     Google로 계속하기
                   </span>
                 </button>
@@ -397,11 +408,11 @@ export default function Page() {
               </div>
 
               <div className="mt-5 text-center">
-                <p className="text-sm text-cream-600">
+                <p className="text-sm text-muted-foreground">
                   계정이 없으신가요?{" "}
                   <Link
                     href="/sign-up"
-                    className="font-semibold text-clover-600 transition-colors hover:text-clover-700"
+                    className="font-semibold text-primary transition-colors hover:text-foreground"
                   >
                     회원가입
                   </Link>

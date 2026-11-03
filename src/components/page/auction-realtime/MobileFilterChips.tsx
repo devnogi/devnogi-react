@@ -42,7 +42,7 @@ export default function MobileFilterChips({
         onClick={onExactItemNameToggle}
         className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${
           activeFilters.hasExactItemName
-            ? "bg-[var(--color-ds-primary)] text-white border-2 border-[var(--color-ds-primary)]"
+            ? "bg-[var(--color-ds-primary)] text-primary-foreground border-2 border-[var(--color-ds-primary)]"
             : "bg-white dark:bg-navy-800 text-[var(--color-ds-text)] border border-[var(--color-ds-neutral-tone)] hover:border-[var(--color-ds-primary)]"
         }`}
       >

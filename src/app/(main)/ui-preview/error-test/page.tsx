@@ -12,23 +12,23 @@ export default function ErrorTestPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-4">
-      <h1 className="text-2xl font-bold">에러 테스트 페이지</h1>
-      <div className="flex space-x-4">
+    <div className="mx-auto max-w-md space-y-4 rounded-lg border border-border bg-card p-6 text-foreground">
+      <h1 className="text-xl font-semibold">에러 테스트 페이지</h1>
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => {
             startTransition(() => {
               notFound();
             });
           }}
-          className="px-4 py-2 font-bold text-white bg-yellow-500 rounded"
+          className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-full"
           disabled={isPending}
         >
           {isPending ? "로딩 중…" : "404 Not Found 페이지 보기"}
         </button>
         <button
           onClick={() => setError(true)}
-          className="px-4 py-2 font-bold text-white bg-red-500 rounded"
+          className="px-4 py-2 text-sm font-medium border border-border hover:bg-muted rounded-full"
         >
           일반 에러 페이지 보기
         </button>

@@ -179,10 +179,10 @@ function SocialCallbackContent() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-dvh flex items-center justify-center bg-background p-4 text-foreground">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">소셜 로그인 처리 중...</p>
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">소셜 로그인 처리 중...</p>
         </div>
       </div>
     );
@@ -190,8 +190,8 @@ function SocialCallbackContent() {
 
   if (status === "success") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
+      <div className="min-h-dvh flex items-center justify-center bg-background p-4 text-foreground">
+        <div className="bg-card rounded-lg border border-border p-8 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-8 h-8 text-green-600"
@@ -207,15 +207,15 @@ function SocialCallbackContent() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-foreground mb-2">
             회원가입 완료
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             환영합니다! 잠시 후 메인 화면으로 이동합니다.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
+            className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-lg transition-all duration-200"
           >
             메인으로 이동
           </button>
@@ -226,8 +226,8 @@ function SocialCallbackContent() {
 
   if (status === "error") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md w-full text-center">
+      <div className="min-h-dvh flex items-center justify-center bg-background p-4 text-foreground">
+        <div className="bg-card rounded-lg border border-border p-8 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-8 h-8 text-red-600"
@@ -243,13 +243,13 @@ function SocialCallbackContent() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-foreground mb-2">
             회원가입 실패
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-muted-foreground mb-6">{error}</p>
           <button
             onClick={handleCancel}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
+            className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-lg transition-all duration-200"
           >
             닫기
           </button>
@@ -260,7 +260,7 @@ function SocialCallbackContent() {
 
   if (status === "signup" && socialData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
+      <div className="min-h-dvh flex items-center justify-center bg-background p-4 text-foreground">
         <SocialSignUpForm
           provider={socialData.provider}
           providerUserId={socialData.providerUserId}
@@ -281,10 +281,10 @@ export default function SocialCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="min-h-dvh flex items-center justify-center bg-background p-4 text-foreground">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">로딩 중...</p>
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">로딩 중...</p>
           </div>
         </div>
       }

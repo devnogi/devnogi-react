@@ -31,7 +31,7 @@ export default function VerificationHistoryList({
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-5 sm:p-8">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 sm:p-5">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-gray-200 dark:bg-navy-600 rounded w-1/3" />
           <div className="h-12 bg-gray-200 dark:bg-navy-600 rounded" />
@@ -44,13 +44,13 @@ export default function VerificationHistoryList({
   const items = data?.items ?? [];
 
   return (
-    <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-5 sm:p-8">
+    <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 sm:p-5">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center flex-shrink-0">
             <History className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             인증 이력
           </h3>
         </div>
@@ -89,7 +89,7 @@ export default function VerificationHistoryList({
             <div
               key={item.historyId}
               className={clsx(
-                "rounded-2xl border p-4",
+                "rounded-lg border p-4",
                 item.verificationSuccess
                   ? "border-green-100 dark:border-green-900/30 bg-green-50/50 dark:bg-green-900/10"
                   : "border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10",

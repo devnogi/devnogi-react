@@ -27,9 +27,9 @@ export default function StatisticsTabs({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={clsx(
-              "px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap",
+              "px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap",
               activeTab === tab.id
-                ? "bg-blaanid-500 dark:bg-coral-500 text-white shadow-lg"
+                ? "bg-[var(--color-ds-primary)] dark:bg-[var(--color-ds-primary)] text-primary-foreground"
                 : "bg-white dark:bg-navy-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-600 border border-gray-200 dark:border-navy-600",
             )}
           >

@@ -27,7 +27,7 @@ export default function DateRangeSelector({
         value={dateFrom}
         onChange={(e) => onDateFromChange(e.target.value)}
         max={dateTo || today}
-        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
       />
       <span className="text-gray-400">~</span>
       <input
@@ -36,7 +36,7 @@ export default function DateRangeSelector({
         onChange={(e) => onDateToChange(e.target.value)}
         min={dateFrom}
         max={today}
-        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
       />
     </div>
   );

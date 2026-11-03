@@ -8,7 +8,7 @@ export default function PostListSkeleton() {
       {[...Array(6)].map((_, i) => (
         <div
           key={i}
-          className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 animate-pulse"
+          className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 animate-pulse"
         >
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-navy-600" />

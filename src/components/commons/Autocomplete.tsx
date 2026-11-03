@@ -132,7 +132,7 @@ export default function Autocomplete({
     >
       <ul
         ref={dropdownRef}
-        className="bg-white rounded-xl border border-gray-200 shadow-2xl max-h-80 overflow-y-auto"
+        className="bg-white rounded-lg border border-gray-200 max-h-80 overflow-y-auto"
         role="listbox"
       >
         {isLoading ? (

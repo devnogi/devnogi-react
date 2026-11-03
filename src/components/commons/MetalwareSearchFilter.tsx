@@ -163,7 +163,7 @@ export default function MetalwareSearchFilter({
       className={
         flat
           ? ""
-          : "bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3"
+          : "bg-gray-50 dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 p-3"
       }
     >
       <div className="flex items-center justify-between mb-2">
@@ -175,7 +175,7 @@ export default function MetalwareSearchFilter({
             type="button"
             onClick={handleAddItem}
             disabled={isLoading}
-            className="flex items-center gap-1 text-xs text-blaanid-600 dark:text-coral-400 hover:text-blaanid-700 dark:hover:text-coral-300 disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1 text-xs text-[var(--color-ds-primary)] hover:text-[var(--color-ds-primary)] disabled:opacity-40 transition-colors"
           >
             <Plus className="w-3 h-3" />
             추가
@@ -188,7 +188,7 @@ export default function MetalwareSearchFilter({
           type="button"
           onClick={handleAddItem}
           disabled={isLoading}
-          className="w-full h-9 rounded-xl border border-dashed border-gray-300 dark:border-navy-400 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:border-blaanid-400 dark:hover:border-coral-500 hover:text-blaanid-500 dark:hover:text-coral-400 disabled:opacity-40 transition-all"
+          className="w-full h-9 rounded-lg border border-dashed border-gray-300 dark:border-navy-400 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:border-[var(--color-ds-primary)] hover:text-[var(--color-ds-primary)] disabled:opacity-40 transition-all"
         >
           <Plus className="w-3.5 h-3.5" />
           {isLoading ? "로딩 중..." : "세공 조건 추가 (최대 3개)"}
@@ -223,7 +223,7 @@ export default function MetalwareSearchFilter({
                         handleNameChange(item.id, e.target.value)
                       }
                       onFocus={() => setActiveDropdownId(item.id)}
-                      className="h-8 rounded-xl text-xs pr-7 border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                      className="h-8 rounded-lg text-xs pr-7 border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
                     />
                     <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
 
@@ -240,7 +240,7 @@ export default function MetalwareSearchFilter({
                             width: dropdownPos.width,
                             zIndex: 9999,
                           }}
-                          className="bg-white dark:bg-navy-700 rounded-xl shadow-[0_8px_24px_rgba(61,56,47,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-navy-500 max-h-44 overflow-auto"
+                          className="bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 max-h-44 overflow-auto"
                         >
                           {suggestions.map((suggestion) => (
                             <button
@@ -252,7 +252,7 @@ export default function MetalwareSearchFilter({
                               }}
                               className={`w-full px-3 py-2 text-left text-xs transition-colors first:rounded-t-xl last:rounded-b-xl ${
                                 item.name === suggestion
-                                  ? "bg-blaanid-50 dark:bg-coral-500/10 text-blaanid-700 dark:text-coral-300 font-medium"
+                                  ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10 text-[var(--color-ds-primary)] font-medium"
                                   : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-navy-600"
                               }`}
                             >
@@ -286,7 +286,7 @@ export default function MetalwareSearchFilter({
                     }
                     min={1}
                     max={30}
-                    className="h-8 rounded-xl text-xs border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                    className="h-8 rounded-lg text-xs border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
                   />
                   <span className="text-gray-400 dark:text-gray-500 text-xs shrink-0">
                     ~
@@ -300,7 +300,7 @@ export default function MetalwareSearchFilter({
                     }
                     min={1}
                     max={30}
-                    className="h-8 rounded-xl text-xs border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                    className="h-8 rounded-lg text-xs border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
                   />
                   {/* 삭제 버튼 자리 맞추기 */}
                   <div className="w-7 shrink-0" />
@@ -313,7 +313,7 @@ export default function MetalwareSearchFilter({
             <button
               type="button"
               onClick={handleAddItem}
-              className="w-full h-8 rounded-xl border border-dashed border-gray-300 dark:border-navy-400 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:border-blaanid-400 dark:hover:border-coral-500 hover:text-blaanid-500 dark:hover:text-coral-400 transition-all"
+              className="w-full h-8 rounded-lg border border-dashed border-gray-300 dark:border-navy-400 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:border-[var(--color-ds-primary)] hover:text-[var(--color-ds-primary)] transition-all"
             >
               <Plus className="w-3 h-3" />
               세공 추가 ({items.length}/{MAX_METALWARE})

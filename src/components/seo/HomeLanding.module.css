@@ -1,0 +1,14 @@
+/* 100vw includes the scrollbar on platforms with a non-overlay scrollbar. */
+:global(html):has(.home),
+:global(body):has(.home) {
+  overflow-x: clip;
+}
+
+/* Use the scrollbar-free body width when sizing the overlapping card. */
+:global(body):has(.home) {
+  container-type: inline-size;
+}
+
+.home {
+  min-width: 0;
+}

@@ -407,7 +407,7 @@ export default function MobileFilterModal({
               onClick={() => setCurrentTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
                 currentTab === tab.id
-                  ? "bg-[var(--color-ds-primary)] text-white font-semibold"
+                  ? "bg-[var(--color-ds-primary)] text-primary-foreground font-semibold"
                   : "bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
               }`}
             >
@@ -535,7 +535,7 @@ export default function MobileFilterModal({
                   placeholder="최소 금액 입력"
                   value={priceMin}
                   onChange={(e) => setPriceMin(e.target.value)}
-                  className="h-12 rounded-xl text-base"
+                  className="h-12 rounded-lg text-base"
                 />
               </div>
               <div>
@@ -547,7 +547,7 @@ export default function MobileFilterModal({
                   placeholder="최대 금액 입력"
                   value={priceMax}
                   onChange={(e) => setPriceMax(e.target.value)}
-                  className="h-12 rounded-xl text-base"
+                  className="h-12 rounded-lg text-base"
                 />
               </div>
             </div>
@@ -586,7 +586,7 @@ export default function MobileFilterModal({
                   onClick={() =>
                     setShowAddFilterDropdown(!showAddFilterDropdown)
                   }
-                  className="w-full h-12 rounded-xl flex items-center justify-center gap-2"
+                  className="w-full h-12 rounded-lg flex items-center justify-center gap-2"
                   disabled={availableOptions.length === 0}
                 >
                   <Plus className="w-5 h-5" />
@@ -594,7 +594,7 @@ export default function MobileFilterModal({
                 </Button>
 
                 {showAddFilterDropdown && availableOptions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] max-h-60 overflow-auto z-50">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] max-h-60 overflow-auto z-50">
                     {availableOptions.map((option) => (
                       <button
                         key={option.id}
@@ -612,7 +612,7 @@ export default function MobileFilterModal({
               {activeFilters.map((filter) => (
                 <div
                   key={filter.id}
-                  className="bg-[var(--color-ds-card)] rounded-xl border border-[var(--color-ds-neutral-tone)] p-4"
+                  className="bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] p-4"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm font-semibold text-[var(--color-ds-text)]">
@@ -656,14 +656,14 @@ export default function MobileFilterModal({
             <Button
               variant="outline"
               onClick={handleReset}
-              className="flex-1 h-12 rounded-xl font-semibold"
+              className="flex-1 h-12 rounded-lg font-semibold"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               초기화
             </Button>
             <Button
               onClick={handleApply}
-              className="flex-1 h-12 rounded-xl bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-white font-semibold"
+              className="flex-1 h-12 rounded-lg bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-primary-foreground font-semibold"
             >
               적용하기
             </Button>

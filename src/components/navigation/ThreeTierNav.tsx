@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { HomeSearch } from "@/components/navigation/HomeSearch";
 import NotificationDropdown from "@/components/notification/NotificationDropdown";
 import { Input } from "@/components/ui/input";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -591,7 +592,7 @@ export default function ThreeTierNav() {
         ref={searchInputRef}
         type="text"
         placeholder={searchPlaceholder}
-        className="h-10 pr-16 rounded-xl border-gray-300 dark:border-navy-500 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20 transition-all bg-gray-50 dark:bg-navy-700 dark:text-white dark:placeholder-gray-400"
+        className="h-10 pr-16 rounded-full border-gray-300 dark:border-navy-500 focus:border-primary dark:focus:border-orange-500 focus:ring-2 focus:ring-primary/20 dark:focus:ring-orange-500/20 transition-all bg-gray-50 dark:bg-navy-700 dark:text-white dark:placeholder-gray-400"
         value={searchValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -619,7 +620,7 @@ export default function ThreeTierNav() {
                   ? handleSearchSubmit
                   : undefined
           }
-          className="p-1.5 rounded-lg text-gray-500 dark:text-gray-300 hover:text-blaanid-600 dark:hover:text-coral-400 hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
+          className="p-1.5 rounded-lg text-gray-500 dark:text-gray-300 hover:text-primary dark:hover:text-orange-300 hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
           aria-label="검색"
           type="button"
         >
@@ -660,7 +661,7 @@ export default function ThreeTierNav() {
                       className={clsx(
                         "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0",
                         selectedIndex === index
-                          ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
+                          ? "bg-orange-50 dark:bg-orange-500/20 text-primary dark:text-orange-300"
                           : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                       )}
                     >
@@ -708,7 +709,7 @@ export default function ThreeTierNav() {
                     className={clsx(
                       "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0 flex items-start gap-3",
                       selectedIndex === index
-                        ? "bg-blaanid-50 dark:bg-coral-500/20 text-blaanid-700 dark:text-coral-300"
+                        ? "bg-orange-50 dark:bg-orange-500/20 text-primary dark:text-orange-300"
                         : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                     )}
                   >
@@ -745,14 +746,14 @@ export default function ThreeTierNav() {
               className={clsx(
                 "relative px-3 py-2.5 transition-colors",
                 pathname === "/"
-                  ? "text-blaanid-600 dark:text-coral-400"
+                  ? "text-primary dark:text-orange-300"
                   : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
               )}
               aria-label="홈"
             >
               <Home className="w-5 h-5" />
               {pathname === "/" && (
-                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full" />
               )}
             </Link>
             {navItems.map(({ href, label, ready }) => {
@@ -767,13 +768,13 @@ export default function ThreeTierNav() {
                   className={clsx(
                     "relative px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
                     isActive
-                      ? "text-blaanid-600 dark:text-coral-400"
+                      ? "text-primary dark:text-orange-300"
                       : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
                   )}
                 >
                   {label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
+                    <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />
                   )}
                 </Link>
               );
@@ -784,13 +785,13 @@ export default function ThreeTierNav() {
                 className={clsx(
                   "relative px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors",
                   pathname.startsWith("/admin")
-                    ? "text-blaanid-600 dark:text-coral-400"
+                    ? "text-primary dark:text-orange-300"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
                 )}
               >
                 관리자 도구
                 {pathname.startsWith("/admin") && (
-                  <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-blaanid-500 dark:bg-coral-500 rounded-full" />
+                  <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />
                 )}
               </Link>
             )}
@@ -815,14 +816,18 @@ export default function ThreeTierNav() {
             {/* Logo - Fixed width */}
             <Link
               href="/"
-              className="font-bold text-xl text-gray-900 dark:text-white hover:text-blaanid-600 dark:hover:text-coral-400 transition-colors flex-shrink-0"
+              className="font-bold text-xl text-gray-900 dark:text-white hover:text-primary dark:hover:text-orange-300 transition-colors flex-shrink-0"
               style={{ fontFamily: "'Bungee', cursive" }}
             >
               MEMONOGI
             </Link>
 
             {/* Search - Flexible center area */}
-            {renderSearchInput("flex-1 max-w-2xl mx-auto")}
+            {pathname === "/" ? (
+              <HomeSearch location="navigation" className="ml-auto w-60" />
+            ) : (
+              renderSearchInput("flex-1 max-w-2xl mx-auto")
+            )}
 
             {/* Right Icons - Fixed width */}
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -835,7 +840,7 @@ export default function ThreeTierNav() {
                 onClick={toggleTheme}
               >
                 {isDarkMode ? (
-                  <Moon className="w-5 h-5 text-coral-400" />
+                  <Moon className="w-5 h-5 text-orange-300" />
                 ) : (
                   <Sun className="w-5 h-5 text-gray-700" />
                 )}
@@ -854,7 +859,7 @@ export default function ThreeTierNav() {
               {isAdminUser && (
                 <Link
                   href="/admin"
-                  className="px-3 py-1.5 text-xs font-semibold text-blaanid-600 dark:text-coral-300 border border-blaanid-200 dark:border-coral-400/40 rounded-xl hover:bg-blaanid-50 dark:hover:bg-coral-500/10 transition-colors"
+                  className="px-3 py-1.5 text-xs font-semibold text-primary dark:text-orange-300 border border-orange-200 dark:border-orange-400/40 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
                 >
                   관리자
                 </Link>
@@ -886,7 +891,7 @@ export default function ThreeTierNav() {
               ) : (
                 <Link
                   href="/sign-in"
-                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 dark:bg-coral-500 dark:hover:bg-coral-600 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-[#b9502b] hover:bg-[#9a3f22] rounded-lg transition-colors"
                 >
                   로그인
                 </Link>
@@ -912,7 +917,7 @@ export default function ThreeTierNav() {
             {/* Logo */}
             <Link
               href="/"
-              className="font-bold text-xl text-gray-900 dark:text-white hover:text-blaanid-600 dark:hover:text-coral-400 transition-colors"
+              className="font-bold text-xl text-gray-900 dark:text-white hover:text-primary dark:hover:text-orange-300 transition-colors"
               style={{ fontFamily: "'Bungee', cursive" }}
             >
               MEMONOGI
@@ -929,7 +934,7 @@ export default function ThreeTierNav() {
                 onClick={toggleTheme}
               >
                 {isDarkMode ? (
-                  <Moon className="w-5 h-5 text-coral-400" />
+                  <Moon className="w-5 h-5 text-orange-300" />
                 ) : (
                   <Sun className="w-5 h-5 text-gray-700" />
                 )}
@@ -948,7 +953,7 @@ export default function ThreeTierNav() {
               {isAdminUser && (
                 <Link
                   href="/admin"
-                  className="px-2.5 py-1 text-xs font-semibold text-blaanid-600 dark:text-coral-300 border border-blaanid-200 dark:border-coral-400/40 rounded-xl hover:bg-blaanid-50 dark:hover:bg-coral-500/10 transition-colors"
+                  className="px-2.5 py-1 text-xs font-semibold text-primary dark:text-orange-300 border border-orange-200 dark:border-orange-400/40 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
                 >
                   관리자
                 </Link>
@@ -976,7 +981,7 @@ export default function ThreeTierNav() {
               ) : (
                 <Link
                   href="/sign-in"
-                  className="px-3 py-1.5 text-sm font-medium text-white bg-blaanid-600 hover:bg-blaanid-700 dark:bg-coral-500 dark:hover:bg-coral-600 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-[#b9502b] hover:bg-[#9a3f22] rounded-lg transition-colors"
                 >
                   로그인
                 </Link>
@@ -988,7 +993,14 @@ export default function ThreeTierNav() {
         {/* Tier 2: Search Bar */}
         <div className="h-12 border-b border-gray-100 dark:border-navy-600">
           <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
-            {renderSearchInput("w-full")}
+            {pathname === "/" ? (
+              <HomeSearch
+                location="navigation"
+                className="ml-auto w-48 max-w-full"
+              />
+            ) : (
+              renderSearchInput("w-full")
+            )}
           </div>
         </div>
 

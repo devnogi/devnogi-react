@@ -76,7 +76,7 @@ export default function PostList({
 
   if (allPosts.length === 0) {
     return (
-      <div className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 py-12">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 py-12">
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-300 text-lg">
             {userId ? "작성한 게시글이 없습니다." : "게시글이 없습니다."}
@@ -94,7 +94,7 @@ export default function PostList({
   return (
     <>
       {/* Card List Layout */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {allPosts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}

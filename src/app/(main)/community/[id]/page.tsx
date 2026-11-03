@@ -118,7 +118,7 @@ async function PostPage({ params }: PostPageProps) {
           }}
         />
       )}
-      <div className="md:grid md:grid-cols-[minmax(0,1fr)_320px] md:gap-6 lg:gap-8">
+      <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(220px,30%)] md:gap-4">
         <section className="min-w-0 flex flex-col gap-4 md:gap-6">
           {/* Post Detail */}
           <PostDetailView
@@ -134,7 +134,7 @@ async function PostPage({ params }: PostPageProps) {
 
           {/* Comments Section */}
           <div className="w-full">
-            <div className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600 p-4 md:p-5">
+            <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5">
               <CommentList postId={id} />
             </div>
           </div>

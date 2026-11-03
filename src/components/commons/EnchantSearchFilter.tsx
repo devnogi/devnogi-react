@@ -94,7 +94,7 @@ function EnchantInput({
           onFocus={() => {
             if (!selected) setShowDropdown(true);
           }}
-          className={`w-full h-8 text-xs px-2 ${selected ? "pr-6" : "pr-2"} rounded-lg border border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-1 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20 truncate`}
+          className={`w-full h-8 text-xs px-2 ${selected ? "pr-6" : "pr-2"} rounded-lg border border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:border-[var(--color-ds-primary)] focus:ring-1 focus:ring-[var(--color-ds-primary)]/20 truncate`}
         />
         {selected && (
           <button
@@ -107,7 +107,7 @@ function EnchantInput({
         )}
       </div>
       {showDropdown && !selected && filteredList.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 max-h-48 overflow-y-auto z-50 shadow-lg">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 max-h-48 overflow-y-auto z-50">
           {filteredList.slice(0, 30).map((item) => (
             <button
               key={item}
@@ -159,7 +159,7 @@ export default function EnchantSearchFilter({
       className={
         flat
           ? ""
-          : "bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3"
+          : "bg-gray-50 dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 p-3"
       }
     >
       <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">

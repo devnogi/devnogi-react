@@ -99,7 +99,7 @@ export default function CommentList({ postId }: CommentListProps) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
         댓글{" "}
         <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
       </h3>

@@ -344,7 +344,7 @@ export default function AdminPage() {
 
   if (pageState === "unauthenticated") {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-10 text-center space-y-4">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-10 text-center space-y-4">
         <ShieldCheck className="w-12 h-12 mx-auto text-gray-400" />
         <h1 className="text-2xl font-bold">로그인이 필요합니다</h1>
         <p className="text-gray-500">
@@ -366,7 +366,7 @@ export default function AdminPage() {
 
   if (pageState === "forbidden") {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-red-200 dark:border-red-900/40 p-10 text-center space-y-4">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-red-200 dark:border-red-900/40 p-10 text-center space-y-4">
         <ShieldCheck className="w-12 h-12 mx-auto text-red-400" />
         <h1 className="text-2xl font-bold text-red-500">
           접근 권한이 없습니다
@@ -386,9 +386,9 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-8">
-      <header className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-3xl p-8 shadow-sm">
+      <header className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg p-5">
         <div className="flex items-center gap-3 mb-4">
-          <ShieldCheck className="w-6 h-6 text-blaanid-600 dark:text-coral-400" />
+          <ShieldCheck className="w-6 h-6 text-[var(--color-ds-primary)]" />
           <div>
             <p className="text-sm text-gray-500">ADMIN 전용</p>
             <h1 className="text-2xl font-bold">운영자 작업 콘솔</h1>
@@ -409,12 +409,12 @@ export default function AdminPage() {
       </header>
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <article className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-3xl p-6 shadow-sm space-y-5">
+        <article className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg p-4 space-y-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <CalendarClock className="w-5 h-5 text-blaanid-600 dark:text-coral-300" />
+              <CalendarClock className="w-5 h-5 text-[var(--color-ds-primary)]" />
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                   최근 배치 실행 일시
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -444,7 +444,7 @@ export default function AdminPage() {
               return (
                 <div
                   key={batchType}
-                  className="rounded-2xl border border-gray-200 dark:border-navy-600 bg-gray-50/70 dark:bg-navy-700/60 p-4 space-y-3"
+                  className="rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50/70 dark:bg-navy-700/60 p-4 space-y-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-tight">
@@ -505,10 +505,10 @@ export default function AdminPage() {
           </div>
         </article>
 
-        <article className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-3xl p-6 shadow-sm space-y-4">
+        <article className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg p-4 space-y-4">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                 배치 로그 조회
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -559,18 +559,18 @@ export default function AdminPage() {
 
           <div className="space-y-3">
             {isBatchLogLoading ? (
-              <div className="h-[220px] rounded-2xl border border-dashed border-gray-300 dark:border-navy-600 flex items-center justify-center">
+              <div className="h-[220px] rounded-lg border border-dashed border-gray-300 dark:border-navy-600 flex items-center justify-center">
                 <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
               </div>
             ) : batchLogs.length === 0 ? (
-              <div className="h-[220px] rounded-2xl border border-dashed border-gray-300 dark:border-navy-600 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="h-[220px] rounded-lg border border-dashed border-gray-300 dark:border-navy-600 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
                 조회된 로그가 없습니다.
               </div>
             ) : (
               batchLogs.map((log) => (
                 <div
                   key={log.id}
-                  className="rounded-2xl border border-gray-200 dark:border-navy-600 bg-gray-50/70 dark:bg-navy-700/60 p-4"
+                  className="rounded-lg border border-gray-200 dark:border-navy-600 bg-gray-50/70 dark:bg-navy-700/60 p-4"
                 >
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -662,15 +662,15 @@ export default function AdminPage() {
           return (
             <article
               key={task.key}
-              className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-3xl p-6 flex flex-col gap-4 shadow-sm"
+              className="bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg p-4 flex flex-col gap-3"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-navy-700 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-navy-700 flex items-center justify-center">
                     <Icon className="w-6 h-6 text-gray-600 dark:text-gray-200" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                       {task.title}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -681,7 +681,7 @@ export default function AdminPage() {
                     </p>
                   </div>
                 </div>
-                <Badge className="rounded-full px-3 py-1 text-xs bg-blaanid-50 text-blaanid-600 dark:bg-coral-500/20 dark:text-coral-200">
+                <Badge className="rounded-full px-3 py-1 text-xs bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]">
                   {task.category}
                 </Badge>
               </div>
@@ -745,7 +745,7 @@ export default function AdminPage() {
               </div>
 
               {payloadText && (
-                <pre className="text-xs bg-gray-50 dark:bg-navy-700 rounded-2xl p-4 overflow-x-auto border border-gray-100 dark:border-navy-600">
+                <pre className="text-xs bg-gray-50 dark:bg-navy-700 rounded-lg p-4 overflow-x-auto border border-gray-100 dark:border-navy-600">
                   {payloadText}
                 </pre>
               )}

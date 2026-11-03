@@ -3,6 +3,8 @@
   "entry": [
     "src/app/**/{page,layout,loading,error,global-error,not-found,route,template,default}.{ts,tsx}",
     "src/{instrumentation,middleware}.{ts,tsx}",
+    "src/components/page/home/PriceChangeCard.tsx",
+    "src/components/page/home/VolumeSurgeCard.tsx",
     "jest.config.ts",
     "jest.setup.ts",
     "scripts/*.mjs"

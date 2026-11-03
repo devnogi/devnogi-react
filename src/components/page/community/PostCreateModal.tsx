@@ -237,7 +237,7 @@ export default function PostCreateModal({
             }}
             className={`fixed z-50 overflow-hidden ${
               isExpanded
-                ? "inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"
+                ? "inset-0 bg-[#f5f6f8] dark:bg-navy-900"
                 : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[85vh] bg-white shadow-2xl border border-gray-100"
             }`}
             style={!isExpanded ? { borderRadius: "32px" } : undefined}
@@ -280,7 +280,7 @@ export default function PostCreateModal({
                       disabled={
                         !title.trim() || !content.trim() || isSubmitting
                       }
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                      className="bg-[#9a451f] hover:bg-[#803b1d] text-white px-6 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                     >
                       {isSubmitting ? (
                         <>
@@ -458,7 +458,7 @@ export default function PostCreateModal({
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
                             transition={{ duration: 0.2 }}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 rounded-full text-sm font-medium"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-50 text-[#9a451f] dark:bg-orange-950 dark:text-orange-200 rounded-full text-sm font-medium"
                           >
                             <Hash className="w-3.5 h-3.5" />
                             <span>{tag}</span>
@@ -515,7 +515,7 @@ export default function PostCreateModal({
                           onChange={(e) => setTagInput(e.target.value)}
                           onKeyDown={handleAddTag}
                           disabled={tags.length >= 10}
-                          className="pl-3 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          className="pl-3 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)] focus:border-transparent w-32 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                       </div>
 

@@ -17,8 +17,7 @@ export default function StatisticsSummaryCards({
 }: StatisticsSummaryCardsProps) {
   if (data.length === 0) return null;
 
-  const overallAvg =
-    data.reduce((sum, d) => sum + d.avgPrice, 0) / data.length;
+  const overallAvg = data.reduce((sum, d) => sum + d.avgPrice, 0) / data.length;
   const overallMax = Math.max(...data.map((d) => d.maxPrice));
   const overallMin = Math.min(...data.map((d) => d.minPrice));
   const totalVolume = data.reduce((sum, d) => sum + d.totalVolume, 0);
@@ -28,7 +27,8 @@ export default function StatisticsSummaryCards({
     {
       label: "평균가",
       value: formatPrice(Math.round(overallAvg)),
-      color: "text-blaanid-600 dark:text-coral-400",
+      color:
+        "text-[var(--color-ds-primary)] dark:text-[var(--color-ds-primary)]",
     },
     {
       label: "최고가",
@@ -38,7 +38,8 @@ export default function StatisticsSummaryCards({
     {
       label: "최저가",
       value: formatPrice(overallMin),
-      color: "text-blaanid-500 dark:text-coral-300",
+      color:
+        "text-[var(--color-ds-primary)] dark:text-[var(--color-ds-primary)]",
     },
     {
       label: "총 거래량",
@@ -53,7 +54,7 @@ export default function StatisticsSummaryCards({
       {cards.map((card) => (
         <div
           key={card.label}
-          className="bg-white dark:bg-navy-700 rounded-2xl p-4 shadow-xl border border-gray-100 dark:border-navy-600"
+          className="bg-white dark:bg-navy-700 rounded-lg p-4 border border-gray-100 dark:border-navy-600"
         >
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
             {card.label}
