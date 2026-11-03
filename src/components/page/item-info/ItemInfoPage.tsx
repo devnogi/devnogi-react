@@ -2,7 +2,6 @@
 
 import { ArrowUpDown, Info } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useItemInfoCategories } from "@/hooks/useItemInfoCategories";
 import { useItemInfoDetail } from "@/hooks/useItemInfoDetail";
@@ -31,117 +30,41 @@ export default function ItemInfoPage() {
   const router = useRouter();
   const pathname = usePathname();
   const urlSearchParams = useSearchParams();
-  const lastSyncedQueryRef = useRef<string>("");
   const { data: categories = [], isLoading: isCategoriesLoading } =
     useItemInfoCategories();
+  const topCategory =
+    urlSearchParams.get("top_category") ||
+    urlSearchParams.get("topCategory") ||
+    categories[0]?.topCategory ||
+    "";
+  const subCategory =
+    urlSearchParams.get("sub_category") ||
+    urlSearchParams.get("subCategory") ||
+    "";
+  const appliedName =
+    urlSearchParams.get("item_name") ||
+    urlSearchParams.get("itemName") ||
+    urlSearchParams.get("name") ||
+    "";
+  const currentPage = parsePositiveInt(urlSearchParams.get("page"), 1);
+  const sortDirection = parseSortDirection(urlSearchParams.get("direction"));
 
-  const [topCategory, setTopCategory] = useState("");
-  const [subCategory, setSubCategory] = useState("");
-  const [appliedName, setAppliedName] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortDirection, setSortDirection] = useState<"ASC" | "DESC">(
-    DEFAULT_SORT_DIRECTION,
-  );
-
-  // URL -> state 동기화
-  useEffect(() => {
-    const nextTopCategory =
-      urlSearchParams.get("top_category") ||
-      urlSearchParams.get("topCategory") ||
-      "";
-    const nextSubCategory =
-      urlSearchParams.get("sub_category") ||
-      urlSearchParams.get("subCategory") ||
-      "";
-    const nextItemName =
-      urlSearchParams.get("item_name") ||
-      urlSearchParams.get("itemName") ||
-      urlSearchParams.get("name") ||
-      "";
-    const nextPage = parsePositiveInt(urlSearchParams.get("page"), 1);
-    const nextSortDirection = parseSortDirection(
-      urlSearchParams.get("direction"),
+  function updateQuery(changes: Record<string, string>) {
+    const values = {
+      top_category: topCategory,
+      sub_category: subCategory,
+      item_name: appliedName,
+      page: currentPage > 1 ? String(currentPage) : "",
+      direction: sortDirection === "DESC" ? sortDirection : "",
+      ...changes,
+    };
+    const query = new URLSearchParams(
+      Object.entries(values).filter(([, value]) => value),
     );
-
-    const parsedQuery = new URLSearchParams();
-    if (nextTopCategory) {
-      parsedQuery.set("top_category", nextTopCategory);
-    }
-    if (nextSubCategory) {
-      parsedQuery.set("sub_category", nextSubCategory);
-    }
-    if (nextItemName) {
-      parsedQuery.set("item_name", nextItemName);
-    }
-    if (nextPage > 1) {
-      parsedQuery.set("page", String(nextPage));
-    }
-    if (nextSortDirection !== DEFAULT_SORT_DIRECTION) {
-      parsedQuery.set("direction", nextSortDirection);
-    }
-    const normalizedQuery = new URLSearchParams(
-      Array.from(parsedQuery.entries()).sort(([a], [b]) => a.localeCompare(b)),
-    ).toString();
-
-    if (normalizedQuery === lastSyncedQueryRef.current) {
-      return;
-    }
-
-    lastSyncedQueryRef.current = normalizedQuery;
-    setTopCategory(nextTopCategory);
-    setSubCategory(nextSubCategory);
-    setAppliedName(nextItemName);
-    setCurrentPage(nextPage);
-    setSortDirection(nextSortDirection);
-  }, [urlSearchParams]);
-
-  // 카테고리 로드 후 기본 탑카테고리 설정
-  useEffect(() => {
-    if (categories.length > 0 && !topCategory) {
-      setTopCategory(categories[0].topCategory);
-    }
-  }, [categories, topCategory]);
-
-  // state -> URL 동기화
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (topCategory) {
-      params.set("top_category", topCategory);
-    }
-    if (subCategory) {
-      params.set("sub_category", subCategory);
-    }
-    if (appliedName) {
-      params.set("item_name", appliedName);
-    }
-    if (currentPage > 1) {
-      params.set("page", String(currentPage));
-    }
-    if (sortDirection !== DEFAULT_SORT_DIRECTION) {
-      params.set("direction", sortDirection);
-    }
-
-    const nextQuery = new URLSearchParams(
-      Array.from(params.entries()).sort(([a], [b]) => a.localeCompare(b)),
-    ).toString();
-
-    if (nextQuery === lastSyncedQueryRef.current) {
-      return;
-    }
-
-    lastSyncedQueryRef.current = nextQuery;
-    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+    router.replace(query.size ? `${pathname}?${query}` : pathname, {
       scroll: false,
     });
-  }, [
-    topCategory,
-    subCategory,
-    appliedName,
-    currentPage,
-    sortDirection,
-    router,
-    pathname,
-  ]);
+  }
 
   const searchParams: ItemInfoSearchParams | null = topCategory
     ? {
@@ -159,27 +82,6 @@ export default function ItemInfoPage() {
     isLoading,
     isFetching,
   } = useItemInfoDetail(searchParams);
-
-  const handleTopCategoryChange = useCallback((category: string) => {
-    setTopCategory(category);
-    setSubCategory("");
-    setCurrentPage(1);
-  }, []);
-
-  const handleSubCategoryChange = useCallback((category: string) => {
-    setSubCategory(category);
-    setCurrentPage(1);
-  }, []);
-
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  const toggleSortDirection = useCallback(() => {
-    setSortDirection((prev) => (prev === "ASC" ? "DESC" : "ASC"));
-    setCurrentPage(1);
-  }, []);
 
   if (isCategoriesLoading) {
     return (
@@ -211,8 +113,12 @@ export default function ItemInfoPage() {
           categories={categories}
           selectedTopCategory={topCategory}
           selectedSubCategory={subCategory}
-          onTopCategoryChange={handleTopCategoryChange}
-          onSubCategoryChange={handleSubCategoryChange}
+          onTopCategoryChange={(category) =>
+            updateQuery({ top_category: category, sub_category: "", page: "" })
+          }
+          onSubCategoryChange={(category) =>
+            updateQuery({ sub_category: category, page: "" })
+          }
         />
 
         {/* Results Info & Sort */}
@@ -240,7 +146,12 @@ export default function ItemInfoPage() {
           </div>
 
           <button
-            onClick={toggleSortDirection}
+            onClick={() =>
+              updateQuery({
+                direction: sortDirection === "ASC" ? "DESC" : "",
+                page: "",
+              })
+            }
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-ds-secondary)] hover:bg-[var(--color-ds-neutral-100)] transition-colors"
           >
             <ArrowUpDown className="w-4 h-4" />
@@ -258,7 +169,10 @@ export default function ItemInfoPage() {
             totalPages={pageData.totalPages}
             totalElements={pageData.totalElements}
             pageSize={PAGE_SIZE}
-            onPageChange={handlePageChange}
+            onPageChange={(page) => {
+              updateQuery({ page: page > 1 ? String(page) : "" });
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           />
         )}
       </div>

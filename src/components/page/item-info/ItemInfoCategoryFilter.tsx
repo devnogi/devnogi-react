@@ -39,10 +39,7 @@ export default function ItemInfoCategoryFilter({
           </label>
           <Select
             value={selectedTopCategory}
-            onValueChange={(value) => {
-              onTopCategoryChange(value);
-              onSubCategoryChange("");
-            }}
+            onValueChange={onTopCategoryChange}
           >
             <SelectTrigger className="w-full h-11 bg-white dark:bg-navy-800 border-[var(--color-ds-neutral-tone)] text-[var(--color-ds-text)]">
               <SelectValue placeholder="탑카테고리를 선택하세요" />

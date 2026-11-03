@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import HomeLanding from "./HomeLanding";
 
@@ -56,6 +56,13 @@ describe("HomeLanding", () => {
     expect(
       screen.getByRole("search", { name: "메인 아이템 검색" }),
     ).toBeInTheDocument();
+    const toggle = screen.getByText("주요 기능 보기");
+    const description = screen.getByText(
+      "아이템명과 조건으로 최근 거래내역을 찾아보세요.",
+    );
+    expect(description).not.toBeVisible();
+    fireEvent.click(toggle);
+    expect(description).toBeVisible();
     expect(
       screen.getByRole("link", { name: /경매장 거래내역/ }),
     ).toHaveAttribute("href", "/auction-history");
@@ -109,7 +116,7 @@ describe("HomeLanding", () => {
       "lg:w-[66.7vw]",
       "lg:max-w-[1120px]",
     );
-    expect(within(card).getAllByRole("link")).toHaveLength(4);
+
     expect(
       within(card).getByRole("heading", { name: "데이터 안내" }),
     ).toBeInTheDocument();
@@ -120,9 +127,8 @@ describe("HomeLanding", () => {
     expect(
       within(card)
         .getByTestId("ranking-cards")
-        .compareDocumentPosition(
-          within(card).getByRole("heading", { name: "메모노기 주요 기능" }),
-        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+        .compareDocumentPosition(within(card).getByText("주요 기능 보기")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
 });

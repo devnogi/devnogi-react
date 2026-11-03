@@ -1,4 +1,10 @@
-import { BarChart3, BookOpen, Gavel, TrendingUp } from "lucide-react";
+import {
+  BarChart3,
+  BookOpen,
+  ChevronDown,
+  Gavel,
+  TrendingUp,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -65,19 +71,14 @@ export default function HomeLanding() {
       >
         <div className="mx-auto w-full space-y-8 lg:w-[60vw] lg:max-w-[1000px]">
           <HomeRankingCards />
-          <section aria-labelledby="feature-heading">
-            <div className="mb-4 flex items-center gap-2">
-              <BookOpen
-                className="h-5 w-5 text-gray-600 dark:text-gray-300"
+          <details className="group border-t border-gray-200 dark:border-navy-600">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-sm px-1 text-sm font-semibold text-gray-700 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a63f20] dark:text-gray-300 dark:hover:text-gray-50 [&::-webkit-details-marker]:hidden">
+              주요 기능 보기
+              <ChevronDown
                 aria-hidden="true"
+                className="h-4 w-4 group-open:rotate-180"
               />
-              <h2
-                id="feature-heading"
-                className="text-lg font-semibold text-gray-900 dark:text-gray-50"
-              >
-                메모노기 주요 기능
-              </h2>
-            </div>
+            </summary>
             <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-2">
               {featureLinks.map(({ href, title, description, icon: Icon }) => (
                 <Link
@@ -100,7 +101,7 @@ export default function HomeLanding() {
                 </Link>
               ))}
             </div>
-          </section>
+          </details>
 
           <section
             className="border-t border-gray-200 pt-6 dark:border-navy-600"
