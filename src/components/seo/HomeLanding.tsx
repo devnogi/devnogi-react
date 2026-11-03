@@ -1,15 +1,9 @@
-import {
-  BarChart3,
-  BookOpen,
-  Gavel,
-  Info,
-  Sparkles,
-  TrendingUp,
-} from "lucide-react";
+import { BarChart3, BookOpen, Gavel, Info, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import HomeRankingCards from "@/app/(main)/home/HomeRankingCards";
+import { HomeSearch } from "@/components/navigation/HomeSearch";
 
 import styles from "./HomeLanding.module.css";
 
@@ -50,8 +44,8 @@ export default function HomeLanding() {
       className={`${styles.home} relative left-1/2 -mt-6 -mb-6 w-screen -translate-x-1/2 bg-white md:-mt-8 md:-mb-8 dark:bg-navy-900`}
     >
       <section
-        className="relative flex min-h-[220px] items-center justify-center overflow-hidden px-4 py-10 text-center md:h-[240px]"
-        aria-labelledby="home-heading"
+        className="relative z-10 flex min-h-[220px] items-center justify-center px-4 py-10 md:h-[240px]"
+        aria-label="아이템 검색"
       >
         <Image
           src="/home-hero-village.webp"
@@ -61,28 +55,7 @@ export default function HomeLanding() {
           sizes="100vw"
           className="object-cover object-center"
         />
-        <div className="relative max-w-3xl rounded-2xl bg-white/90 px-5 py-5 dark:bg-navy-900/90 sm:px-8">
-          <div className="mb-3 flex items-center justify-center gap-2">
-            <Sparkles
-              className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-300"
-              aria-hidden="true"
-            />
-            <h1
-              id="home-heading"
-              className="text-2xl font-bold text-gray-900 dark:text-gray-50 md:text-3xl"
-            >
-              마비노기 경매장·시세·아이템 정보
-            </h1>
-            <Sparkles
-              className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-300"
-              aria-hidden="true"
-            />
-          </div>
-          <p className="text-sm text-gray-700 dark:text-gray-200 md:text-base">
-            메모노기에서 마비노기 경매장 거래내역, 시세 변화, 아이템 정보를
-            한곳에서 확인하세요.
-          </p>
-        </div>
+        <HomeSearch location="hero" className="relative w-full max-w-2xl" />
       </section>
 
       <div className="mx-auto w-full space-y-8 px-4 py-8 sm:px-6 lg:w-[60%] lg:max-w-[1000px] lg:px-0 lg:py-10">

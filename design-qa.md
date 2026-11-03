@@ -4,8 +4,10 @@
 
 - Reference: approved Option 1 mockup from 2026-11-02:
   `C:\Users\user\.codex\generated_images\01a19c77-aa88-7d63-81f3-d511890ca908\exec-fcd817b2-d95e-4904-9432-85560c935164.png`.
-- Approved specification: `docs/features/react-home-warm-hero-redesign-v1-20261102.md`.
-- Scope exclusions were preserved: no game-server, Abyss, Summoning Barrier, or additional home search UI was added.
+- Approved specifications:
+  `docs/features/react-home-warm-hero-redesign-v1-20261102.md` and
+  `docs/features/react-home-hero-search-v2-20261103.md` revision v1.
+- Scope exclusions were preserved: no game-server, Abyss, Summoning Barrier, or mock-only status UI was added.
 - Existing global navigation/search and all existing home ranking/data functionality were retained.
 
 ## Captured evidence
@@ -33,7 +35,7 @@
 - Mobile: `390x844`; `documentElement.clientWidth = 375`, `scrollWidth = 375`; no horizontal scrollbar; all four feature links remain visible in one column.
 - Dark mode: hero overlay, page background, text, dividers, and accent colors remain readable and consistent.
 - Fresh-tab console check: no warnings or errors.
-- Functional exclusions: mock-only status text absent; main content contains no added searchbox.
+- Functional exclusions for the v1 baseline: mock-only status text absent.
 
 ## Findings
 
@@ -47,5 +49,28 @@
 2. A body-only clip removed the visible scrollbar but left `documentElement.scrollWidth` larger than `clientWidth`, so it was not accepted as complete.
 3. The final home-scoped root/body clip produced equality on both tested viewports. New desktop, focused, mobile, and combined comparison captures were recorded from the clean server.
 4. Independent code review reported no P0, P1, or P2 findings after the correction.
+
+## V2 hero search evidence
+
+- Combined approved-reference/current-implementation comparison:
+  `C:\workspace\dev\memonogi\devnogi-react\qa-evidence\home-search-v2-reference-vs-implementation.png`.
+- Desktop implementation, `1440x1024`:
+  `C:\workspace\dev\memonogi\devnogi-react\qa-evidence\home-search-v2-desktop-1440x1024.png`.
+- Mobile implementation, `390x844`:
+  `C:\workspace\dev\memonogi\devnogi-react\qa-evidence\home-search-v2-mobile-390x844.png`.
+- The visible hero title and description are absent from rendered body text and leaf DOM elements. The same search keywords remain in description, Open Graph description, Twitter metadata, and WebSite JSON-LD.
+- The hero search replaces the former text panel without changing the full-width `1440x240` hero or the centered 60% desktop content grid.
+- The navigation and hero inputs synchronize their value. A live `세공` query returned ten suggestions in the hero list; ten ArrowDown presses kept the last selected option inside the scroll viewport, and Enter navigated to the correctly encoded `/auction-history` item/category URL.
+- Chromium shows one accessible custom clear button; the duplicated native search-cancel control found during QA is suppressed.
+- Desktop: `documentElement.clientWidth = 1425`, `scrollWidth = 1425`.
+- Mobile: `documentElement.clientWidth = 375`, `scrollWidth = 375`; both search inputs are available and synchronized.
+- Mobile dark mode preserves readable input, button, hero, and body contrast.
+- Fresh-tab console check: no warnings or errors.
+
+## V2 findings and repair history
+
+1. Independent review found a P2 where keyboard selection could move outside the scrollable autocomplete viewport. The active keyboard option now uses nearest scrolling, and a ten-item regression test plus browser measurement confirms it remains visible.
+2. Browser QA found a P2 duplicate clear icon caused by Chromium's native search cancel control. The native control is now scoped out while the accessible custom clear button remains.
+3. Final independent code review reports no P0, P1, or P2 findings; browser and combined visual comparison also report none.
 
 final result: passed

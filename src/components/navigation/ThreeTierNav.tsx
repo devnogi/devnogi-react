@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { HomeSearch } from "@/components/navigation/HomeSearch";
 import NotificationDropdown from "@/components/notification/NotificationDropdown";
 import { Input } from "@/components/ui/input";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -822,7 +823,14 @@ export default function ThreeTierNav() {
             </Link>
 
             {/* Search - Flexible center area */}
-            {renderSearchInput("flex-1 max-w-2xl mx-auto")}
+            {pathname === "/" ? (
+              <HomeSearch
+                location="navigation"
+                className="flex-1 max-w-2xl mx-auto"
+              />
+            ) : (
+              renderSearchInput("flex-1 max-w-2xl mx-auto")
+            )}
 
             {/* Right Icons - Fixed width */}
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -988,7 +996,11 @@ export default function ThreeTierNav() {
         {/* Tier 2: Search Bar */}
         <div className="h-12 border-b border-gray-100 dark:border-navy-600">
           <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
-            {renderSearchInput("w-full")}
+            {pathname === "/" ? (
+              <HomeSearch location="navigation" className="w-full" />
+            ) : (
+              renderSearchInput("w-full")
+            )}
           </div>
         </div>
 

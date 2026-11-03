@@ -10,15 +10,20 @@ jest.mock("@/app/(main)/home/HomeRankingCards", () => {
   return HomeRankingCardsMock;
 });
 
+jest.mock("@/components/navigation/HomeSearch", () => ({
+  HomeSearch: () => <div role="search" aria-label="메인 아이템 검색" />,
+}));
+
 describe("HomeLanding", () => {
-  it("서버 렌더링 가능한 홈 제목과 주요 기능 링크를 제공한다", () => {
+  it("홈 검색과 기존 주요 기능을 제공한다", () => {
     render(<HomeLanding />);
 
     expect(
-      screen.getByRole("heading", {
-        name: "마비노기 경매장·시세·아이템 정보",
-        level: 1,
-      }),
+      screen.queryByText("마비노기 경매장·시세·아이템 정보"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/한곳에서 확인하세요/)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("search", { name: "메인 아이템 검색" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /경매장 거래내역/ }),
@@ -42,6 +47,5 @@ describe("HomeLanding", () => {
     expect(
       screen.queryByText(/게임 서버|어비스|소환의 결계/),
     ).not.toBeInTheDocument();
-    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
   });
 });
