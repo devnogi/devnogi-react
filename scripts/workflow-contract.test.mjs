@@ -8,7 +8,7 @@ const read = (path) =>
     "\n",
   );
 // prettier-ignore
-const pin = '698f7b25995156af3f2df7f17171e5c3f5e77d76';
+const pin = '4fd2ea877beb52972fd8614396fa26eb022494aa';
 const ci = read(".github/workflows/pr-verify.yml");
 const production = read(".github/workflows/push-cd-prod.yml");
 
