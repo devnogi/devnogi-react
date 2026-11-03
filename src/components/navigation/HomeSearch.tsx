@@ -204,7 +204,7 @@ export function HomeSearch({
             setSelected(-1);
           }
         }}
-        className={`${styles.input} w-full rounded-xl border bg-white text-gray-900 placeholder:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a63f20] dark:border-navy-500 dark:bg-navy-700 dark:text-white ${location === "hero" ? "h-14 border-[#c85f40] pl-5 pr-28 text-base shadow-sm" : "h-10 border-gray-300 bg-gray-50 pl-3 pr-16 text-sm"}`}
+        className={`${styles.input} w-full border bg-white text-gray-900 placeholder:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a63f20] dark:border-navy-500 dark:bg-navy-700 dark:text-white ${location === "hero" ? "h-14 rounded-full border-[#c85f40] pl-5 pr-28 text-base shadow-sm" : "h-10 rounded-xl border-gray-300 bg-gray-50 pl-3 pr-16 text-sm"}`}
       />
       <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
         {value && (
@@ -226,7 +226,7 @@ export function HomeSearch({
           aria-label={`${label} 실행`}
           className={
             location === "hero"
-              ? "rounded-lg bg-[#b84c2d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#973c23]"
+              ? "rounded-full bg-[#b84c2d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#973c23]"
               : "rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-navy-600"
           }
         >

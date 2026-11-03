@@ -17,6 +17,9 @@ function renderCard() {
 afterEach(() => jest.restoreAllMocks());
 
 it("전체 서버의 최신 메시지를 기존 API 순서대로 최대 7건 표시한다", async () => {
+  jest
+    .spyOn(Date, "now")
+    .mockReturnValue(Date.parse("2026-11-03T12:08:35+09:00"));
   const items = Array.from({ length: 8 }, (_, index) => ({
     id: index + 1,
     serverName: index % 2 ? "울프" : "류트",
@@ -35,7 +38,7 @@ it("전체 서버의 최신 메시지를 기존 API 순서대로 최대 7건 표
   expect(fetchMock).toHaveBeenCalledWith("/api/horn-bugle?page=1&size=7");
   expect(screen.getAllByText("류트")).toHaveLength(4);
   expect(screen.getByText("캐릭터 1")).toBeInTheDocument();
-  expect(screen.getByText("11.03 12:07")).toBeInTheDocument();
+  expect(screen.getByText("1분 전")).toBeInTheDocument();
   expect(screen.queryByText("메시지 8")).not.toBeInTheDocument();
   expect(
     screen

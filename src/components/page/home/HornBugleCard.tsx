@@ -1,26 +1,41 @@
 "use client";
 
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
 import { useLatestHornBugle } from "@/hooks/useLatestHornBugle";
 
 import RankingCardSkeleton from "./RankingCardSkeleton";
 
-function formatTime(dateString: string) {
-  const match = dateString.match(/\d{4}-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-  return match ? `${match[1]}.${match[2]} ${match[3]}:${match[4]}` : "";
+function formatTime(dateString: string, now: number) {
+  // The horn mapper adds nine hours before serializing its Instant with Z.
+  const sentAt = Date.parse(dateString.replace(/Z$/, "+09:00"));
+  if (!Number.isFinite(sentAt)) return "";
+  const minutes = Math.floor((now - sentAt) / 60_000);
+  return minutes < 1 ? "방금 전" : `${minutes}분 전`;
 }
 
 export default function HornBugleCard() {
   const { data, isLoading, error } = useLatestHornBugle();
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <div className="h-full min-w-0 rounded-lg border border-gray-200 bg-[var(--color-ds-card)] p-4 dark:border-navy-600 dark:bg-navy-800">
-      <div className="mb-2">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+      <div className="mb-2 grid grid-cols-[1fr_auto] items-center">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
           거대한 뿔피리
         </h3>
-        <p className="text-xs text-gray-600 dark:text-gray-300">
-          전체 서버 최신 메시지
-        </p>
+        <Link
+          href="/horn-bugle"
+          aria-label="거대한 뿔피리 더보기"
+          className="rounded px-2 py-1 text-xs font-medium text-gray-600 hover:underline focus-visible:outline-2 dark:text-gray-300"
+        >
+          더보기
+        </Link>
       </div>
       {isLoading ? (
         <RankingCardSkeleton rows={7} compact />
@@ -48,9 +63,9 @@ export default function HornBugleCard() {
                 </span>
                 <time
                   className="shrink-0 tabular-nums"
-                  dateTime={item.dateSend}
+                  dateTime={item.dateSend.replace(/Z$/, "+09:00")}
                 >
-                  {formatTime(item.dateSend)}
+                  {formatTime(item.dateSend, now)}
                 </time>
               </div>
               <p className="truncate text-[13px] leading-[18px] text-gray-900 dark:text-gray-100">

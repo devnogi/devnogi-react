@@ -11,12 +11,9 @@ export default function AllTimeHighlightCard() {
   return (
     <div className="h-full min-w-0 rounded-lg border border-gray-200 bg-[var(--color-ds-card)] p-4 tabular-nums dark:border-navy-600 dark:bg-navy-800">
       <div className="mb-2">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
           역대 최고가 거래
         </h3>
-        <p className="text-xs text-gray-600 dark:text-gray-300">
-          전체 기간 최고 단가 TOP 7
-        </p>
       </div>
       {isLoading ? (
         <RankingCardSkeleton rows={7} compact />

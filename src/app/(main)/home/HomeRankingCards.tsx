@@ -15,9 +15,9 @@ export default function HomeRankingCards() {
       </h1>
       <div className="grid auto-rows-fr grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
         <PopularRankingCard />
-        <AllTimeHighlightCard />
-        <MonthLargestCard />
         <HornBugleCard />
+        <MonthLargestCard />
+        <AllTimeHighlightCard />
       </div>
     </section>
   );

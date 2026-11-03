@@ -11,14 +11,10 @@ jest.mock("@/components/page/home", () => ({
 
 it("네 카드를 순서대로 한 번씩 표시한다", () => {
   render(<HomeRankingCards />);
-  const popular = screen.getAllByText("인기 랭킹");
-  expect(popular).toHaveLength(1);
-  for (const label of ["역대 랭킹", "월간 랭킹", "뿔피리"]) {
-    const element = screen.getByText(label);
-    expect(
-      popular[0].compareDocumentPosition(element) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-  }
+  expect(
+    screen
+      .getAllByText(/^(인기 랭킹|뿔피리|월간 랭킹|역대 랭킹)$/)
+      .map((card) => card.textContent),
+  ).toEqual(["인기 랭킹", "뿔피리", "월간 랭킹", "역대 랭킹"]);
   expect(screen.queryByText("거래량 랭킹")).not.toBeInTheDocument();
 });
