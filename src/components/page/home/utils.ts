@@ -35,19 +35,3 @@ export function formatDateTime(dateString: string): string {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}.${month}.${day}`;
 }
-
-/**
- * 순위에 따른 메달 이모지 반환
- */
-export function getRankMedal(rank: number): string {
-  switch (rank) {
-    case 1:
-      return "🥇";
-    case 2:
-      return "🥈";
-    case 3:
-      return "🥉";
-    default:
-      return "";
-  }
-}

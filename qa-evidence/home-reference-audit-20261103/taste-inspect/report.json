@@ -1,0 +1,1339 @@
+{
+  "url": "http://localhost:4173/",
+  "at": "2026-11-03T01:45:26.077Z",
+  "allow": [],
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900,
+      "load": "load",
+      "screens": 5,
+      "filled": [0.96, 0.99, 0.99, 0.99, 0.99],
+      "motion": {
+        "elements": 32,
+        "css": 30,
+        "transitions": 2,
+        "scripted": 0,
+        "videos": 0,
+        "playingVideos": 0
+      },
+      "metrics": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "page": {
+          "height": 3643,
+          "screens": 4,
+          "words": 644,
+          "img": 1,
+          "video": 0,
+          "canvas": 0,
+          "svg": 19,
+          "sections": 8,
+          "horizontalOverflow": 0,
+          "overflowCulprits": [],
+          "uiFragments": 0,
+          "uiAbuse": false,
+          "realPictures": 1,
+          "videoCount": 0,
+          "uiPictures": 0,
+          "pictureSamples": ["image?url=%2Fhome-hero-village.webp&w=1920&q=75"],
+          "blendText": 0,
+          "sideScrollers": 0,
+          "brokenImages": [],
+          "emoji": ["🥇", "🥈", "🥉"],
+          "videosNoPoster": 0
+        },
+        "hero": {
+          "text": "MEMONOGI",
+          "words": 1,
+          "chars": 8,
+          "lines": 1,
+          "size": 20,
+          "vw": 1.4,
+          "font": "Bungee",
+          "weight": 700,
+          "tracking": 0,
+          "leading": 1.4,
+          "upper": true,
+          "italic": false,
+          "mono": false,
+          "align": "left",
+          "position": "left",
+          "widthRatio": 0.08,
+          "top": 14,
+          "tag": "a",
+          "kind": "heading"
+        },
+        "h1": null,
+        "headings": [],
+        "headingSummary": {
+          "count": 0,
+          "maxLines": 0,
+          "over2Lines": 0,
+          "statements": 0,
+          "centered": 0,
+          "medianWords": null,
+          "mixedFontHeadings": 0
+        },
+        "type": {
+          "families": [
+            {
+              "family": "ui-sans-serif",
+              "share": 0.99,
+              "mono": false
+            },
+            {
+              "family": "Bungee",
+              "share": 0.01,
+              "mono": false
+            }
+          ],
+          "familyCount": 2,
+          "sizes": [12, 14, 16, 18, 20],
+          "sizeCount": 5,
+          "notLoaded": [],
+          "body": {
+            "font": "ui-sans-serif",
+            "size": 14,
+            "leading": 1.43,
+            "weight": 400,
+            "tracking": 0,
+            "contrast": 9.3
+          },
+          "measureChars": 118,
+          "max": {
+            "size": 20,
+            "vw": 1.4,
+            "font": "Bungee",
+            "text": "MEMONOGI"
+          },
+          "monoShare": 0,
+          "monoProseShare": 0,
+          "monoFamilies": [],
+          "monoSamples": [],
+          "microLabels": 0,
+          "microLabelShare": 0,
+          "microSamples": [],
+          "upperShare": 0.04,
+          "centerShare": 0.11,
+          "smallText": 13
+        },
+        "eyebrows": [],
+        "numbered": [],
+        "color": {
+          "bodyBg": "#f5f6f8",
+          "bodyBgHsl": {
+            "h": 220,
+            "s": 0.18,
+            "l": 0.97
+          },
+          "dark": false,
+          "sectionBgs": [
+            {
+              "color": "#f5f6f8",
+              "top": 0,
+              "hsl": {
+                "h": 220,
+                "s": 0.18,
+                "l": 0.97
+              }
+            },
+            {
+              "color": "#ffffff",
+              "top": 102,
+              "hsl": {
+                "h": 0,
+                "s": 0,
+                "l": 1
+              }
+            }
+          ],
+          "textColors": [
+            {
+              "color": "#6b7280",
+              "share": 0.42
+            },
+            {
+              "color": "#111827",
+              "share": 0.29
+            },
+            {
+              "color": "#4b5563",
+              "share": 0.07
+            },
+            {
+              "color": "#fb2c36",
+              "share": 0.04
+            },
+            {
+              "color": "#374151",
+              "share": 0.04
+            }
+          ],
+          "button": {
+            "bg": "#3b82f6",
+            "hsl": {
+              "h": 217,
+              "s": 0.91,
+              "l": 0.6
+            },
+            "fg": "#ffffff"
+          },
+          "lowContrast": [
+            {
+              "text": "Data provided by NEXON Open API",
+              "ratio": 2.4,
+              "need": 4.5,
+              "size": 12,
+              "fg": "#9ca3af",
+              "bg": "#f9fafb"
+            },
+            {
+              "text": "6.4만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "4.6만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.5만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.2만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.1만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            }
+          ]
+        },
+        "buttons": {
+          "count": 1,
+          "inHero": 1,
+          "radius": 12,
+          "height": 32,
+          "withShadow": 0,
+          "withGradient": 0,
+          "mono": 0,
+          "upper": 0,
+          "heroLabels": ["로그인"]
+        },
+        "surfaces": {
+          "shadowStatic": 7,
+          "shadowOverlay": 1,
+          "shadowSamples": [
+            "input.HomeSearch_input__jXK4G.w-full → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+          ],
+          "gradients": 1,
+          "scrims": 0,
+          "gradientSamples": [
+            "div.bg-gradient-to-br.from-gold-50 → linear-gradient(to right bottom in oklab, rgb(255, 251, 235) 0%, rgb(255, 255, 255) 50%, rgb(239, 246, 255) 10"
+          ],
+          "gradientText": 0,
+          "hairlines": 6,
+          "hairlineSamples": [
+            "nav.fixed.top-0 1440px",
+            "a.flex.min-h-24 420px",
+            "a.flex.min-h-24 420px",
+            "a.flex.min-h-24 420px",
+            "a.flex.min-h-24 420px"
+          ],
+          "outlinedBoxes": 6,
+          "dashed": 0,
+          "blurred": 0,
+          "roundedBoxes": 13,
+          "boxRadius": 16,
+          "squareMedia": 1,
+          "roundedMedia": 0,
+          "mediaRadius": 0,
+          "textShadow": 0,
+          "cardRows": [
+            {
+              "count": 3,
+              "iconTopped": true,
+              "rounded": true,
+              "top": 854
+            },
+            {
+              "count": 5,
+              "iconTopped": false,
+              "rounded": true,
+              "top": 2467
+            }
+          ]
+        },
+        "heroMedia": [
+          {
+            "type": "img",
+            "ratio": 0.31
+          }
+        ],
+        "nav": {
+          "links": 9,
+          "fixed": true,
+          "height": 101,
+          "floatingPill": false,
+          "blur": false
+        },
+        "fontsLoaded": ["bungee"]
+      },
+      "layout": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "pageH": 3643,
+        "margins": {
+          "left": 320,
+          "right": 319
+        },
+        "sections": [
+          {
+            "sel": "main.flex-1.pt-[142px]",
+            "tag": "main",
+            "top": 0,
+            "height": 3462,
+            "words": 523,
+            "media": 1,
+            "middle": 0,
+            "heading": {
+              "text": "메모노기 주요 기능",
+              "size": 18,
+              "tag": "h2"
+            },
+            "left": 288,
+            "right": 306,
+            "textLeft": 288,
+            "textRight": 306,
+            "fullBleed": true,
+            "footer": false,
+            "hero": true,
+            "continues": false,
+            "pinned": false
+          },
+          {
+            "sel": "footer.bg-gray-50.dark:bg-navy-800",
+            "tag": "footer",
+            "top": 3462,
+            "height": 181,
+            "words": 13,
+            "media": 0,
+            "middle": 0,
+            "heading": null,
+            "left": 587,
+            "right": 587,
+            "textLeft": 587,
+            "textRight": 587,
+            "fullBleed": false,
+            "footer": true,
+            "hero": false,
+            "continues": false,
+            "pinned": false
+          }
+        ],
+        "gaps": [],
+        "h1s": [],
+        "edgeText": [],
+        "edges": [
+          {
+            "x": 784,
+            "n": 4
+          },
+          {
+            "x": 336,
+            "n": 3
+          },
+          {
+            "x": 349,
+            "n": 3
+          },
+          {
+            "x": 308,
+            "n": 2
+          },
+          {
+            "x": 288,
+            "n": 1
+          },
+          {
+            "x": 365,
+            "n": 1
+          }
+        ],
+        "leftBlocks": 14,
+        "bodySize": 14,
+        "stage": false,
+        "explains": false,
+        "slivers": [],
+        "voidShare": 0.11,
+        "voidBox": {
+          "x": 1140,
+          "y": 420,
+          "w": 300,
+          "h": 480
+        }
+      },
+      "app": null,
+      "consoleErrors": []
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "load": "load",
+      "screens": 5,
+      "filled": [0.96, 0.98, 0.98, 0.99, 0.98],
+      "motion": {
+        "elements": 32,
+        "css": 30,
+        "transitions": 2,
+        "scripted": 0,
+        "videos": 0,
+        "playingVideos": 0
+      },
+      "metrics": {
+        "viewport": {
+          "w": 768,
+          "h": 1024
+        },
+        "page": {
+          "height": 4391,
+          "screens": 4.3,
+          "words": 644,
+          "img": 1,
+          "video": 0,
+          "canvas": 0,
+          "svg": 19,
+          "sections": 8,
+          "horizontalOverflow": 0,
+          "overflowCulprits": [],
+          "uiFragments": 0,
+          "uiAbuse": false,
+          "realPictures": 1,
+          "videoCount": 0,
+          "uiPictures": 0,
+          "pictureSamples": ["image?url=%2Fhome-hero-village.webp&w=828&q=75"],
+          "blendText": 0,
+          "sideScrollers": 0,
+          "brokenImages": [],
+          "emoji": ["🥇", "🥈", "🥉"],
+          "videosNoPoster": 0
+        },
+        "hero": {
+          "text": "MEMONOGI",
+          "words": 1,
+          "chars": 8,
+          "lines": 1,
+          "size": 20,
+          "vw": 2.6,
+          "font": "Bungee",
+          "weight": 700,
+          "tracking": 0,
+          "leading": 1.4,
+          "upper": true,
+          "italic": false,
+          "mono": false,
+          "align": "left",
+          "position": "left",
+          "widthRatio": 0.15,
+          "top": 14,
+          "tag": "a",
+          "kind": "heading"
+        },
+        "h1": null,
+        "headings": [],
+        "headingSummary": {
+          "count": 0,
+          "maxLines": 0,
+          "over2Lines": 0,
+          "statements": 0,
+          "centered": 0,
+          "medianWords": null,
+          "mixedFontHeadings": 0
+        },
+        "type": {
+          "families": [
+            {
+              "family": "ui-sans-serif",
+              "share": 0.99,
+              "mono": false
+            },
+            {
+              "family": "Bungee",
+              "share": 0.01,
+              "mono": false
+            }
+          ],
+          "familyCount": 2,
+          "sizes": [12, 14, 16, 18, 20],
+          "sizeCount": 5,
+          "notLoaded": [],
+          "body": {
+            "font": "ui-sans-serif",
+            "size": 14,
+            "leading": 1.43,
+            "weight": 400,
+            "tracking": 0,
+            "contrast": 9.3
+          },
+          "measureChars": 94,
+          "max": {
+            "size": 20,
+            "vw": 2.6,
+            "font": "Bungee",
+            "text": "MEMONOGI"
+          },
+          "monoShare": 0,
+          "monoProseShare": 0,
+          "monoFamilies": [],
+          "monoSamples": [],
+          "microLabels": 0,
+          "microLabelShare": 0,
+          "microSamples": [],
+          "upperShare": 0.04,
+          "centerShare": 0.11,
+          "smallText": 13
+        },
+        "eyebrows": [],
+        "numbered": [],
+        "color": {
+          "bodyBg": "#f5f6f8",
+          "bodyBgHsl": {
+            "h": 220,
+            "s": 0.18,
+            "l": 0.97
+          },
+          "dark": false,
+          "sectionBgs": [
+            {
+              "color": "#f5f6f8",
+              "top": 0,
+              "hsl": {
+                "h": 220,
+                "s": 0.18,
+                "l": 0.97
+              }
+            },
+            {
+              "color": "#ffffff",
+              "top": 102,
+              "hsl": {
+                "h": 0,
+                "s": 0,
+                "l": 1
+              }
+            }
+          ],
+          "textColors": [
+            {
+              "color": "#6b7280",
+              "share": 0.42
+            },
+            {
+              "color": "#111827",
+              "share": 0.29
+            },
+            {
+              "color": "#4b5563",
+              "share": 0.07
+            },
+            {
+              "color": "#fb2c36",
+              "share": 0.04
+            },
+            {
+              "color": "#374151",
+              "share": 0.04
+            }
+          ],
+          "button": {
+            "bg": "#3b82f6",
+            "hsl": {
+              "h": 217,
+              "s": 0.91,
+              "l": 0.6
+            },
+            "fg": "#ffffff"
+          },
+          "lowContrast": [
+            {
+              "text": "Data provided by NEXON Open API",
+              "ratio": 2.4,
+              "need": 4.5,
+              "size": 12,
+              "fg": "#9ca3af",
+              "bg": "#f9fafb"
+            },
+            {
+              "text": "6.4만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "4.6만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.5만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.2만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.1만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            }
+          ]
+        },
+        "buttons": {
+          "count": 1,
+          "inHero": 1,
+          "radius": 12,
+          "height": 32,
+          "withShadow": 0,
+          "withGradient": 0,
+          "mono": 0,
+          "upper": 0,
+          "heroLabels": ["로그인"]
+        },
+        "surfaces": {
+          "shadowStatic": 7,
+          "shadowOverlay": 1,
+          "shadowSamples": [
+            "input.HomeSearch_input__jXK4G.w-full → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+          ],
+          "gradients": 1,
+          "scrims": 0,
+          "gradientSamples": [
+            "div.bg-gradient-to-br.from-gold-50 → linear-gradient(to right bottom in oklab, rgb(255, 251, 235) 0%, rgb(255, 255, 255) 50%, rgb(239, 246, 255) 10"
+          ],
+          "gradientText": 0,
+          "hairlines": 6,
+          "hairlineSamples": [
+            "nav.fixed.top-0 768px",
+            "a.flex.min-h-24 336px",
+            "a.flex.min-h-24 336px",
+            "a.flex.min-h-24 336px",
+            "a.flex.min-h-24 336px"
+          ],
+          "outlinedBoxes": 6,
+          "dashed": 0,
+          "blurred": 0,
+          "roundedBoxes": 8,
+          "boxRadius": 20,
+          "squareMedia": 1,
+          "roundedMedia": 0,
+          "mediaRadius": 0,
+          "textShadow": 0,
+          "cardRows": [
+            {
+              "count": 3,
+              "iconTopped": true,
+              "rounded": true,
+              "top": 856
+            }
+          ]
+        },
+        "heroMedia": [
+          {
+            "type": "img",
+            "ratio": 0.27
+          }
+        ],
+        "nav": {
+          "links": 9,
+          "fixed": true,
+          "height": 101,
+          "floatingPill": false,
+          "blur": false
+        },
+        "fontsLoaded": ["bungee"]
+      },
+      "layout": {
+        "viewport": {
+          "w": 768,
+          "h": 1024
+        },
+        "pageH": 4391,
+        "margins": {
+          "left": 68,
+          "right": 67
+        },
+        "sections": [
+          {
+            "sel": "main.flex-1.pt-[142px]",
+            "tag": "main",
+            "top": 0,
+            "height": 4210,
+            "words": 523,
+            "media": 1,
+            "middle": 0,
+            "heading": {
+              "text": "메모노기 주요 기능",
+              "size": 18,
+              "tag": "h2"
+            },
+            "left": 36,
+            "right": 48,
+            "textLeft": 36,
+            "textRight": 48,
+            "fullBleed": true,
+            "footer": false,
+            "hero": true,
+            "continues": false,
+            "pinned": false
+          },
+          {
+            "sel": "footer.bg-gray-50.dark:bg-navy-800",
+            "tag": "footer",
+            "top": 4210,
+            "height": 181,
+            "words": 13,
+            "media": 0,
+            "middle": 0,
+            "heading": null,
+            "left": 251,
+            "right": 251,
+            "textLeft": 251,
+            "textRight": 251,
+            "fullBleed": false,
+            "footer": true,
+            "hero": false,
+            "continues": false,
+            "pinned": false
+          }
+        ],
+        "gaps": [],
+        "h1s": [],
+        "edgeText": [],
+        "edges": [
+          {
+            "x": 97,
+            "n": 4
+          },
+          {
+            "x": 84,
+            "n": 3
+          },
+          {
+            "x": 448,
+            "n": 3
+          },
+          {
+            "x": 56,
+            "n": 2
+          },
+          {
+            "x": 36,
+            "n": 1
+          },
+          {
+            "x": 113,
+            "n": 1
+          }
+        ],
+        "leftBlocks": 14,
+        "bodySize": 14,
+        "stage": false,
+        "explains": false,
+        "slivers": [],
+        "voidShare": 0,
+        "voidBox": null
+      },
+      "app": null,
+      "consoleErrors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "load": "load",
+      "screens": 7,
+      "filled": [0.9, 0.95, 0.93, 0.93, 0.93, 0.98, 0.93],
+      "motion": {
+        "elements": 32,
+        "css": 30,
+        "transitions": 2,
+        "scripted": 0,
+        "videos": 0,
+        "playingVideos": 0
+      },
+      "metrics": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "page": {
+          "height": 5775,
+          "screens": 6.8,
+          "words": 643,
+          "img": 1,
+          "video": 0,
+          "canvas": 0,
+          "svg": 19,
+          "sections": 8,
+          "horizontalOverflow": 0,
+          "overflowCulprits": [],
+          "uiFragments": 0,
+          "uiAbuse": false,
+          "realPictures": 1,
+          "videoCount": 0,
+          "uiPictures": 0,
+          "pictureSamples": ["image?url=%2Fhome-hero-village.webp&w=640&q=75"],
+          "blendText": 0,
+          "sideScrollers": 1,
+          "brokenImages": [],
+          "emoji": ["🥇", "🥈", "🥉"],
+          "videosNoPoster": 0
+        },
+        "hero": {
+          "text": "MEMONOGI",
+          "words": 1,
+          "chars": 8,
+          "lines": 1,
+          "size": 20,
+          "vw": 5.1,
+          "font": "Bungee",
+          "weight": 700,
+          "tracking": 0,
+          "leading": 1.4,
+          "upper": true,
+          "italic": false,
+          "mono": false,
+          "align": "left",
+          "position": "left",
+          "widthRatio": 0.3,
+          "top": 10,
+          "tag": "a",
+          "kind": "heading"
+        },
+        "h1": null,
+        "headings": [],
+        "headingSummary": {
+          "count": 0,
+          "maxLines": 0,
+          "over2Lines": 0,
+          "statements": 0,
+          "centered": 0,
+          "medianWords": null,
+          "mixedFontHeadings": 0
+        },
+        "type": {
+          "families": [
+            {
+              "family": "ui-sans-serif",
+              "share": 0.99,
+              "mono": false
+            },
+            {
+              "family": "Bungee",
+              "share": 0.01,
+              "mono": false
+            }
+          ],
+          "familyCount": 2,
+          "sizes": [12, 14, 16, 18, 20],
+          "sizeCount": 5,
+          "notLoaded": [],
+          "body": {
+            "font": "ui-sans-serif",
+            "size": 14,
+            "leading": 1.43,
+            "weight": 400,
+            "tracking": 0,
+            "contrast": 9.3
+          },
+          "measureChars": 42,
+          "max": {
+            "size": 20,
+            "vw": 5.1,
+            "font": "Bungee",
+            "text": "MEMONOGI"
+          },
+          "monoShare": 0,
+          "monoProseShare": 0,
+          "monoFamilies": [],
+          "monoSamples": [],
+          "microLabels": 0,
+          "microLabelShare": 0,
+          "microSamples": [],
+          "upperShare": 0.04,
+          "centerShare": 0.11,
+          "smallText": 13
+        },
+        "eyebrows": [],
+        "numbered": [],
+        "color": {
+          "bodyBg": "#f5f6f8",
+          "bodyBgHsl": {
+            "h": 220,
+            "s": 0.18,
+            "l": 0.97
+          },
+          "dark": false,
+          "sectionBgs": [
+            {
+              "color": "#f5f6f8",
+              "top": 0,
+              "hsl": {
+                "h": 220,
+                "s": 0.18,
+                "l": 0.97
+              }
+            },
+            {
+              "color": "#ffffff",
+              "top": 142,
+              "hsl": {
+                "h": 0,
+                "s": 0,
+                "l": 1
+              }
+            }
+          ],
+          "textColors": [
+            {
+              "color": "#6b7280",
+              "share": 0.42
+            },
+            {
+              "color": "#111827",
+              "share": 0.29
+            },
+            {
+              "color": "#4b5563",
+              "share": 0.07
+            },
+            {
+              "color": "#fb2c36",
+              "share": 0.04
+            },
+            {
+              "color": "#374151",
+              "share": 0.04
+            }
+          ],
+          "button": {
+            "bg": "#3b82f6",
+            "hsl": {
+              "h": 217,
+              "s": 0.91,
+              "l": 0.6
+            },
+            "fg": "#ffffff"
+          },
+          "lowContrast": [
+            {
+              "text": "6.4만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "4.6만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.5만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.2만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "3.1만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            },
+            {
+              "text": "2.1만개",
+              "ratio": 3.7,
+              "need": 4.5,
+              "size": 14,
+              "fg": "#3b82f6",
+              "bg": "#ffffff"
+            }
+          ]
+        },
+        "buttons": {
+          "count": 1,
+          "inHero": 1,
+          "radius": 12,
+          "height": 32,
+          "withShadow": 0,
+          "withGradient": 0,
+          "mono": 0,
+          "upper": 0,
+          "heroLabels": ["로그인"]
+        },
+        "surfaces": {
+          "shadowStatic": 7,
+          "shadowOverlay": 1,
+          "shadowSamples": [
+            "input.HomeSearch_input__jXK4G.w-full → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+            "div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+          ],
+          "gradients": 1,
+          "scrims": 0,
+          "gradientSamples": [
+            "div.bg-gradient-to-br.from-gold-50 → linear-gradient(to right bottom in oklab, rgb(255, 251, 235) 0%, rgb(255, 255, 255) 50%, rgb(239, 246, 255) 10"
+          ],
+          "gradientText": 0,
+          "hairlines": 7,
+          "hairlineSamples": [
+            "nav.fixed.top-0 390px",
+            "div.h-12.border-b 390px",
+            "a.flex.min-h-24 334px",
+            "a.flex.min-h-24 334px",
+            "a.flex.min-h-24 334px"
+          ],
+          "outlinedBoxes": 6,
+          "dashed": 0,
+          "blurred": 0,
+          "roundedBoxes": 8,
+          "boxRadius": 20,
+          "squareMedia": 1,
+          "roundedMedia": 0,
+          "mediaRadius": 0,
+          "textShadow": 0,
+          "cardRows": [
+            {
+              "count": 3,
+              "iconTopped": true,
+              "rounded": true,
+              "top": 1126
+            }
+          ]
+        },
+        "heroMedia": [
+          {
+            "type": "img",
+            "ratio": 0.31
+          }
+        ],
+        "nav": {
+          "links": 9,
+          "fixed": true,
+          "height": 141,
+          "floatingPill": false,
+          "blur": false
+        },
+        "fontsLoaded": ["bungee"]
+      },
+      "layout": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "pageH": 5775,
+        "margins": {
+          "left": 60,
+          "right": 55
+        },
+        "sections": [
+          {
+            "sel": "main.flex-1.pt-[142px]",
+            "tag": "main",
+            "top": 0,
+            "height": 5578,
+            "words": 523,
+            "media": 1,
+            "middle": 0,
+            "heading": {
+              "text": "메모노기 주요 기능",
+              "size": 18,
+              "tag": "h2"
+            },
+            "left": 16,
+            "right": 16,
+            "textLeft": 28,
+            "textRight": 40,
+            "fullBleed": true,
+            "footer": false,
+            "hero": true,
+            "continues": false,
+            "pinned": false
+          },
+          {
+            "sel": "footer.bg-gray-50.dark:bg-navy-800",
+            "tag": "footer",
+            "top": 5578,
+            "height": 197,
+            "words": 13,
+            "media": 0,
+            "middle": 0,
+            "heading": null,
+            "left": 84,
+            "right": 84,
+            "textLeft": 84,
+            "textRight": 84,
+            "fullBleed": false,
+            "footer": true,
+            "hero": false,
+            "continues": false,
+            "pinned": false
+          }
+        ],
+        "gaps": [],
+        "h1s": [],
+        "edgeText": [],
+        "edges": [
+          {
+            "x": 76,
+            "n": 5
+          },
+          {
+            "x": 89,
+            "n": 5
+          },
+          {
+            "x": 48,
+            "n": 2
+          },
+          {
+            "x": 28,
+            "n": 1
+          },
+          {
+            "x": 105,
+            "n": 1
+          }
+        ],
+        "leftBlocks": 14,
+        "bodySize": 14,
+        "stage": false,
+        "explains": false,
+        "slivers": [],
+        "voidShare": 0,
+        "voidBox": null
+      },
+      "app": null,
+      "consoleErrors": []
+    }
+  ],
+  "findings": [
+    {
+      "level": "FAIL",
+      "id": "emoji",
+      "width": 1440,
+      "message": "Emoji in the page: 🥇 🥈 🥉",
+      "fix": "Remove. Use words or real imagery.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "gradient",
+      "width": 1440,
+      "message": "1 gradient fill(s): div.bg-gradient-to-br.from-gold-50 → linear-gradient(to right bottom in oklab, rgb(255, 251, 235) 0%, rgb(255, 255, 255) 50%, rgb(239, 246, 255) 10",
+      "fix": "Use a flat colour or a real image. The only gradient allowed by default is a neutral scrim over a photo for legibility.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "shadow",
+      "width": 1440,
+      "message": "7 box-shadow(s) on elements at rest: input.HomeSearch_input__jXK4G.w-full → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0 | div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0 | div.bg-white.dark:bg-navy-800 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "fix": "Remove. Separate surfaces with a tone step or space. Shadows are for things that really float (menus, dialogs, sticky bars).",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "hairline",
+      "width": 1440,
+      "message": "6 thin rule(s)/divider line(s): nav.fixed.top-0 1440px | a.flex.min-h-24 420px | a.flex.min-h-24 420px | a.flex.min-h-24 420px",
+      "fix": "Delete. Separate with space, a tone change, or scale. Lines are only for real tables and form fields.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "outlined-box",
+      "width": 1440,
+      "message": "6 boxes drawn with a 1px outline.",
+      "fix": "Define a surface by its fill (one tone step from the page) or leave the content unboxed.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "icon-cards",
+      "width": 1440,
+      "message": "1 row(s) of identical cards each topped with a small icon (3 cards).",
+      "fix": "Replace with one composed section from the direction: a narrative split, a list set in large type, or real imagery per item.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "contrast",
+      "width": 1440,
+      "message": "Unreadable text: \"Data provided by NEXON Open API\" 2.4:1 (#9ca3af on #f9fafb)",
+      "fix": "Raise contrast to at least 4.5:1 for text, 3:1 for large display.",
+      "alsoAt": [768]
+    },
+    {
+      "level": "FAIL",
+      "id": "body-size",
+      "width": 1440,
+      "message": "Body text is 14px (the size most of the running text is set in).",
+      "fix": "Body copy 16–20px. Map small sizes from blueprints onto your body step.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "few-pictures",
+      "width": 1440,
+      "message": "Only 1 picture(s) on the page (1 photographs, footage or raster images, 0 interface fragments). Drawings in SVG do not count.",
+      "fix": "Find real pictures of the subject's world with scripts/assets.mjs (photographs, archival images, maps, engravings, footage), download them to assets/ and give them room: a hero picture, one per section that has a subject, a full-width band. At least four, usually six to twelve."
+    },
+    {
+      "level": "WARN",
+      "id": "no-footage",
+      "width": 1440,
+      "message": "No video anywhere on the page.",
+      "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+    },
+    {
+      "level": "WARN",
+      "id": "measure",
+      "width": 1440,
+      "message": "Longest paragraph runs about 118 characters per line.",
+      "fix": "Cap paragraphs at 45–75 characters (max-width: 60ch).",
+      "alsoAt": [768]
+    },
+    {
+      "level": "FAIL",
+      "id": "small-text",
+      "width": 1440,
+      "message": "13 text blocks under 13px.",
+      "fix": "Nothing meant to be read goes below 13px.",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "no-title",
+      "width": 1440,
+      "message": "The page has no visible h1.",
+      "fix": "Give the first screen a clear title in an h1 that says what this is (a name with what it does, the product with what it is for, the event with its date and place).",
+      "alsoAt": [768, 390]
+    },
+    {
+      "level": "FAIL",
+      "id": "focal-point",
+      "width": 768,
+      "message": "The first screen has no dominant element: the largest type is 20px (2.6vw) and no single picture holds a third of the viewport.",
+      "fix": "Make one thing lead: the headline at display size, or one large picture. A grid of many small pictures is not one thing; in blind tests jurors marked a first screen without a headline down every time. On the strongest studied sites the largest type has a median of 8.4vw."
+    },
+    {
+      "level": "WARN",
+      "id": "contrast",
+      "width": 390,
+      "message": "Low-contrast text: \"6.4만개\" 3.7:1 needs 4.5:1; \"4.6만개\" 3.7:1 needs 4.5:1; \"3.5만개\" 3.7:1 needs 4.5:1; \"3.2만개\" 3.7:1 needs 4.5:1",
+      "fix": "Darken or lighten the text colour."
+    },
+    {
+      "level": "WARN",
+      "id": "side-scroll",
+      "width": 390,
+      "message": "1 row(s) scroll sideways with content past their edge.",
+      "fix": "Jurors and most visitors read a row cut at the edge as clipped, not as scrollable. Wrap it onto more lines, or end it inside the grid."
+    }
+  ],
+  "images": [
+    {
+      "viewport": "desktop",
+      "width": 1440,
+      "fold": "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\desktop-fold.jpg",
+      "pages": [
+        "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\desktop-page-01.jpg",
+        "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\desktop-page-02.jpg"
+      ],
+      "film": []
+    },
+    {
+      "viewport": "tablet",
+      "width": 768,
+      "fold": "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\tablet-fold.jpg",
+      "pages": [
+        "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\tablet-page-01.jpg"
+      ],
+      "film": []
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "fold": "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\mobile-fold.jpg",
+      "pages": [
+        "C:\\workspace\\dev\\memonogi\\devnogi-react\\qa-evidence\\home-reference-audit-20261103\\taste-inspect\\mobile-page-01.jpg"
+      ],
+      "film": []
+    }
+  ]
+}

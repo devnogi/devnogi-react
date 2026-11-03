@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 import HomeLanding from "./HomeLanding";
 
@@ -14,7 +14,38 @@ jest.mock("@/components/navigation/HomeSearch", () => ({
   HomeSearch: () => <div role="search" aria-label="메인 아이템 검색" />,
 }));
 
+jest.mock("@/hooks/useRankings", () => ({
+  useTodayPopularRanking: () => ({
+    data: ["향기로운 꿀 우유", "낙지", "물의 결정", "네 번째"].map(
+      (itemName, index) => ({
+        rank: index + 1,
+        itemName,
+        itemTopCategory: "기타",
+        itemSubCategory: "재료",
+      }),
+    ),
+  }),
+}));
+
 describe("HomeLanding", () => {
+  it("상위 세 아이템을 해당 거래내역에 연결한다", () => {
+    render(<HomeLanding />);
+    const links = within(
+      screen.getByRole("navigation", { name: "오늘 많이 거래된 아이템" }),
+    ).getAllByRole("link");
+    expect(links.map((link) => link.textContent)).toEqual([
+      "향기로운 꿀 우유",
+      "낙지",
+      "물의 결정",
+    ]);
+    const url = new URL(links[0].getAttribute("href")!, "http://localhost");
+    expect(url.pathname).toBe("/auction-history");
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      item_name: "향기로운 꿀 우유",
+      top_category: "기타",
+      sub_category: "재료",
+    });
+  });
   it("홈 검색과 기존 주요 기능을 제공한다", () => {
     render(<HomeLanding />);
 
@@ -47,5 +78,51 @@ describe("HomeLanding", () => {
     expect(
       screen.queryByText(/게임 서버|어비스|소환의 결계/),
     ).not.toBeInTheDocument();
+  });
+
+  it("검색은 히어로에 두고 기존 콘텐츠 전체를 겹침 카드에 담는다", () => {
+    render(<HomeLanding />);
+
+    const hero = screen.getByRole("region", { name: "아이템 검색" });
+    const card = screen.getByRole("region", { name: "홈 콘텐츠" });
+    expect(hero.querySelector("img")).toHaveAttribute(
+      "src",
+      expect.stringContaining("home-hero-library.png"),
+    );
+    expect(
+      card.className
+        .split(/\s+/)
+        .some((token) => /(^|:)shadow(?:-|$)/.test(token)),
+    ).toBe(false);
+    expect(
+      within(hero).getByRole("search", { name: "메인 아이템 검색" }),
+    ).toBeInTheDocument();
+    expect(hero).toHaveClass("min-h-[260px]", "md:h-[280px]");
+    expect(card).toHaveClass(
+      "-mt-[20px]",
+      "md:-mt-[28px]",
+      "rounded-t-[20px]",
+      "md:rounded-t-[24px]",
+    );
+    expect(card).toHaveClass(
+      "w-[calc(100cqw_-_24px)]",
+      "lg:w-[66.7vw]",
+      "lg:max-w-[1120px]",
+    );
+    expect(within(card).getAllByRole("link")).toHaveLength(4);
+    expect(
+      within(card).getByRole("heading", { name: "데이터 안내" }),
+    ).toBeInTheDocument();
+    expect(within(card).getByTestId("ranking-cards")).toBeInTheDocument();
+    expect(
+      within(card).queryByText("메모노기에서 보는 마비노기 경매장 시세"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(card)
+        .getByTestId("ranking-cards")
+        .compareDocumentPosition(
+          within(card).getByRole("heading", { name: "메모노기 주요 기능" }),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });

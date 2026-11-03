@@ -175,7 +175,9 @@ export function HomeSearch({
         }
         aria-autocomplete="list"
         autoComplete="off"
-        placeholder="아이템 이름을 검색하세요"
+        placeholder={
+          location === "hero" ? "아이템 이름을 검색하세요" : "아이템 검색"
+        }
         value={value}
         onChange={(event) => {
           setValue(event.target.value);

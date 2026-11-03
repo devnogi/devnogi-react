@@ -824,10 +824,7 @@ export default function ThreeTierNav() {
 
             {/* Search - Flexible center area */}
             {pathname === "/" ? (
-              <HomeSearch
-                location="navigation"
-                className="flex-1 max-w-2xl mx-auto"
-              />
+              <HomeSearch location="navigation" className="ml-auto w-60" />
             ) : (
               renderSearchInput("flex-1 max-w-2xl mx-auto")
             )}
@@ -997,7 +994,10 @@ export default function ThreeTierNav() {
         <div className="h-12 border-b border-gray-100 dark:border-navy-600">
           <div className="max-w-7xl mx-auto px-4 h-full flex items-center">
             {pathname === "/" ? (
-              <HomeSearch location="navigation" className="w-full" />
+              <HomeSearch
+                location="navigation"
+                className="ml-auto w-48 max-w-full"
+              />
             ) : (
               renderSearchInput("w-full")
             )}
