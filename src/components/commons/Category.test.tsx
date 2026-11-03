@@ -89,6 +89,9 @@ describe("AuctionCategory", () => {
 
     // 선택된 카테고리가 시각적으로 구분되는지 확인
     const parentSpan = selectedItem.parentElement;
-    expect(parentSpan).toHaveClass("bg-clover-50", "font-semibold");
+    expect(parentSpan).toHaveClass(
+      "bg-[var(--color-ds-primary-50)]",
+      "font-semibold",
+    );
   });
 });

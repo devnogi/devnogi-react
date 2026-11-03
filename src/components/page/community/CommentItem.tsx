@@ -234,7 +234,7 @@ export default function CommentItem({
           <div className="flex items-center gap-2">
             {/* Author Avatar */}
             <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-              <div className="w-full h-full bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-full h-full bg-[#9a451f] flex items-center justify-center text-white text-sm font-semibold">
                 {comment.nickname?.[0] || comment.userId.toString()[0]}
               </div>
             </div>

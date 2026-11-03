@@ -30,7 +30,7 @@ export default function Footer() {
             linkClassName="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
           />
 
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+          <p className="text-xs text-gray-600 dark:text-gray-300 text-center">
             Data provided by NEXON Open API
           </p>
         </div>
@@ -53,7 +53,7 @@ export default function Footer() {
             linkClassName="text-xs text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
           />
 
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+          <p className="text-xs text-gray-600 dark:text-gray-300 text-center">
             Data provided by NEXON Open API
           </p>
         </div>

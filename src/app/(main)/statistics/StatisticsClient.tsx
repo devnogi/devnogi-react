@@ -318,7 +318,7 @@ function StatisticsPageContent() {
         </div>
 
         {/* Search Form */}
-        <div className="bg-white dark:bg-navy-700 rounded-2xl p-4 md:p-6 shadow-xl border border-gray-100 dark:border-navy-600 mb-4">
+        <div className="bg-white dark:bg-navy-700 rounded-lg p-4 md:p-6 border border-gray-100 dark:border-navy-600 mb-4">
           <StatisticsSearchForm
             activeTab={activeTab}
             topCategory={
@@ -386,7 +386,7 @@ function StatisticsPageContent() {
 
         {/* Content */}
         {!hasSearched ? (
-          <div className="bg-white dark:bg-navy-700 rounded-2xl p-12 shadow-xl border border-gray-100 dark:border-navy-600 text-center">
+          <div className="bg-white dark:bg-navy-700 rounded-lg p-12 border border-gray-100 dark:border-navy-600 text-center">
             <div className="text-gray-400 dark:text-gray-500 mb-2">
               <svg
                 className="w-12 h-12 mx-auto mb-3"
@@ -409,7 +409,7 @@ function StatisticsPageContent() {
         ) : isLoading ? (
           <StatisticsSkeleton />
         ) : chartData.length === 0 ? (
-          <div className="bg-white dark:bg-navy-700 rounded-2xl p-12 shadow-xl border border-gray-100 dark:border-navy-600 text-center">
+          <div className="bg-white dark:bg-navy-700 rounded-lg p-12 border border-gray-100 dark:border-navy-600 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               조회 결과가 없습니다
             </p>

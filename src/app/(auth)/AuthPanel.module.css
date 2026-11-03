@@ -1,0 +1,8 @@
+@media (min-width: 48rem) {
+  .library {
+    background-image: image-set(
+      url("/_next/image?url=%2Fhome-hero-library.png&w=640&q=75") 1x,
+      url("/_next/image?url=%2Fhome-hero-library.png&w=1080&q=75") 2x
+    );
+  }
+}

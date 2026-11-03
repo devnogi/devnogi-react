@@ -79,9 +79,9 @@ export default function ItemOptionFilterTabs({
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             selectedTab === tab.id
-              ? "bg-[var(--color-ds-primary)] text-white"
+              ? "bg-[var(--color-ds-primary)] text-primary-foreground"
               : "bg-[var(--color-ds-neutral-50)] text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-100)]"
           }`}
         >

@@ -151,7 +151,7 @@ export default function CategoryDropdown({
       <button
         onClick={onToggle}
         className={clsx(
-          "flex items-center justify-center w-8 h-8 rounded-xl transition-colors",
+          "flex items-center justify-center w-8 h-8 rounded-lg transition-colors",
           isOpen
             ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]"
             : "hover:bg-cream-100 text-cream-600",
@@ -164,7 +164,7 @@ export default function CategoryDropdown({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 max-h-[60vh] bg-white rounded-xl border border-[var(--color-ds-neutral-tone)] shadow-[0_8px_24px_rgba(61,56,47,0.12)] z-50 flex flex-col overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 w-72 max-h-[60vh] bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] z-50 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="px-4 py-2.5 border-b border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-neutral-50)]">
             <h3 className="font-semibold text-sm text-[var(--color-ds-text)]">

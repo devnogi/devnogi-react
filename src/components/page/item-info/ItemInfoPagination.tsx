@@ -1,7 +1,12 @@
 "use client";
 
 import clsx from "clsx";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface ItemInfoPaginationProps {
   currentPage: number;
@@ -100,7 +105,7 @@ export default function ItemInfoPagination({
               className={clsx(
                 "min-w-[32px] md:min-w-[36px] h-8 md:h-9 px-2 md:px-3 rounded-lg text-xs md:text-sm font-medium transition-colors",
                 currentPage === page
-                  ? "bg-[var(--color-ds-primary)] text-white"
+                  ? "bg-[var(--color-ds-primary)] text-primary-foreground"
                   : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-100)]",
               )}
             >

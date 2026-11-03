@@ -56,7 +56,7 @@ export default function PriceChart({ data }: PriceChartProps) {
       };
 
   return (
-    <div className="bg-white dark:bg-navy-700 rounded-2xl p-4 md:p-6 shadow-xl border border-gray-100 dark:border-navy-600">
+    <div className="bg-white dark:bg-navy-700 rounded-lg p-4 md:p-6 border border-gray-100 dark:border-navy-600">
       <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
         가격 추이
       </h3>

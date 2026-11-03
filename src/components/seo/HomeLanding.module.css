@@ -7,43 +7,6 @@
 /* Use the scrollbar-free body width when sizing the overlapping card. */
 :global(body):has(.home) {
   container-type: inline-size;
-  font-family:
-    "Pretendard Variable",
-    Pretendard,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-}
-
-:global(body):has(.home) :global(a[href="/sign-in"]) {
-  background-color: #b9502b;
-}
-
-:global(body):has(.home) :global(a[aria-label="홈"]) {
-  color: #9a451f;
-}
-
-:global(body):has(.home) :global(a[aria-label="홈"] > span) {
-  background-color: #b9502b;
-}
-
-:global(body):has(.home) :global(footer p) {
-  color: #4b5563;
-}
-
-:global(.dark) :global(body):has(.home) :global(a[aria-label="홈"]) {
-  color: #fdba74;
-}
-
-:global(.dark) :global(body):has(.home) :global(footer p) {
-  color: #d1d5db;
-}
-
-@media (hover: hover) {
-  :global(body):has(.home) :global(a[href="/sign-in"]:hover) {
-    background-color: #9a3f22;
-  }
 }
 
 .home {

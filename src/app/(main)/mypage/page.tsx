@@ -75,7 +75,7 @@ export default function MyPage() {
       fallback={
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-16 h-16 border-4 border-[var(--color-ds-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -148,7 +148,7 @@ function MyPageContent() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-[var(--color-ds-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">로딩 중...</p>
         </div>
       </div>
@@ -164,7 +164,7 @@ function MyPageContent() {
             <p className="text-gray-600 mb-4">로그인이 필요합니다</p>
             <Button
               onClick={() => setIsLoginModalOpen(true)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg"
+              className="bg-[#9a451f] hover:bg-[#803b1d] text-white rounded-lg"
             >
               로그인
             </Button>
@@ -220,7 +220,7 @@ function MyPageContent() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Tab Navigation */}
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-1.5">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-1.5">
         <div className="flex gap-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -230,7 +230,7 @@ function MyPageContent() {
                 key={tab.key}
                 onClick={() => handleTabChange(tab.key)}
                 className={clsx(
-                  "flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 sm:px-4 rounded-2xl font-medium transition-all duration-200",
+                  "flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 sm:px-4 rounded-lg font-medium transition-all duration-200",
                   isActive
                     ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 shadow-sm"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-700",
@@ -275,11 +275,11 @@ function MyPageContent() {
       ) : (
         <>
           {/* Profile Header Card */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-8">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-5">
             <div className="flex items-start gap-6">
               {/* Profile Image */}
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                <div className="w-24 h-24 rounded-full bg-[#9a451f] flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                   {authUser?.profileImageUrl || user.profileImageUrl ? (
                     <img
                       src={authUser?.profileImageUrl || user.profileImageUrl!}
@@ -336,8 +336,10 @@ function MyPageContent() {
           </div>
 
           {/* Account Information */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-6">계정 정보</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-5">
+            <h2 className="text-base font-semibold text-gray-900 mb-6">
+              계정 정보
+            </h2>
             <div className="space-y-4">
               <InfoRow
                 icon={<User className="w-5 h-5 text-gray-400" />}
@@ -388,8 +390,10 @@ function MyPageContent() {
           </div>
 
           {/* Security Settings */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-6">보안 설정</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-5">
+            <h2 className="text-base font-semibold text-gray-900 mb-6">
+              보안 설정
+            </h2>
             <div className="space-y-3">
               <ActionButton
                 icon={<Key className="w-5 h-5" />}
@@ -408,8 +412,10 @@ function MyPageContent() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-red-50 rounded-3xl border border-red-200 p-8">
-            <h2 className="text-lg font-bold text-red-900 mb-2">위험 구역</h2>
+          <div className="bg-red-50 rounded-lg border border-red-200 p-8">
+            <h2 className="text-base font-semibold text-red-900 mb-2">
+              위험 구역
+            </h2>
             <p className="text-sm text-red-700 mb-6">
               이 작업은 되돌릴 수 없습니다. 신중하게 진행해주세요.
             </p>
@@ -490,7 +496,7 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-4 p-4 rounded-2xl border border-gray-200 hover:bg-gray-50 transition-colors text-left group"
+      className="w-full flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left group"
     >
       <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
         {icon}
@@ -674,7 +680,7 @@ function EditProfileModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 md:p-8">
+      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 md:p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">프로필 수정</h2>
 
         <div className="space-y-5 mb-8">
@@ -686,7 +692,7 @@ function EditProfileModal({
             <div className="flex items-center gap-4">
               <div
                 onClick={handleImageClick}
-                className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
+                className="relative w-20 h-20 rounded-full bg-[#9a451f] flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
               >
                 {previewUrl ? (
                   <img
@@ -779,7 +785,7 @@ function EditProfileModal({
                 "w-full h-12 px-4 border rounded-xl",
                 isVerified
                   ? "border-gray-200 bg-gray-50 text-gray-500"
-                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                  : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)] focus:border-transparent",
               )}
               placeholder={
                 isVerified
@@ -922,7 +928,7 @@ function WithdrawModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 md:p-8">
+      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 md:p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
             <AlertTriangle className="w-6 h-6 text-red-600" />

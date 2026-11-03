@@ -1011,7 +1011,7 @@ export default function Page() {
                 <React.Fragment key={p.id}>
                   {index > 0 && <span className="text-cream-400">›</span>}
                   <Badge
-                    className="rounded-full cursor-pointer bg-clover-50 text-clover-700 hover:bg-clover-100 border-0 font-medium"
+                    className="rounded-full cursor-pointer bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-50)] border-0 font-medium"
                     onClick={() => handleCategorySelect(p.id)}
                   >
                     {p.name}
@@ -1042,7 +1042,7 @@ export default function Page() {
               <div ref={sortDropdownRef} className="relative">
                 <button
                   onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-xl transition-colors"
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-lg transition-colors"
                 >
                   <span className="font-medium">
                     {selectedSortOption.label}
@@ -1062,7 +1062,7 @@ export default function Page() {
                   </svg>
                 </button>
                 {isSortDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 bg-white dark:bg-navy-700 rounded-xl border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px] shadow-lg">
+                  <div className="absolute top-full right-0 mt-2 bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] py-2 z-50 min-w-[180px]">
                     {SORT_OPTIONS.map((option) => (
                       <button
                         key={option.label}

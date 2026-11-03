@@ -23,7 +23,7 @@ export default function VerificationStatusCard({
 }: VerificationStatusCardProps) {
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-5 sm:p-8">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 sm:p-5">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-gray-200 dark:bg-navy-600 rounded w-1/3" />
           <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-2/3" />
@@ -38,7 +38,7 @@ export default function VerificationStatusCard({
   const isVerified = info.verified;
 
   return (
-    <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-5 sm:p-8">
+    <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 sm:p-5">
       <div className="flex items-center gap-3 mb-5">
         <div
           className={clsx(
@@ -55,7 +55,7 @@ export default function VerificationStatusCard({
           )}
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             인증 상태
           </h3>
           <span
@@ -101,7 +101,7 @@ export default function VerificationStatusCard({
           />
         </div>
       ) : (
-        <div className="bg-amber-50 dark:bg-amber-900/10 rounded-2xl p-4">
+        <div className="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-4">
           <p className="text-sm text-amber-800 dark:text-amber-300">
             아직 캐릭터 인증이 완료되지 않았습니다. 아래에서 인증을
             시작해주세요.

@@ -8,21 +8,23 @@ export default function NotFoundPage() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center">
-      <div className="space-y-4">
+    <div className="grid min-h-dvh place-items-center bg-background px-4 text-center text-foreground">
+      <div className="w-full max-w-md space-y-4 rounded-lg border border-border bg-card p-6 sm:p-8">
         <h1 className="text-4xl font-bold">404</h1>
-        <p className="text-lg">페이지를 찾을 수 없습니다.</p>
-        <div className="flex justify-center space-x-4">
+        <p className="text-base text-muted-foreground">
+          페이지를 찾을 수 없습니다.
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center justify-center px-4 py-2 font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 gap-2 cursor-pointer"
+            className="inline-flex items-center justify-center px-4 py-2 gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>뒤로 가기</span>
           </button>
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-4 py-2 font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 gap-2"
+            className="inline-flex items-center justify-center px-4 py-2 gap-2 rounded-full border border-border text-sm font-semibold hover:bg-muted"
           >
             <Home className="w-4 h-4" />
             <span>홈으로 가기</span>

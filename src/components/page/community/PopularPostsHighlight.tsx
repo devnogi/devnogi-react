@@ -29,7 +29,7 @@ export default function PopularPostsHighlight({
   }
 
   return (
-    <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl p-4 md:p-5 border border-gray-200 dark:border-navy-600">
+    <section className="bg-white dark:bg-navy-800 rounded-lg p-4 md:p-5 border border-gray-200 dark:border-navy-600">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function PopularPostsHighlight({
 
 function PopularPostsSkeleton() {
   return (
-    <section className="bg-white/95 dark:bg-navy-700/95 rounded-2xl p-4 md:p-5 border border-gray-200 dark:border-navy-600">
+    <section className="bg-white dark:bg-navy-800 rounded-lg p-4 md:p-5 border border-gray-200 dark:border-navy-600">
       <div className="flex items-center gap-2 mb-3">
         <div className="w-7 h-7 bg-gray-200 dark:bg-navy-600 rounded-lg animate-pulse" />
         <div className="h-5 w-20 bg-gray-200 dark:bg-navy-600 rounded animate-pulse" />

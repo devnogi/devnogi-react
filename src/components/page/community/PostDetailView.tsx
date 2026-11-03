@@ -94,7 +94,7 @@ export default function PostDetailView({
         <div className="mb-4">
           <Skeleton className="h-8 w-24" />
         </div>
-        <div className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600">
+        <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600">
           {/* Author skeleton */}
           <div className="p-4 md:p-6 border-b border-border">
             <div className="flex items-center gap-3">
@@ -277,13 +277,13 @@ export default function PostDetailView({
       </div>
 
       {/* Post Content - Threads Style */}
-      <article className="bg-white/95 dark:bg-navy-700/95 rounded-2xl border border-gray-200 dark:border-navy-600">
+      <article className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600">
         {/* Author Section */}
         <div className="p-4 md:p-5 border-b border-gray-100 dark:border-navy-600">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               {/* Profile Image */}
-              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <div className="relative w-10 h-10 rounded-full bg-[#9a451f] flex items-center justify-center text-white font-semibold flex-shrink-0">
                 {avatarText}
               </div>
 

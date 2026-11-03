@@ -40,6 +40,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 
+import panelStyles from "../AuthPanel.module.css";
+
 const signUpSchema = z
   .object({
     email: z
@@ -288,10 +290,15 @@ export default function SignUpPage() {
 
   return (
     <>
-      <div className="h-dvh overflow-hidden bg-gradient-to-b from-cream-100 via-cream-50 to-white">
+      <div className="h-dvh overflow-hidden bg-background text-foreground">
         <div className="mx-auto flex h-full max-w-5xl px-4 py-4 sm:px-6 sm:py-6">
-          <div className="flex min-h-0 w-full overflow-hidden rounded-3xl border border-cream-200/70 bg-white/95 shadow-[0_20px_60px_rgba(31,41,55,0.10)] backdrop-blur-sm">
-            <aside className="hidden w-[36%] min-w-[280px] flex-col justify-between bg-gradient-to-br from-clover-700 via-clover-600 to-clover-500 p-8 text-white md:flex">
+          <div className="flex min-h-0 w-full overflow-hidden rounded-lg border border-border bg-card">
+            <aside
+              className={clsx(
+                panelStyles.library,
+                "hidden w-[36%] min-w-[280px] flex-col justify-between bg-stone-800 bg-cover bg-center bg-blend-multiply p-8 text-white md:flex",
+              )}
+            >
               <div className="space-y-4">
                 <p className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
                   가입 안내
@@ -306,7 +313,7 @@ export default function SignUpPage() {
                   이용할 수 있습니다.
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/20 bg-black/10 p-4 text-sm text-white/90">
+              <div className="rounded-lg border border-white/20 bg-black/10 p-4 text-sm text-white/90">
                 인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.
                 <p className="mt-2 text-xs text-white/80">
                   메모노기는 공식 사이트가 아닌 NEXON OPEN API 기반 비공식
@@ -321,24 +328,24 @@ export default function SignUpPage() {
                 <div className="mb-5">
                   <Link
                     href="/sign-in"
-                    className="mb-4 inline-flex items-center text-sm text-cream-600 transition-colors hover:text-cream-900"
+                    className="mb-4 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     로그인으로 돌아가기
                   </Link>
-                  <h1 className="text-3xl font-bold text-clover-700">
+                  <h1 className="text-2xl font-semibold text-foreground">
                     회원가입
                   </h1>
-                  <p className="mt-2 text-sm text-cream-600">
+                  <p className="mt-2 text-sm text-muted-foreground">
                     메모노기와 함께 마비노기를 더 즐겁게!
                   </p>
-                  <p className="mt-1 text-xs text-cream-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     NEXON OPEN API를 활용한 비공식 커뮤니티 서비스입니다.
                   </p>
                 </div>
 
                 {/* Sign Up Card */}
-                <div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-cream-200 bg-white shadow-[0_8px_24px_rgba(61,56,47,0.08)]">
+                <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-card">
                   <Form {...form}>
                     <form
                       onSubmit={form.handleSubmit(onSubmit)}
@@ -348,7 +355,7 @@ export default function SignUpPage() {
                         {/* Profile Image */}
                         <div className="flex flex-col items-center mb-6">
                           <div className="relative">
-                            <div className="w-24 h-24 rounded-full bg-clover-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                            <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold overflow-hidden">
                               {profileImagePreview ? (
                                 <Image
                                   src={profileImagePreview}
@@ -363,9 +370,9 @@ export default function SignUpPage() {
                             </div>
                             <label
                               htmlFor="profile-image"
-                              className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border-2 border-cream-200 flex items-center justify-center hover:bg-cream-50 transition-colors cursor-pointer"
+                              className="absolute bottom-0 right-0 w-8 h-8 bg-card rounded-full border-2 border-border flex items-center justify-center hover:bg-background transition-colors cursor-pointer"
                             >
-                              <Camera className="w-4 h-4 text-cream-600" />
+                              <Camera className="w-4 h-4 text-muted-foreground" />
                             </label>
                             <input
                               id="profile-image"
@@ -375,7 +382,7 @@ export default function SignUpPage() {
                               className="hidden"
                             />
                           </div>
-                          <p className="text-xs text-cream-500 mt-2">
+                          <p className="text-xs text-muted-foreground mt-2">
                             프로필 이미지 (선택사항)
                           </p>
                         </div>
@@ -386,17 +393,17 @@ export default function SignUpPage() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-semibold text-cream-800">
+                              <FormLabel className="text-sm font-semibold text-foreground">
                                 이메일{" "}
                                 <span className="text-sunset-500">*</span>
                               </FormLabel>
                               <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                                 <FormControl>
                                   <Input
                                     type="email"
                                     placeholder="example@email.com"
-                                    className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                                    className="pl-11 pr-11 h-12 border-border focus:border-ring focus:ring-ring/20 rounded-lg"
                                     {...field}
                                     onChange={(e) => {
                                       field.onChange(e);
@@ -411,7 +418,7 @@ export default function SignUpPage() {
                                 {emailCheckStatus !== "idle" && (
                                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
                                     {emailCheckStatus === "checking" && (
-                                      <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                                      <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
                                     )}
                                     {emailCheckStatus === "available" && (
                                       <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -443,24 +450,24 @@ export default function SignUpPage() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-semibold text-cream-800">
+                              <FormLabel className="text-sm font-semibold text-foreground">
                                 비밀번호{" "}
                                 <span className="text-sunset-500">*</span>
                               </FormLabel>
                               <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                                 <FormControl>
                                   <Input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="영문, 숫자, 특수문자 포함 8-30자"
-                                    className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                                    className="pl-11 pr-11 h-12 border-border focus:border-ring focus:ring-ring/20 rounded-lg"
                                     {...field}
                                   />
                                 </FormControl>
                                 <button
                                   type="button"
                                   onClick={() => setShowPassword(!showPassword)}
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                   {showPassword ? (
                                     <EyeOff className="w-5 h-5" />
@@ -481,7 +488,7 @@ export default function SignUpPage() {
                                           "h-1 flex-1 rounded-full transition-all",
                                           level <= passwordStrength.strength
                                             ? passwordStrength.color
-                                            : "bg-gray-200",
+                                            : "bg-muted",
                                         )}
                                       />
                                     ))}
@@ -502,7 +509,7 @@ export default function SignUpPage() {
                                 </div>
                               )}
 
-                              <FormDescription className="text-xs text-cream-500 mt-2">
+                              <FormDescription className="text-xs text-muted-foreground mt-2">
                                 영문 대/소문자, 숫자, 특수문자(@$!%*#?&)를 모두
                                 포함해야 합니다
                               </FormDescription>
@@ -517,19 +524,19 @@ export default function SignUpPage() {
                           name="passwordConfirm"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-semibold text-cream-800">
+                              <FormLabel className="text-sm font-semibold text-foreground">
                                 비밀번호 확인{" "}
                                 <span className="text-sunset-500">*</span>
                               </FormLabel>
                               <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cream-400 z-10" />
+                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                                 <FormControl>
                                   <Input
                                     type={
                                       showPasswordConfirm ? "text" : "password"
                                     }
                                     placeholder="비밀번호를 다시 입력하세요"
-                                    className="pl-11 pr-11 h-12 border-cream-300 focus:border-clover-500 focus:ring-clover-500/20 rounded-xl"
+                                    className="pl-11 pr-11 h-12 border-border focus:border-ring focus:ring-ring/20 rounded-lg"
                                     {...field}
                                   />
                                 </FormControl>
@@ -538,7 +545,7 @@ export default function SignUpPage() {
                                   onClick={() =>
                                     setShowPasswordConfirm(!showPasswordConfirm)
                                   }
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-cream-400 hover:text-cream-600 transition-colors"
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                   {showPasswordConfirm ? (
                                     <EyeOff className="w-5 h-5" />
@@ -569,7 +576,7 @@ export default function SignUpPage() {
                           render={({ field }) => (
                             <FormItem>
                               <div className="flex items-center gap-2">
-                                <FormLabel className="text-sm font-semibold text-cream-800">
+                                <FormLabel className="text-sm font-semibold text-foreground">
                                   닉네임{" "}
                                   <span className="text-sunset-500">*</span>
                                 </FormLabel>
@@ -583,7 +590,7 @@ export default function SignUpPage() {
                                         ? "닉네임을 발급받는 중..."
                                         : "닉네임을 발급받아주세요"
                                     }
-                                    className="h-12 border-cream-300 bg-cream-50 rounded-xl"
+                                    className="h-12 border-border bg-background rounded-lg"
                                     {...field}
                                     readOnly
                                     aria-describedby="signup-nickname-status"
@@ -610,7 +617,7 @@ export default function SignUpPage() {
                                 id="signup-nickname-status"
                                 role="status"
                                 aria-live="polite"
-                                className="text-xs text-cream-500 mt-2"
+                                className="text-xs text-muted-foreground mt-2"
                               >
                                 {nicknameSubmissionError ??
                                   nicknameError ??
@@ -624,11 +631,11 @@ export default function SignUpPage() {
                         />
 
                         {/* Divider */}
-                        <div className="border-t border-cream-200 my-6" />
+                        <div className="border-t border-border my-6" />
 
                         {/* Terms Agreement */}
                         <div className="space-y-4">
-                          <h3 className="text-sm font-semibold text-cream-800">
+                          <h3 className="text-sm font-semibold text-foreground">
                             약관 동의
                           </h3>
 
@@ -643,7 +650,7 @@ export default function SignUpPage() {
                                     type="checkbox"
                                     checked={field.value}
                                     onChange={field.onChange}
-                                    className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                                    className="w-5 h-5 text-primary border-border rounded focus:ring-ring mt-0.5 cursor-pointer accent-primary"
                                   />
                                 </FormControl>
                                 <div className="flex-1">
@@ -655,7 +662,7 @@ export default function SignUpPage() {
                                     <button
                                       type="button"
                                       onClick={openTermsModal}
-                                      className="ml-2 text-clover-600 hover:underline text-xs"
+                                      className="ml-2 text-primary hover:underline text-xs"
                                     >
                                       전문보기
                                     </button>
@@ -677,7 +684,7 @@ export default function SignUpPage() {
                                     type="checkbox"
                                     checked={field.value}
                                     onChange={field.onChange}
-                                    className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                                    className="w-5 h-5 text-primary border-border rounded focus:ring-ring mt-0.5 cursor-pointer accent-primary"
                                   />
                                 </FormControl>
                                 <div className="flex-1">
@@ -689,7 +696,7 @@ export default function SignUpPage() {
                                     <button
                                       type="button"
                                       onClick={openPrivacyModal}
-                                      className="ml-2 text-clover-600 hover:underline text-xs"
+                                      className="ml-2 text-primary hover:underline text-xs"
                                     >
                                       전문보기
                                     </button>
@@ -711,17 +718,17 @@ export default function SignUpPage() {
                                     type="checkbox"
                                     checked={field.value}
                                     onChange={field.onChange}
-                                    className="w-5 h-5 text-clover-600 border-cream-300 rounded focus:ring-clover-500 mt-0.5 cursor-pointer accent-clover-500"
+                                    className="w-5 h-5 text-primary border-border rounded focus:ring-ring mt-0.5 cursor-pointer accent-primary"
                                   />
                                 </FormControl>
                                 <div className="flex-1">
                                   <FormLabel className="text-sm font-normal cursor-pointer">
-                                    <span className="text-cream-500">
+                                    <span className="text-muted-foreground">
                                       [선택]
                                     </span>{" "}
                                     마케팅 정보 수신에 동의합니다
                                   </FormLabel>
-                                  <FormDescription className="text-xs text-cream-500 mt-1">
+                                  <FormDescription className="text-xs text-muted-foreground mt-1">
                                     이벤트, 혜택 정보를 이메일로 받아보실 수
                                     있습니다
                                   </FormDescription>
@@ -732,7 +739,7 @@ export default function SignUpPage() {
                         </div>
                       </div>
 
-                      <div className="border-t border-cream-200 bg-white p-5 sm:p-6">
+                      <div className="border-t border-border bg-card p-5 sm:p-6">
                         <Button
                           type="submit"
                           disabled={
@@ -743,7 +750,7 @@ export default function SignUpPage() {
                             !!nicknameSubmissionError
                           }
                           className={clsx(
-                            "h-12 w-full rounded-xl bg-clover-600 font-semibold text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)] transition-all duration-200 hover:bg-clover-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.35)]",
+                            "h-12 w-full rounded-full bg-primary font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90",
                             (!form.formState.isValid ||
                               isLoading ||
                               nicknameStatus !== "ready" ||
@@ -767,11 +774,11 @@ export default function SignUpPage() {
 
                 {/* Sign In Link */}
                 <div className="mt-4 text-center">
-                  <p className="text-sm text-cream-600">
+                  <p className="text-sm text-muted-foreground">
                     이미 계정이 있으신가요?{" "}
                     <Link
                       href="/sign-in"
-                      className="font-semibold text-clover-600 transition-colors hover:text-clover-700"
+                      className="font-semibold text-primary transition-colors hover:text-foreground"
                     >
                       로그인
                     </Link>
@@ -785,25 +792,25 @@ export default function SignUpPage() {
 
       {/* Terms Modal */}
       {(showTermsModal || showPrivacyModal) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[20px] shadow-[0_20px_48px_rgba(61,56,47,0.14)] max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div className="p-6 border-b border-cream-200">
-              <h2 className="text-xl font-bold text-cream-900">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-xl font-bold text-foreground">
                 {showTermsModal ? "이용약관" : "개인정보처리방침"}
               </h2>
             </div>
             <div className="p-6 overflow-y-auto flex-1">
-              <pre className="whitespace-pre-wrap text-sm text-cream-700 font-sans">
+              <pre className="whitespace-pre-wrap text-sm text-muted-foreground font-sans">
                 {termsContent}
               </pre>
             </div>
-            <div className="p-6 border-t border-cream-200">
+            <div className="p-6 border-t border-border">
               <Button
                 onClick={() => {
                   setShowTermsModal(false);
                   setShowPrivacyModal(false);
                 }}
-                className="w-full h-12 bg-clover-500 hover:bg-clover-600 rounded-xl"
+                className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
               >
                 확인
               </Button>

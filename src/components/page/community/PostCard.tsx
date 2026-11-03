@@ -23,9 +23,9 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <Link href={`/community/${post.id}`} prefetch={false} className="block">
-      <article className="rounded-2xl border border-gray-200/90 dark:border-navy-600 bg-white/95 dark:bg-navy-700/95 hover:bg-white dark:hover:bg-navy-700 transition-colors p-4">
+      <article className="rounded-lg border border-gray-200/90 dark:border-navy-600 bg-white dark:bg-navy-800 hover:bg-white dark:hover:bg-navy-700 transition-colors px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-teal-500 text-white text-sm font-semibold flex items-center justify-center flex-shrink-0">
+          <div className="w-7 h-7 rounded-full bg-[#9a451f] text-white text-sm font-semibold flex items-center justify-center flex-shrink-0">
             {avatarText}
           </div>
           <div className="min-w-0">
@@ -39,20 +39,20 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         </div>
 
-        <h3 className="mt-3 text-[15px] md:text-base font-medium text-gray-900 dark:text-gray-100 leading-relaxed line-clamp-2">
+        <h3 className="mt-2 text-base font-medium text-gray-900 dark:text-gray-100 leading-relaxed line-clamp-2">
           {post.title}
         </h3>
 
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-navy-600 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
-          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-navy-600">
+        <div className="mt-1.5 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+          <div className="inline-flex items-center gap-1">
             <Heart className="w-3.5 h-3.5" />
             <span>{post.likeCount.toLocaleString()}</span>
           </div>
-          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-navy-600">
+          <div className="inline-flex items-center gap-1">
             <MessageCircle className="w-3.5 h-3.5" />
             <span>{post.commentCount.toLocaleString()}</span>
           </div>
-          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-navy-600 ml-auto">
+          <div className="inline-flex items-center gap-1 ml-auto">
             <Eye className="w-3.5 h-3.5" />
             <span>{post.viewCount.toLocaleString()}</span>
           </div>

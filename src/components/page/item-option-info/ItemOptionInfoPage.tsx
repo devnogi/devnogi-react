@@ -122,13 +122,13 @@ export default function ItemOptionInfoPage() {
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-[var(--color-ds-neutral-100)] rounded-lg w-1/3" />
-            <div className="h-12 bg-[var(--color-ds-neutral-100)] rounded-xl" />
-            <div className="h-10 bg-[var(--color-ds-neutral-100)] rounded-xl w-2/3" />
+            <div className="h-12 bg-[var(--color-ds-neutral-100)] rounded-lg" />
+            <div className="h-10 bg-[var(--color-ds-neutral-100)] rounded-lg w-2/3" />
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-32 bg-[var(--color-ds-neutral-100)] rounded-2xl"
+                  className="h-32 bg-[var(--color-ds-neutral-100)] rounded-lg"
                 />
               ))}
             </div>
@@ -142,7 +142,7 @@ export default function ItemOptionInfoPage() {
     return (
       <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center">
+          <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 text-center">
             <p className="text-rose-700 font-medium">
               데이터를 불러오는 중 오류가 발생했습니다.
             </p>
@@ -201,7 +201,7 @@ export default function ItemOptionInfoPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] p-8 text-center">
+          <div className="bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] p-8 text-center">
             <p className="text-[var(--color-ds-disabled)]">
               검색 결과가 없습니다.
             </p>

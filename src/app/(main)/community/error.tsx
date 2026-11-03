@@ -27,7 +27,7 @@ export default function CommunityError({ error, reset }: ErrorProps) {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-[50vh] px-4">
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-xl p-8 max-w-md w-full text-center">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-xl p-8 max-w-md w-full text-center">
         <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>

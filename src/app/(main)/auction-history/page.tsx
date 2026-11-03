@@ -38,11 +38,9 @@ export default function AuctionHistoryPage() {
     <>
       <section
         aria-labelledby="auction-history-title"
-        className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-navy-600 dark:bg-navy-800 md:p-7"
+        className="mb-10 min-[1240px]:mr-72 min-[1452px]:mx-auto min-[1452px]:max-w-3xl rounded-lg border border-gray-200 bg-white p-5 dark:border-navy-600 dark:bg-navy-800 md:p-7"
       >
-        <p className="mb-2 text-sm font-medium text-blue-700 dark:text-coral-300">
-          메모노기 경매장
-        </p>
+        <p className="mb-2 text-sm font-medium text-primary">메모노기 경매장</p>
         <h1
           id="auction-history-title"
           className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl"
@@ -56,19 +54,19 @@ export default function AuctionHistoryPage() {
         </p>
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
           <Link
-            className="font-medium text-blue-700 underline-offset-4 hover:underline dark:text-coral-300"
+            className="font-medium text-primary underline-offset-4 hover:underline"
             href="/auction-realtime"
           >
             경매장 실시간 정보 보기
           </Link>
           <Link
-            className="font-medium text-blue-700 underline-offset-4 hover:underline dark:text-coral-300"
+            className="font-medium text-primary underline-offset-4 hover:underline"
             href="/statistics"
           >
             시세 정보 보기
           </Link>
           <Link
-            className="font-medium text-blue-700 underline-offset-4 hover:underline dark:text-coral-300"
+            className="font-medium text-primary underline-offset-4 hover:underline"
             href="/item-info"
           >
             아이템 정보 보기
@@ -91,7 +89,7 @@ export default function AuctionHistoryPage() {
               return (
                 <li key={category.id}>
                   <Link
-                    className="inline-flex rounded-full bg-blue-50 px-3 py-1.5 text-sm text-blue-800 hover:bg-blue-100 dark:bg-navy-700 dark:text-coral-200 dark:hover:bg-navy-600"
+                    className="inline-flex rounded-full bg-orange-50 px-3 py-1.5 text-sm text-primary hover:bg-orange-100 dark:bg-navy-700 dark:text-orange-200 dark:hover:bg-navy-600"
                     href={`/auction-history?${params.toString()}`}
                   >
                     {category.name}

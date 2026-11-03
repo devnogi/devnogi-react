@@ -39,12 +39,12 @@ export default function VerificationInstructions() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600">
+    <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-5 sm:p-8 text-left"
       >
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           인증 방법 안내
         </h3>
         <ChevronDown
@@ -82,7 +82,7 @@ export default function VerificationInstructions() {
               );
             })}
           </div>
-          <div className="mt-5 rounded-2xl bg-blue-50 px-4 py-3 text-sm text-blue-900">
+          <div className="mt-5 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-900">
             최근 인증 성공 이력이 있으면 7일 동안은 새 인증 코드를 다시 발급할
             수 없습니다. 서버명이나 캐릭터명을 바꾸려면 인게임에서 다시 인증을
             진행해주세요.

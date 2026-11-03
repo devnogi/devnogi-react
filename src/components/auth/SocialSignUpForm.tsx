@@ -226,15 +226,17 @@ export default function SocialSignUpForm({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-2xl shadow-xl border border-gray-100">
+    <div className="w-full max-w-md mx-auto p-6 bg-card rounded-lg border border-border">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold mb-2 text-foreground">
           {getProviderLabel()} 회원가입
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           추가 정보를 입력하여 회원가입을 완료해주세요
         </p>
-        {email && <p className="text-xs text-gray-500 mt-1">이메일: {email}</p>}
+        {email && (
+          <p className="text-xs text-muted-foreground mt-1">이메일: {email}</p>
+        )}
         {emailSubmissionError && (
           <p role="alert" className="text-sm text-red-600 mt-2">
             {emailSubmissionError}
@@ -250,14 +252,14 @@ export default function SocialSignUpForm({
             name="profileImage"
             render={() => (
               <FormItem>
-                <FormLabel className="text-sm font-semibold text-gray-700">
+                <FormLabel className="text-sm font-semibold text-muted-foreground">
                   프로필 이미지 (선택)
                 </FormLabel>
                 <FormControl>
                   <div className="flex flex-col items-center gap-4">
                     {previewUrl ? (
                       <div className="relative w-32 h-32">
-                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-200 shadow-sm relative">
+                        <div className="w-full h-full rounded-full overflow-hidden border-4 border-border relative">
                           <Image
                             src={previewUrl}
                             alt="Profile preview"
@@ -269,15 +271,15 @@ export default function SocialSignUpForm({
                         <button
                           type="button"
                           onClick={removeImage}
-                          className="absolute top-1 right-1 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all shadow-lg z-10 border-2 border-white"
+                          className="absolute top-1 right-1 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all z-10 border-2 border-white"
                           title="이미지 삭제"
                         >
                           <X className="w-5 h-5" />
                         </button>
                       </div>
                     ) : (
-                      <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                        <User className="w-12 h-12 text-gray-400" />
+                      <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-border">
+                        <User className="w-12 h-12 text-muted-foreground" />
                       </div>
                     )}
 
@@ -288,7 +290,7 @@ export default function SocialSignUpForm({
                         onChange={handleFileChange}
                         className="hidden"
                       />
-                      <div className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2">
+                      <div className="px-4 py-2 bg-muted hover:bg-muted rounded-lg transition-colors flex items-center gap-2">
                         <Upload className="w-4 h-4" />
                         <span className="text-sm font-medium">
                           이미지 업로드
@@ -312,7 +314,7 @@ export default function SocialSignUpForm({
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center gap-2">
-                  <FormLabel className="text-sm font-semibold text-gray-700">
+                  <FormLabel className="text-sm font-semibold text-muted-foreground">
                     닉네임 *
                   </FormLabel>
                   <NicknamePolicyHelp />
@@ -325,7 +327,7 @@ export default function SocialSignUpForm({
                           ? "닉네임을 발급받는 중..."
                           : "닉네임을 발급받아주세요"
                       }
-                      className="h-12 border-gray-300 bg-gray-50 rounded-lg"
+                      className="h-12 border-border bg-background rounded-lg"
                       {...field}
                       readOnly
                       aria-describedby="social-nickname-status"
@@ -382,7 +384,7 @@ export default function SocialSignUpForm({
                 !!nicknameSubmissionError ||
                 !!emailSubmissionError
               }
-              className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200"
+              className="flex-1 h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-lg transition-all duration-200"
             >
               {isLoading ? (
                 <>

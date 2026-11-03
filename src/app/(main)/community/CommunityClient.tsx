@@ -26,7 +26,7 @@ function CommunityPageContent() {
 
   return (
     <main className="flex flex-col gap-6 pb-24">
-      <div className="w-full md:w-2/3 mx-auto space-y-6">
+      <div className="w-full max-w-6xl mx-auto space-y-4">
         {/* Category Filter */}
         <Category
           selectedBoardId={selectedBoardId}
@@ -39,7 +39,7 @@ function CommunityPageContent() {
         </div>
 
         {/* Desktop/Tablet Layout: Post List + Popular Card */}
-        <div className="md:grid md:grid-cols-[minmax(0,1fr)_320px] md:gap-6 lg:gap-8">
+        <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(220px,30%)] md:gap-4">
           <section className="min-w-0 space-y-4">
             {/* Search Result Info */}
             {keyword && (
@@ -49,7 +49,7 @@ function CommunityPageContent() {
             )}
 
             {/* Sort Options */}
-            <div className="flex items-center gap-2 bg-white/90 dark:bg-navy-700/80 border border-gray-200 dark:border-navy-600 rounded-2xl p-2">
+            <div className="flex items-center gap-2 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg p-2">
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as SortType)}
@@ -65,7 +65,7 @@ function CommunityPageContent() {
                   onClick={() => setShowMyPosts((prev) => !prev)}
                   className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
                     showMyPosts
-                      ? "bg-[var(--color-ds-primary)] text-white border-[var(--color-ds-primary)]"
+                      ? "bg-[var(--color-ds-primary)] text-white dark:text-navy-900 border-[var(--color-ds-primary)]"
                       : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
                   }`}
                 >
@@ -102,7 +102,7 @@ function CommunityPageContent() {
       {/* FAB - Write Post Button */}
       <button
         onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95"
+        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-white dark:text-navy-900 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95"
         aria-label="글쓰기"
       >
         <Plus className="w-6 h-6" />

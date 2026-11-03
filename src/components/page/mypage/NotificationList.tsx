@@ -185,10 +185,10 @@ export default function NotificationList({ userId }: NotificationListProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-8">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-8">
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="w-10 h-10 border-3 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-10 h-10 border-3 border-gray-300 border-t-[var(--color-ds-primary)] rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-500 dark:text-gray-400">
               알림을 불러오는 중...
             </p>
@@ -201,10 +201,10 @@ export default function NotificationList({ userId }: NotificationListProps) {
   return (
     <div className="space-y-4">
       {/* Header + Filters */}
-      <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-6">
+      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
               알림 센터
             </h2>
             {unreadCount > 0 && (
@@ -218,7 +218,7 @@ export default function NotificationList({ userId }: NotificationListProps) {
             <select
               value={day}
               onChange={(e) => setDay(Number(e.target.value))}
-              className="h-9 px-3 text-sm border border-gray-200 dark:border-navy-500 rounded-xl bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-9 px-3 text-sm border border-gray-200 dark:border-navy-500 rounded-xl bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]"
             >
               {DAY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -229,7 +229,7 @@ export default function NotificationList({ userId }: NotificationListProps) {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="h-9 px-3 text-sm border border-gray-200 dark:border-navy-500 rounded-xl bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-9 px-3 text-sm border border-gray-200 dark:border-navy-500 rounded-xl bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]"
             >
               {TYPE_FILTER_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -243,7 +243,7 @@ export default function NotificationList({ userId }: NotificationListProps) {
 
       {/* Notification Groups */}
       {groupedNotices.length === 0 ? (
-        <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 p-8">
+        <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-8">
           <div className="flex flex-col items-center justify-center py-12">
             <Bell className="w-12 h-12 text-gray-300 dark:text-navy-500 mb-3" />
             <p className="text-gray-500 dark:text-gray-400 font-medium">
@@ -260,7 +260,7 @@ export default function NotificationList({ userId }: NotificationListProps) {
             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2 mb-2">
               {group.label}
             </p>
-            <div className="bg-white dark:bg-navy-800 rounded-3xl border border-gray-200 dark:border-navy-600 overflow-hidden">
+            <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 overflow-hidden">
               {group.notices.map((notice, idx) => {
                 const config = getNoticeConfig(notice.noticeType);
                 const Icon = config.icon;

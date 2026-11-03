@@ -63,7 +63,7 @@ function HornBugleContent() {
       <div className="max-w-3xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-8">
         {/* 서버 탭 */}
         <div className="mb-6">
-          <div className="inline-flex p-1 rounded-xl bg-gray-100 gap-1">
+          <div className="inline-flex p-1 rounded-lg bg-gray-100 dark:bg-navy-700 gap-1">
             {SERVER_TABS.map((server) => (
               <button
                 key={server}
@@ -71,8 +71,8 @@ function HornBugleContent() {
                 className={clsx(
                   "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                   selectedServer === server
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900",
+                    ? "bg-[var(--color-ds-card)] text-[var(--color-ds-primary)]"
+                    : "text-[var(--color-ds-secondary)] hover:text-[var(--color-ds-text)]",
                 )}
               >
                 {server}
@@ -117,7 +117,7 @@ function HornBugleLoadingFallback() {
       <div className="max-w-3xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-8">
         {/* 서버 탭 스켈레톤 */}
         <div className="mb-6">
-          <div className="inline-flex p-1 rounded-xl bg-gray-100 gap-1">
+          <div className="inline-flex p-1 rounded-lg bg-gray-100 dark:bg-navy-700 gap-1">
             {SERVER_TABS.map((server) => (
               <div
                 key={server}

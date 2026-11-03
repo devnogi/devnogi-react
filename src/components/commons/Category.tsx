@@ -39,9 +39,9 @@ const RecursiveCategoryItem = ({
     <li>
       <span
         className={clsx(
-          "px-2 py-2 cursor-pointer text-sm rounded-xl flex items-center transition-colors",
+          "px-2 py-2 cursor-pointer text-sm rounded-lg flex items-center transition-colors",
           isSelected
-            ? "bg-clover-50 dark:bg-coral-500/20 text-clover-700 dark:text-coral-300 font-semibold"
+            ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/20 text-[var(--color-ds-primary)] font-semibold"
             : "text-cream-700 dark:text-gray-300 hover:bg-cream-100 dark:hover:bg-navy-600",
         )}
         onClick={handleSelect}
@@ -117,7 +117,7 @@ export default function ItemCategorySection({
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-navy-700 rounded-[20px] border border-cream-200 dark:border-navy-500 shadow-[0_8px_24px_rgba(61,56,47,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-colors duration-300">
+    <div className="flex flex-col h-full bg-white dark:bg-navy-700 rounded-lg border border-cream-200 dark:border-navy-500 transition-colors duration-300">
       <div className="text-center border-b border-cream-200 dark:border-navy-600 py-3 px-4 bg-cream-50 dark:bg-navy-800 rounded-t-[20px]">
         <h3 className="font-semibold text-cream-900 dark:text-white">
           카테고리

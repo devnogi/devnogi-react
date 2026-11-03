@@ -19,10 +19,10 @@ export default function ItemOptionGroupCard({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <div className="bg-white rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+    <div className="bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all"
+        className="w-full flex items-center justify-between px-4 py-3 bg-[var(--color-ds-card)] hover:bg-[var(--color-ds-neutral-50)] transition-colors"
       >
         <div className="flex items-center gap-3">
           <span className="text-lg font-bold text-[var(--color-ds-text)]">

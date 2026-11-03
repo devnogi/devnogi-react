@@ -367,7 +367,7 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, fromField, e.target.value)
               }
-              className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+              className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
             />
             <span className="text-gray-400 text-sm">~</span>
             <Input
@@ -377,7 +377,7 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, toField, e.target.value)
               }
-              className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+              className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
             />
           </div>
         );
@@ -407,7 +407,7 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, valueField, e.target.value)
               }
-              className="h-9 rounded-xl text-sm flex-1 border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+              className="h-9 rounded-lg text-sm flex-1 border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
             />
             <button
               onClick={() =>
@@ -417,13 +417,13 @@ export default function SearchFilterCard({
                   isUp ? "DOWN" : "UP",
                 )
               }
-              className="h-9 w-9 rounded-xl border border-gray-300 dark:border-navy-500 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
+              className="h-9 w-9 rounded-lg border border-gray-300 dark:border-navy-500 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-navy-600 transition-colors"
               title={isUp ? "이상 (클릭하면 이하)" : "이하 (클릭하면 이상)"}
             >
               {isUp ? (
-                <ArrowUp className="w-4 h-4 text-blaanid-600 dark:text-coral-400" />
+                <ArrowUp className="w-4 h-4 text-[var(--color-ds-primary)]" />
               ) : (
-                <ArrowDown className="w-4 h-4 text-blaanid-500 dark:text-coral-500" />
+                <ArrowDown className="w-4 h-4 text-[var(--color-ds-primary)]" />
               )}
             </button>
           </div>
@@ -447,10 +447,10 @@ export default function SearchFilterCard({
               handleFilterValueChange(filter.id, enumField, value)
             }
           >
-            <SelectTrigger className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20">
+            <SelectTrigger className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:ring-2 focus:ring-[var(--color-ds-primary)]/20">
               <SelectValue placeholder="선택하세요" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-gray-200 dark:border-navy-500 dark:bg-navy-700">
+            <SelectContent className="rounded-lg border-gray-200 dark:border-navy-500 dark:bg-navy-700">
               {enumMetadata.allowedValues?.map((val) => (
                 <SelectItem
                   key={val}
@@ -475,7 +475,7 @@ export default function SearchFilterCard({
           onChange={(e) =>
             handleFilterValueChange(filter.id, fieldName, e.target.value)
           }
-          className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+          className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
         />
       );
     },
@@ -488,7 +488,7 @@ export default function SearchFilterCard({
 
   if (isLoading) {
     const loadingContent = (
-      <div className="bg-white dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-4 flex items-center justify-center">
+      <div className="bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 p-4 flex items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400 text-sm">
           로딩 중...
         </div>
@@ -525,7 +525,7 @@ export default function SearchFilterCard({
   const filterContent = (
     <div className="space-y-2">
       {/* Header - Minimal */}
-      <div className="bg-white dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 py-2.5 px-4">
+      <div className="bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 py-2.5 px-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
             검색 필터
@@ -545,27 +545,30 @@ export default function SearchFilterCard({
       <button
         type="button"
         onClick={() => onExactItemNameChange?.(!isExactItemName)}
-        className={`w-full rounded-xl border cursor-pointer py-2 px-3 flex items-center gap-2.5 transition-all ${
+        className={`w-full rounded-lg border cursor-pointer py-2 px-3 flex items-center gap-2.5 transition-all ${
           isExactItemName
-            ? "bg-blaanid-50 dark:bg-coral-500/10 border-blaanid-400 dark:border-coral-500"
+            ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10 border-[var(--color-ds-primary)]"
             : "bg-white dark:bg-navy-700 border-gray-200 dark:border-navy-500 hover:border-gray-300 dark:hover:border-navy-400"
         }`}
       >
         <div
           className={`w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all ${
             isExactItemName
-              ? "bg-blaanid-500 dark:bg-coral-500 border-0"
+              ? "bg-[var(--color-ds-primary)] dark:bg-[var(--color-ds-primary)] border-0"
               : "border border-gray-300 dark:border-navy-400 bg-white dark:bg-navy-600"
           }`}
         >
           {isExactItemName && (
-            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+            <Check
+              className="w-3 h-3 text-primary-foreground"
+              strokeWidth={3}
+            />
           )}
         </div>
         <span
           className={`text-xs font-medium leading-none ${
             isExactItemName
-              ? "text-blaanid-700 dark:text-coral-300"
+              ? "text-[var(--color-ds-primary)] dark:text-[var(--color-ds-primary)]"
               : "text-gray-600 dark:text-gray-300"
           }`}
         >
@@ -574,7 +577,7 @@ export default function SearchFilterCard({
       </button>
 
       {/* Price & Date Combined Filter - Compact */}
-      <div className="bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3">
+      <div className="bg-gray-50 dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 p-3">
         {/* Price Section */}
         <div className="mb-3">
           <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -588,7 +591,7 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 setBasicFilters({ ...basicFilters, priceMin: e.target.value })
               }
-              className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+              className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
             />
             <span className="text-gray-400 text-sm">~</span>
             <Input
@@ -598,7 +601,7 @@ export default function SearchFilterCard({
               onChange={(e) =>
                 setBasicFilters({ ...basicFilters, priceMax: e.target.value })
               }
-              className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+              className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white dark:placeholder-gray-400 focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
             />
           </div>
         </div>
@@ -631,7 +634,7 @@ export default function SearchFilterCard({
                     onClick={() => handleDatePresetSelect(preset.value)}
                     className={`h-8 rounded-lg text-xs transition-all ${
                       selectedDatePreset === preset.value
-                        ? "bg-blaanid-50 dark:bg-coral-500/10 border border-blaanid-500 dark:border-coral-500 text-blaanid-600 dark:text-coral-400 font-semibold"
+                        ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10 border border-[var(--color-ds-primary)] text-[var(--color-ds-primary)] font-semibold"
                         : "border border-gray-300 dark:border-navy-500 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-navy-600"
                     }`}
                   >
@@ -650,7 +653,7 @@ export default function SearchFilterCard({
                       dateFrom: e.target.value,
                     });
                   }}
-                  className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                  className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
                 />
                 <span className="text-gray-400 text-sm">~</span>
                 <Input
@@ -663,7 +666,7 @@ export default function SearchFilterCard({
                       dateTo: e.target.value,
                     });
                   }}
-                  className="h-9 rounded-xl text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-blaanid-500 dark:focus:border-coral-500 focus:ring-2 focus:ring-blaanid-500/20 dark:focus:ring-coral-500/20"
+                  className="h-9 rounded-lg text-sm border-gray-300 dark:border-navy-500 bg-white dark:bg-navy-600 dark:text-white focus:border-[var(--color-ds-primary)] focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
                 />
               </div>
             </div>
@@ -711,7 +714,7 @@ export default function SearchFilterCard({
         <Button
           variant="outline"
           onClick={() => setShowAddFilterDropdown(!showAddFilterDropdown)}
-          className="w-full h-9 rounded-xl flex items-center justify-center gap-2 text-sm border-gray-300 dark:border-navy-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-navy-600 hover:border-gray-400 dark:hover:border-navy-400"
+          className="w-full h-9 rounded-lg flex items-center justify-center gap-2 text-sm border-gray-300 dark:border-navy-500 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-navy-600 hover:border-gray-400 dark:hover:border-navy-400"
           disabled={availableOptions.length === 0}
         >
           <Plus className="w-4 h-4" />
@@ -719,7 +722,7 @@ export default function SearchFilterCard({
         </Button>
 
         {showAddFilterDropdown && availableOptions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-700 rounded-xl shadow-[0_8px_24px_rgba(61,56,47,0.10)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-navy-500 max-h-56 overflow-auto z-50">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 max-h-56 overflow-auto z-50">
             {availableOptions.map((option) => (
               <button
                 key={option.id}
@@ -737,7 +740,7 @@ export default function SearchFilterCard({
       {activeFilters.map((filter) => (
         <div
           key={filter.id}
-          className="bg-gray-50 dark:bg-navy-700 rounded-xl border border-gray-200 dark:border-navy-500 p-3"
+          className="bg-gray-50 dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-500 p-3"
         >
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -759,14 +762,14 @@ export default function SearchFilterCard({
         <Button
           variant="outline"
           onClick={handleReset}
-          className="flex-1 h-9 rounded-xl flex items-center justify-center gap-1.5 text-sm border-gray-300 dark:border-navy-500 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-navy-600"
+          className="flex-1 h-9 rounded-lg flex items-center justify-center gap-1.5 text-sm border-gray-300 dark:border-navy-500 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-navy-600"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           초기화
         </Button>
         <Button
           onClick={handleApply}
-          className="flex-1 h-9 rounded-xl bg-blaanid-600 dark:bg-coral-500 text-white hover:bg-blaanid-700 dark:hover:bg-coral-600 text-sm font-medium"
+          className="flex-1 h-9 rounded-lg bg-[var(--color-ds-primary)] text-primary-foreground hover:bg-[var(--color-ds-primary-hover)] text-sm font-medium"
         >
           검색 적용
         </Button>

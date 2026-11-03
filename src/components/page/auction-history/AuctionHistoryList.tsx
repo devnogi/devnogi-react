@@ -24,7 +24,7 @@ export default function AuctionHistoryList({
       <>
         {/* Mobile Skeleton */}
         <div className="md:hidden">
-          <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+          <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
             <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
               {Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="px-4 py-4 animate-pulse">
@@ -50,9 +50,9 @@ export default function AuctionHistoryList({
         </div>
 
         {/* Desktop Skeleton */}
-        <div className="hidden md:block bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+        <div className="hidden md:block bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] border-b-2 border-[var(--color-ds-neutral-tone)]">
+          <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-[var(--color-ds-neutral-50)] border-b border-[var(--color-ds-neutral-tone)]">
             <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">
               아이템 이름
             </div>
@@ -74,7 +74,7 @@ export default function AuctionHistoryList({
             {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className="grid grid-cols-12 gap-4 px-6 py-4 animate-pulse"
+                className="grid grid-cols-12 gap-4 px-4 py-2 animate-pulse"
               >
                 <div className="col-span-5 flex items-center">
                   <div className="h-4 w-48 bg-gray-200 dark:bg-navy-600 rounded" />
@@ -101,7 +101,7 @@ export default function AuctionHistoryList({
 
   if (items.length === 0) {
     return (
-      <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] py-12">
+      <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] py-12">
         <div className="text-center">
           <p className="text-[var(--color-ds-disabled)] text-lg">
             검색 결과가 없습니다.
@@ -172,12 +172,12 @@ export default function AuctionHistoryList({
     <>
       {/* Mobile List Layout */}
       <div className="md:hidden">
-        <div className="bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+        <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
           <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
             {items.map((item, index) => (
               <Popover key={`${item.auctionBuyId}-${index}`}>
                 <PopoverTrigger asChild>
-                  <div className="px-4 py-4 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
+                  <div className="px-4 py-2 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
                     {/* 1st Line: Enchants (축복받은/신성한 + 접두/접미 인챈트) - 항상 공간 유지 */}
                     <div className="text-[10px] text-[var(--color-ds-disabled)] mb-1 min-h-[14px]">
                       {getEnchantPrefix(item.itemDisplayName, item.itemName) ||
@@ -186,11 +186,11 @@ export default function AuctionHistoryList({
 
                     {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
                     <div className="flex justify-between items-center mb-1.5 gap-2">
-                      <h3 className="font-semibold text-[var(--color-ds-text)] text-[0.96rem] flex-1 min-w-0 truncate">
+                      <h3 className="font-semibold text-[var(--color-ds-text)] text-[13px] flex-1 min-w-0 truncate">
                         {getItemNameWithoutAttributes(item.itemName)}
                       </h3>
                       <div className="flex items-center flex-shrink-0 whitespace-nowrap">
-                        <span className="font-bold text-[var(--color-ds-primary)] text-[0.96rem]">
+                        <span className="font-bold text-[var(--color-ds-primary)] text-[13px]">
                           {formatPrice(item.auctionPricePerUnit)}
                         </span>
                         <span className="text-sm text-[var(--color-ds-disabled)] ml-1">
@@ -243,7 +243,7 @@ export default function AuctionHistoryList({
                 </PopoverTrigger>
 
                 <PopoverContent
-                  className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
+                  className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg max-h-[70vh]"
                   side="top"
                   align="center"
                 >
@@ -260,9 +260,9 @@ export default function AuctionHistoryList({
       </div>
 
       {/* Desktop Table Layout */}
-      <div className="hidden md:block bg-white dark:bg-navy-700 rounded-2xl border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gradient-to-r from-[var(--color-ds-card)] to-[var(--color-ds-neutral-50)] border-b-2 border-[var(--color-ds-neutral-tone)]">
+        <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-[var(--color-ds-neutral-50)] border-b border-[var(--color-ds-neutral-tone)]">
           <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">
             아이템 이름
           </div>
@@ -285,11 +285,11 @@ export default function AuctionHistoryList({
           {items.map((item, index) => (
             <Popover key={`${item.auctionBuyId}-${index}`}>
               <PopoverTrigger asChild>
-                <div className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
+                <div className="grid grid-cols-12 gap-4 px-4 py-2 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
                   {/* Item Name */}
                   <div className="col-span-5 flex items-center">
                     <div className="truncate">
-                      <span className="font-medium text-[var(--color-ds-text)] text-[0.85rem]">
+                      <span className="font-medium text-[var(--color-ds-text)] text-[13px]">
                         {item.itemDisplayName}
                       </span>
                     </div>
@@ -307,7 +307,7 @@ export default function AuctionHistoryList({
 
                   {/* Price */}
                   <div className="col-span-2 flex items-center justify-end min-w-0">
-                    <span className="font-bold text-[var(--color-ds-primary)] text-[0.85rem] whitespace-nowrap">
+                    <span className="font-bold text-[var(--color-ds-primary)] text-[13px] whitespace-nowrap">
                       {formatPrice(item.auctionPricePerUnit)}
                     </span>
                     <span className="text-sm text-[var(--color-ds-disabled)] ml-1 whitespace-nowrap">
@@ -328,7 +328,7 @@ export default function AuctionHistoryList({
               </PopoverTrigger>
 
               <PopoverContent
-                className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg shadow-lg max-h-[70vh]"
+                className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg max-h-[70vh]"
                 side="right"
                 align="start"
               >

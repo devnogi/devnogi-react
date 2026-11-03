@@ -25,7 +25,11 @@ function formatPrice(value: number): string {
   return value.toLocaleString("ko-KR");
 }
 
-function formatPeriod(date?: string, weekStart?: string, weekEnd?: string): string {
+function formatPeriod(
+  date?: string,
+  weekStart?: string,
+  weekEnd?: string,
+): string {
   if (date) return date;
   if (weekStart && weekEnd) return `${weekStart} ~ ${weekEnd}`;
   if (weekStart) return weekStart;
@@ -69,7 +73,7 @@ export default function StatisticsChartTooltip({
 
   return (
     <div
-      className="rounded-xl border px-3 py-2 shadow-lg"
+      className="rounded-lg border px-3 py-2"
       style={{
         backgroundColor: isDarkMode ? "#1a1a2e" : "#FFFFFF",
         borderColor: isDarkMode ? "#2a2a45" : "#E5E7EB",
@@ -80,17 +84,25 @@ export default function StatisticsChartTooltip({
       <div className="space-y-1">
         {payload.map((entry, index) => {
           const numericValue =
-            typeof entry.value === "number" ? entry.value : Number(entry.value ?? 0);
+            typeof entry.value === "number"
+              ? entry.value
+              : Number(entry.value ?? 0);
           const valueText =
             mode === "volume" && entry.name === "totalQuantity"
               ? numericValue.toLocaleString("ko-KR")
               : formatPrice(numericValue);
 
           return (
-            <div key={`${entry.name ?? "series"}-${index}`} className="flex items-center gap-2 text-xs">
+            <div
+              key={`${entry.name ?? "series"}-${index}`}
+              className="flex items-center gap-2 text-xs"
+            >
               <span
                 className="inline-block w-2 h-2 rounded-full"
-                style={{ backgroundColor: entry.color ?? (isDarkMode ? "#9CA3AF" : "#6B7280") }}
+                style={{
+                  backgroundColor:
+                    entry.color ?? (isDarkMode ? "#9CA3AF" : "#6B7280"),
+                }}
               />
               <span>{getDisplayName(entry.name, mode)}:</span>
               <span className="font-semibold">{valueText}</span>
