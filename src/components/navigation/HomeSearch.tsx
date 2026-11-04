@@ -7,13 +7,14 @@ import {
   useContext,
   useEffect,
   useId,
-  useMemo,
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 
-import { useItemInfos } from "@/hooks/useItemInfos";
-import { RecentSearch, useRecentSearches } from "@/hooks/useRecentSearches";
+import { useUnifiedRecentSearches } from "@/hooks/useUnifiedRecentSearches";
+import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
+import { UnifiedSearchItem } from "@/types/unified-search";
 
 import styles from "./HomeSearch.module.css";
 
@@ -24,14 +25,30 @@ type SearchState = {
   setActive: (id: string | null) => void;
   selected: number;
   setSelected: (index: number) => void;
-  items: RecentSearch[];
+  items: UnifiedSearchItem[];
   loading: boolean;
-  submit: (item?: RecentSearch) => void;
+  error: boolean;
+  partial: boolean;
+  submit: (item?: UnifiedSearchItem) => void;
   clearRecent: () => void;
   refreshRecent: () => void;
 };
 
 const HomeSearchContext = createContext<SearchState | null>(null);
+
+const MENU_ROUTES: Record<string, string> = {
+  HOME: "/",
+  COMMUNITY: "/community",
+  AUCTION: "/auction-realtime",
+  AUCTION_HISTORY: "/auction-history",
+  AUCTION_REALTIME: "/auction-realtime",
+  STATISTICS: "/statistics",
+  HORN_BUGLE: "/horn-bugle",
+  CODEX: "/item-info",
+  ITEM_INFO: "/item-info",
+  MYPAGE: "/mypage",
+  SIGN_IN: "/sign-in",
+};
 
 export function HomeSearchProvider({
   children,
@@ -42,49 +59,41 @@ export function HomeSearchProvider({
   const [value, setValue] = useState("");
   const [active, setActive] = useState<string | null>(null);
   const [selected, setSelected] = useState(-1);
-  const { data = [], isLoading } = useItemInfos();
   const {
     recentSearches,
     addRecentSearch,
     clearAllRecentSearches,
     refreshRecentSearches,
-  } = useRecentSearches();
-  const items = useMemo(() => {
-    const term = value.trim().toLowerCase();
-    if (!term) return recentSearches;
-    return data
-      .filter((item) => item.name.toLowerCase().includes(term))
-      .slice(0, 10)
-      .map((item) => ({
-        itemName: item.name,
-        topCategory: item.topCategory,
-        subCategory: item.subCategory,
-      }));
-  }, [data, recentSearches, value]);
+  } = useUnifiedRecentSearches();
+  const search = useUnifiedSearch(value);
+  const hasQuery = value.trim().length > 0;
+  const items = hasQuery ? search.data : recentSearches;
 
-  const submit = (chosen?: RecentSearch) => {
-    const term = value.trim();
-    const exact = data.find(
-      (item) => item.name.toLowerCase() === term.toLowerCase(),
-    );
-    const search =
-      chosen ??
-      (exact
-        ? {
-            itemName: exact.name,
-            topCategory: exact.topCategory,
-            subCategory: exact.subCategory,
-          }
-        : { itemName: term });
-    if (!search.itemName.trim()) return;
-    addRecentSearch(search);
-    setValue(search.itemName);
+  const submit = (chosen?: UnifiedSearchItem) => {
+    if (
+      hasQuery &&
+      (search.isLoading || search.isDebouncing || search.isError)
+    ) {
+      return;
+    }
+    const item = chosen ?? items[0];
+    if (!item) return;
+    addRecentSearch(item);
+    setValue(item.label);
     setActive(null);
     setSelected(-1);
-    const params = new URLSearchParams({ item_name: search.itemName });
-    if (search.topCategory) params.set("top_category", search.topCategory);
-    if (search.subCategory) params.set("sub_category", search.subCategory);
-    router.push(`/auction-history?${params.toString()}`);
+
+    if (item.type === "USER") {
+      toast.info("사용자 프로필은 준비 중입니다.");
+      return;
+    }
+    if (item.type === "MENU") {
+      const route = MENU_ROUTES[item.targetKey];
+      if (route) router.push(route);
+      return;
+    }
+    const params = new URLSearchParams({ item_name: item.targetKey });
+    router.push(`/auction-realtime?${params.toString()}`);
   };
 
   return (
@@ -97,7 +106,9 @@ export function HomeSearchProvider({
         selected,
         setSelected,
         items,
-        loading: isLoading,
+        loading: hasQuery && (search.isLoading || search.isDebouncing),
+        error: hasQuery && search.isError,
+        partial: hasQuery && search.partialFailures.length > 0,
         submit,
         clearRecent: clearAllRecentSearches,
         refreshRecent: refreshRecentSearches,
@@ -141,13 +152,16 @@ export function HomeSearch({
     setSelected,
     items,
     loading,
+    error,
+    partial,
     submit,
     clearRecent,
     refreshRecent,
   } = state;
   const open = active === id && (value.trim().length > 0 || items.length > 0);
+  const hasOptions = open && !loading && !error && items.length > 0;
   const listId = `${id}-list`;
-  const label = location === "hero" ? "메인 아이템 검색" : "상단 아이템 검색";
+  const label = location === "hero" ? "메인 통합 검색" : "상단 통합 검색";
   return (
     <form
       className={`relative ${className}`}
@@ -168,16 +182,14 @@ export function HomeSearch({
         type="search"
         aria-label={label}
         role="combobox"
-        aria-expanded={open}
-        aria-controls={open ? listId : undefined}
+        aria-expanded={hasOptions}
+        aria-controls={hasOptions ? listId : undefined}
         aria-activedescendant={
-          open && selected >= 0 ? `${id}-option-${selected}` : undefined
+          hasOptions && selected >= 0 ? `${id}-option-${selected}` : undefined
         }
         aria-autocomplete="list"
         autoComplete="off"
-        placeholder={
-          location === "hero" ? "아이템 이름을 검색하세요" : "아이템 검색"
-        }
+        placeholder="유저명, 아이템명, 메뉴를 입력하세요"
         value={value}
         onChange={(event) => {
           setValue(event.target.value);
@@ -251,25 +263,43 @@ export function HomeSearch({
               </button>
             </div>
           )}
-          <ul
-            id={listId}
-            role="listbox"
-            aria-label={value.trim() ? "아이템 자동완성" : "최근 검색어"}
-          >
-            {loading && value.trim() ? (
-              <li className="px-4 py-3 text-sm text-gray-600">로딩 중...</li>
-            ) : items.length === 0 ? (
-              <li className="px-4 py-3 text-sm text-gray-600">
-                검색 결과가 없습니다
-              </li>
-            ) : (
-              items.map((item, index) => (
+          {loading && value.trim() ? (
+            <div
+              className="px-4 py-3 text-sm text-gray-600"
+              role="status"
+              aria-live="polite"
+            >
+              로딩 중...
+            </div>
+          ) : error ? (
+            <div
+              className="px-4 py-3 text-sm text-red-700"
+              role="status"
+              aria-live="polite"
+            >
+              검색 결과를 불러오지 못했습니다
+            </div>
+          ) : items.length === 0 ? (
+            <div
+              className="px-4 py-3 text-sm text-gray-600"
+              role="status"
+              aria-live="polite"
+            >
+              검색 결과가 없습니다
+            </div>
+          ) : (
+            <ul
+              id={listId}
+              role="listbox"
+              aria-label={value.trim() ? "통합 검색 자동완성" : "최근 검색어"}
+            >
+              {items.map((item, index) => (
                 <li
                   id={`${id}-option-${index}`}
                   ref={(element) => {
                     optionRefs.current[index] = element;
                   }}
-                  key={`${item.itemName}-${index}`}
+                  key={`${item.type}-${item.targetKey}`}
                   role="option"
                   aria-selected={selected === index}
                   onMouseDown={(event) => event.preventDefault()}
@@ -280,16 +310,34 @@ export function HomeSearch({
                   }}
                   className={`cursor-pointer px-4 py-3 text-sm text-gray-900 dark:text-gray-100 ${selected === index ? "bg-orange-50 dark:bg-navy-600" : "hover:bg-gray-50 dark:hover:bg-navy-600"}`}
                 >
-                  <div>{item.itemName}</div>
-                  {item.topCategory && item.subCategory && (
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{item.label}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-300">
+                      {item.type === "ITEM"
+                        ? "아이템"
+                        : item.type === "MENU"
+                          ? "메뉴"
+                          : "사용자"}
+                    </span>
+                  </div>
+                  {item.type === "USER" && item.serverName && (
                     <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                      {item.topCategory} › {item.subCategory}
+                      {item.serverName} 서버
                     </div>
                   )}
                 </li>
-              ))
-            )}
-          </ul>
+              ))}
+            </ul>
+          )}
+          {partial && !loading && !error && (
+            <div
+              className="border-t border-gray-100 px-4 py-2 text-xs text-amber-700 dark:border-navy-600 dark:text-amber-300"
+              role="status"
+              aria-live="polite"
+            >
+              일부 검색 결과를 불러오지 못했습니다.
+            </div>
+          )}
         </div>
       )}
     </form>
