@@ -92,9 +92,10 @@ describe("HomeLanding", () => {
 
     const hero = screen.getByRole("region", { name: "아이템 검색" });
     const card = screen.getByRole("region", { name: "홈 콘텐츠" });
+    expect(hero.querySelectorAll("img")).toHaveLength(2);
     expect(hero.querySelector("img")).toHaveAttribute(
       "src",
-      expect.stringContaining("home-hero-library.png"),
+      expect.stringContaining("home-hero-library-v2.png"),
     );
     expect(
       card.className
@@ -104,10 +105,10 @@ describe("HomeLanding", () => {
     expect(
       within(hero).getByRole("search", { name: "메인 아이템 검색" }),
     ).toBeInTheDocument();
-    expect(hero).toHaveClass("min-h-[260px]", "md:h-[280px]");
+    expect(hero).toHaveClass("min-h-[280px]", "md:h-[320px]");
     expect(card).toHaveClass(
-      "-mt-[20px]",
-      "md:-mt-[28px]",
+      "mt-6",
+      "md:mt-8",
       "rounded-t-[20px]",
       "md:rounded-t-[24px]",
     );
