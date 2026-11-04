@@ -5,12 +5,12 @@ import {
   Gavel,
   TrendingUp,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 import HomeRankingCards from "@/app/(main)/home/HomeRankingCards";
 import { HomeSearch } from "@/components/navigation/HomeSearch";
 
+import HomeHeroCarousel from "./HomeHeroCarousel";
 import styles from "./HomeLanding.module.css";
 import PopularItemLinks from "./PopularItemLinks";
 
@@ -47,17 +47,10 @@ export default function HomeLanding() {
       className={`${styles.home} relative left-1/2 -mt-6 -mb-6 w-screen -translate-x-1/2 bg-[var(--color-ds-background)] md:-mt-8 md:-mb-8 dark:bg-navy-900`}
     >
       <section
-        className="relative flex min-h-[260px] items-center justify-center px-4 py-10 md:h-[280px]"
+        className="relative flex min-h-[280px] items-center justify-center px-4 py-10 md:h-[320px]"
         aria-label="아이템 검색"
       >
-        <Image
-          src="/home-hero-library.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="z-0 object-cover object-[35%_60%] brightness-[.62] saturate-[.78] md:object-[center_68%]"
-        />
+        <HomeHeroCarousel />
         <div className="relative z-20 w-full max-w-2xl">
           <HomeSearch location="hero" />
           <PopularItemLinks />
@@ -67,7 +60,7 @@ export default function HomeLanding() {
       <div
         role="region"
         aria-label="홈 콘텐츠"
-        className="relative z-10 mx-auto -mt-[20px] w-[calc(100cqw_-_24px)] rounded-t-[20px] bg-[var(--color-ds-background)] px-4 py-8 sm:px-6 md:-mt-[28px] md:rounded-t-[24px] lg:w-[66.7vw] lg:max-w-[1120px] lg:px-0 lg:py-10 dark:bg-navy-800"
+        className="relative z-10 mx-auto mt-6 w-[calc(100cqw_-_24px)] rounded-t-[20px] bg-[var(--color-ds-background)] px-4 py-8 sm:px-6 md:mt-8 md:rounded-t-[24px] lg:w-[66.7vw] lg:max-w-[1120px] lg:px-0 lg:py-10 dark:bg-navy-800"
       >
         <div className="mx-auto w-full space-y-8 lg:w-[60vw] lg:max-w-[1000px]">
           <HomeRankingCards />
