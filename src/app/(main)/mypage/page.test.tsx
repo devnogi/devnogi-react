@@ -187,4 +187,21 @@ describe("마이페이지 닉네임 변경 경계", () => {
       "사용 시간이 지났거나 유효하지 않습니다",
     );
   });
+
+  it("닉네임 발급 중에는 오류 대신 중립적인 로딩 안내를 표시한다", () => {
+    jest.mocked(useNicknameCandidate).mockReturnValue({
+      candidate: null,
+      status: "loading",
+      error: null,
+      refresh: jest.fn(),
+    });
+
+    openEditor();
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "새 닉네임을 불러오고 있습니다.",
+    );
+    expect(screen.getByRole("status")).toHaveClass("text-gray-500");
+    expect(screen.getByRole("button", { name: "다시 뽑기" })).toBeDisabled();
+  });
 });

@@ -119,6 +119,33 @@ it("후보가 없으면 소셜 가입을 비활성화한다", async () => {
   expect(screen.getByRole("status")).toHaveTextContent("다시 시도해주세요");
 });
 
+it("닉네임 발급 중에는 재발급 오류 대신 로딩 상태만 표시한다", () => {
+  jest.mocked(useNicknameCandidate).mockReturnValue({
+    candidate: null,
+    status: "loading",
+    error: null,
+    refresh: jest.fn(),
+  });
+
+  render(
+    <SocialSignUpForm
+      provider="google"
+      signupProof="synthetic-proof"
+      onSuccess={jest.fn()}
+      onError={jest.fn()}
+      onCancel={jest.fn()}
+    />,
+  );
+
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "새 닉네임을 불러오고 있습니다.",
+  );
+  expect(
+    screen.queryByText("닉네임을 다시 발급받아주세요"),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "다시 뽑기" })).toBeDisabled();
+});
+
 it.each([
   [400, "EXPIRED_NICKNAME_TICKET"],
   [400, "INVALID_NICKNAME_TICKET"],

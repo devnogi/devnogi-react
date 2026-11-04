@@ -1,172 +1,79 @@
+import { act, render, screen, waitFor } from "@testing-library/react";
+
+import SocialSignUpForm from "@/components/auth/SocialSignUpForm";
+import { useAuth } from "@/contexts/AuthContext";
 import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+  getPendingSocialSignup,
+  savePendingSocialSignup,
+} from "@/lib/auth/socialAuth";
 
-import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
+import SocialSignUpPage from "./page";
 
-import SignUpPage from "./page";
+const replace = jest.fn();
+const refreshUser = jest.fn().mockResolvedValue(undefined);
 
-const push = jest.fn();
-jest.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-jest.mock("@/hooks/useNicknameCandidate", () => ({
-  useNicknameCandidate: jest.fn(),
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ replace }),
+}));
+jest.mock("@/contexts/AuthContext", () => ({ useAuth: jest.fn() }));
+jest.mock("@/components/auth/SocialSignUpForm", () => ({
+  __esModule: true,
+  default: jest.fn(() => <div data-testid="social-signup-form" />),
 }));
 
-const candidate = {
-  nickname: "행복한 나무 A1B2C",
-  nicknameTicket: "synthetic-candidate-ticket",
-  expiresAt: "2099-01-01T00:00:00Z",
-};
+beforeEach(() => {
+  jest.clearAllMocks();
+  sessionStorage.clear();
+  Object.defineProperty(window, "opener", { configurable: true, value: null });
+  jest
+    .mocked(useAuth)
+    .mockReturnValue({ refreshUser } as unknown as ReturnType<typeof useAuth>);
+});
 
-describe("일반 회원가입의 랜덤 닉네임", () => {
-  const originalFetch = global.fetch;
-  const originalAlert = window.alert;
-  const fetchMock = jest.fn();
+it("직접 접근은 가입 폼을 노출하지 않고 로그인으로 돌려보낸다", async () => {
+  render(<SocialSignUpPage />);
 
-  async function fillRequiredFields() {
-    const email = screen.getByPlaceholderText("example@email.com");
-    fireEvent.change(email, { target: { value: "user@example.test" } });
-    fireEvent.blur(email);
-    await waitFor(() =>
-      expect(screen.getByText("사용 가능한 이메일입니다")).toBeInTheDocument(),
-    );
-    fireEvent.change(
-      screen.getByPlaceholderText("영문, 숫자, 특수문자 포함 8-30자"),
-      { target: { value: "Password1!" } },
-    );
-    fireEvent.change(
-      screen.getByPlaceholderText("비밀번호를 다시 입력하세요"),
-      { target: { value: "Password1!" } },
-    );
-    const [terms, privacy] = screen.getAllByRole("checkbox");
-    fireEvent.click(terms);
-    fireEvent.click(privacy);
-    const submit = screen.getByRole("button", { name: "회원가입" });
-    await waitFor(() => expect(submit).toBeEnabled());
-    return submit;
-  }
+  await waitFor(() => expect(replace).toHaveBeenCalledWith("/sign-in"));
+  expect(screen.queryByTestId("social-signup-form")).not.toBeInTheDocument();
+});
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    jest.mocked(useNicknameCandidate).mockReturnValue({
-      candidate,
-      status: "ready",
-      error: null,
-      refresh: jest.fn(),
-    });
-    global.fetch = fetchMock.mockImplementation(async (input: string) => {
-      if (input.startsWith("/api/auth/check-email")) {
-        return { ok: true, json: async () => ({ success: true, data: true }) };
-      }
-      if (input === "/api/auth/signup") {
-        return { ok: true, status: 200, json: async () => ({ success: true }) };
-      }
-      throw new Error(`Unexpected request: ${input}`);
-    });
-    window.alert = jest.fn();
+it("OAuth 가입 상태가 있으면 URL 노출 없이 소셜 가입 폼에 전달한다", async () => {
+  savePendingSocialSignup({
+    provider: "naver",
+    email: "user@example.test",
+    signupProof: "synthetic-proof",
+    createdAt: Date.now(),
   });
 
-  afterEach(() => {
-    global.fetch = originalFetch;
-    window.alert = originalAlert;
+  render(<SocialSignUpPage />);
+
+  await screen.findByTestId("social-signup-form");
+  expect(jest.mocked(SocialSignUpForm).mock.calls.at(-1)?.[0]).toEqual(
+    expect.objectContaining({
+      provider: "naver",
+      email: "user@example.test",
+      signupProof: "synthetic-proof",
+    }),
+  );
+  expect(window.location.search).not.toContain("synthetic-proof");
+});
+
+it("가입 성공 시 임시 증명을 삭제하고 메인으로 이동한다", async () => {
+  savePendingSocialSignup({
+    provider: "google",
+    email: "user@example.test",
+    signupProof: "synthetic-proof",
+    createdAt: Date.now(),
   });
+  render(<SocialSignUpPage />);
+  await screen.findByTestId("social-signup-form");
+  const onSuccess = jest
+    .mocked(SocialSignUpForm)
+    .mock.calls.at(-1)?.[0].onSuccess;
 
-  it("읽기 전용 후보를 표시하고 가입 요청에 해당 티켓을 포함한다", async () => {
-    render(<SignUpPage />);
-    const nickname = screen.getByRole("textbox", { name: /닉네임/ });
-    expect(nickname).toHaveValue(candidate.nickname);
-    expect(nickname).toHaveAttribute("readonly");
+  await act(async () => onSuccess?.(7));
 
-    const submit = await fillRequiredFields();
-    await act(async () => {
-      fireEvent.click(submit);
-    });
-
-    await waitFor(() =>
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/auth/signup",
-        expect.any(Object),
-      ),
-    );
-    const [, request] = fetchMock.mock.calls.find(
-      ([url]) => url === "/api/auth/signup",
-    );
-    expect(request.body).toBeInstanceOf(FormData);
-    expect(request.body.get("nickname")).toBe(candidate.nickname);
-    expect(request.body.get("nicknameTicket")).toBe(candidate.nicknameTicket);
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/sign-in"));
-  });
-
-  it("후보 발급 실패 시 가입 버튼이 비활성화된다", async () => {
-    jest.mocked(useNicknameCandidate).mockReturnValue({
-      candidate: null,
-      status: "error",
-      error: "다시 시도해주세요",
-      refresh: jest.fn(),
-    });
-    render(<SignUpPage />);
-    expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
-    expect(screen.getByRole("status")).toHaveTextContent("다시 시도해주세요");
-    await act(async () => {
-      await Promise.resolve();
-    });
-  });
-
-  it("구형 화면에서 온 4xx 가입 오류에는 서버 메시지와 새로고침 안내를 보여준다", async () => {
-    fetchMock.mockImplementation(async (input: string) =>
-      input.startsWith("/api/auth/check-email")
-        ? { ok: true, json: async () => ({ success: true, data: true }) }
-        : {
-            ok: false,
-            status: 400,
-            json: async () => ({
-              code: "INVALID_NICKNAME_TICKET",
-              message: "새 가입 화면이 필요합니다.",
-            }),
-          },
-    );
-    render(<SignUpPage />);
-    const submit = await fillRequiredFields();
-    await act(async () => {
-      fireEvent.click(submit);
-    });
-    await waitFor(() =>
-      expect(window.alert).toHaveBeenCalledWith(
-        expect.stringContaining("새 가입 화면이 필요합니다."),
-      ),
-    );
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining("페이지를 새로고침"),
-    );
-    expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
-  });
-
-  it("이메일 중복 409는 이메일 오류로 표시하고 닉네임 재발급을 요구하지 않는다", async () => {
-    fetchMock.mockImplementation(async (input: string) =>
-      input.startsWith("/api/auth/check-email")
-        ? { ok: true, json: async () => ({ success: true, data: true }) }
-        : {
-            ok: false,
-            status: 409,
-            json: async () => ({ code: "EMAIL_ALREADY_EXISTS" }),
-          },
-    );
-    render(<SignUpPage />);
-    const submit = await fillRequiredFields();
-    await act(async () => {
-      fireEvent.click(submit);
-    });
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining("이미 가입된 이메일"),
-    );
-    expect(window.alert).not.toHaveBeenCalledWith(
-      expect.stringContaining("다시 뽑아주세요"),
-    );
-    expect(screen.getByRole("status")).not.toHaveTextContent("중복되었습니다");
-    expect(screen.getByRole("button", { name: "회원가입" })).toBeDisabled();
-  });
+  expect(getPendingSocialSignup()).toBeNull();
+  expect(refreshUser).toHaveBeenCalled();
+  expect(replace).toHaveBeenCalledWith("/");
 });

@@ -93,13 +93,14 @@ export default function SocialSignUpForm({
   });
 
   useEffect(() => {
-    form.setValue("nickname", candidate?.nickname ?? "", {
-      shouldValidate: true,
-    });
+    if (!candidate) return;
+    form.setValue("nickname", candidate.nickname, { shouldValidate: true });
+    form.clearErrors("nickname");
   }, [candidate, form]);
 
   const rerollNickname = () => {
     setNicknameSubmissionError(null);
+    form.clearErrors("nickname");
     void refreshNickname();
   };
 
@@ -352,6 +353,14 @@ export default function SocialSignUpForm({
                   id="social-nickname-status"
                   role="status"
                   aria-live="polite"
+                  className={
+                    nicknameSubmissionError ||
+                    nicknameError ||
+                    nicknameStatus === "error" ||
+                    nicknameStatus === "expired"
+                      ? "text-destructive"
+                      : undefined
+                  }
                 >
                   {nicknameSubmissionError ??
                     nicknameError ??
@@ -359,7 +368,7 @@ export default function SocialSignUpForm({
                       ? "새 닉네임을 불러오고 있습니다."
                       : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
                 </FormDescription>
-                <FormMessage />
+                {nicknameStatus !== "loading" ? <FormMessage /> : null}
               </FormItem>
             )}
           />
