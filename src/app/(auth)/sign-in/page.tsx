@@ -1,206 +1,61 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import {
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  ShieldCheck,
-  Sparkles,
-  User,
-} from "lucide-react";
+import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useCallback, useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { useAuth } from "@/contexts/AuthContext";
-import { useConfig } from "@/contexts/ConfigContext";
+import { clearSocialLoginReturnUrl } from "@/lib/auth/socialAuth";
 
 import panelStyles from "../AuthPanel.module.css";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "올바른 이메일 주소를 입력해주세요" }),
-  password: z.string().min(1, { message: "비밀번호를 입력해주세요" }),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
-const GoogleIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5">
-    <path
-      fill="#4285F4"
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-    />
-  </svg>
-);
-
-const KakaoIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5">
-    <path
-      fill="#3C1E1E"
-      d="M12 3C6.486 3 2 6.462 2 10.8c0 2.775 1.858 5.21 4.665 6.563l-.892 3.245a.5.5 0 00.725.579l3.996-2.664A11.97 11.97 0 0012 18.6c5.514 0 10-3.462 10-7.8S17.514 3 12 3z"
-    />
-  </svg>
-);
-
-const NaverIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5">
-    <path
-      fill="#03C75A"
-      d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"
-    />
-  </svg>
-);
-
 export default function Page() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const submitting = useRef(false);
   const router = useRouter();
-  const { config, isLoading: isConfigLoading } = useConfig();
-  const { login, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
 
-  // 소셜 로그인 성공 메시지 핸들러
   const handleSocialLoginMessage = useCallback(
     async (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) {
+      if (event.origin !== window.location.origin) return;
+      if (event.data.type === "social_login_cancel") {
+        clearSocialLoginReturnUrl();
+        return;
+      }
+      if (
+        event.data.type !== "social_login_success" &&
+        event.data.type !== "social_signup_success"
+      ) {
         return;
       }
 
-      if (
-        event.data.type === "social_login_success" ||
-        event.data.type === "social_signup_success"
-      ) {
-        // 사용자 정보 갱신
-        await refreshUser();
-        // 메인 페이지로 이동
-        router.push("/");
-      }
-      // social_login_cancel은 별도 처리 불필요
+      clearSocialLoginReturnUrl();
+      await refreshUser();
+      router.push("/");
     },
     [refreshUser, router],
   );
 
-  // 메시지 리스너 등록
   useEffect(() => {
     window.addEventListener("message", handleSocialLoginMessage);
-    return () => {
+    return () =>
       window.removeEventListener("message", handleSocialLoginMessage);
-    };
   }, [handleSocialLoginMessage]);
-
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    mode: "onChange",
-  });
-
-  const onSubmit = async (data: LoginFormData) => {
-    if (submitting.current) return;
-    submitting.current = true;
-    setIsLoading(true);
-    setLoginError(null);
-    let succeeded = false;
-
-    try {
-      await login(data.email, data.password);
-
-      const referrer = document.referrer;
-      let returnUrl = "/";
-
-      if (referrer && referrer !== window.location.href) {
-        try {
-          const previous = new URL(referrer);
-          if (
-            previous.origin === window.location.origin &&
-            previous.pathname.startsWith("/") &&
-            !previous.pathname.startsWith("//") &&
-            previous.pathname !== "/sign-in"
-          ) {
-            returnUrl = previous.pathname + previous.search + previous.hash;
-          }
-        } catch {
-          // 파싱 실패 시 안전 기본값
-          returnUrl = "/";
-        }
-      }
-
-      succeeded = true;
-      router.push(returnUrl);
-    } catch (error) {
-      setLoginError(
-        error instanceof Error
-          ? error.message
-          : "로그인에 실패했습니다. 다시 시도해주세요.",
-      );
-    } finally {
-      if (!succeeded) {
-        submitting.current = false;
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleSocialLogin = (provider: "google" | "kakao" | "naver") => {
-    if (isConfigLoading || !config) {
-      console.error("Config is not loaded yet");
-      return;
-    }
-
-    // 소셜 로그인 시작
-    import("@/lib/auth/socialAuth").then(({ initiateSocialLogin }) => {
-      initiateSocialLogin(provider, config.socialAuthBaseUrl);
-    });
-  };
-
-  const isSocialDisabled = isConfigLoading || !config;
-  const socialButtonBaseClass =
-    "w-full h-12 flex items-center justify-center gap-3 rounded-lg transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <div className="h-dvh overflow-hidden bg-background text-foreground">
       <div className="flex h-full md:mx-auto md:max-w-5xl md:px-4 md:py-4 lg:px-6 lg:py-6">
-        <div className="flex min-h-0 w-full overflow-hidden md:rounded-lg md:border md:border-border bg-card">
+        <div className="flex min-h-0 w-full overflow-hidden bg-card md:rounded-lg md:border md:border-border">
           <aside
             className={clsx(
               panelStyles.library,
               "hidden w-[42%] min-w-[320px] flex-col justify-between bg-stone-800 bg-cover bg-center bg-blend-multiply p-8 text-white md:flex",
             )}
           >
-            <div className="space-y-4">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
-                <Sparkles className="h-4 w-4" />
+            <div className="flex flex-col gap-4">
+              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
+                <Sparkles className="size-4" />
                 메모노기
               </p>
               <h2 className="text-3xl font-bold leading-tight">
@@ -214,7 +69,7 @@ export default function Page() {
             </div>
             <div className="rounded-lg border border-white/20 bg-black/10 p-4">
               <p className="flex items-center gap-2 text-sm font-semibold">
-                <ShieldCheck className="h-4 w-4" />
+                <ShieldCheck className="size-4" />
                 안전한 계정 연결
               </p>
               <p className="mt-1 text-xs text-white/80">
@@ -225,20 +80,20 @@ export default function Page() {
           </aside>
 
           <main className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5 sm:p-8">
-            <div className="mx-auto w-full max-w-md">
-              <header className="mb-6">
+            <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 py-10 sm:py-12">
+              <header>
                 <Link
                   href="/"
                   className="mb-4 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-2 size-4" />
                   홈으로 돌아가기
                 </Link>
                 <h1 className="text-2xl font-semibold text-foreground">
-                  로그인
+                  소셜 계정으로 시작하기
                 </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  계정 정보를 입력하고 메모노기를 시작하세요.
+                  사용하실 소셜 계정을 선택해 로그인하거나 가입하세요.
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   메모노기는 NEXON OPEN API를 활용한 비공식 커뮤니티
@@ -246,178 +101,7 @@ export default function Page() {
                 </p>
               </header>
 
-              <Form {...form}>
-                <form
-                  onSubmit={(event) => {
-                    if (submitting.current) {
-                      event.preventDefault();
-                      return;
-                    }
-                    void form.handleSubmit(onSubmit)(event);
-                  }}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-semibold text-foreground">
-                          이메일
-                        </FormLabel>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                          <FormControl>
-                            <Input
-                              type="email"
-                              autoComplete="username"
-                              disabled={isLoading}
-                              placeholder="이메일을 입력하세요"
-                              className="h-12 rounded-lg border-border pl-11 focus:border-ring focus:ring-ring/20"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-semibold text-foreground">
-                          비밀번호
-                        </FormLabel>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                          <FormControl>
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              autoComplete="current-password"
-                              disabled={isLoading}
-                              placeholder="비밀번호를 입력하세요"
-                              className="h-12 rounded-lg border-border pl-11 pr-11 focus:border-ring focus:ring-ring/20"
-                              {...field}
-                            />
-                          </FormControl>
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                            aria-label={
-                              showPassword ? "비밀번호 숨기기" : "비밀번호 보기"
-                            }
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-5 w-5" />
-                            ) : (
-                              <Eye className="h-5 w-5" />
-                            )}
-                          </button>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {loginError && (
-                    <p role="alert" className="text-sm text-red-600">
-                      {loginError}
-                    </p>
-                  )}
-
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !form.formState.isValid}
-                    className={clsx(
-                      "mt-2 h-12 w-full rounded-full bg-primary font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90",
-                      !form.formState.isValid && "opacity-60",
-                    )}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        로그인 중...
-                      </>
-                    ) : (
-                      "로그인"
-                    )}
-                  </Button>
-                </form>
-              </Form>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-card px-4 text-muted-foreground">
-                    또는
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin("google")}
-                  disabled={isSocialDisabled}
-                  className={clsx(
-                    socialButtonBaseClass,
-                    "group border border-border hover:bg-background",
-                  )}
-                >
-                  <GoogleIcon />
-                  <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
-                    Google로 계속하기
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin("kakao")}
-                  disabled={isSocialDisabled}
-                  className={clsx(
-                    socialButtonBaseClass,
-                    "group bg-[#FEE500] hover:bg-[#FDD835]",
-                  )}
-                >
-                  <KakaoIcon />
-                  <span className="text-sm font-medium text-[#3C1E1E] group-hover:text-black">
-                    카카오로 계속하기
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin("naver")}
-                  disabled={isSocialDisabled}
-                  className={clsx(
-                    socialButtonBaseClass,
-                    "group bg-[#03C75A] hover:bg-[#02B350]",
-                  )}
-                >
-                  <NaverIcon />
-                  <span className="text-sm font-medium text-white">
-                    네이버로 계속하기
-                  </span>
-                </button>
-              </div>
-
-              <div className="mt-5 text-center">
-                <p className="text-sm text-muted-foreground">
-                  계정이 없으신가요?{" "}
-                  <Link
-                    href="/sign-up"
-                    className="font-semibold text-primary transition-colors hover:text-foreground"
-                  >
-                    회원가입
-                  </Link>
-                </p>
-              </div>
+              <SocialLoginButtons />
             </div>
           </main>
         </div>

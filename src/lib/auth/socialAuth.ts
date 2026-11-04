@@ -4,9 +4,24 @@
 
 export type SocialProvider = "google" | "kakao" | "naver";
 
+export interface PendingSocialSignup {
+  provider: SocialProvider;
+  email?: string;
+  signupProof: string;
+  createdAt: number;
+}
+
+const SOCIAL_SIGNUP_STORAGE_KEY = "pending_social_signup";
+const SOCIAL_SIGNUP_MAX_AGE_MS = 5 * 60 * 1000;
+
 export type SocialExchangeResult =
   | { type: "LOGIN_SUCCESS" }
-  | { type: "SIGNUP_REQUIRED"; provider: string; email: string; signupProof: string };
+  | {
+      type: "SIGNUP_REQUIRED";
+      provider: string;
+      email: string;
+      signupProof: string;
+    };
 
 export interface SocialAuthResponse {
   success: boolean;
@@ -30,7 +45,7 @@ export interface SocialAuthResponse {
  */
 export function initiateSocialLogin(
   provider: SocialProvider,
-  gatewayUrl: string
+  gatewayUrl: string,
 ): void {
   // 현재 페이지 URL을 저장 (로그인 후 돌아오기 위함)
   const currentUrl = window.location.href;
@@ -48,7 +63,7 @@ export function initiateSocialLogin(
   const popup = window.open(
     authUrl,
     `social_login_${provider}`,
-    `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+    `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`,
   );
 
   if (!popup) {
@@ -64,9 +79,10 @@ export function initiateSocialLogin(
  * @param response - OAuth2SuccessHandler의 응답
  * @returns 처리 결과 (로그인 성공 또는 회원가입 필요)
  */
-export function handleSocialLoginCallback(
-  response: SocialAuthResponse
-): { type: "login" | "signup"; data: SocialAuthResponse } {
+export function handleSocialLoginCallback(response: SocialAuthResponse): {
+  type: "login" | "signup";
+  data: SocialAuthResponse;
+} {
   if (response.code === "LOGIN_SUCCESS") {
     // 기존 사용자 로그인 성공
     return { type: "login", data: response };
@@ -90,4 +106,45 @@ export function getSocialLoginReturnUrl(): string {
  */
 export function clearSocialLoginReturnUrl(): void {
   sessionStorage.removeItem("social_login_return_url");
+}
+
+export function savePendingSocialSignup(signup: PendingSocialSignup): void {
+  sessionStorage.setItem(SOCIAL_SIGNUP_STORAGE_KEY, JSON.stringify(signup));
+}
+
+export function getPendingSocialSignup(): PendingSocialSignup | null {
+  const stored = sessionStorage.getItem(SOCIAL_SIGNUP_STORAGE_KEY);
+  if (!stored) return null;
+
+  try {
+    const signup = JSON.parse(stored) as Partial<PendingSocialSignup>;
+    const validProvider =
+      signup.provider === "google" ||
+      signup.provider === "kakao" ||
+      signup.provider === "naver";
+    const validAge =
+      typeof signup.createdAt === "number" &&
+      signup.createdAt <= Date.now() &&
+      Date.now() - signup.createdAt < SOCIAL_SIGNUP_MAX_AGE_MS;
+
+    if (
+      !validProvider ||
+      typeof signup.signupProof !== "string" ||
+      signup.signupProof.length === 0 ||
+      (signup.email !== undefined && typeof signup.email !== "string") ||
+      !validAge
+    ) {
+      clearPendingSocialSignup();
+      return null;
+    }
+
+    return signup as PendingSocialSignup;
+  } catch {
+    clearPendingSocialSignup();
+    return null;
+  }
+}
+
+export function clearPendingSocialSignup(): void {
+  sessionStorage.removeItem(SOCIAL_SIGNUP_STORAGE_KEY);
 }

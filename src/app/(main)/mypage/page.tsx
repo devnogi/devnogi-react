@@ -800,7 +800,15 @@ function EditProfileModal({
               id="profile-nickname-status"
               role="status"
               aria-live="polite"
-              className="text-xs text-gray-500 mt-2"
+              className={clsx(
+                "mt-2 text-xs",
+                nicknameSubmissionError ||
+                  nicknameError ||
+                  nicknameStatus === "error" ||
+                  nicknameStatus === "expired"
+                  ? "text-red-600"
+                  : "text-gray-500",
+              )}
             >
               {isVerified
                 ? "인증된 계정은 닉네임을 직접 변경할 수 없습니다. 닉네임을 바꾸려면 인증 정보를 다시 갱신해야 합니다."

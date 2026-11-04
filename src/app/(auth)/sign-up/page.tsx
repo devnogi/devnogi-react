@@ -1,823 +1,89 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import clsx from "clsx";
-import {
-  ArrowLeft,
-  Camera,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  Mail,
-  Shuffle,
-  User,
-  XCircle,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import SocialSignUpForm from "@/components/auth/SocialSignUpForm";
+import { useAuth } from "@/contexts/AuthContext";
 import {
-  PRIVACY_POLICY,
-  TERMS_OF_SERVICE,
-} from "@/components/page/auth/TermsOfService";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
+  clearPendingSocialSignup,
+  clearSocialLoginReturnUrl,
+  getPendingSocialSignup,
+  type PendingSocialSignup,
+} from "@/lib/auth/socialAuth";
 
-import panelStyles from "../AuthPanel.module.css";
-
-const signUpSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, { message: "이메일은 필수 입력 항목입니다" })
-      .email({ message: "올바른 이메일 형식이 아닙니다" }),
-    password: z
-      .string()
-      .min(8, { message: "비밀번호는 최소 8자 이상이어야 합니다" })
-      .max(30, { message: "비밀번호는 최대 30자까지 가능합니다" })
-      .regex(/[A-Za-z]/, { message: "영문자를 포함해야 합니다" })
-      .regex(/\d/, { message: "숫자를 포함해야 합니다" })
-      .regex(/[@$!%*#?&]/, {
-        message: "특수문자(@$!%*#?&)를 포함해야 합니다",
-      }),
-    passwordConfirm: z
-      .string()
-      .min(1, { message: "비밀번호 확인은 필수입니다" }),
-    nickname: z.string().min(1, { message: "닉네임을 다시 발급받아주세요" }),
-    agreeTerms: z.boolean().refine((val) => val === true, {
-      message: "이용약관에 동의해주세요",
-    }),
-    agreePrivacy: z.boolean().refine((val) => val === true, {
-      message: "개인정보처리방침에 동의해주세요",
-    }),
-    agreeMarketing: z.boolean().optional(),
-  })
-  .refine((data) => data.password === data.passwordConfirm, {
-    message: "비밀번호가 일치하지 않습니다",
-    path: ["passwordConfirm"],
-  });
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
-const refreshSignupHint =
-  "이전 화면이 열려 있다면 페이지를 새로고침해 최신 가입 화면에서 다시 시도해주세요.";
-
-export default function SignUpPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const [termsContent, setTermsContent] = useState("");
-  const [emailCheckStatus, setEmailCheckStatus] = useState<
-    "idle" | "checking" | "available" | "unavailable"
-  >("idle");
-  const [nicknameSubmissionError, setNicknameSubmissionError] = useState<
-    string | null
-  >(null);
-  const {
-    candidate,
-    status: nicknameStatus,
-    error: nicknameError,
-    refresh: refreshNickname,
-  } = useNicknameCandidate();
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
-    null,
-  );
-  const router = useRouter();
-
-  const form = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      passwordConfirm: "",
-      nickname: "",
-      agreeTerms: false,
-      agreePrivacy: false,
-      agreeMarketing: false,
-    },
-    mode: "onChange",
-  });
-
-  const password = form.watch("password");
+export default function SocialSignUpPage() {
+  const { replace } = useRouter();
+  const { refreshUser } = useAuth();
+  const [signup, setSignup] = useState<PendingSocialSignup | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    form.setValue("nickname", candidate?.nickname ?? "", {
-      shouldValidate: true,
-    });
-  }, [candidate, form]);
-
-  const rerollNickname = () => {
-    setNicknameSubmissionError(null);
-    void refreshNickname();
-  };
-
-  // 비밀번호 강도 검사
-  const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return { strength: 0, label: "", color: "" };
-
-    let strength = 0;
-    if (pwd.length >= 8) strength++;
-    if (pwd.length >= 12) strength++;
-    if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) strength++;
-    if (/\d/.test(pwd)) strength++;
-    if (/[@$!%*#?&]/.test(pwd)) strength++;
-
-    if (strength <= 2) return { strength, label: "약함", color: "bg-red-500" };
-    if (strength <= 3)
-      return { strength, label: "보통", color: "bg-yellow-500" };
-    return { strength, label: "강함", color: "bg-green-500" };
-  };
-
-  const passwordStrength = getPasswordStrength(password);
-
-  const checkEmailAvailability = async (email: string) => {
-    if (!email || !email.match(/^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/)) {
-      setEmailCheckStatus("idle");
+    const pendingSignup = getPendingSocialSignup();
+    if (!pendingSignup) {
+      replace("/sign-in");
       return;
     }
+    setSignup(pendingSignup);
+    setChecking(false);
+  }, [replace]);
 
-    setEmailCheckStatus("checking");
-    try {
-      const response = await fetch(
-        `/api/auth/check-email?email=${encodeURIComponent(email)}`,
+  const finish = async () => {
+    clearPendingSocialSignup();
+    clearSocialLoginReturnUrl();
+    await refreshUser();
+
+    if (window.opener) {
+      window.opener.postMessage(
+        { type: "social_signup_success" },
+        window.location.origin,
       );
-      const data = await response.json();
-
-      if (data.success && data.data === true) {
-        setEmailCheckStatus("available");
-      } else {
-        setEmailCheckStatus("unavailable");
-      }
-    } catch (error) {
-      console.error("이메일 중복 확인 실패:", error);
-      setEmailCheckStatus("idle");
+      window.close();
+    } else {
+      replace("/");
     }
   };
 
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // 파일 크기 체크 (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("파일 크기는 5MB 이하만 가능합니다");
-        return;
-      }
-
-      setProfileImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const cancel = () => {
+    clearPendingSocialSignup();
+    clearSocialLoginReturnUrl();
+    if (window.opener) {
+      window.opener.postMessage(
+        { type: "social_login_cancel" },
+        window.location.origin,
+      );
+      window.close();
+    } else {
+      replace("/sign-in");
     }
   };
 
-  const onSubmit = async (data: SignUpFormData) => {
-    // 이메일 확인과 서버 발급 닉네임 증명을 확인한다.
-    if (emailCheckStatus !== "available") {
-      alert("이메일 중복 확인을 해주세요");
-      return;
-    }
-
-    if (
-      nicknameStatus !== "ready" ||
-      !candidate ||
-      data.nickname !== candidate.nickname ||
-      nicknameSubmissionError ||
-      Date.parse(candidate.expiresAt) <= Date.now()
-    ) {
-      alert("닉네임을 다시 발급받아주세요");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      formData.append("nickname", data.nickname);
-      formData.append("nicknameTicket", candidate.nicknameTicket);
-
-      if (profileImage) {
-        formData.append("file", profileImage);
-      }
-
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (response.status === 409 && result.code === "EMAIL_ALREADY_EXISTS") {
-        setEmailCheckStatus("unavailable");
-        form.setError("email", {
-          message: "이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.",
-        });
-        throw new Error(
-          "이미 가입된 이메일입니다. 다른 이메일을 사용해주세요.",
-        );
-      }
-      if (
-        response.status === 409 &&
-        result.code === "NICKNAME_ALREADY_EXISTS"
-      ) {
-        setNicknameSubmissionError("닉네임이 중복되었습니다. 다시 뽑아주세요.");
-        throw new Error(
-          `닉네임이 중복되었습니다. 다시 뽑아주세요. ${refreshSignupHint}`,
-        );
-      }
-      if (
-        response.status === 400 &&
-        ["INVALID_NICKNAME_TICKET", "EXPIRED_NICKNAME_TICKET"].includes(
-          result.code,
-        )
-      ) {
-        setNicknameSubmissionError(
-          "닉네임 사용 시간이 지났거나 유효하지 않습니다. 다시 뽑아주세요.",
-        );
-        throw new Error(
-          `${result.message || "닉네임 사용 시간이 지났거나 유효하지 않습니다."} 다시 뽑아주세요. ${refreshSignupHint}`,
-        );
-      }
-      if (!response.ok) {
-        const message = result.message || "회원가입에 실패했습니다";
-        throw new Error(
-          response.status >= 400 && response.status < 500
-            ? `${message} ${refreshSignupHint}`
-            : message,
-        );
-      }
-
-      alert("회원가입이 완료되었습니다!");
-      router.push("/sign-in");
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "회원가입에 실패했습니다");
-    } finally {
-      setIsLoading(false);
-    }
+  const fail = () => {
+    clearPendingSocialSignup();
+    clearSocialLoginReturnUrl();
+    replace("/sign-in");
   };
 
-  const openTermsModal = () => {
-    setTermsContent(TERMS_OF_SERVICE);
-    setShowTermsModal(true);
-  };
-
-  const openPrivacyModal = () => {
-    setTermsContent(PRIVACY_POLICY);
-    setShowPrivacyModal(true);
-  };
+  if (checking || !signup) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background p-4 text-foreground">
+        <Loader2 className="size-12 animate-spin text-primary" />
+        <span className="sr-only">가입 정보를 확인하는 중...</span>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="h-dvh overflow-hidden bg-background text-foreground">
-        <div className="mx-auto flex h-full max-w-5xl px-4 py-4 sm:px-6 sm:py-6">
-          <div className="flex min-h-0 w-full overflow-hidden rounded-lg border border-border bg-card">
-            <aside
-              className={clsx(
-                panelStyles.library,
-                "hidden w-[36%] min-w-[280px] flex-col justify-between bg-stone-800 bg-cover bg-center bg-blend-multiply p-8 text-white md:flex",
-              )}
-            >
-              <div className="space-y-4">
-                <p className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium">
-                  가입 안내
-                </p>
-                <h2 className="text-3xl font-bold leading-tight">
-                  계정 하나로
-                  <br />
-                  모든 기능을 시작하세요.
-                </h2>
-                <p className="text-sm text-white/85">
-                  실시간 시세, 통계 차트, 커뮤니티 기능을 회원 전용 기능과 함께
-                  이용할 수 있습니다.
-                </p>
-              </div>
-              <div className="rounded-lg border border-white/20 bg-black/10 p-4 text-sm text-white/90">
-                인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.
-                <p className="mt-2 text-xs text-white/80">
-                  메모노기는 공식 사이트가 아닌 NEXON OPEN API 기반 비공식
-                  서비스입니다.
-                </p>
-              </div>
-            </aside>
-
-            <main className="flex min-h-0 flex-1 flex-col overflow-hidden p-5 sm:p-8">
-              <div className="mx-auto flex min-h-0 w-full max-w-2xl flex-col">
-                {/* Header */}
-                <div className="mb-5">
-                  <Link
-                    href="/sign-in"
-                    className="mb-4 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    로그인으로 돌아가기
-                  </Link>
-                  <h1 className="text-2xl font-semibold text-foreground">
-                    회원가입
-                  </h1>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    메모노기와 함께 마비노기를 더 즐겁게!
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    NEXON OPEN API를 활용한 비공식 커뮤니티 서비스입니다.
-                  </p>
-                </div>
-
-                {/* Sign Up Card */}
-                <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-card">
-                  <Form {...form}>
-                    <form
-                      onSubmit={form.handleSubmit(onSubmit)}
-                      className="flex h-full min-h-0 flex-col"
-                    >
-                      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
-                        {/* Profile Image */}
-                        <div className="flex flex-col items-center mb-6">
-                          <div className="relative">
-                            <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold overflow-hidden">
-                              {profileImagePreview ? (
-                                <Image
-                                  src={profileImagePreview}
-                                  alt="Profile Preview"
-                                  width={96}
-                                  height={96}
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : (
-                                <User className="w-12 h-12" />
-                              )}
-                            </div>
-                            <label
-                              htmlFor="profile-image"
-                              className="absolute bottom-0 right-0 w-8 h-8 bg-card rounded-full border-2 border-border flex items-center justify-center hover:bg-background transition-colors cursor-pointer"
-                            >
-                              <Camera className="w-4 h-4 text-muted-foreground" />
-                            </label>
-                            <input
-                              id="profile-image"
-                              type="file"
-                              accept="image/*"
-                              onChange={handleProfileImageChange}
-                              className="hidden"
-                            />
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            프로필 이미지 (선택사항)
-                          </p>
-                        </div>
-
-                        {/* Email */}
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-semibold text-foreground">
-                                이메일{" "}
-                                <span className="text-sunset-500">*</span>
-                              </FormLabel>
-                              <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                                <FormControl>
-                                  <Input
-                                    type="email"
-                                    placeholder="example@email.com"
-                                    className="pl-11 pr-11 h-12 border-border focus:border-ring focus:ring-ring/20 rounded-lg"
-                                    {...field}
-                                    onChange={(e) => {
-                                      field.onChange(e);
-                                      setEmailCheckStatus("idle");
-                                    }}
-                                    onBlur={(e) => {
-                                      field.onBlur();
-                                      checkEmailAvailability(e.target.value);
-                                    }}
-                                  />
-                                </FormControl>
-                                {emailCheckStatus !== "idle" && (
-                                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10">
-                                    {emailCheckStatus === "checking" && (
-                                      <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                                    )}
-                                    {emailCheckStatus === "available" && (
-                                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                                    )}
-                                    {emailCheckStatus === "unavailable" && (
-                                      <XCircle className="w-5 h-5 text-red-500" />
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                              {emailCheckStatus === "unavailable" && (
-                                <p className="text-sm text-red-500 mt-1">
-                                  이미 사용 중인 이메일입니다
-                                </p>
-                              )}
-                              {emailCheckStatus === "available" && (
-                                <p className="text-sm text-green-500 mt-1">
-                                  사용 가능한 이메일입니다
-                                </p>
-                              )}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Password */}
-                        <FormField
-                          control={form.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-semibold text-foreground">
-                                비밀번호{" "}
-                                <span className="text-sunset-500">*</span>
-                              </FormLabel>
-                              <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                                <FormControl>
-                                  <Input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="영문, 숫자, 특수문자 포함 8-30자"
-                                    className="pl-11 pr-11 h-12 border-border focus:border-ring focus:ring-ring/20 rounded-lg"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <button
-                                  type="button"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  {showPassword ? (
-                                    <EyeOff className="w-5 h-5" />
-                                  ) : (
-                                    <Eye className="w-5 h-5" />
-                                  )}
-                                </button>
-                              </div>
-
-                              {/* Password Strength Indicator */}
-                              {password && (
-                                <div className="mt-2 space-y-2">
-                                  <div className="flex gap-1">
-                                    {[1, 2, 3, 4, 5].map((level) => (
-                                      <div
-                                        key={level}
-                                        className={clsx(
-                                          "h-1 flex-1 rounded-full transition-all",
-                                          level <= passwordStrength.strength
-                                            ? passwordStrength.color
-                                            : "bg-muted",
-                                        )}
-                                      />
-                                    ))}
-                                  </div>
-                                  <p
-                                    className={clsx(
-                                      "text-xs font-medium",
-                                      passwordStrength.strength <= 2 &&
-                                        "text-red-500",
-                                      passwordStrength.strength === 3 &&
-                                        "text-yellow-600",
-                                      passwordStrength.strength >= 4 &&
-                                        "text-green-600",
-                                    )}
-                                  >
-                                    비밀번호 강도: {passwordStrength.label}
-                                  </p>
-                                </div>
-                              )}
-
-                              <FormDescription className="text-xs text-muted-foreground mt-2">
-                                영문 대/소문자, 숫자, 특수문자(@$!%*#?&)를 모두
-                                포함해야 합니다
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Password Confirm */}
-                        <FormField
-                          control={form.control}
-                          name="passwordConfirm"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-semibold text-foreground">
-                                비밀번호 확인{" "}
-                                <span className="text-sunset-500">*</span>
-                              </FormLabel>
-                              <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                                <FormControl>
-                                  <Input
-                                    type={
-                                      showPasswordConfirm ? "text" : "password"
-                                    }
-                                    placeholder="비밀번호를 다시 입력하세요"
-                                    className="pl-11 pr-11 h-12 border-border focus:border-ring focus:ring-ring/20 rounded-lg"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setShowPasswordConfirm(!showPasswordConfirm)
-                                  }
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  {showPasswordConfirm ? (
-                                    <EyeOff className="w-5 h-5" />
-                                  ) : (
-                                    <Eye className="w-5 h-5" />
-                                  )}
-                                </button>
-                              </div>
-                              {form.watch("passwordConfirm") &&
-                                form.watch("password") ===
-                                  form.watch("passwordConfirm") && (
-                                  <div className="flex items-center gap-1 mt-2">
-                                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                                    <span className="text-xs text-green-600 font-medium">
-                                      비밀번호가 일치합니다
-                                    </span>
-                                  </div>
-                                )}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Nickname */}
-                        <FormField
-                          control={form.control}
-                          name="nickname"
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <FormLabel className="text-sm font-semibold text-foreground">
-                                  닉네임{" "}
-                                  <span className="text-sunset-500">*</span>
-                                </FormLabel>
-                                <NicknamePolicyHelp />
-                              </div>
-                              <div className="flex gap-2">
-                                <FormControl>
-                                  <Input
-                                    placeholder={
-                                      nicknameStatus === "loading"
-                                        ? "닉네임을 발급받는 중..."
-                                        : "닉네임을 발급받아주세요"
-                                    }
-                                    className="h-12 border-border bg-background rounded-lg"
-                                    {...field}
-                                    readOnly
-                                    aria-describedby="signup-nickname-status"
-                                  />
-                                </FormControl>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={rerollNickname}
-                                  disabled={
-                                    nicknameStatus === "loading" || isLoading
-                                  }
-                                  className="h-12 shrink-0"
-                                >
-                                  {nicknameStatus === "loading" ? (
-                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Shuffle className="mr-1 h-4 w-4" />
-                                  )}
-                                  다시 뽑기
-                                </Button>
-                              </div>
-                              <FormDescription
-                                id="signup-nickname-status"
-                                role="status"
-                                aria-live="polite"
-                                className="text-xs text-muted-foreground mt-2"
-                              >
-                                {nicknameSubmissionError ??
-                                  nicknameError ??
-                                  (nicknameStatus === "loading"
-                                    ? "새 닉네임을 불러오고 있습니다."
-                                    : "인게임 인증 전에는 자동 생성된 닉네임만 사용할 수 있습니다.")}
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Divider */}
-                        <div className="border-t border-border my-6" />
-
-                        {/* Terms Agreement */}
-                        <div className="space-y-4">
-                          <h3 className="text-sm font-semibold text-foreground">
-                            약관 동의
-                          </h3>
-
-                          {/* Terms of Service */}
-                          <FormField
-                            control={form.control}
-                            name="agreeTerms"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <input
-                                    type="checkbox"
-                                    checked={field.value}
-                                    onChange={field.onChange}
-                                    className="w-5 h-5 text-primary border-border rounded focus:ring-ring mt-0.5 cursor-pointer accent-primary"
-                                  />
-                                </FormControl>
-                                <div className="flex-1">
-                                  <FormLabel className="text-sm font-normal cursor-pointer">
-                                    <span className="text-sunset-500">
-                                      [필수]
-                                    </span>{" "}
-                                    이용약관에 동의합니다
-                                    <button
-                                      type="button"
-                                      onClick={openTermsModal}
-                                      className="ml-2 text-primary hover:underline text-xs"
-                                    >
-                                      전문보기
-                                    </button>
-                                  </FormLabel>
-                                  <FormMessage />
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-
-                          {/* Privacy Policy */}
-                          <FormField
-                            control={form.control}
-                            name="agreePrivacy"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <input
-                                    type="checkbox"
-                                    checked={field.value}
-                                    onChange={field.onChange}
-                                    className="w-5 h-5 text-primary border-border rounded focus:ring-ring mt-0.5 cursor-pointer accent-primary"
-                                  />
-                                </FormControl>
-                                <div className="flex-1">
-                                  <FormLabel className="text-sm font-normal cursor-pointer">
-                                    <span className="text-sunset-500">
-                                      [필수]
-                                    </span>{" "}
-                                    개인정보처리방침에 동의합니다
-                                    <button
-                                      type="button"
-                                      onClick={openPrivacyModal}
-                                      className="ml-2 text-primary hover:underline text-xs"
-                                    >
-                                      전문보기
-                                    </button>
-                                  </FormLabel>
-                                  <FormMessage />
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-
-                          {/* Marketing (Optional) */}
-                          <FormField
-                            control={form.control}
-                            name="agreeMarketing"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <input
-                                    type="checkbox"
-                                    checked={field.value}
-                                    onChange={field.onChange}
-                                    className="w-5 h-5 text-primary border-border rounded focus:ring-ring mt-0.5 cursor-pointer accent-primary"
-                                  />
-                                </FormControl>
-                                <div className="flex-1">
-                                  <FormLabel className="text-sm font-normal cursor-pointer">
-                                    <span className="text-muted-foreground">
-                                      [선택]
-                                    </span>{" "}
-                                    마케팅 정보 수신에 동의합니다
-                                  </FormLabel>
-                                  <FormDescription className="text-xs text-muted-foreground mt-1">
-                                    이벤트, 혜택 정보를 이메일로 받아보실 수
-                                    있습니다
-                                  </FormDescription>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="border-t border-border bg-card p-5 sm:p-6">
-                        <Button
-                          type="submit"
-                          disabled={
-                            isLoading ||
-                            !form.formState.isValid ||
-                            nicknameStatus !== "ready" ||
-                            !candidate ||
-                            !!nicknameSubmissionError
-                          }
-                          className={clsx(
-                            "h-12 w-full rounded-full bg-primary font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90",
-                            (!form.formState.isValid ||
-                              isLoading ||
-                              nicknameStatus !== "ready" ||
-                              nicknameSubmissionError) &&
-                              "opacity-50",
-                          )}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                              가입 처리 중...
-                            </>
-                          ) : (
-                            "회원가입"
-                          )}
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </div>
-
-                {/* Sign In Link */}
-                <div className="mt-4 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    이미 계정이 있으신가요?{" "}
-                    <Link
-                      href="/sign-in"
-                      className="font-semibold text-primary transition-colors hover:text-foreground"
-                    >
-                      로그인
-                    </Link>
-                  </p>
-                </div>
-              </div>
-            </main>
-          </div>
-        </div>
-      </div>
-
-      {/* Terms Modal */}
-      {(showTermsModal || showPrivacyModal) && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div className="p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">
-                {showTermsModal ? "이용약관" : "개인정보처리방침"}
-              </h2>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1">
-              <pre className="whitespace-pre-wrap text-sm text-muted-foreground font-sans">
-                {termsContent}
-              </pre>
-            </div>
-            <div className="p-6 border-t border-border">
-              <Button
-                onClick={() => {
-                  setShowTermsModal(false);
-                  setShowPrivacyModal(false);
-                }}
-                className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
-              >
-                확인
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <div className="flex min-h-dvh items-center justify-center bg-background p-4 text-foreground">
+      <SocialSignUpForm
+        provider={signup.provider}
+        email={signup.email}
+        signupProof={signup.signupProof}
+        onSuccess={finish}
+        onError={fail}
+        onCancel={cancel}
+      />
+    </div>
   );
 }
