@@ -49,7 +49,11 @@ export async function POST(request: NextRequest) {
     const body = await response.text();
 
     const duration = Date.now() - startTime;
-    logger.info(`POST /posts - 성공 (${status}) [${duration}ms]`);
+    if (response.ok) {
+      logger.info(`POST /posts - 성공 (${status}) [${duration}ms]`);
+    } else {
+      logger.error(`POST /posts - 실패 (${status}) [${duration}ms]`);
+    }
     return new NextResponse(body || null, {
       status,
       headers: {
@@ -87,7 +91,6 @@ export async function POST(request: NextRequest) {
         status,
         message: axiosError.message,
         code: axiosError.code,
-        responseData: axiosError.response?.data,
       });
 
       return NextResponse.json(payload, { status });

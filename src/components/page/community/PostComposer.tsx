@@ -125,6 +125,7 @@ export default function PostComposer({
             JSON.stringify({
               content: content.trim(),
               contentFormat: "PLAIN_TEXT_V1",
+              isDraft: false,
               retainedMediaIds: previews.flatMap(({ mediaId }) =>
                 mediaId === undefined ? [] : [mediaId],
               ),
