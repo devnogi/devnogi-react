@@ -18,6 +18,24 @@ export interface PostDetail {
   tags?: string[];
   imageUrlList?: string[];
   verified?: boolean;
+  author?: {
+    nickname: string;
+    profileImageUrl: string | null;
+    serverName: string | null;
+    verified: boolean;
+  };
+  media?: Array<{
+    id: number;
+    kind?: "IMAGE" | "VIDEO";
+    type?: "IMAGE" | "VIDEO";
+    url: string;
+    contentType: string;
+    displayOrder?: number;
+    order?: number;
+  }>;
+  liked?: boolean;
+  bookmarked?: boolean;
+  isBookmarked?: boolean;
 }
 
 export type PublicPostResult =
@@ -35,20 +53,18 @@ function isPostDetail(value: unknown): value is PostDetail {
   const post = value as Partial<PostDetail>;
   return (
     typeof post.id === "number" &&
-    typeof post.boardId === "number" &&
     typeof post.userId === "number" &&
-    typeof post.username === "string" &&
-    typeof post.title === "string" &&
+    (typeof post.username === "string" ||
+      typeof post.author?.nickname === "string") &&
+    (typeof post.title === "string" || typeof post.content === "string") &&
     typeof post.content === "string" &&
-    typeof post.isDraft === "boolean" &&
-    typeof post.isBlocked === "boolean" &&
     typeof post.createdAt === "string" &&
     typeof post.updatedAt === "string"
   );
 }
 
 export function isPublicPost(post: PostDetail): boolean {
-  return !post.isDraft && !post.isBlocked;
+  return post.isDraft !== true && post.isBlocked !== true;
 }
 
 /**
@@ -92,7 +108,25 @@ export const getPublicPost = cache(
       if (!isPublicPost(payload.data)) {
         return { status: "not-public" };
       }
-
+      if (
+        typeof payload.data.title !== "string" ||
+        typeof payload.data.username !== "string" ||
+        typeof payload.data.boardId !== "number"
+      ) {
+        return {
+          status: "available",
+          post: {
+            ...payload.data,
+            boardId: payload.data.boardId ?? 0,
+            title: payload.data.content,
+            username:
+              payload.data.author?.nickname ?? `사용자 ${payload.data.userId}`,
+            isDraft: payload.data.isDraft ?? false,
+            isBlocked: payload.data.isBlocked ?? false,
+            isLiked: payload.data.isLiked ?? payload.data.liked ?? false,
+          },
+        };
+      }
       return { status: "available", post: payload.data };
     } catch {
       return { status: "unavailable" };

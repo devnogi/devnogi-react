@@ -12,6 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -233,16 +234,23 @@ export default function CommentItem({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             {/* Author Avatar */}
-            <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+            <Link
+              href={`/profile/${comment.userId}`}
+              aria-label={`${comment.nickname} 프로필`}
+              className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full"
+            >
               <div className="w-full h-full bg-[#9a451f] flex items-center justify-center text-white text-sm font-semibold">
                 {comment.nickname?.[0] || comment.userId.toString()[0]}
               </div>
-            </div>
+            </Link>
             {/* Nickname */}
-            <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-1">
+            <Link
+              href={`/profile/${comment.userId}`}
+              className="font-semibold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-1 hover:underline"
+            >
               {comment.nickname || `사용자 ${comment.userId}`}
               {comment.verified === true && <VerifiedBadge size="sm" />}
-            </span>
+            </Link>
           </div>
           {/* Edit/Delete Buttons */}
           {!isEditing && (canEdit || canDelete) && (
@@ -251,7 +259,7 @@ export default function CommentItem({
                 <button
                   onClick={handleEditStart}
                   disabled={isSubmitting}
-                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-[var(--color-ds-primary)] transition-colors rounded-lg"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:text-[var(--color-ds-primary)] dark:text-gray-400"
                   title="수정"
                 >
                   <Pencil className="w-4 h-4" />
@@ -261,7 +269,7 @@ export default function CommentItem({
                 <button
                   onClick={() => setShowDeleteDialog(true)}
                   disabled={isSubmitting}
-                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-lg"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
                   title="삭제"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -289,7 +297,7 @@ export default function CommentItem({
                 size="sm"
                 onClick={handleEditCancel}
                 disabled={isSubmitting}
-                className="h-7 text-xs"
+                className="h-11 text-xs"
               >
                 <X className="w-3 h-3 mr-1" />
                 취소
@@ -299,7 +307,7 @@ export default function CommentItem({
                 size="sm"
                 onClick={handleEditSubmit}
                 disabled={isSubmitting || !editContent.trim()}
-                className="h-7 text-xs"
+                className="h-11 text-xs"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3 h-3 mr-1 animate-spin" />
@@ -326,7 +334,7 @@ export default function CommentItem({
             )}
             <button
               onClick={handleLike}
-              className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs px-2 py-1 rounded-full bg-white dark:bg-navy-700"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-red-500 dark:bg-navy-700 dark:text-gray-400 dark:hover:text-red-400"
             >
               <Heart
                 className={`w-3.5 h-3.5 ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
@@ -336,7 +344,7 @@ export default function CommentItem({
             {!isReply && (
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-[var(--color-ds-primary)] transition-colors text-xs px-2 py-1 rounded-full bg-white dark:bg-navy-700"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-[var(--color-ds-primary)] dark:bg-navy-700 dark:text-gray-400"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>답글</span>
@@ -345,7 +353,7 @@ export default function CommentItem({
             {canReport && (
               <button
                 onClick={() => setShowReportDialog(true)}
-                className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors text-xs px-2 py-1 rounded-full bg-white dark:bg-navy-700"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-orange-500 dark:bg-navy-700 dark:text-gray-400 dark:hover:text-orange-400"
               >
                 <Flag className="w-3.5 h-3.5" />
                 <span>신고</span>

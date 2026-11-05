@@ -5,20 +5,20 @@ import { ko } from "date-fns/locale";
 import { ChevronRight, Eye, Flame, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
-import { usePopularPosts } from "@/hooks/usePopularPosts";
+import { useInfinitePosts } from "@/hooks/useInfinitePosts";
 
 interface PopularPostsHighlightProps {
   boardId?: number;
 }
 
 export default function PopularPostsHighlight({
-  boardId,
+  boardId: _boardId,
 }: PopularPostsHighlightProps) {
-  const {
-    data: posts,
-    isLoading,
-    isError,
-  } = usePopularPosts({ boardId, limit: 5 });
+  const { data, isLoading, isError } = useInfinitePosts({
+    tab: "popular",
+    size: 10,
+  });
+  const posts = data?.pages.flatMap((page) => page.items).slice(0, 5);
 
   if (isLoading) {
     return <PopularPostsSkeleton />;

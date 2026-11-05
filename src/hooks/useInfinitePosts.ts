@@ -3,142 +3,152 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { clientAxios } from "@/lib/api/clients";
+import type {
+  ApiResponse,
+  FeedTab,
+  PageMeta,
+  PostFeedItem,
+} from "@/types/community";
 
-type SortType = "latest" | "popular" | "mostLiked";
-
-interface UseInfinitePostsParams {
-  boardId?: number;
-  size?: number;
-  keyword?: string;
-  sortType?: SortType;
-  userId?: number;
-  enabled?: boolean;
-}
-
-interface Author {
+export interface BackendPostSummary
+  extends Omit<Partial<PostFeedItem>, "media"> {
   id: number;
-  username: string;
-  nickname: string;
-  profileImage?: string;
-  verified?: boolean;
-}
-
-export interface BackendPostSummary {
-  id: number;
-  title: string;
   userId: number;
-  username: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
+  username?: string;
+  title?: string;
+  content?: string;
+  imageUrlList?: string[];
+  viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
   createdAt: string;
+  updatedAt?: string;
+  media?: Array<{
+    id: number;
+    kind?: "IMAGE" | "VIDEO";
+    type?: "IMAGE" | "VIDEO";
+    url: string;
+    contentType: string;
+    displayOrder?: number;
+    order?: number;
+  }>;
 }
 
-export interface PostSummary extends BackendPostSummary {
-  author: Author;
-}
-
-interface PageMeta {
-  currentPage: number;
-  pageSize: number;
-  totalElements: number;
-  totalPages: number;
-  isFirst: boolean;
-  isLast: boolean;
-}
+export type PostSummary = PostFeedItem & {
+  title: string;
+  username: string;
+};
 
 interface BackendPostsData {
   items: BackendPostSummary[];
   meta: PageMeta;
 }
 
-export interface PostsData {
+interface PostsData {
   items: PostSummary[];
   meta: PageMeta;
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  code: string;
-  message: string;
-  data: T;
-  timestamp: string;
+interface UseInfinitePostsParams {
+  tab?: FeedTab;
+  size?: number;
+  keyword?: string;
+  userId?: number;
+  boardId?: number;
+  sortType?: "latest" | "popular" | "mostLiked";
+  enabled?: boolean;
 }
 
 export const normalizePostSummary = (post: BackendPostSummary): PostSummary => {
-  const normalizedName = post.username?.trim() || `사용자 ${post.userId}`;
+  const nickname =
+    post.author?.nickname?.trim() ||
+    post.username?.trim() ||
+    `사용자 ${post.userId}`;
+  const content = post.content?.trim() || post.title?.trim() || "";
+  const media =
+    post.media
+      ?.map((item) => ({
+        ...item,
+        kind: item.kind ?? item.type ?? "IMAGE",
+        displayOrder: item.displayOrder ?? item.order ?? 0,
+      }))
+      .sort((a, b) => a.displayOrder - b.displayOrder) ??
+    (post.imageUrlList ?? []).map((url, index) => ({
+      id: -(index + 1),
+      kind: "IMAGE" as const,
+      url,
+      contentType: "image/jpeg",
+      displayOrder: index,
+    }));
+
   return {
-    ...post,
-    username: normalizedName,
+    id: post.id,
+    userId: post.userId,
+    username: nickname,
+    title: content,
     author: {
-      id: post.userId,
-      username: normalizedName,
-      nickname: normalizedName,
+      nickname,
+      profileImageUrl: post.author?.profileImageUrl ?? null,
+      serverName: post.author?.serverName ?? null,
+      verified: post.author?.verified ?? false,
     },
+    content,
+    media,
+    viewCount: post.viewCount ?? 0,
+    likeCount: post.likeCount ?? 0,
+    commentCount: post.commentCount ?? 0,
+    liked: post.liked ?? false,
+    bookmarked: post.bookmarked ?? false,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt ?? post.createdAt,
   };
 };
 
+function endpointFor(tab: FeedTab, userId?: number): string {
+  if (userId) return `/posts/user/${userId}`;
+  if (tab === "bookmarks") return "/posts/bookmarks";
+  if (tab === "mine") return "/posts/mine";
+  return "/posts/feed";
+}
+
 export function useInfinitePosts({
-  boardId,
+  tab,
   size = 20,
   keyword,
-  sortType = "latest",
   userId,
+  sortType,
   enabled = true,
 }: UseInfinitePostsParams = {}) {
+  const resolvedTab: FeedTab =
+    tab ??
+    (sortType === "popular" || sortType === "mostLiked" ? "popular" : "latest");
+
   return useInfiniteQuery<PostsData>({
-    queryKey: ["posts", boardId, keyword, sortType, userId],
+    queryKey: ["community-feed", resolvedTab, keyword, userId, size],
     queryFn: async ({ pageParam = 1 }) => {
-      let endpoint: string;
-
-      // userId가 있으면 사용자별 게시글 엔드포인트 사용
-      if (userId) {
-        endpoint = `/posts/user/${userId}`;
-      }
-      // 검색어가 있는 경우
-      else if (keyword && keyword.trim()) {
-        endpoint = boardId ? `/posts/${boardId}/search` : "/posts/search";
-      }
-      // 인기순/좋아요순인 경우 (boardId 필수)
-      else if (sortType === "popular" && boardId) {
-        endpoint = `/posts/${boardId}/popular`;
-      } else if (sortType === "mostLiked" && boardId) {
-        endpoint = `/posts/${boardId}/mostLiked`;
-      }
-      // 기본: 최신순
-      else {
-        endpoint = boardId ? `/posts/${boardId}` : "/posts";
-      }
-
       const response = await clientAxios.get<ApiResponse<BackendPostsData>>(
-        endpoint,
+        endpointFor(resolvedTab, userId),
         {
           params: {
             page: pageParam as number,
             size,
-            ...(!userId && keyword && keyword.trim()
-              ? { keyword: keyword.trim() }
+            ...(keyword?.trim() ? { keyword: keyword.trim() } : {}),
+            ...(resolvedTab === "latest" || resolvedTab === "popular"
+              ? { tab: resolvedTab.toUpperCase() }
               : {}),
           },
         },
       );
-
-      const { items, meta } = response.data.data;
-
       return {
-        items: items.map(normalizePostSummary),
-        meta,
+        items: response.data.data.items.map(normalizePostSummary),
+        meta: response.data.data.meta,
       };
     },
-    getNextPageParam: (lastPage) => {
-      if (!lastPage.meta.isLast) {
-        return lastPage.meta.currentPage + 1;
-      }
-      return undefined;
-    },
+    getNextPageParam: (lastPage) =>
+      lastPage.meta.isLast ? undefined : lastPage.meta.currentPage + 1,
     initialPageParam: 1,
     enabled,
-    staleTime: 5 * 60 * 1000, // 5분
-    gcTime: 10 * 60 * 1000, // 10분
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
   });
 }

@@ -5,11 +5,13 @@ import { useEffect, useRef } from "react";
 
 import DataFetchError from "@/components/commons/DataFetchError";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+import type { FeedTab } from "@/types/community";
 
 import PostCard from "./PostCard";
 import PostListSkeleton from "./PostListSkeleton";
 
 interface PostListProps {
+  tab?: FeedTab;
   boardId?: number;
   keyword?: string;
   sortType?: "latest" | "popular" | "mostLiked";
@@ -17,6 +19,7 @@ interface PostListProps {
 }
 
 export default function PostList({
+  tab,
   boardId,
   keyword,
   sortType,
@@ -30,7 +33,7 @@ export default function PostList({
     isLoading,
     isError,
     refetch,
-  } = useInfinitePosts({ boardId, keyword, sortType, userId });
+  } = useInfinitePosts({ tab, boardId, keyword, sortType, userId });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -76,12 +79,16 @@ export default function PostList({
 
   if (allPosts.length === 0) {
     return (
-      <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 py-12">
+      <div className="bg-white dark:bg-navy-800 py-16">
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-300 text-lg">
-            {userId ? "작성한 게시글이 없습니다." : "게시글이 없습니다."}
+            {tab === "bookmarks"
+              ? "아직 저장한 글이 없어요."
+              : tab === "mine" || userId
+                ? "작성한 게시글이 없어요."
+                : "아직 게시글이 없어요."}
           </p>
-          {!userId && (
+          {!userId && tab !== "bookmarks" && tab !== "mine" && (
             <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
               첫 번째 게시글을 작성해보세요.
             </p>
@@ -94,7 +101,7 @@ export default function PostList({
   return (
     <>
       {/* Card List Layout */}
-      <div className="space-y-2">
+      <div>
         {allPosts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
