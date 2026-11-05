@@ -17,11 +17,11 @@ export default function StatisticsSummaryCards({
 }: StatisticsSummaryCardsProps) {
   if (data.length === 0) return null;
 
-  const overallAvg = data.reduce((sum, d) => sum + d.avgPrice, 0) / data.length;
-  const overallMax = Math.max(...data.map((d) => d.maxPrice));
-  const overallMin = Math.min(...data.map((d) => d.minPrice));
   const totalVolume = data.reduce((sum, d) => sum + d.totalVolume, 0);
   const totalQuantity = data.reduce((sum, d) => sum + d.totalQuantity, 0);
+  const overallAvg = totalQuantity > 0 ? totalVolume / totalQuantity : 0;
+  const overallMax = Math.max(...data.map((d) => d.maxPrice));
+  const overallMin = Math.min(...data.map((d) => d.minPrice));
 
   const cards = [
     {

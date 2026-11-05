@@ -7,22 +7,57 @@ import { createServerAxios } from "@/lib/api/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
+interface RawDailyStatistic {
+  itemName: string;
+  dateAuctionBuy: string;
+  minPrice: number;
+  maxPrice: number;
+  avgPrice: number;
+  totalVolume: number;
+  totalQuantity: number;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const params = {
     itemName: searchParams.get("itemName") ?? "",
     subCategory: searchParams.get("subCategory") ?? "",
     topCategory: searchParams.get("topCategory") ?? "",
-    dateFrom: searchParams.get("dateFrom") ?? undefined,
-    dateTo: searchParams.get("dateTo") ?? undefined,
+    startDate: searchParams.get("dateFrom") ?? undefined,
+    endDate: searchParams.get("dateTo") ?? undefined,
   };
 
   try {
     const axios = createServerAxios(request);
-    const { data, status } = await axios.get(STATISTICS_DAILY_ITEMS_ENDPOINT, {
-      params,
-    });
-    return NextResponse.json(data, { status });
+    const { data, status } = await axios.get<RawDailyStatistic[]>(
+      STATISTICS_DAILY_ITEMS_ENDPOINT,
+      {
+        params,
+      },
+    );
+    const normalized = data.map((item) => ({
+      itemName: item.itemName,
+      itemTopCategory: params.topCategory,
+      itemSubCategory: params.subCategory,
+      date: item.dateAuctionBuy,
+      minPrice: item.minPrice,
+      maxPrice: item.maxPrice,
+      avgPrice:
+        item.totalQuantity > 0
+          ? item.totalVolume / item.totalQuantity
+          : Number(item.avgPrice),
+      totalVolume: item.totalVolume,
+      totalQuantity: item.totalQuantity,
+    }));
+    return NextResponse.json(
+      {
+        success: true,
+        code: "COMMON_SUCCESS",
+        message: "요청이 성공적으로 처리되었습니다.",
+        data: normalized,
+      },
+      { status },
+    );
   } catch (error: unknown) {
     if ((error as AxiosError).isAxiosError) {
       const axiosError = error as AxiosError;

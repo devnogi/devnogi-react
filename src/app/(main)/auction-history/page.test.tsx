@@ -95,6 +95,35 @@ jest.mock("@/components/page/auction-history/AuctionHistoryList", () => {
   };
 });
 
+jest.mock("@/components/page/auction-common/AuctionItemSearch", () => {
+  return function MockAuctionItemSearch({
+    onSearch,
+  }: {
+    onSearch: (
+      name: string,
+      item?: { name: string; topCategory: string; subCategory: string },
+    ) => void;
+  }) {
+    return (
+      <div data-testid="auction-item-search">
+        <button onClick={() => onSearch("직접 검색")}>Direct Search</button>
+        <button
+          onClick={() =>
+            onSearch("롱소드", {
+              name: "롱소드",
+              topCategory: "근거리 장비",
+              subCategory: "검",
+            })
+          }
+        >
+          Autocomplete Search
+        </button>
+        <button onClick={() => onSearch("")}>Clear Search</button>
+      </div>
+    );
+  };
+});
+
 function response(names: string[]) {
   return Response.json({
     success: true,
@@ -208,6 +237,36 @@ describe("TradeLogPage", () => {
     await waitFor(() =>
       expect(screen.getByTestId("log-item")).toHaveTextContent("검"),
     );
+  });
+
+  it("아이템 직접 검색, 자동완성 선택, 초기화 시 페이지를 1로 되돌린다", async () => {
+    mockUrlParams = new URLSearchParams({ page: "3", itemName: "이전 검색" });
+    fetchSpy.mockImplementation(() => Promise.resolve(response(["result"])));
+    renderPage();
+    await waitFor(() => expect(lastQuery().get("page")).toBe("3"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Direct Search" }));
+    await waitFor(() => {
+      expect(lastQuery().get("page")).toBe("1");
+      expect(lastQuery().get("itemName")).toBe("직접 검색");
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Autocomplete Search" }),
+    );
+    await waitFor(() => {
+      expect(lastQuery().get("page")).toBe("1");
+      expect(lastQuery().get("itemName")).toBe("롱소드");
+      expect(lastQuery().get("itemTopCategory")).toBe("근거리 장비");
+      expect(lastQuery().get("itemSubCategory")).toBe("검");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear Search" }));
+    await waitFor(() => {
+      expect(lastQuery().get("page")).toBe("1");
+      expect(lastQuery().has("itemName")).toBe(false);
+      expect(lastQuery().get("itemTopCategory")).toBe("근거리 장비");
+    });
   });
 
   it("API 오류가 나면 로딩을 마치고 빈 목록을 렌더링한다", async () => {

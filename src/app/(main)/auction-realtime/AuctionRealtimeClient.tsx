@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CategorySection from "@/components/commons/Category";
 import CategoryDropdown from "@/components/commons/CategoryDropdown";
 import { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
+import AuctionItemSearch from "@/components/page/auction-common/AuctionItemSearch";
 import AuctionRealtimeList from "@/components/page/auction-realtime/AuctionRealtimeList";
 import MobileFilterChips from "@/components/page/auction-realtime/MobileFilterChips";
 import MobileFilterModal from "@/components/page/auction-realtime/MobileFilterModal";
@@ -32,8 +33,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ItemCategory } from "@/data/item-category";
 import { useAuctionHistoryLayout } from "@/hooks/useAuctionHistoryLayout";
+import { useAuctionItemPreviewPreference } from "@/hooks/useAuctionItemPreviewPreference";
 import { useAuctionRealtime } from "@/hooks/useAuctionRealtime";
 import { useItemCategories } from "@/hooks/useItemCategories";
+import { ItemInfo } from "@/hooks/useItemInfos";
 import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
 import { ActiveFilter } from "@/types/search-filter";
 
@@ -499,6 +502,8 @@ export default function Page() {
   } = useAuctionHistoryLayout();
 
   const { data, isLoading, isFetching } = useAuctionRealtime(searchParams);
+  const { isPreviewEnabled, setIsPreviewEnabled } =
+    useAuctionItemPreviewPreference();
 
   const allItems = data?.items ?? [];
   const meta = data?.meta;
@@ -692,6 +697,25 @@ export default function Page() {
         }
       }
 
+      return normalizeCategorySelection(next);
+    });
+  };
+
+  const handleItemSearch = (name: string, selectedItem?: ItemInfo) => {
+    setItemName(name);
+    if (selectedItem) {
+      setSelectedCategory(
+        `${selectedItem.topCategory}/${selectedItem.subCategory}`,
+      );
+    }
+    setSearchParams((prev) => {
+      const next = { ...prev, page: 1 };
+      if (name) next.itemName = name;
+      else delete next.itemName;
+      if (selectedItem) {
+        next.itemTopCategory = selectedItem.topCategory;
+        next.itemSubCategory = selectedItem.subCategory;
+      }
       return normalizeCategorySelection(next);
     });
   };
@@ -966,6 +990,7 @@ export default function Page() {
         }`}
       >
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
+          <AuctionItemSearch value={itemName} onSearch={handleItemSearch} />
           {showMobileFilter && (
             <div className="mb-4">
               <MobileFilterChips
@@ -1089,7 +1114,11 @@ export default function Page() {
               </div>
             </div>
 
-            <AuctionRealtimeList items={allItems} isLoading={isLoading} />
+            <AuctionRealtimeList
+              items={allItems}
+              isLoading={isLoading}
+              previewEnabled={isPreviewEnabled}
+            />
 
             {isFetching && !isLoading && (
               <div className="h-12 flex items-center justify-center">
@@ -1118,6 +1147,8 @@ export default function Page() {
           layoutMode={layoutMode}
           isExactItemName={!!searchParams.isExactItemName}
           onExactItemNameChange={handleExactItemNameChange}
+          isItemPreviewEnabled={isPreviewEnabled}
+          onItemPreviewEnabledChange={setIsPreviewEnabled}
         />
       )}
 

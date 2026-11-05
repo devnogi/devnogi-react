@@ -36,6 +36,8 @@ interface SearchFilterCardProps {
   /** 아이템명 완전 일치 검색 여부 */
   isExactItemName?: boolean;
   onExactItemNameChange?: (value: boolean) => void;
+  isItemPreviewEnabled?: boolean;
+  onItemPreviewEnabledChange?: (value: boolean) => void;
 }
 
 interface BasicFilters {
@@ -50,6 +52,8 @@ export default function SearchFilterCard({
   layoutMode = "desktop",
   isExactItemName = false,
   onExactItemNameChange,
+  isItemPreviewEnabled = true,
+  onItemPreviewEnabledChange,
 }: SearchFilterCardProps) {
   // 레이아웃 모드에 따른 필터 카드 위치 계산
   const filterRightPosition =
@@ -477,6 +481,33 @@ export default function SearchFilterCard({
           }`}
         >
           아이템명 완전 일치
+        </span>
+      </button>
+
+      <button
+        type="button"
+        aria-pressed={isItemPreviewEnabled}
+        onClick={() => onItemPreviewEnabledChange?.(!isItemPreviewEnabled)}
+        className={`flex w-full cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 transition-all ${
+          isItemPreviewEnabled
+            ? "border-[var(--color-ds-primary)] bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10"
+            : "border-gray-200 bg-white hover:border-gray-300 dark:border-navy-500 dark:bg-navy-700"
+        }`}
+      >
+        <span
+          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded ${isItemPreviewEnabled ? "bg-[var(--color-ds-primary)]" : "border border-gray-300 bg-white dark:border-navy-400 dark:bg-navy-600"}`}
+        >
+          {isItemPreviewEnabled ? (
+            <Check
+              className="h-3 w-3 text-primary-foreground"
+              strokeWidth={3}
+            />
+          ) : null}
+        </span>
+        <span
+          className={`text-xs font-medium ${isItemPreviewEnabled ? "text-[var(--color-ds-primary)]" : "text-gray-600 dark:text-gray-300"}`}
+        >
+          아이템 미리보기 {isItemPreviewEnabled ? "ON" : "OFF"}
         </span>
       </button>
 

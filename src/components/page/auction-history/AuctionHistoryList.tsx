@@ -1,10 +1,14 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
-  PopoverTrigger,
 } from "@/components/ui/popover";
 import { AuctionHistoryItem } from "@/hooks/useAuctionHistory";
 
@@ -13,332 +17,196 @@ import ItemOptionPopover from "./ItemOptionPopover";
 interface AuctionHistoryListProps {
   items: AuctionHistoryItem[];
   isLoading?: boolean;
+  previewEnabled?: boolean;
+}
+
+function formatPrice(price: number) {
+  if (price === 0) return "0";
+  const eok = Math.floor(price / 100000000);
+  const man = Math.floor((price % 100000000) / 10000);
+  const rest = price % 10000;
+  return [
+    eok > 0 ? `${eok}억` : "",
+    man > 0 ? `${man.toLocaleString("ko-KR")}만` : "",
+    rest > 0 || (eok === 0 && man === 0) ? rest.toLocaleString("ko-KR") : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function formatDateShort(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
+}
+
+function itemNameWithoutAttributes(itemName: string) {
+  return itemName.replace(/\s*\([^)]*\)/g, "").trim();
+}
+
+function itemAttributes(itemName: string) {
+  return (itemName.match(/\(([^)]+)\)/g) ?? []).map((value) =>
+    value.replace(/[()]/g, "").trim(),
+  );
+}
+
+function enchantPrefix(displayName: string, itemName: string) {
+  return displayName.replace(itemName, "").trim();
+}
+
+function HistoryDesktopRow({
+  item,
+  href,
+  previewEnabled,
+}: {
+  item: AuctionHistoryItem;
+  href: string;
+  previewEnabled: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={previewEnabled && open} onOpenChange={setOpen}>
+      <Link
+        href={href}
+        className="grid grid-cols-12 gap-4 px-4 py-2 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-ds-primary)]"
+        onFocus={() => previewEnabled && setOpen(true)}
+        onBlur={() => setOpen(false)}
+      >
+        <div className="col-span-5 flex min-w-0 items-center">
+          <PopoverAnchor asChild>
+            <span
+              className="truncate text-[13px] font-medium text-[var(--color-ds-text)]"
+              onMouseEnter={() => previewEnabled && setOpen(true)}
+              onMouseLeave={() => setOpen(false)}
+            >
+              {item.itemDisplayName}
+            </span>
+          </PopoverAnchor>
+        </div>
+        <div className="col-span-2 flex items-center justify-center">
+          <Badge className="rounded-md border-0 bg-[var(--color-ds-primary-50)] px-2 py-0.5 text-xs text-[var(--color-ds-primary)]">
+            {item.itemSubCategory}
+          </Badge>
+        </div>
+        <div className="col-span-2 flex items-center justify-end whitespace-nowrap text-[13px] font-bold text-[var(--color-ds-primary)]">
+          {formatPrice(item.auctionPricePerUnit)}
+          <span className="ml-1 text-sm font-normal text-[var(--color-ds-disabled)]">
+            G
+          </span>
+        </div>
+        <div className="col-span-2 flex items-center justify-center text-sm text-[var(--color-ds-disabled)]">
+          {formatDateShort(item.dateAuctionBuy)}
+        </div>
+        <div className="col-span-1 flex items-center justify-center text-sm text-[var(--color-ds-disabled)]">
+          {item.itemCount}
+        </div>
+      </Link>
+      {previewEnabled ? (
+        <PopoverContent
+          className="max-h-[70vh] w-80 rounded-lg border border-gray-200 bg-white p-3 dark:border-navy-600 dark:bg-navy-800"
+          side="right"
+          align="start"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
+          <ItemOptionPopover
+            itemDisplayName={item.itemDisplayName}
+            itemOptions={item.itemOptions}
+            price={item.auctionPricePerUnit}
+          />
+        </PopoverContent>
+      ) : null}
+    </Popover>
+  );
 }
 
 export default function AuctionHistoryList({
   items,
   isLoading = false,
+  previewEnabled = true,
 }: AuctionHistoryListProps) {
-  if (isLoading) {
-    return (
-      <>
-        {/* Mobile Skeleton */}
-        <div className="md:hidden">
-          <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
-            <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="px-4 py-4 animate-pulse">
-                  {/* 1st Line: Enchant skeleton */}
-                  <div className="h-3 w-24 bg-gray-200 dark:bg-navy-600 rounded mb-2" />
-                  {/* 2nd Line: Item name + price */}
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="h-5 w-40 bg-gray-200 dark:bg-navy-600 rounded" />
-                    <div className="h-5 w-20 bg-gray-200 dark:bg-navy-600 rounded" />
-                  </div>
-                  {/* 3rd Line: Tags + date */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-2">
-                      <div className="h-4 w-12 bg-gray-100 dark:bg-navy-600 rounded" />
-                      <div className="h-4 w-16 bg-gray-100 dark:bg-navy-600 rounded" />
-                    </div>
-                    <div className="h-4 w-24 bg-gray-100 dark:bg-navy-600 rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const returnTo = `${pathname}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
+  const hrefFor = (id: string) =>
+    `/auction-history/${encodeURIComponent(id)}?${new URLSearchParams({ return_to: returnTo })}`;
 
-        {/* Desktop Skeleton */}
-        <div className="hidden md:block bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-[var(--color-ds-neutral-50)] border-b border-[var(--color-ds-neutral-tone)]">
-            <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">
-              아이템 이름
-            </div>
-            <div className="col-span-2 font-semibold text-[var(--color-ds-ornamental)] text-sm text-center">
-              카테고리
-            </div>
-            <div className="col-span-2 font-semibold text-[var(--color-ds-ornamental)] text-sm text-right">
-              가격
-            </div>
-            <div className="col-span-2 font-semibold text-[var(--color-ds-ornamental)] text-sm text-center">
-              거래일시
-            </div>
-            <div className="col-span-1 font-semibold text-[var(--color-ds-ornamental)] text-sm text-center">
-              수량
-            </div>
-          </div>
-          {/* Skeleton Rows */}
-          <div className="divide-y divide-[var(--color-ds-neutral-100)]">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-12 gap-4 px-4 py-2 animate-pulse"
-              >
-                <div className="col-span-5 flex items-center">
-                  <div className="h-4 w-48 bg-gray-200 dark:bg-navy-600 rounded" />
-                </div>
-                <div className="col-span-2 flex items-center justify-center">
-                  <div className="h-6 w-16 bg-gray-100 dark:bg-navy-600 rounded-md" />
-                </div>
-                <div className="col-span-2 flex items-center justify-end">
-                  <div className="h-4 w-20 bg-gray-200 dark:bg-navy-600 rounded" />
-                </div>
-                <div className="col-span-2 flex items-center justify-center">
-                  <div className="h-4 w-24 bg-gray-100 dark:bg-navy-600 rounded" />
-                </div>
-                <div className="col-span-1 flex items-center justify-center">
-                  <div className="h-4 w-6 bg-gray-100 dark:bg-navy-600 rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (items.length === 0) {
+  if (isLoading)
     return (
-      <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] py-12">
-        <div className="text-center">
-          <p className="text-[var(--color-ds-disabled)] text-lg">
-            검색 결과가 없습니다.
-          </p>
-          <p className="text-[var(--color-ds-disabled)] text-sm mt-2">
-            다른 검색 조건으로 시도해보세요.
-          </p>
-        </div>
+      <div className="rounded-lg border bg-white py-12 text-center text-[var(--color-ds-disabled)] dark:bg-navy-700">
+        로딩 중...
       </div>
     );
-  }
-
-  const formatPrice = (price: number) => {
-    if (price === 0) return "0";
-
-    const eok = Math.floor(price / 100000000); // 억
-    const man = Math.floor((price % 100000000) / 10000); // 만
-    const rest = price % 10000; // 나머지
-
-    const parts: string[] = [];
-
-    if (eok > 0) {
-      parts.push(`${eok}억`);
-    }
-
-    if (man > 0) {
-      parts.push(`${man.toLocaleString("ko-KR")}만`);
-    }
-
-    if (rest > 0 || parts.length === 0) {
-      parts.push(rest.toLocaleString("ko-KR"));
-    }
-
-    return parts.join(" ");
-  };
-
-  const formatDateShort = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("ko-KR", {
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(date);
-  };
-
-  // Extract enchant prefix from display name (축복받은|신성한 + 접두/접미 인챈트)
-  const getEnchantPrefix = (displayName: string, itemName: string) => {
-    // Remove itemName from displayName to get the enchant prefix
-    const prefix = displayName.replace(itemName, "").trim();
-    return prefix || null;
-  };
-
-  // Extract pure item name without parentheses and their content
-  const getItemNameWithoutAttributes = (itemName: string) => {
-    return itemName.replace(/\s*\([^)]*\)/g, "").trim();
-  };
-
-  // Extract attributes from parentheses in item name
-  const getItemAttributes = (itemName: string) => {
-    const matches = itemName.match(/\(([^)]+)\)/g);
-    if (!matches) return [];
-    return matches.map((match) => match.replace(/[()]/g, "").trim());
-  };
+  if (items.length === 0)
+    return (
+      <div className="rounded-lg border bg-white py-12 text-center dark:bg-navy-700">
+        <p className="text-lg text-[var(--color-ds-disabled)]">
+          검색 결과가 없습니다.
+        </p>
+        <p className="mt-2 text-sm text-[var(--color-ds-disabled)]">
+          다른 검색 조건으로 시도해보세요.
+        </p>
+      </div>
+    );
 
   return (
     <>
-      {/* Mobile List Layout */}
-      <div className="md:hidden">
-        <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
-          <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
-            {items.map((item, index) => (
-              <Popover key={`${item.auctionBuyId}-${index}`}>
-                <PopoverTrigger asChild>
-                  <div className="px-4 py-2 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
-                    {/* 1st Line: Enchants (축복받은/신성한 + 접두/접미 인챈트) - 항상 공간 유지 */}
-                    <div className="text-[10px] text-[var(--color-ds-disabled)] mb-1 min-h-[14px]">
-                      {getEnchantPrefix(item.itemDisplayName, item.itemName) ||
-                        "\u00A0"}
-                    </div>
-
-                    {/* 2nd Line: Pure Item Name (Left) + Price (Right) */}
-                    <div className="flex justify-between items-center mb-1.5 gap-2">
-                      <h3 className="font-semibold text-[var(--color-ds-text)] text-[13px] flex-1 min-w-0 truncate">
-                        {getItemNameWithoutAttributes(item.itemName)}
-                      </h3>
-                      <div className="flex items-center flex-shrink-0 whitespace-nowrap">
-                        <span className="font-bold text-[var(--color-ds-primary)] text-[13px]">
-                          {formatPrice(item.auctionPricePerUnit)}
-                        </span>
-                        <span className="text-sm text-[var(--color-ds-disabled)] ml-1">
-                          G
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 3rd Line: Attribute Tags (Left) + Date (Right) */}
-                    <div className="flex justify-between items-center">
-                      <div className="flex flex-wrap gap-1.5 items-center">
-                        {getItemAttributes(item.itemName).length > 0 ? (
-                          getItemAttributes(item.itemName).map((attr, idx) => (
-                            <span
-                              key={idx}
-                              className="text-xs text-[var(--color-ds-disabled)]"
-                            >
-                              #{attr}
-                            </span>
-                          ))
-                        ) : (
-                          <span></span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {item.itemCount > 1 && (
-                          <span className="text-xs text-[var(--color-ds-disabled)]">
-                            ×{item.itemCount}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1 text-xs text-[var(--color-ds-disabled)]">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          {formatDateShort(item.dateAuctionBuy)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </PopoverTrigger>
-
-                <PopoverContent
-                  className="w-[calc(100vw-2rem)] max-w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg max-h-[70vh]"
-                  side="top"
-                  align="center"
-                >
-                  <ItemOptionPopover
-                    itemDisplayName={item.itemDisplayName}
-                    itemOptions={item.itemOptions}
-                    price={item.auctionPricePerUnit}
-                  />
-                </PopoverContent>
-              </Popover>
-            ))}
-          </div>
+      <div className="overflow-hidden rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white md:hidden dark:bg-navy-700">
+        <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
+          {items.map((item) => (
+            <Link
+              key={item.auctionBuyId}
+              href={hrefFor(item.auctionBuyId)}
+              className="block px-4 py-3 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-[var(--color-ds-primary)]"
+            >
+              <div className="mb-1 min-h-[14px] text-[10px] text-[var(--color-ds-disabled)]">
+                {enchantPrefix(item.itemDisplayName, item.itemName) || "\u00A0"}
+              </div>
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <h3 className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[var(--color-ds-text)]">
+                  {itemNameWithoutAttributes(item.itemName)}
+                </h3>
+                <span className="whitespace-nowrap text-[13px] font-bold text-[var(--color-ds-primary)]">
+                  {formatPrice(item.auctionPricePerUnit)}{" "}
+                  <span className="font-normal text-[var(--color-ds-disabled)]">
+                    G
+                  </span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2 text-xs text-[var(--color-ds-disabled)]">
+                <span className="truncate">
+                  {itemAttributes(item.itemName)
+                    .map((value) => `#${value}`)
+                    .join(" ")}
+                </span>
+                <span className="shrink-0">
+                  {formatDateShort(item.dateAuctionBuy)}
+                  {item.itemCount > 1 ? ` · ×${item.itemCount}` : ""}
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
-
-      {/* Desktop Table Layout */}
-      <div className="hidden md:block bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
-        {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-[var(--color-ds-neutral-50)] border-b border-[var(--color-ds-neutral-tone)]">
-          <div className="col-span-5 font-semibold text-[var(--color-ds-ornamental)] text-sm">
-            아이템 이름
-          </div>
-          <div className="col-span-2 font-semibold text-[var(--color-ds-ornamental)] text-sm text-center">
-            카테고리
-          </div>
-          <div className="col-span-2 font-semibold text-[var(--color-ds-ornamental)] text-sm text-right">
-            가격
-          </div>
-          <div className="col-span-2 font-semibold text-[var(--color-ds-ornamental)] text-sm text-center">
-            거래일시
-          </div>
-          <div className="col-span-1 font-semibold text-[var(--color-ds-ornamental)] text-sm text-center">
-            수량
-          </div>
+      <div className="hidden overflow-hidden rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white md:block dark:bg-navy-700">
+        <div className="grid grid-cols-12 gap-4 border-b border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-neutral-50)] px-4 py-2 text-sm font-semibold text-[var(--color-ds-ornamental)]">
+          <div className="col-span-5">아이템 이름</div>
+          <div className="col-span-2 text-center">카테고리</div>
+          <div className="col-span-2 text-right">가격</div>
+          <div className="col-span-2 text-center">거래일시</div>
+          <div className="col-span-1 text-center">수량</div>
         </div>
-
-        {/* Table Body */}
         <div className="divide-y divide-[var(--color-ds-neutral-100)]">
-          {items.map((item, index) => (
-            <Popover key={`${item.auctionBuyId}-${index}`}>
-              <PopoverTrigger asChild>
-                <div className="grid grid-cols-12 gap-4 px-4 py-2 hover:bg-[var(--color-ds-primary-50)] transition-colors cursor-pointer">
-                  {/* Item Name */}
-                  <div className="col-span-5 flex items-center">
-                    <div className="truncate">
-                      <span className="font-medium text-[var(--color-ds-text)] text-[13px]">
-                        {item.itemDisplayName}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Category */}
-                  <div className="col-span-2 flex items-center justify-center gap-1">
-                    <Badge
-                      variant="secondary"
-                      className="rounded-md bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] border-0 text-xs px-2 py-0.5"
-                    >
-                      {item.itemSubCategory}
-                    </Badge>
-                  </div>
-
-                  {/* Price */}
-                  <div className="col-span-2 flex items-center justify-end min-w-0">
-                    <span className="font-bold text-[var(--color-ds-primary)] text-[13px] whitespace-nowrap">
-                      {formatPrice(item.auctionPricePerUnit)}
-                    </span>
-                    <span className="text-sm text-[var(--color-ds-disabled)] ml-1 whitespace-nowrap">
-                      G
-                    </span>
-                  </div>
-
-                  {/* Date */}
-                  <div className="col-span-2 flex items-center justify-center text-sm text-[var(--color-ds-disabled)]">
-                    {formatDateShort(item.dateAuctionBuy)}
-                  </div>
-
-                  {/* Count */}
-                  <div className="col-span-1 flex items-center justify-center text-sm text-[var(--color-ds-disabled)]">
-                    {item.itemCount}
-                  </div>
-                </div>
-              </PopoverTrigger>
-
-              <PopoverContent
-                className="w-80 p-3 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg max-h-[70vh]"
-                side="right"
-                align="start"
-              >
-                <ItemOptionPopover
-                  itemDisplayName={item.itemDisplayName}
-                  itemOptions={item.itemOptions}
-                  price={item.auctionPricePerUnit}
-                />
-              </PopoverContent>
-            </Popover>
+          {items.map((item) => (
+            <HistoryDesktopRow
+              key={item.auctionBuyId}
+              item={item}
+              href={hrefFor(item.auctionBuyId)}
+              previewEnabled={previewEnabled}
+            />
           ))}
         </div>
       </div>
