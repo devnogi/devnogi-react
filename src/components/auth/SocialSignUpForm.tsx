@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
+import GameProfileFields from "@/components/profile/GameProfileFields";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,7 +22,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 import { clientAxios } from "@/lib/api/clients";
-import { SocialProvider } from "@/lib/auth/socialAuth";
+import type { SocialProvider } from "@/lib/auth/socialAuth";
+import type { GameProfileDraft } from "@/types/profile";
+import {
+  appendGameProfileFormData,
+  EMPTY_GAME_PROFILE_DRAFT,
+  validateGameProfileDraft,
+} from "@/types/profile";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -77,6 +84,10 @@ export default function SocialSignUpForm({
   const [emailSubmissionError, setEmailSubmissionError] = useState<
     string | null
   >(null);
+  const [gameProfile, setGameProfile] = useState<GameProfileDraft>(
+    EMPTY_GAME_PROFILE_DRAFT,
+  );
+  const [gameProfileError, setGameProfileError] = useState<string | null>(null);
   const {
     candidate,
     status: nicknameStatus,
@@ -122,6 +133,12 @@ export default function SocialSignUpForm({
   };
 
   const onSubmit = async (data: SocialSignUpFormData) => {
+    const profileError = validateGameProfileDraft(gameProfile);
+    if (profileError) {
+      setGameProfileError(profileError);
+      return;
+    }
+    setGameProfileError(null);
     if (
       nicknameStatus !== "ready" ||
       !candidate ||
@@ -154,6 +171,7 @@ export default function SocialSignUpForm({
       if (data.profileImage) {
         formData.append("file", data.profileImage);
       }
+      appendGameProfileFormData(formData, gameProfile);
 
       const response = await clientAxios.post<{
         success: boolean;
@@ -372,6 +390,31 @@ export default function SocialSignUpForm({
               </FormItem>
             )}
           />
+
+          <details className="rounded-lg border border-border bg-background p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9a451f]">
+              게임 프로필 (선택)
+            </summary>
+            <p className="mt-2 text-xs text-muted-foreground">
+              공개 프로필에 표시할 마비노기 정보를 설정할 수 있습니다.
+            </p>
+            <div className="mt-5">
+              <GameProfileFields
+                value={gameProfile}
+                onChange={(value) => {
+                  setGameProfile(value);
+                  setGameProfileError(null);
+                }}
+                disabled={isLoading}
+                idPrefix="signup-game-profile"
+              />
+            </div>
+            {gameProfileError ? (
+              <p role="alert" className="mt-3 text-sm text-destructive">
+                {gameProfileError}
+              </p>
+            ) : null}
+          </details>
 
           {/* 버튼 */}
           <div className="flex gap-3 pt-4">

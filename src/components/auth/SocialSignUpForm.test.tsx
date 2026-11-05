@@ -65,7 +65,72 @@ it("소셜 가입에서 수동 입력을 막고 발급 후보와 티켓을 함�
   expect((formData as FormData).get("nicknameTicket")).toBe(
     candidate.nicknameTicket,
   );
+  expect((formData as FormData).get("mainChannel")).toBe("");
+  expect((formData as FormData).get("guildName")).toBe("");
+  expect((formData as FormData).get("preferredColor1")).toBe("");
+  expect((formData as FormData).get("preferredColor2")).toBe("");
   await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(42));
+});
+
+it("선택한 게임 프로필을 소셜 가입 FormData로 직렬화한다", async () => {
+  jest
+    .mocked(clientAxios.post)
+    .mockResolvedValue({ data: { success: true, data: { id: 42 } } });
+  render(
+    <SocialSignUpForm
+      provider="google"
+      signupProof="synthetic-proof"
+      onSuccess={jest.fn()}
+      onError={jest.fn()}
+      onCancel={jest.fn()}
+    />,
+  );
+
+  fireEvent.click(screen.getByText("게임 프로필 (선택)"));
+  fireEvent.change(screen.getByLabelText("주채널"), {
+    target: { value: "42" },
+  });
+  fireEvent.change(screen.getByLabelText(/^길드/), {
+    target: { value: "  에린의 바람  " },
+  });
+  fireEvent.change(screen.getByLabelText("종족"), {
+    target: { value: "ELF" },
+  });
+  fireEvent.change(screen.getByLabelText("아르카나"), {
+    target: { value: "DARK_MAGE" },
+  });
+  fireEvent.change(screen.getByLabelText("MBTI"), {
+    target: { value: "INTJ" },
+  });
+  fireEvent.change(screen.getByLabelText("1번째 지향색 R"), {
+    target: { value: "255" },
+  });
+  fireEvent.change(screen.getByLabelText("1번째 지향색 G"), {
+    target: { value: "128" },
+  });
+  fireEvent.change(screen.getByLabelText("1번째 지향색 B"), {
+    target: { value: "0" },
+  });
+  fireEvent.change(screen.getByLabelText(/^자기소개/), {
+    target: { value: "  류트에서 만나요  " },
+  });
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "회원가입" })).toBeEnabled(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "회원가입" }));
+
+  await waitFor(() => expect(clientAxios.post).toHaveBeenCalledTimes(1));
+  const formData = jest.mocked(clientAxios.post).mock.calls[0][1] as FormData;
+  expect(Object.fromEntries(formData.entries())).toMatchObject({
+    mainChannel: "42",
+    guildName: "에린의 바람",
+    race: "ELF",
+    arcana: "DARK_MAGE",
+    preferredColor1: "255.128.0",
+    preferredColor2: "",
+    mbti: "INTJ",
+    bio: "류트에서 만나요",
+  });
 });
 
 it("새 OAuth 교환 뒤에는 서버 발급 가입 증명만 보내고 클라이언트 신원 필드를 보내지 않는다", async () => {

@@ -10,7 +10,7 @@ jest.mock("@/lib/logger", () => ({
   createLogger: jest.fn(() => ({ info: jest.fn(), error: jest.fn() })),
 }));
 
-it("마이페이지 BFF는 후보 티켓을 전달하되 로그에는 값을 남기지 않는다", async () => {
+it("마이페이지 BFF는 폼을 전달하되 프로필 문자열을 로그에 남기지 않는다", async () => {
   const put = jest
     .fn()
     .mockResolvedValue({ status: 200, data: { success: true } });
@@ -24,6 +24,8 @@ it("마이페이지 BFF는 후보 티켓을 전달하되 로그에는 값을 남
   const form = new FormData();
   form.set("nickname", "행복한 나무 A1B2C");
   form.set("nicknameTicket", "synthetic-private-ticket");
+  form.set("guildName", "private-guild-name");
+  form.set("bio", "private-profile-bio");
   const request = new NextRequest("http://localhost/api/user/info", {
     method: "PUT",
     body: form,
@@ -35,8 +37,8 @@ it("마이페이지 BFF는 후보 티켓을 전달하되 로그에는 값을 남
   expect((put.mock.calls[0][1] as FormData).get("nicknameTicket")).toBe(
     "synthetic-private-ticket",
   );
-  expect(JSON.stringify(info.mock.calls)).not.toContain(
-    "synthetic-private-ticket",
-  );
-  expect(JSON.stringify(info.mock.calls)).toContain("[REDACTED]");
+  const logged = JSON.stringify(info.mock.calls);
+  expect(logged).not.toContain("synthetic-private-ticket");
+  expect(logged).not.toContain("private-guild-name");
+  expect(logged).not.toContain("private-profile-bio");
 });

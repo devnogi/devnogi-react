@@ -6,7 +6,11 @@ import axios, {
 } from "axios";
 
 function isSensitiveAuthRequest(url?: string): boolean {
-  return url === "/auth/oauth/exchange" || url === "/auth/signup/social";
+  return (
+    url === "/auth/oauth/exchange" ||
+    url === "/auth/signup/social" ||
+    url === "/user/info"
+  );
 }
 
 /**
