@@ -41,7 +41,7 @@ interface ReportDialogProps {
   onOpenChange: (open: boolean) => void;
   targetType: "POST" | "COMMENT";
   targetId: number;
-  targetUserId: number;
+  targetUserId?: number;
 }
 
 export default function ReportDialog({
@@ -49,7 +49,6 @@ export default function ReportDialog({
   onOpenChange,
   targetType,
   targetId,
-  targetUserId,
 }: ReportDialogProps) {
   const [categoryCd, setCategoryCd] = useState("");
   const [reason, setReason] = useState("");
@@ -65,7 +64,6 @@ export default function ReportDialog({
       await clientAxios.post("/reports", {
         targetType,
         targetId,
-        targetUserId,
         categoryCd,
         reason: reason.trim(),
       });

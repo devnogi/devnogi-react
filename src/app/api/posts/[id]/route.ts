@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
+import { selectServerGatewayUrl } from "@/lib/api/gateway-selector";
 import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
 import { createLogger } from "@/lib/logger";
 
@@ -85,14 +86,44 @@ export async function PATCH(
   logger.info(`PATCH /posts/${id} - 게시글 수정 요청`);
 
   try {
-    const body = await request.json();
-    logger.debug(`Request body:`, body);
-
-    const axios = createAuthServerAxios(request);
-    // DCS API: PATCH /api/posts/{id} (게시글 수정)
     const targetUrl = `/dcs/api/posts/${id}`;
     logger.debug(`Forwarding to: ${targetUrl}`);
+    const contentType = request.headers.get("content-type") ?? "";
+    if (contentType.startsWith("multipart/form-data")) {
+      const cookie = request.headers.get("cookie") ?? "";
+      const accessToken = cookie.match(/(?:^|;\s*)access_token=([^;]+)/)?.[1];
+      const response = await fetch(
+        new URL(targetUrl, selectServerGatewayUrl()),
+        {
+          method: "PATCH",
+          body: request.body,
+          duplex: "half",
+          headers: {
+            "content-type": contentType,
+            cookie,
+            ...(request.headers.get("authorization")
+              ? {
+                  authorization: request.headers.get("authorization") as string,
+                }
+              : accessToken
+                ? { authorization: `Bearer ${accessToken}` }
+                : {}),
+          },
+          signal: AbortSignal.timeout(30_000),
+        } as RequestInit & { duplex: "half" },
+      );
+      const responseBody = await response.text();
+      return new NextResponse(responseBody || null, {
+        status: response.status,
+        headers: {
+          "content-type":
+            response.headers.get("content-type") ?? "application/json",
+        },
+      });
+    }
 
+    const body = await request.json();
+    const axios = createAuthServerAxios(request);
     const { data, status } = await axios.patch(targetUrl, body);
 
     const duration = Date.now() - startTime;

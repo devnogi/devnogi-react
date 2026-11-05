@@ -6,6 +6,10 @@ import CommentList from "@/components/page/community/CommentList";
 import PopularPostsHighlight from "@/components/page/community/PopularPostsHighlight";
 import PostDetailView from "@/components/page/community/PostDetailView";
 import RelatedPostsSection from "@/components/page/community/RelatedPostsSection";
+import {
+  derivePostTitle,
+  normalizeExcerpt,
+} from "@/lib/community/post-content";
 import { getPublicPost, type PostDetail } from "@/lib/community/public-post";
 import { canonicalUrl } from "@/lib/seo/site";
 
@@ -18,15 +22,14 @@ interface PostPageProps {
 export const dynamic = "force-dynamic";
 
 function toDescription(post: PostDetail): string {
-  const normalized = post.content.replace(/\s+/g, " ").trim();
-  return normalized.slice(0, 155) || "메모노기 커뮤니티 게시글";
+  return normalizeExcerpt(post.content, 140) || "메모노기 커뮤니티 게시글";
 }
 
 function articleJsonLd(post: PostDetail, postPath: string) {
   return JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: post.title,
+    headline: derivePostTitle(post.content),
     description: toDescription(post),
     datePublished: post.createdAt,
     dateModified: post.updatedAt,
@@ -53,12 +56,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: result.post.title,
+    title: derivePostTitle(result.post.content),
     description: toDescription(result.post),
     alternates: { canonical: `/community/${result.post.id}` },
     openGraph: {
       type: "article",
-      title: result.post.title,
+      title: derivePostTitle(result.post.content),
       description: toDescription(result.post),
       url: `/community/${result.post.id}`,
       publishedTime: result.post.createdAt,
@@ -66,7 +69,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary",
-      title: result.post.title,
+      title: derivePostTitle(result.post.content),
       description: toDescription(result.post),
     },
   };
@@ -90,7 +93,7 @@ async function PostPage({ params }: PostPageProps) {
     : undefined;
 
   return (
-    <div className="w-full md:w-2/3 mx-auto pb-8">
+    <div className="mx-auto w-full max-w-[1000px] pb-8">
       <nav
         aria-label="현재 위치"
         className="mb-4 text-sm text-gray-600 dark:text-gray-400"
@@ -107,7 +110,9 @@ async function PostPage({ params }: PostPageProps) {
               커뮤니티
             </Link>
           </li>
-          {initialPost && <li aria-current="page">{initialPost.title}</li>}
+          {initialPost && (
+            <li aria-current="page">{derivePostTitle(initialPost.content)}</li>
+          )}
         </ol>
       </nav>
       {initialPost && canonicalPath && (
@@ -118,7 +123,7 @@ async function PostPage({ params }: PostPageProps) {
           }}
         />
       )}
-      <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(220px,30%)] md:gap-4">
+      <div className="lg:grid lg:grid-cols-[minmax(0,680px)_280px] lg:gap-5">
         <section className="min-w-0 flex flex-col gap-4 md:gap-6">
           {/* Post Detail */}
           <PostDetailView
@@ -127,14 +132,12 @@ async function PostPage({ params }: PostPageProps) {
             cacheScope={cacheScope}
           />
 
-          {/* Mobile Popular Posts */}
-          <div className="md:hidden">
-            <PopularPostsHighlight />
-          </div>
-
           {/* Comments Section */}
           <div className="w-full">
-            <div className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5">
+            <div
+              id="comments"
+              className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5"
+            >
               <CommentList postId={id} />
             </div>
           </div>
@@ -146,7 +149,7 @@ async function PostPage({ params }: PostPageProps) {
           />
         </section>
 
-        <aside className="hidden md:block">
+        <aside className="hidden lg:block">
           <div className="sticky top-[116px]">
             <PopularPostsHighlight />
           </div>

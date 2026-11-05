@@ -1,0 +1,111 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
+import type { PostSummary } from "@/hooks/useInfinitePosts";
+import { clientAxios } from "@/lib/api/clients";
+
+import PostCard from "./PostCard";
+
+jest.mock("@/lib/api/clients", () => ({
+  clientAxios: {
+    request: jest.fn(),
+    post: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+type MockAuth = { user: { userId: number } | null; isAuthenticated: boolean };
+const mockUseAuth = jest.fn<MockAuth, []>(() => ({
+  user: null,
+  isAuthenticated: false,
+}));
+jest.mock("@/contexts/AuthContext", () => ({ useAuth: () => mockUseAuth() }));
+jest.mock("sonner", () => ({
+  toast: { error: jest.fn(), success: jest.fn() },
+}));
+
+const post: PostSummary = {
+  id: 7,
+  userId: 42,
+  username: "나오",
+  title: "평범한 하루",
+  content: "평범한 하루",
+  author: {
+    nickname: "나오",
+    profileImageUrl: null,
+    serverName: "류트",
+    verified: false,
+  },
+  media: [],
+  viewCount: 10,
+  likeCount: 2,
+  commentCount: 1,
+  liked: false,
+  bookmarked: false,
+  createdAt: "2026-11-05T00:00:00.000Z",
+  updatedAt: "2026-11-05T00:00:00.000Z",
+};
+
+describe("PostCard", () => {
+  const renderCard = () =>
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <PostCard post={post} />
+      </QueryClientProvider>,
+    );
+  beforeEach(() =>
+    mockUseAuth.mockReturnValue({ user: null, isAuthenticated: false }),
+  );
+
+  it("links both author affordances to the public profile", () => {
+    renderCard();
+    expect(screen.getAllByRole("link", { name: /나오/ })).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          href: expect.stringContaining("/profile/42"),
+        }),
+      ]),
+    );
+  });
+
+  it("rolls back an optimistic bookmark when the request fails", async () => {
+    (clientAxios.request as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+    renderCard();
+    const bookmark = screen.getByRole("button", { name: "즐겨찾기" });
+    fireEvent.click(bookmark);
+    expect(bookmark).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() =>
+      expect(bookmark).toHaveAttribute("aria-pressed", "false"),
+    );
+  });
+
+  it("shows edit/delete only to the author and submits retained media through multipart PATCH", async () => {
+    mockUseAuth.mockReturnValue({
+      user: { userId: 42 },
+      isAuthenticated: true,
+    });
+    (clientAxios.patch as jest.Mock).mockResolvedValueOnce({});
+    renderCard();
+    fireEvent.click(screen.getByRole("button", { name: "게시글 메뉴" }));
+    expect(screen.getByRole("button", { name: /수정/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /삭제/ })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "신고하기" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /수정/ }));
+    fireEvent.click(screen.getByRole("button", { name: "수정" }));
+    await waitFor(() =>
+      expect(clientAxios.patch).toHaveBeenCalledWith(
+        "/posts/7",
+        expect.any(FormData),
+      ),
+    );
+    const formData = (clientAxios.patch as jest.Mock).mock
+      .calls[0][1] as FormData;
+    const payload = JSON.parse(await (formData.get("data") as Blob).text());
+    expect(payload).toMatchObject({
+      content: "평범한 하루",
+      retainedMediaIds: [],
+    });
+  });
+});

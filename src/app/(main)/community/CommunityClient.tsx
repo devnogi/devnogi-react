@@ -1,135 +1,98 @@
 "use client";
 
-import { Loader2, Plus, UserRound } from "lucide-react";
+import { Loader2, PenLine } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
-import Category from "@/components/page/community/Category";
 import PopularPostsHighlight from "@/components/page/community/PopularPostsHighlight";
+import PostComposer from "@/components/page/community/PostComposer";
 import PostCreateModal from "@/components/page/community/PostCreateModal";
 import PostList from "@/components/page/community/PostList";
-import { useAuth } from "@/contexts/AuthContext";
+import type { FeedTab } from "@/types/community";
 
-type SortType = "latest" | "popular" | "mostLiked";
+const tabs: Array<{ value: FeedTab; label: string }> = [
+  { value: "latest", label: "최신" },
+  { value: "popular", label: "인기" },
+  { value: "bookmarks", label: "저장됨" },
+  { value: "mine", label: "내 글" },
+];
 
 function CommunityPageContent() {
-  const searchParams = useSearchParams();
-  const keyword = searchParams.get("q") || "";
-
-  const [selectedBoardId, setSelectedBoardId] = useState<number | undefined>(
-    undefined,
-  );
-  const [sortOption, setSortOption] = useState<SortType>("latest");
-  const [showMyPosts, setShowMyPosts] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const keyword = useSearchParams().get("q") ?? "";
+  const [tab, setTab] = useState<FeedTab>("latest");
+  const [composerOpen, setComposerOpen] = useState(false);
 
   return (
-    <main className="flex flex-col gap-6 pb-24">
-      <div className="w-full max-w-6xl mx-auto space-y-4">
-        {/* Category Filter */}
-        <Category
-          selectedBoardId={selectedBoardId}
-          setSelectedBoardId={setSelectedBoardId}
-        />
-
-        {/* Mobile Popular Posts */}
-        <div className="md:hidden">
-          <PopularPostsHighlight boardId={selectedBoardId} />
-        </div>
-
-        {/* Desktop/Tablet Layout: Post List + Popular Card */}
-        <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(220px,30%)] md:gap-4">
-          <section className="min-w-0 space-y-4">
-            {/* Search Result Info */}
+    <main className="mx-auto w-full max-w-[1000px] pb-24">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,680px)_280px]">
+        <section className="min-w-0 overflow-hidden border-x border-gray-200 bg-white dark:border-navy-600 dark:bg-navy-800 sm:rounded-2xl sm:border">
+          <header className="border-b border-gray-200 px-4 pt-4 dark:border-navy-600 sm:px-5">
+            <div className="mb-3">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                에린 이야기
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                길게 고민하지 말고, 오늘의 한 장면을 가볍게 나눠보세요.
+              </p>
+            </div>
             {keyword && (
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 px-1">
-                <span>&quot;{keyword}&quot; 검색 결과</span>
-              </div>
+              <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                &quot;{keyword}&quot; 검색 결과
+              </p>
             )}
-
-            {/* Sort Options */}
-            <div className="flex items-center gap-2 bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-600 rounded-lg p-2">
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as SortType)}
-                disabled={showMyPosts}
-                className="border border-gray-200 dark:border-navy-600 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 disabled:opacity-50"
-              >
-                <option value="latest">최신순</option>
-                <option value="popular">인기순</option>
-                <option value="mostLiked">좋아요순</option>
-              </select>
-              {isAuthenticated && (
+            <nav className="flex" aria-label="커뮤니티 피드">
+              {tabs.map((item) => (
                 <button
-                  onClick={() => setShowMyPosts((prev) => !prev)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
-                    showMyPosts
-                      ? "bg-[var(--color-ds-primary)] text-white dark:text-navy-900 border-[var(--color-ds-primary)]"
-                      : "bg-white dark:bg-navy-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-600"
-                  }`}
+                  key={item.value}
+                  type="button"
+                  onClick={() => setTab(item.value)}
+                  className={`relative flex h-12 flex-1 items-center justify-center text-sm font-semibold ${tab === item.value ? "text-[#7f3819] dark:text-gold-300" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"}`}
+                  aria-current={tab === item.value ? "page" : undefined}
                 >
-                  <UserRound className="w-4 h-4" />내 글
+                  {item.label}
+                  {tab === item.value && (
+                    <span className="absolute inset-x-5 bottom-0 h-0.5 rounded-full bg-[#9a451f] dark:bg-gold-400" />
+                  )}
                 </button>
-              )}
-            </div>
-
-            {/* Info: 인기순/좋아요순은 게시판 선택 필요 */}
-            {(sortOption === "popular" || sortOption === "mostLiked") &&
-              !selectedBoardId && (
-                <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-lg">
-                  인기순/좋아요순은 게시판을 선택해야 적용됩니다.
-                </div>
-              )}
-
-            {/* Post List */}
-            <PostList
-              boardId={showMyPosts ? undefined : selectedBoardId}
-              keyword={showMyPosts ? undefined : keyword}
-              sortType={showMyPosts ? undefined : sortOption}
-              userId={showMyPosts ? user?.userId : undefined}
-            />
-          </section>
-
-          <aside className="hidden md:block">
-            <div className="sticky top-[116px]">
-              <PopularPostsHighlight boardId={selectedBoardId} />
-            </div>
-          </aside>
-        </div>
+              ))}
+            </nav>
+          </header>
+          <div className="hidden border-b border-gray-200 dark:border-navy-600 sm:block">
+            <PostComposer compact />
+          </div>
+          <PostList tab={tab} keyword={keyword || undefined} />
+        </section>
+        <aside className="hidden lg:block">
+          <div className="sticky top-[116px]">
+            <PopularPostsHighlight />
+          </div>
+        </aside>
       </div>
-
-      {/* FAB - Write Post Button */}
       <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-white dark:text-navy-900 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95"
+        type="button"
+        onClick={() => setComposerOpen(true)}
+        className="fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[#9a451f] text-white shadow-lg dark:bg-gold-400 dark:text-navy-900 sm:bottom-6 lg:hidden"
         aria-label="글쓰기"
       >
-        <Plus className="w-6 h-6" />
+        <PenLine className="h-5 w-5" />
       </button>
-
-      {/* Post Create Modal */}
       <PostCreateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={composerOpen}
+        onClose={() => setComposerOpen(false)}
       />
-    </main>
-  );
-}
-
-function CommunityPageFallback() {
-  return (
-    <main className="flex flex-col gap-6 pb-24">
-      <div className="flex justify-center items-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-      </div>
     </main>
   );
 }
 
 export default function CommunityPage() {
   return (
-    <Suspense fallback={<CommunityPageFallback />}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-7 w-7 animate-spin text-gray-400" />
+        </div>
+      }
+    >
       <CommunityPageContent />
     </Suspense>
   );

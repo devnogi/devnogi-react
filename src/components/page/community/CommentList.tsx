@@ -6,10 +6,11 @@ import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import { clientAxios } from "@/lib/api/clients";
-import {
+import type {
   ApiResponse,
   BackendCommentsResponse,
-  CommentPageResponseItem,
+  CommentThreadResponseItem,
+  CommentThreadsResponse,
 } from "@/types/community";
 
 import CommentForm from "./CommentForm";
@@ -18,8 +19,92 @@ import CommentItem from "./CommentItem";
 interface CommentListProps {
   postId: string;
 }
-
 const PAGE_SIZE = 20;
+
+function normalizeThread(
+  thread: CommentThreadResponseItem,
+): CommentThreadResponseItem {
+  const normalize = (comment: CommentThreadResponseItem["comment"]) => ({
+    ...comment,
+    nickname:
+      comment.nickname?.trim() ||
+      comment.username?.trim() ||
+      `사용자 ${comment.userId}`,
+  });
+  return {
+    ...thread,
+    comment: normalize(thread.comment),
+    replies: thread.replies.map(normalize),
+  };
+}
+
+function CommentThread({
+  postId,
+  thread,
+  onRefetch,
+}: {
+  postId: string;
+  thread: CommentThreadResponseItem;
+  onRefetch: () => void;
+}) {
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
+    useInfiniteQuery<ApiResponse<BackendCommentsResponse>>({
+      queryKey: ["comment-replies", postId, thread.comment.id],
+      queryFn: async ({ pageParam }) =>
+        (
+          await clientAxios.get<ApiResponse<BackendCommentsResponse>>(
+            `/comments/${postId}/${thread.comment.id}/replies`,
+            { params: { page: pageParam, size: PAGE_SIZE } },
+          )
+        ).data,
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) =>
+        lastPage.data.meta.isLast
+          ? undefined
+          : lastPage.data.meta.currentPage + 1,
+      enabled: false,
+    });
+  const fetched = (data?.pages.flatMap((page) => page.data.items) ?? []).map(
+    (comment) => ({
+      ...comment,
+      nickname:
+        comment.nickname?.trim() ||
+        comment.username?.trim() ||
+        `사용자 ${comment.userId}`,
+    }),
+  );
+  const replies = [...thread.replies, ...fetched].filter(
+    (reply, index, all) =>
+      all.findIndex((item) => item.id === reply.id) === index,
+  );
+  const remaining = Math.max(0, thread.replyCount - replies.length);
+  const loadMore = async () => {
+    if (data) await fetchNextPage();
+    else await refetch();
+  };
+
+  return (
+    <div>
+      <CommentItem
+        comment={thread.comment}
+        postId={postId}
+        replies={replies}
+        onRefetch={onRefetch}
+      />
+      {(remaining > 0 || hasNextPage) && (
+        <button
+          type="button"
+          onClick={loadMore}
+          disabled={isFetching}
+          className="ml-12 mt-2 flex h-11 items-center gap-2 rounded-full px-3 text-xs font-semibold text-[#9a451f] hover:bg-amber-50 disabled:opacity-50 dark:text-gold-300 dark:hover:bg-navy-700"
+        >
+          {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          답글 {remaining || PAGE_SIZE}개 더 보기
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function CommentList({ postId }: CommentListProps) {
   const {
@@ -31,101 +116,67 @@ export default function CommentList({ postId }: CommentListProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<ApiResponse<BackendCommentsResponse>>({
-    queryKey: ["comments", postId],
-    queryFn: async ({ pageParam }) => {
-      const response = await clientAxios.get<
-        ApiResponse<BackendCommentsResponse>
-      >(`/comments/${postId}`, {
-        params: {
-          page: pageParam,
-          size: PAGE_SIZE,
-          sortBy: "createdAt",
-          direction: "desc",
-        },
-      });
-      return response.data;
-    },
+  } = useInfiniteQuery<ApiResponse<CommentThreadsResponse>>({
+    queryKey: ["comment-threads", postId],
+    queryFn: async ({ pageParam }) =>
+      (
+        await clientAxios.get<ApiResponse<CommentThreadsResponse>>(
+          `/comments/${postId}/threads`,
+          { params: { page: pageParam, size: PAGE_SIZE } },
+        )
+      ).data,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      const meta = lastPage.data?.meta;
-      if (!meta || meta.isLast) return undefined;
-      return meta.currentPage + 1;
-    },
+    getNextPageParam: (lastPage) =>
+      lastPage.data.meta.isLast
+        ? undefined
+        : lastPage.data.meta.currentPage + 1,
   });
-
   const handleRefetch = useCallback(() => {
-    refetch();
+    void refetch();
   }, [refetch]);
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400 dark:text-gray-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
       </div>
     );
-  }
-
-  if (isError) {
+  if (isError)
     return (
-      <div className="text-center py-8">
-        <p className="text-red-500 dark:text-red-400">
-          댓글을 불러오는데 실패했습니다.
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      <div className="py-8 text-center">
+        <p className="text-red-500">댓글을 불러오는데 실패했습니다.</p>
+        <p className="mt-1 text-sm text-gray-500">
           {error instanceof Error ? error.message : "알 수 없는 오류"}
         </p>
       </div>
     );
-  }
 
-  const comments = data?.pages.flatMap((page) => page.data?.items || []) || [];
-  const totalCount = data?.pages[0]?.data?.meta?.totalElements || 0;
-
-  // 대댓글 구조로 변환
-  const topLevelComments = comments.filter((c) => !c.parentComment);
-  const repliesMap = comments.reduce(
-    (acc, comment) => {
-      if (comment.parentComment) {
-        if (!acc[comment.parentComment]) {
-          acc[comment.parentComment] = [];
-        }
-        acc[comment.parentComment].push(comment);
-      }
-      return acc;
-    },
-    {} as Record<number, CommentPageResponseItem[]>,
+  const threads = (data?.pages.flatMap((page) => page.data.items) ?? []).map(
+    normalizeThread,
   );
-
+  const totalCount = data?.pages[0]?.data.meta.totalElements ?? 0;
   return (
     <div className="space-y-6">
       <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
         댓글{" "}
         <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
       </h3>
-
-      {/* Comments */}
-      {comments.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500 dark:text-gray-400">
-            첫 댓글을 작성해보세요!
-          </p>
-        </div>
+      {threads.length === 0 ? (
+        <p className="py-8 text-center text-gray-500">
+          첫 댓글을 작성해보세요!
+        </p>
       ) : (
         <div className="space-y-2.5">
-          {topLevelComments.map((comment) => (
-            <CommentItem
-              key={comment.id}
-              comment={comment}
+          {threads.map((thread) => (
+            <CommentThread
+              key={thread.comment.id}
               postId={postId}
-              replies={repliesMap[comment.id] || []}
+              thread={thread}
               onRefetch={handleRefetch}
             />
           ))}
         </div>
       )}
-
-      {/* Load More */}
       {hasNextPage && (
         <div className="flex justify-center pt-2">
           <Button
@@ -133,11 +184,11 @@ export default function CommentList({ postId }: CommentListProps) {
             size="sm"
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="w-full sm:w-auto rounded-xl"
+            className="w-full rounded-xl sm:w-auto"
           >
             {isFetchingNextPage ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 불러오는 중...
               </>
             ) : (
@@ -146,9 +197,7 @@ export default function CommentList({ postId }: CommentListProps) {
           </Button>
         </div>
       )}
-
-      {/* Comment Form (bottom) */}
-      <div className="pt-4 border-t border-gray-100 dark:border-navy-600">
+      <div className="border-t border-gray-100 pt-4 dark:border-navy-600">
         <CommentForm postId={postId} onSuccess={handleRefetch} />
       </div>
     </div>

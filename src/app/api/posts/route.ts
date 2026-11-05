@@ -2,8 +2,11 @@ import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 import { POSTS_ENDPOINT } from "@/lib/api/constants";
-import { GatewayConfigError } from "@/lib/api/gateway-selector";
-import { createAuthServerAxios, createServerAxios } from "@/lib/api/server";
+import {
+  GatewayConfigError,
+  selectServerGatewayUrl,
+} from "@/lib/api/gateway-selector";
+import { createServerAxios } from "@/lib/api/server";
 import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/posts");
@@ -19,30 +22,41 @@ export async function POST(request: NextRequest) {
   logger.info(`POST /posts - 게시글 생성 요청`);
 
   try {
-    const formData = await request.formData();
-
-    // FormData 내용 로깅
-    const formDataEntries: Record<string, string> = {};
-    formData.forEach((value, key) => {
-      if (value instanceof File) {
-        formDataEntries[key] = `[File: ${value.name}, ${value.size} bytes]`;
-      } else {
-        formDataEntries[key] = String(value);
-      }
-    });
-    logger.debug(`FormData entries:`, formDataEntries);
-
-    const axios = createAuthServerAxios(request);
-    // DCS API: POST /api/posts (게시글 생성)
-    logger.debug(`Forwarding to: ${POSTS_ENDPOINT}`);
-
-    const { data, status } = await axios.post(POSTS_ENDPOINT, formData);
+    const cookie = request.headers.get("cookie") ?? "";
+    const accessToken = cookie.match(/(?:^|;\s*)access_token=([^;]+)/)?.[1];
+    const response = await fetch(
+      new URL(POSTS_ENDPOINT, selectServerGatewayUrl()),
+      {
+        method: "POST",
+        body: request.body,
+        duplex: "half",
+        headers: {
+          "content-type":
+            request.headers.get("content-type") ?? "multipart/form-data",
+          cookie,
+          ...(request.headers.get("authorization")
+            ? {
+                authorization: request.headers.get("authorization") as string,
+              }
+            : accessToken
+              ? { authorization: `Bearer ${accessToken}` }
+              : {}),
+        },
+        signal: AbortSignal.timeout(30_000),
+      } as RequestInit & { duplex: "half" },
+    );
+    const status = response.status;
+    const body = await response.text();
 
     const duration = Date.now() - startTime;
     logger.info(`POST /posts - 성공 (${status}) [${duration}ms]`);
-    logger.debug(`Response data:`, data);
-
-    return NextResponse.json(data, { status });
+    return new NextResponse(body || null, {
+      status,
+      headers: {
+        "content-type":
+          response.headers.get("content-type") ?? "application/json",
+      },
+    });
   } catch (error: unknown) {
     const duration = Date.now() - startTime;
 
