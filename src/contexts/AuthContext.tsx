@@ -2,7 +2,9 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export interface User {
+import type { GameProfile } from "@/types/profile";
+
+export interface User extends GameProfile {
   userId: number;
   nickname: string;
   email: string;

@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { toast } from "sonner";
 
 import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
 import { UnifiedSearchItem } from "@/types/unified-search";
@@ -9,7 +8,6 @@ import { HomeSearch, HomeSearchProvider } from "./HomeSearch";
 
 const push = jest.fn();
 jest.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-jest.mock("sonner", () => ({ toast: { info: jest.fn() } }));
 jest.mock("@/hooks/useUnifiedSearch", () => ({
   useUnifiedSearch: jest.fn(),
 }));
@@ -42,7 +40,6 @@ function setup() {
 
 beforeEach(() => {
   push.mockClear();
-  jest.mocked(toast.info).mockClear();
   localStorage.clear();
   jest.mocked(useUnifiedSearch).mockImplementation(
     (query) =>
@@ -146,14 +143,33 @@ it("아이템을 선택하면 실시간 경매장으로 이동한다", async () 
   );
 });
 
-it("사용자 선택은 서버명을 표시하고 준비 중 안내를 보여 준다", async () => {
+it("사용자를 마우스로 선택하면 공개 프로필로 이동한다", async () => {
   const user = userEvent.setup();
   const { hero } = setup();
   await user.type(hero, "빛나는사람");
   expect(screen.getByText("류트 서버")).toBeInTheDocument();
   await user.click(screen.getByRole("option"));
-  expect(toast.info).toHaveBeenCalledWith("사용자 프로필은 준비 중입니다.");
-  expect(push).not.toHaveBeenCalled();
+  expect(push).toHaveBeenCalledWith("/profile/42");
+});
+
+it("사용자를 키보드로 선택하면 공개 프로필로 이동한다", async () => {
+  const user = userEvent.setup();
+  const { hero } = setup();
+  await user.type(hero, "빛나는사람");
+  await user.keyboard("{ArrowDown}{Enter}");
+  expect(push).toHaveBeenCalledWith("/profile/42");
+});
+
+it("최근 검색의 사용자를 선택해도 공개 프로필로 이동한다", async () => {
+  localStorage.setItem(
+    "unified_search_recent_v2",
+    JSON.stringify([candidates[3]]),
+  );
+  const { hero } = setup();
+  fireEvent.focus(hero);
+  const list = await screen.findByRole("listbox", { name: "최근 검색어" });
+  fireEvent.click(within(list).getByRole("option"));
+  expect(push).toHaveBeenCalledWith("/profile/42");
 });
 
 it("경매장과 도감 상위 메뉴를 합의한 화면으로 이동한다", async () => {

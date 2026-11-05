@@ -10,7 +10,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { toast } from "sonner";
 
 import { useUnifiedRecentSearches } from "@/hooks/useUnifiedRecentSearches";
 import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
@@ -84,7 +83,7 @@ export function HomeSearchProvider({
     setSelected(-1);
 
     if (item.type === "USER") {
-      toast.info("사용자 프로필은 준비 중입니다.");
+      if (item.userId) router.push(`/profile/${item.userId}`);
       return;
     }
     if (item.type === "MENU") {

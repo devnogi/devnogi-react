@@ -14,20 +14,6 @@ export async function PUT(request: NextRequest) {
   try {
     const formData = await request.formData();
 
-    // FormData 내용 로깅
-    const formDataEntries: Record<string, string> = {};
-    formData.forEach((value, key) => {
-      if (key === "nicknameTicket") {
-        formDataEntries[key] = "[REDACTED]";
-      } else if (value instanceof File) {
-        formDataEntries[key] =
-          `[File: ${value.name}, size: ${value.size} bytes, type: ${value.type}]`;
-      } else {
-        formDataEntries[key] = String(value);
-      }
-    });
-    logger.info("FormData 내용:", formDataEntries);
-
     const axios = createAuthServerAxios(request);
 
     // DAS API: PUT /api/user/info (사용자 정보 수정)
@@ -35,7 +21,7 @@ export async function PUT(request: NextRequest) {
 
     const { data, status } = await axios.put(`${USER_ENDPOINT}/info`, formData);
 
-    logger.info(`Gateway 응답: status=${status}`, data);
+    logger.info(`Gateway 응답: status=${status}`);
     logger.info("========== PUT /api/user/info 요청 완료 ==========");
 
     return NextResponse.json(data, { status });

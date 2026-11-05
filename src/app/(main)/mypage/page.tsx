@@ -15,6 +15,7 @@ import {
   Loader2,
   LogOut,
   Mail,
+  Palette,
   Shield,
   Shuffle,
   Swords,
@@ -29,6 +30,7 @@ import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
 import PostList from "@/components/page/community/PostList";
 import NotificationList from "@/components/page/mypage/NotificationList";
 import VerificationTab from "@/components/page/mypage/VerificationTab";
+import GameProfileFields from "@/components/profile/GameProfileFields";
 import { Button } from "@/components/ui/button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,9 +38,19 @@ import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 import { useUnreadNoticeCount } from "@/hooks/useNotices";
 import { useVerificationInfo } from "@/hooks/useUserVerification";
 import { clientAxios } from "@/lib/api/clients";
+import type { GameProfile, GameProfileDraft } from "@/types/profile";
+import {
+  appendGameProfileFormData,
+  ARCANA_OPTIONS,
+  gameProfileToDraft,
+  optionLabel,
+  RACE_OPTIONS,
+  rgbToCss,
+  validateGameProfileDraft,
+} from "@/types/profile";
 
 // TODO: 실제 API 연동 시 교체
-interface ExtendedUser {
+interface ExtendedUser extends Partial<GameProfile> {
   userId?: number;
   id?: number;
   email: string;
@@ -389,6 +401,8 @@ function MyPageContent() {
             </div>
           </div>
 
+          <GameProfileSummary user={profileUser} />
+
           {/* Security Settings */}
           <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-5">
             <h2 className="text-base font-semibold text-gray-900 mb-6">
@@ -452,6 +466,64 @@ function MyPageContent() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function GameProfileSummary({ user }: { user: ExtendedUser }) {
+  const race = optionLabel(RACE_OPTIONS, user.race ?? null);
+  const arcana = optionLabel(ARCANA_OPTIONS, user.arcana ?? null);
+  return (
+    <section className="rounded-lg border border-gray-200 bg-white p-4 sm:p-5 dark:border-navy-600 dark:bg-navy-800">
+      <h2 className="mb-5 text-base font-semibold text-gray-900 dark:text-white">
+        게임 프로필
+      </h2>
+      <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+        <ProfileDefinition
+          label="주채널"
+          value={user.mainChannel ? `${user.mainChannel}채널` : "미설정"}
+        />
+        <ProfileDefinition label="길드" value={user.guildName || "미설정"} />
+        <ProfileDefinition label="종족" value={race || "미설정"} />
+        <ProfileDefinition label="아르카나" value={arcana || "미설정"} />
+        <ProfileDefinition label="MBTI" value={user.mbti || "미설정"} />
+        <div>
+          <dt className="text-sm text-gray-500 dark:text-gray-400">지향색</dt>
+          <dd className="mt-1 flex min-h-6 items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+            {user.preferredColors?.length
+              ? user.preferredColors.map((color) => (
+                  <span
+                    key={color}
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    <span
+                      className="h-5 w-5 rounded-md border border-gray-300 dark:border-navy-400"
+                      style={{ backgroundColor: rgbToCss(color) ?? undefined }}
+                    />
+                    {color}
+                  </span>
+                ))
+              : "미설정"}
+          </dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="text-sm text-gray-500 dark:text-gray-400">자기소개</dt>
+          <dd className="mt-1 whitespace-pre-wrap text-sm font-medium text-gray-900 dark:text-white">
+            {user.bio || "미설정"}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
+
+function ProfileDefinition({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-sm text-gray-500 dark:text-gray-400">{label}</dt>
+      <dd className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+        {value}
+      </dd>
     </div>
   );
 }
@@ -541,6 +613,10 @@ function EditProfileModal({
     user.profileImageUrl,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [gameProfile, setGameProfile] = useState<GameProfileDraft>(() =>
+    gameProfileToDraft(user),
+  );
+  const [gameProfileError, setGameProfileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isVerified = user.verified === true;
 
@@ -595,6 +671,14 @@ function EditProfileModal({
     // 변경사항이 없는 경우
     const nicknameChanged = nickname.trim() !== user.nickname;
     const imageChanged = profileImage !== null;
+    const gameProfileChanged =
+      JSON.stringify(gameProfile) !== JSON.stringify(gameProfileToDraft(user));
+    const profileValidationError = validateGameProfileDraft(gameProfile);
+    if (profileValidationError) {
+      setGameProfileError(profileValidationError);
+      toast.warning(profileValidationError);
+      return;
+    }
 
     if (isVerified && nicknameChanged) {
       toast.warning("인증된 계정은 닉네임을 직접 변경할 수 없습니다.");
@@ -612,7 +696,7 @@ function EditProfileModal({
       return;
     }
 
-    if (!nicknameChanged && !imageChanged) {
+    if (!nicknameChanged && !imageChanged && !gameProfileChanged) {
       toast.info("변경된 내용이 없습니다.");
       onClose();
       return;
@@ -630,6 +714,7 @@ function EditProfileModal({
       if (profileImage) {
         formData.append("file", profileImage);
       }
+      appendGameProfileFormData(formData, gameProfile);
 
       await clientAxios.put("/user/info", formData);
 
@@ -680,7 +765,7 @@ function EditProfileModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 md:p-8">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-2xl md:p-8 dark:bg-navy-800">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">프로필 수정</h2>
 
         <div className="space-y-5 mb-8">
@@ -868,6 +953,29 @@ function EditProfileModal({
             서버명과 캐릭터명은 인게임 인증 결과로만 동기화됩니다. 프로필
             화면에서는 직접 수정할 수 없습니다.
           </p>
+
+          <div className="border-t border-gray-200 pt-5 dark:border-navy-600">
+            <div className="mb-4 flex items-center gap-2">
+              <Palette className="h-5 w-5 text-gray-500" />
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                게임 프로필
+              </h3>
+            </div>
+            <GameProfileFields
+              value={gameProfile}
+              onChange={(value) => {
+                setGameProfile(value);
+                setGameProfileError(null);
+              }}
+              disabled={isSubmitting}
+              idPrefix="mypage-game-profile"
+            />
+            {gameProfileError ? (
+              <p role="alert" className="mt-3 text-sm text-red-600">
+                {gameProfileError}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex gap-3">
