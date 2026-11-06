@@ -35,6 +35,18 @@ interface SignupConfirmation {
   createdAt: number;
 }
 
+const SOCIAL_AUTH_ERROR_MESSAGES: Record<string, string> = {
+  oauth_account_exists:
+    "이미 다른 로그인 방식으로 가입된 이메일입니다. 기존에 사용한 로그인 방식으로 로그인해주세요.",
+};
+
+function getSocialAuthErrorMessage(errorCode: string) {
+  return (
+    SOCIAL_AUTH_ERROR_MESSAGES[errorCode] ??
+    "소셜 인증에 실패했습니다. 다시 시도해주세요."
+  );
+}
+
 function SocialCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -75,7 +87,7 @@ function SocialCallbackContent() {
 
     if (errorCode) {
       setStatus("error");
-      setError("소셜 인증에 실패했습니다. 다시 시도해주세요.");
+      setError(getSocialAuthErrorMessage(errorCode));
       return;
     }
     if (!code && !responseData) {

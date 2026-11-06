@@ -149,3 +149,37 @@ it("교환 오류의 민감한 내용을 화면에 표시하지 않는다", asyn
     /private@example.test|synthetic-proof|synthetic-code/,
   );
 });
+
+it("이미 다른 로그인 방식으로 가입된 이메일은 충돌 원인을 안내한다", async () => {
+  window.history.replaceState(
+    {},
+    "",
+    "/social-callback?error=oauth_account_exists",
+  );
+
+  render(<SocialCallbackPage />);
+
+  expect(
+    await screen.findByText(
+      "이미 다른 로그인 방식으로 가입된 이메일입니다. 기존에 사용한 로그인 방식으로 로그인해주세요.",
+    ),
+  ).toBeInTheDocument();
+  expect(window.location.search).toBe("");
+  expect(clientAxios.post).not.toHaveBeenCalled();
+});
+
+it("알 수 없는 소셜 인증 오류는 상세 코드를 노출하지 않는다", async () => {
+  window.history.replaceState(
+    {},
+    "",
+    "/social-callback?error=private_provider_detail",
+  );
+
+  render(<SocialCallbackPage />);
+
+  expect(
+    await screen.findByText("소셜 인증에 실패했습니다. 다시 시도해주세요."),
+  ).toBeInTheDocument();
+  expect(document.body.textContent).not.toContain("private_provider_detail");
+  expect(window.location.search).toBe("");
+});
