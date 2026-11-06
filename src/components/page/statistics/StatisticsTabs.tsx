@@ -25,11 +25,12 @@ export default function StatisticsTabs({
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            aria-pressed={activeTab === tab.id}
             onClick={() => onTabChange(tab.id)}
             className={clsx(
-              "px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap",
+              "min-h-11 px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-ds-primary)]",
               activeTab === tab.id
-                ? "bg-[var(--color-ds-primary)] dark:bg-[var(--color-ds-primary)] text-primary-foreground"
+                ? "bg-[var(--color-ds-primary)] text-primary-foreground underline underline-offset-4"
                 : "bg-white dark:bg-navy-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-navy-600 border border-gray-200 dark:border-navy-600",
             )}
           >

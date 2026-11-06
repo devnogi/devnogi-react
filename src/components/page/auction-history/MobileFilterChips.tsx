@@ -43,11 +43,13 @@ export default function MobileFilterChips({
     <div className="flex items-center gap-1.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Exact Item Name Toggle Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasExactItemName}
         onClick={onExactItemNameToggle}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
           activeFilters.hasExactItemName
             ? "bg-[var(--color-ds-primary)] text-primary-foreground border-2 border-[var(--color-ds-primary)]"
-            : "bg-white dark:bg-navy-800 text-[var(--color-ds-text)] border border-[var(--color-ds-neutral-tone)] hover:border-[var(--color-ds-primary)]"
+            : "bg-[var(--color-ds-card)] text-[var(--color-ds-text)] border border-[var(--color-ds-neutral-tone)] hover:border-[var(--color-ds-primary)]"
         }`}
       >
         <TextSearch className="w-3.5 h-3.5" />
@@ -56,8 +58,10 @@ export default function MobileFilterChips({
 
       {/* Category Filter Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasCategory}
         onClick={onCategoryClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasCategory
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -69,8 +73,10 @@ export default function MobileFilterChips({
 
       {/* Price Filter Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasPrice}
         onClick={onPriceClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasPrice
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -82,8 +88,10 @@ export default function MobileFilterChips({
 
       {/* Date Filter Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasDate}
         onClick={onDateClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasDate
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -95,8 +103,10 @@ export default function MobileFilterChips({
 
       {/* Options Filter Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasOptions}
         onClick={onOptionsClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasOptions
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -108,8 +118,10 @@ export default function MobileFilterChips({
 
       {/* Enchant Filter Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasEnchant}
         onClick={onEnchantClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasEnchant
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"
@@ -121,8 +133,10 @@ export default function MobileFilterChips({
 
       {/* Metalware Filter Chip */}
       <button
+        type="button"
+        aria-pressed={activeFilters.hasMetalware}
         onClick={onMetalwareClick}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all whitespace-nowrap bg-white text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
+        className={`flex min-h-11 shrink-0 items-center gap-1 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:border-[var(--color-ds-primary)] ${
           activeFilters.hasMetalware
             ? "border-2 border-[var(--color-ds-ornamental)]"
             : "border border-[var(--color-ds-neutral-tone)]"

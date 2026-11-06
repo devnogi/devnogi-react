@@ -239,7 +239,7 @@ export default function CommentItem({
               aria-label={`${comment.nickname} 프로필`}
               className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full"
             >
-              <div className="w-full h-full bg-[#9a451f] flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-full h-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
                 {comment.nickname?.[0] || comment.userId.toString()[0]}
               </div>
             </Link>
@@ -353,7 +353,7 @@ export default function CommentItem({
             {canReport && (
               <button
                 onClick={() => setShowReportDialog(true)}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-orange-500 dark:bg-navy-700 dark:text-gray-400 dark:hover:text-orange-400"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-[var(--color-ds-primary)] dark:bg-navy-700 dark:text-gray-400"
               >
                 <Flag className="w-3.5 h-3.5" />
                 <span>신고</span>

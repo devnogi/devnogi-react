@@ -16,7 +16,7 @@ interface GameProfileFieldsProps {
 }
 
 const fieldClass =
-  "h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none transition-colors focus:border-[#9a451f] focus:ring-2 focus:ring-[#9a451f]/20 disabled:bg-gray-100 dark:border-navy-500 dark:bg-navy-700 dark:text-white";
+  "h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/20 disabled:bg-gray-100 dark:border-navy-500 dark:bg-navy-700 dark:text-white";
 
 function limitCodePoints(value: string, maximum: number): string {
   return Array.from(value).slice(0, maximum).join("");
@@ -81,7 +81,7 @@ export default function GameProfileFields({
             placeholder="길드명"
             disabled={disabled}
           />
-          <span className="block text-right text-xs font-normal text-gray-500">
+          <span className="block text-right text-xs font-normal text-gray-500 dark:text-gray-400">
             {Array.from(value.guildName).length}/30
           </span>
         </label>
@@ -148,7 +148,7 @@ export default function GameProfileFields({
         <legend className="text-sm font-medium text-gray-700 dark:text-gray-200">
           지향색
         </legend>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           RGB 값을 0에서 255 사이로 입력하세요.
         </p>
         {value.colors.map((color, index) => {
@@ -187,7 +187,7 @@ export default function GameProfileFields({
         <span>자기소개</span>
         <textarea
           id={`${idPrefix}-bio`}
-          className="min-h-24 w-full resize-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors focus:border-[#9a451f] focus:ring-2 focus:ring-[#9a451f]/20 disabled:bg-gray-100 dark:border-navy-500 dark:bg-navy-700 dark:text-white"
+          className="min-h-24 w-full resize-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/20 disabled:bg-gray-100 dark:border-navy-500 dark:bg-navy-700 dark:text-white"
           value={value.bio}
           onChange={(event) =>
             update("bio", limitCodePoints(event.target.value, 50))
@@ -195,7 +195,7 @@ export default function GameProfileFields({
           placeholder="에린에서의 나를 소개해주세요"
           disabled={disabled}
         />
-        <span className="block text-right text-xs font-normal text-gray-500">
+        <span className="block text-right text-xs font-normal text-gray-500 dark:text-gray-400">
           {Array.from(value.bio).length}/50
         </span>
       </label>

@@ -51,7 +51,7 @@ html {
   /* =============================================
      NEW COLOR SYSTEM (60-30-10 Rule)
      - Background: 60-70% (Gray)
-     - Primary actions: warm brown
+     - Primary actions: neutral black / white
      - Accent: 5-10% (Gold)
      ============================================= */
 
@@ -155,8 +155,8 @@ html {
   /* Design System Colors - Updated to new palette */
   --color-ds-background: #f5f6f8; /* Main Gray */
   --color-ds-card: #ffffff; /* White for cards */
-  --color-ds-primary: #9a451f;
-  --color-ds-primary-hover: #803819;
+  --color-ds-primary: #111111;
+  --color-ds-primary-hover: #262626;
   --color-ds-gold: #eeb233; /* Gold Accent */
   --color-ds-text: #111827; /* Gray-900 */
   --color-ds-danger: #ef4444;
@@ -165,8 +165,8 @@ html {
   --color-ds-ornamental: #374151; /* Gray-700 */
 
   /* Design System shades for hover/active states */
-  --color-ds-primary-50: #fff7ed;
-  --color-ds-primary-100: #ffedd5;
+  --color-ds-primary-50: #efefec;
+  --color-ds-primary-100: #efefec;
   --color-ds-neutral-50: #f9fafb;
   --color-ds-neutral-100: #f5f6f8;
   --color-ds-gold-50: #fffbeb;
@@ -185,23 +185,23 @@ html {
   --popover-foreground: #111827;
 
   /* Primary action */
-  --primary: #9a451f;
+  --primary: #111111;
   --primary-foreground: #ffffff;
 
   /* Secondary - Gray */
   --secondary: #e5e7eb; /* Gray-200 */
   --secondary-foreground: #374151; /* Gray-700 */
   --muted: #e5e7eb; /* Gray-200 */
-  --muted-foreground: #6b7280; /* Gray-500 */
+  --muted-foreground: #4b5563; /* Gray-600: readable on the page background */
 
-  /* Accent - Gold */
-  --accent: #fffbeb; /* Gold-50 */
-  --accent-foreground: #92400e; /* Gold-800 */
+  /* Neutral interactive surface */
+  --accent: #efefec;
+  --accent-foreground: #111111;
 
   --destructive: #ef4444;
   --border: #e5e7eb; /* Gray-200 */
   --input: #e5e7eb; /* Gray-200 */
-  --ring: #9a451f;
+  --ring: #111111;
 
   /* Charts - Using new palette */
   --chart-1: #7fb4fa; /* Blaanid-400 */
@@ -213,26 +213,26 @@ html {
   /* Sidebar */
   --sidebar: #ffffff; /* White */
   --sidebar-foreground: #111827; /* Gray-900 */
-  --sidebar-primary: #9a451f;
+  --sidebar-primary: #111111;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eff6ff; /* Blaanid-50 */
-  --sidebar-accent-foreground: #1d4ed8; /* Blaanid-800 */
+  --sidebar-accent: #efefec;
+  --sidebar-accent-foreground: #111111;
   --sidebar-border: #e5e7eb; /* Gray-200 */
-  --sidebar-ring: #9a451f;
+  --sidebar-ring: #111111;
 }
 
 .dark {
   /* =============================================
-     DARK MODE - 진한 남색 배경과 따뜻한 강조색
+     DARK MODE - existing surfaces with neutral actions
      - Background: #0f0f1a (진한 남색)
-     - Primary: #fdba74
+     - Primary: #f5f5f5
      ============================================= */
 
   /* Design System Colors - Dark Mode Override */
   --color-ds-background: #0f0f1a; /* Deep Navy */
   --color-ds-card: #12121f; /* Navy Dark */
-  --color-ds-primary: #fdba74;
-  --color-ds-primary-hover: #fed7aa;
+  --color-ds-primary: #f5f5f5;
+  --color-ds-primary-hover: #e5e5e5;
   --color-ds-gold: #fcd34d; /* Brighter Gold */
   --color-ds-text: #f9fafb; /* Gray-50 - 밝은 텍스트 */
   --color-ds-danger: #f87171;
@@ -241,8 +241,8 @@ html {
   --color-ds-ornamental: #d1d5db; /* Gray-300 - 밝게 */
 
   /* Design System shades for hover/active states - Dark Mode */
-  --color-ds-primary-50: #2a2a45; /* Navy Accent */
-  --color-ds-primary-100: #252540; /* Navy Medium */
+  --color-ds-primary-50: #242426;
+  --color-ds-primary-100: #242426;
   --color-ds-neutral-50: #1a1a2e; /* Navy Dark */
   --color-ds-neutral-100: #12121f; /* Navy Darker */
   --color-ds-gold-50: #2a2a45;
@@ -257,8 +257,8 @@ html {
   --popover-foreground: #f9fafb;
 
   /* Primary action */
-  --primary: #fdba74;
-  --primary-foreground: #26180f;
+  --primary: #f5f5f5;
+  --primary-foreground: #111111;
 
   /* Secondary - Navy 톤 (다크 모드) */
   --secondary: #252540; /* Navy Medium */
@@ -266,14 +266,14 @@ html {
   --muted: #252540; /* Navy Medium */
   --muted-foreground: #9ca3af; /* Gray-400 */
 
-  /* Accent - Coral Pink 톤 (다크 모드) */
-  --accent: #2a2a45; /* Navy Accent */
-  --accent-foreground: #ffb3c6; /* Light Coral Pink */
+  /* Neutral interactive surface */
+  --accent: #242426;
+  --accent-foreground: #f5f5f5;
 
   --destructive: #f87171;
   --border: #2a2a45; /* Navy Border */
   --input: #252540; /* Navy Medium */
-  --ring: #fdba74;
+  --ring: #f5f5f5;
 
   /* Charts - Dark mode (코랄 핑크 계열) */
   --chart-1: #ff6b9d; /* Coral Pink */
@@ -285,12 +285,12 @@ html {
   /* Sidebar - Dark mode */
   --sidebar: #1a1a2e; /* Navy Dark */
   --sidebar-foreground: #f9fafb; /* Gray-50 */
-  --sidebar-primary: #fdba74;
-  --sidebar-primary-foreground: #26180f;
-  --sidebar-accent: #252540; /* Navy Medium */
-  --sidebar-accent-foreground: #ffb3c6; /* Light Coral Pink */
+  --sidebar-primary: #f5f5f5;
+  --sidebar-primary-foreground: #111111;
+  --sidebar-accent: #242426;
+  --sidebar-accent-foreground: #f5f5f5;
   --sidebar-border: #2a2a45; /* Navy Border */
-  --sidebar-ring: #fdba74;
+  --sidebar-ring: #f5f5f5;
 }
 
 @layer base {

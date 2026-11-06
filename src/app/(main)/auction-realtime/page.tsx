@@ -1,3 +1,4 @@
+import AuctionPageHeader from "@/components/page/auction-common/AuctionPageHeader";
 import { createPageMetadata } from "@/lib/seo/site";
 
 import AuctionRealtimeClient from "./AuctionRealtimeClient";
@@ -12,5 +13,9 @@ export const metadata = createPageMetadata({
 export const dynamic = "force-dynamic";
 
 export default function AuctionRealtimePage() {
-  return <AuctionRealtimeClient />;
+  return (
+    <AuctionRealtimeClient
+      header={<AuctionPageHeader currentView="realtime" />}
+    />
+  );
 }

@@ -10,7 +10,7 @@ export default function PostWriteView() {
       <header className="flex h-14 items-center border-b border-gray-100 px-4 dark:border-navy-600">
         <Link
           href="/community"
-          className="flex h-11 items-center px-2 text-sm font-medium text-[#9a451f] dark:text-gold-300"
+          className="flex h-11 items-center px-2 text-sm font-medium text-[var(--color-ds-primary)]"
         >
           취소
         </Link>

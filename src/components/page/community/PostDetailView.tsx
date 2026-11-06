@@ -63,7 +63,7 @@ export default function PostDetailView({
       <div className="border-b border-gray-200 px-4 py-3 dark:border-navy-600">
         <Link
           href="/community"
-          className="text-sm font-semibold text-[#9a451f] dark:text-gold-300"
+          className="text-sm font-semibold text-[var(--color-ds-primary)]"
         >
           ← 커뮤니티
         </Link>

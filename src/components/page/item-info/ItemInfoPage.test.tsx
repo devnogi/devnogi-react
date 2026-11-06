@@ -27,6 +27,15 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+it("도감 제목과 상위·하위 분류 이름을 제공한다", () => {
+  render(<ItemInfoPage />);
+  expect(
+    screen.getByRole("heading", { name: "아이템 도감", level: 1 }),
+  ).toBeVisible();
+  expect(screen.getByRole("combobox", { name: "상위 분류" })).toBeVisible();
+  expect(screen.getByRole("combobox", { name: "하위 분류" })).toBeVisible();
+});
+
 it("마운트와 히스토리 탐색에서는 URL을 쓰지 않고 현재 URL만 조회한다", () => {
   const view = render(<ItemInfoPage />);
   expect(mockDetail).toHaveBeenLastCalledWith(

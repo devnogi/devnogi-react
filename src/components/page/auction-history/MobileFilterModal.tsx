@@ -8,6 +8,8 @@ import EnchantSearchFilter from "@/components/commons/EnchantSearchFilter";
 import MetalwareSearchFilter, {
   MetalwareFilterItem,
 } from "@/components/commons/MetalwareSearchFilter";
+import AuctionFilterDialog from "@/components/page/auction-common/AuctionFilterDialog";
+import { restoreOptionFilters } from "@/components/page/auction-common/restoreOptionFilters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -63,6 +65,8 @@ const DATE_PRESETS: { value: DatePreset; label: string }[] = [
   { value: "3months", label: "3달" },
 ];
 
+const EMPTY_SEARCH_OPTIONS: SearchOptionMetadata[] = [];
+
 interface MobileFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -80,6 +84,7 @@ interface MobileFilterModalProps {
     dateFrom?: string;
     dateTo?: string;
     activeFilters?: ActiveFilter[];
+    optionRequest?: object;
     enchantPrefix?: string | null;
     enchantSuffix?: string | null;
     metalwareItems?: MetalwareFilterItem[];
@@ -106,7 +111,8 @@ export default function MobileFilterModal({
   categories = [],
   onApply,
 }: MobileFilterModalProps) {
-  const { data: searchOptions = [] } = useSearchOptions();
+  const { data: searchOptionsData } = useSearchOptions();
+  const searchOptions = searchOptionsData ?? EMPTY_SEARCH_OPTIONS;
   const {
     prefixList,
     suffixList,
@@ -158,6 +164,14 @@ export default function MobileFilterModal({
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>(
     initialData?.activeFilters || [],
   );
+  const optionRequest = initialData?.optionRequest;
+  useEffect(() => {
+    if (isOpen)
+      setActiveFilters(
+        restoreOptionFilters(optionRequest ?? {}, searchOptions),
+      );
+  }, [isOpen, optionRequest, searchOptionsData, searchOptions]);
+
   const [enchantPrefix, setEnchantPrefix] = useState<string | null>(
     initialData?.enchantPrefix ?? null,
   );
@@ -315,9 +329,9 @@ export default function MobileFilterModal({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, fromField, e.target.value)
               }
-              className="h-10 rounded-lg text-sm"
+              className="min-h-11 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] rounded-lg text-sm"
             />
-            <span className="text-[var(--color-ds-disabled)] text-sm">~</span>
+            <span className="text-muted-foreground text-sm">~</span>
             <Input
               type="number"
               placeholder="최대"
@@ -325,7 +339,7 @@ export default function MobileFilterModal({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, toField, e.target.value)
               }
-              className="h-10 rounded-lg text-sm"
+              className="min-h-11 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] rounded-lg text-sm"
             />
           </div>
         );
@@ -355,7 +369,7 @@ export default function MobileFilterModal({
               onChange={(e) =>
                 handleFilterValueChange(filter.id, valueField, e.target.value)
               }
-              className="h-10 rounded-lg text-sm flex-1"
+              className="min-h-11 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] rounded-lg text-sm flex-1"
             />
             <button
               onClick={() =>
@@ -365,7 +379,8 @@ export default function MobileFilterModal({
                   isUp ? "DOWN" : "UP",
                 )
               }
-              className="h-10 w-10 rounded-lg border border-[var(--color-ds-neutral-tone)] flex items-center justify-center hover:bg-[var(--color-ds-neutral-50)] transition-colors"
+              aria-label="조건 순서 바꾸기"
+              className="h-11 w-11 rounded-lg border border-[var(--color-ds-neutral-tone)] flex items-center justify-center hover:bg-[var(--color-ds-neutral-50)] transition-colors"
             >
               {isUp ? (
                 <ArrowUp className="w-5 h-5 text-[var(--color-ds-primary)]" />
@@ -394,7 +409,7 @@ export default function MobileFilterModal({
               handleFilterValueChange(filter.id, enumField, value)
             }
           >
-            <SelectTrigger className="h-10 rounded-lg text-sm">
+            <SelectTrigger className="min-h-11 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] rounded-lg text-sm">
               <SelectValue placeholder="선택하세요" />
             </SelectTrigger>
             <SelectContent>
@@ -417,7 +432,7 @@ export default function MobileFilterModal({
           onChange={(e) =>
             handleFilterValueChange(filter.id, fieldName, e.target.value)
           }
-          className="h-10 rounded-lg text-sm"
+          className="min-h-11 bg-[var(--color-ds-card)] text-[var(--color-ds-text)] rounded-lg text-sm"
         />
       );
     },
@@ -440,358 +455,337 @@ export default function MobileFilterModal({
   ];
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-3xl min-h-[80dvh] max-h-[90dvh] overflow-hidden flex flex-col animate-slide-up pb-16">
-        {/* Header with Close Button */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-ds-neutral-tone)]">
-          <h3 className="text-lg font-bold text-[var(--color-ds-text)]">
-            필터
-          </h3>
+    <AuctionFilterDialog onClose={onClose}>
+      {/* Tabs */}
+      <div className="flex shrink-0 gap-2 px-6 py-3 overflow-x-auto border-b border-[var(--color-ds-neutral-tone)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {tabs.map((tab) => (
           <button
-            onClick={onClose}
-            className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-text)] transition-colors"
+            key={tab.id}
+            aria-pressed={currentTab === tab.id}
+            onClick={() => setCurrentTab(tab.id)}
+            className={`flex min-h-11 items-center gap-1.5 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
+              currentTab === tab.id
+                ? "bg-[var(--color-ds-primary)] text-primary-foreground font-semibold"
+                : "bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
+            }`}
           >
-            <X className="w-6 h-6" />
+            <span>{tab.icon}</span>
+            <span className="text-sm">{tab.label}</span>
           </button>
-        </div>
+        ))}
+      </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 px-6 py-3 overflow-x-auto border-b border-[var(--color-ds-neutral-tone)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setCurrentTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
-                currentTab === tab.id
-                  ? "bg-[var(--color-ds-primary)] text-primary-foreground font-semibold"
-                  : "bg-[var(--color-ds-card)] text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
-              }`}
+      {/* Content */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+        {currentTab === "category" && (
+          <div className="grid h-full min-h-0 grid-cols-2 gap-3">
+            {/* 왼쪽: 상위 카테고리 */}
+            <div
+              ref={topCategoryScrollRef}
+              className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3 h-full overflow-y-auto"
             >
-              <span>{tab.icon}</span>
-              <span className="text-sm">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-hidden px-6 py-4">
-          {currentTab === "category" && (
-            <div className="grid grid-cols-2 gap-3 h-[52vh] min-h-[360px]">
-              {/* 왼쪽: 상위 카테고리 */}
-              <div
-                ref={topCategoryScrollRef}
-                className="space-y-1 border-r border-[var(--color-ds-neutral-tone)] pr-3 h-full overflow-y-auto"
-              >
-                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">
-                  상위 카테고리
-                </h4>
-                {/* 전체 옵션 */}
-                <button
-                  onClick={() => {
-                    setSelectedTopCategory("all");
-                    setSelectedSubCategory("all");
-                  }}
-                  className={clsx(
-                    "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
-                    selectedTopCategory === "all"
-                      ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                      : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
-                  )}
-                >
-                  전체
-                </button>
-                {/* topCategory 리스트 (전체 제외) */}
-                {topCategories.map((category) => {
-                  const isSelected = selectedTopCategory === category.id;
-
-                  return (
-                    <button
-                      key={category.id}
-                      onClick={() => {
-                        setSelectedTopCategory(category.id);
-                        setSelectedSubCategory("all");
-                      }}
-                      className={clsx(
-                        "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
-                        isSelected
-                          ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
-                      )}
-                    >
-                      {category.name}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* 오른쪽: 하위 카테고리 */}
-              <div
-                ref={subCategoryScrollRef}
-                className="space-y-1 pl-3 h-full overflow-y-auto"
-              >
-                <h4 className="text-xs font-semibold text-[var(--color-ds-disabled)] mb-2 px-2">
-                  하위 카테고리
-                </h4>
-                {selectedTopCategory !== "all" ? (
-                  <>
-                    {/* 전체 옵션 */}
-                    <button
-                      onClick={() => setSelectedSubCategory("all")}
-                      className={clsx(
-                        "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
-                        selectedSubCategory === "all"
-                          ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                          : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
-                      )}
-                    >
-                      전체
-                    </button>
-                    {/* subCategory 리스트 */}
-                    {topCategories
-                      .find((cat) => cat.id === selectedTopCategory)
-                      ?.children?.map((subCategory) => {
-                        const isSelected =
-                          selectedSubCategory === subCategory.id;
-
-                        return (
-                          <button
-                            key={subCategory.id}
-                            onClick={() =>
-                              setSelectedSubCategory(subCategory.id)
-                            }
-                            className={clsx(
-                              "w-full px-3 py-2 rounded-lg text-sm text-left transition-colors",
-                              isSelected
-                                ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
-                                : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
-                            )}
-                          >
-                            {subCategory.name}
-                          </button>
-                        );
-                      })}
-                  </>
-                ) : (
-                  <div className="text-center py-8 text-[var(--color-ds-disabled)] text-sm">
-                    왼쪽에서 상위 카테고리를 선택하세요
-                  </div>
+              <h4 className="text-xs font-semibold text-muted-foreground mb-2 px-2">
+                상위 카테고리
+              </h4>
+              {/* 전체 옵션 */}
+              <button
+                onClick={() => {
+                  setSelectedTopCategory("all");
+                  setSelectedSubCategory("all");
+                }}
+                className={clsx(
+                  "w-full min-h-11 px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                  selectedTopCategory === "all"
+                    ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                    : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
                 )}
+              >
+                전체
+              </button>
+              {/* topCategory 리스트 (전체 제외) */}
+              {topCategories.map((category) => {
+                const isSelected = selectedTopCategory === category.id;
+
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      setSelectedTopCategory(category.id);
+                      setSelectedSubCategory("all");
+                    }}
+                    className={clsx(
+                      "w-full min-h-11 px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                      isSelected
+                        ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                        : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
+                    )}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 오른쪽: 하위 카테고리 */}
+            <div
+              ref={subCategoryScrollRef}
+              className="space-y-1 pl-3 h-full overflow-y-auto"
+            >
+              <h4 className="text-xs font-semibold text-muted-foreground mb-2 px-2">
+                하위 카테고리
+              </h4>
+              {selectedTopCategory !== "all" ? (
+                <>
+                  {/* 전체 옵션 */}
+                  <button
+                    onClick={() => setSelectedSubCategory("all")}
+                    className={clsx(
+                      "w-full min-h-11 px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                      selectedSubCategory === "all"
+                        ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                        : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
+                    )}
+                  >
+                    전체
+                  </button>
+                  {/* subCategory 리스트 */}
+                  {topCategories
+                    .find((cat) => cat.id === selectedTopCategory)
+                    ?.children?.map((subCategory) => {
+                      const isSelected = selectedSubCategory === subCategory.id;
+
+                      return (
+                        <button
+                          key={subCategory.id}
+                          onClick={() => setSelectedSubCategory(subCategory.id)}
+                          className={clsx(
+                            "w-full min-h-11 px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                            isSelected
+                              ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
+                              : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]",
+                          )}
+                        >
+                          {subCategory.name}
+                        </button>
+                      );
+                    })}
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  왼쪽에서 상위 카테고리를 선택하세요
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {currentTab === "price" && (
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
+                최소 금액 (골드)
+              </label>
+              <Input
+                type="number"
+                placeholder="최소 금액 입력"
+                value={priceMin}
+                onChange={(e) => setPriceMin(e.target.value)}
+                className="h-12 rounded-lg bg-[var(--color-ds-card)] text-base text-[var(--color-ds-text)]"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
+                최대 금액 (골드)
+              </label>
+              <Input
+                type="number"
+                placeholder="최대 금액 입력"
+                value={priceMax}
+                onChange={(e) => setPriceMax(e.target.value)}
+                className="h-12 rounded-lg bg-[var(--color-ds-card)] text-base text-[var(--color-ds-text)]"
+              />
+            </div>
+          </div>
+        )}
+
+        {currentTab === "date" && (
+          <div className="space-y-4">
+            {/* 빠른 선택 라디오 */}
+            <div>
+              <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
+                빠른 선택
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {DATE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    aria-pressed={selectedDatePreset === preset.value}
+                    onClick={() => {
+                      const range = getDatePresetRange(preset.value);
+                      setSelectedDatePreset(preset.value);
+                      setDateFrom(range.from);
+                      setDateTo(range.to);
+                    }}
+                    className={`min-h-11 rounded-lg text-sm transition-colors ${
+                      selectedDatePreset === preset.value
+                        ? "bg-[var(--color-ds-primary-50)] border-2 border-[var(--color-ds-primary)] text-[var(--color-ds-primary)] font-semibold"
+                        : "border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] text-[var(--color-ds-text)]"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
 
-          {currentTab === "price" && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
-                  최소 금액 (골드)
-                </label>
+            {/* 날짜 입력 - 한 줄 배치 */}
+            <div>
+              <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
+                기간 선택
+              </label>
+              <div className="flex items-center gap-2">
                 <Input
-                  type="number"
-                  placeholder="최소 금액 입력"
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
-                  className="h-12 rounded-lg text-base"
+                  type="date"
+                  aria-label="시작일"
+                  value={dateFrom}
+                  onChange={(e) => {
+                    setSelectedDatePreset(null);
+                    setDateFrom(e.target.value);
+                  }}
+                  className="h-12 rounded-lg bg-[var(--color-ds-card)] text-base text-[var(--color-ds-text)] flex-1"
+                  placeholder="시작일"
                 />
-              </div>
-              <div>
-                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
-                  최대 금액 (골드)
-                </label>
+                <span className="text-muted-foreground">~</span>
                 <Input
-                  type="number"
-                  placeholder="최대 금액 입력"
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  className="h-12 rounded-lg text-base"
+                  type="date"
+                  aria-label="종료일"
+                  value={dateTo}
+                  onChange={(e) => {
+                    setSelectedDatePreset(null);
+                    setDateTo(e.target.value);
+                  }}
+                  className="h-12 rounded-lg bg-[var(--color-ds-card)] text-base text-[var(--color-ds-text)] flex-1"
+                  placeholder="종료일"
                 />
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {currentTab === "date" && (
-            <div className="space-y-4">
-              {/* 빠른 선택 라디오 */}
-              <div>
-                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
-                  빠른 선택
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {DATE_PRESETS.map((preset) => (
+        {currentTab === "enchant" && (
+          <div className="space-y-4">
+            <EnchantSearchFilter
+              key={enchantResetKey}
+              prefixList={prefixList}
+              suffixList={suffixList}
+              isLoading={isEnchantLoading}
+              initialPrefix={enchantPrefix}
+              initialSuffix={enchantSuffix}
+              onChange={(prefix, suffix) => {
+                setEnchantPrefix(prefix);
+                setEnchantSuffix(suffix);
+              }}
+            />
+            {!enchantPrefix && !enchantSuffix && (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                접두 또는 접미 인챈트를 선택하세요
+              </div>
+            )}
+          </div>
+        )}
+
+        {currentTab === "options" && (
+          <div className="space-y-3">
+            {/* Add Filter Button */}
+            <div className="relative">
+              <Button
+                variant="outline"
+                onClick={() => setShowAddFilterDropdown(!showAddFilterDropdown)}
+                className="w-full h-12 rounded-lg flex items-center justify-center gap-2"
+                disabled={availableOptions.length === 0}
+              >
+                <Plus className="w-5 h-5" />
+                필터 추가
+              </Button>
+
+              {showAddFilterDropdown && availableOptions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] max-h-60 overflow-auto z-50">
+                  {availableOptions.map((option) => (
                     <button
-                      key={preset.value}
-                      onClick={() => {
-                        const range = getDatePresetRange(preset.value);
-                        setSelectedDatePreset(preset.value);
-                        setDateFrom(range.from);
-                        setDateTo(range.to);
-                      }}
-                      className={`h-10 rounded-lg text-sm transition-all ${
-                        selectedDatePreset === preset.value
-                          ? "bg-[var(--color-ds-primary-50)] border-2 border-[var(--color-ds-primary)] text-[var(--color-ds-primary)] font-semibold"
-                          : "border border-[var(--color-ds-neutral-tone)] bg-white text-[var(--color-ds-text)]"
-                      }`}
+                      key={option.id}
+                      onClick={() => handleAddFilter(option)}
+                      className="w-full px-4 py-3 text-left hover:bg-[var(--color-ds-neutral-50)] transition-colors"
                     >
-                      {preset.label}
+                      {option.searchOptionName}
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* 날짜 입력 - 한 줄 배치 */}
-              <div>
-                <label className="text-sm font-semibold text-[var(--color-ds-text)] mb-2 block">
-                  기간 선택
-                </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => {
-                      setSelectedDatePreset(null);
-                      setDateFrom(e.target.value);
-                    }}
-                    className="h-12 rounded-lg text-base flex-1"
-                    placeholder="시작일"
-                  />
-                  <span className="text-[var(--color-ds-disabled)]">~</span>
-                  <Input
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => {
-                      setSelectedDatePreset(null);
-                      setDateTo(e.target.value);
-                    }}
-                    className="h-12 rounded-lg text-base flex-1"
-                    placeholder="종료일"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {currentTab === "enchant" && (
-            <div className="space-y-4">
-              <EnchantSearchFilter
-                key={enchantResetKey}
-                prefixList={prefixList}
-                suffixList={suffixList}
-                isLoading={isEnchantLoading}
-                initialPrefix={enchantPrefix}
-                initialSuffix={enchantSuffix}
-                onChange={(prefix, suffix) => {
-                  setEnchantPrefix(prefix);
-                  setEnchantSuffix(suffix);
-                }}
-              />
-              {!enchantPrefix && !enchantSuffix && (
-                <div className="text-center py-8 text-[var(--color-ds-disabled)] text-sm">
-                  접두 또는 접미 인챈트를 선택하세요
-                </div>
               )}
             </div>
-          )}
 
-          {currentTab === "options" && (
-            <div className="space-y-3">
-              {/* Add Filter Button */}
-              <div className="relative">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    setShowAddFilterDropdown(!showAddFilterDropdown)
-                  }
-                  className="w-full h-12 rounded-lg flex items-center justify-center gap-2"
-                  disabled={availableOptions.length === 0}
-                >
-                  <Plus className="w-5 h-5" />
-                  필터 추가
-                </Button>
-
-                {showAddFilterDropdown && availableOptions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] max-h-60 overflow-auto z-50">
-                    {availableOptions.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => handleAddFilter(option)}
-                        className="w-full px-4 py-3 text-left hover:bg-[var(--color-ds-neutral-50)] transition-colors"
-                      >
-                        {option.searchOptionName}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {/* Active Filters */}
+            {activeFilters.map((filter) => (
+              <div
+                key={filter.id}
+                className="bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] p-4"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-[var(--color-ds-text)]">
+                    {filter.searchOptionName}
+                  </h4>
+                  <button
+                    aria-label={`${filter.searchOptionName} 필터 삭제`}
+                    onClick={() => handleRemoveFilter(filter.id)}
+                    className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--color-ds-text)] hover:text-[var(--color-ds-danger)] transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                {renderFilterInputs(filter)}
               </div>
+            ))}
 
-              {/* Active Filters */}
-              {activeFilters.map((filter) => (
-                <div
-                  key={filter.id}
-                  className="bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] p-4"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-[var(--color-ds-text)]">
-                      {filter.searchOptionName}
-                    </h4>
-                    <button
-                      onClick={() => handleRemoveFilter(filter.id)}
-                      className="text-[var(--color-ds-disabled)] hover:text-[var(--color-ds-danger)] transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  {renderFilterInputs(filter)}
-                </div>
-              ))}
-
-              {activeFilters.length === 0 && (
-                <div className="text-center py-8 text-[var(--color-ds-disabled)]">
-                  추가된 옵션 필터가 없습니다
-                </div>
-              )}
-            </div>
-          )}
-
-          {currentTab === "metalware" && (
-            <div className="overflow-y-auto h-full">
-              <MetalwareSearchFilter
-                key={metalwareResetKey}
-                metalwareList={metalwareList}
-                isLoading={isMetalwareLoading}
-                initialItems={metalwareItems}
-                onChange={setMetalwareItems}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-[var(--color-ds-neutral-tone)] px-6 py-4 bg-white">
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              className="flex-1 h-12 rounded-lg font-semibold"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              초기화
-            </Button>
-            <Button
-              onClick={handleApply}
-              className="flex-1 h-12 rounded-lg bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-primary-foreground font-semibold"
-            >
-              적용하기
-            </Button>
+            {activeFilters.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                추가된 옵션 필터가 없습니다
+              </div>
+            )}
           </div>
+        )}
+
+        {currentTab === "metalware" && (
+          <div className="overflow-y-auto h-full">
+            <MetalwareSearchFilter
+              key={metalwareResetKey}
+              metalwareList={metalwareList}
+              isLoading={isMetalwareLoading}
+              initialItems={metalwareItems}
+              onChange={setMetalwareItems}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="shrink-0 border-t border-[var(--color-ds-neutral-tone)] px-6 py-4 bg-[var(--color-ds-card)]">
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            className="flex-1 h-12 rounded-lg font-semibold"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            초기화
+          </Button>
+          <Button
+            onClick={handleApply}
+            disabled={currentTab === "options" && !searchOptionsData}
+            className="flex-1 h-12 rounded-lg bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] text-primary-foreground font-semibold"
+          >
+            적용하기
+          </Button>
         </div>
       </div>
-    </>
+    </AuctionFilterDialog>
   );
 }

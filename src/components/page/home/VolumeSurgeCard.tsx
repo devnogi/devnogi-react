@@ -49,7 +49,7 @@ export default function VolumeSurgeCard() {
 
               {/* Item Info */}
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate group-hover:text-[#9a451f] dark:group-hover:text-orange-300 transition-colors">
+                <p className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
                   {item.itemName}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-300 truncate">

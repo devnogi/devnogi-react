@@ -108,6 +108,9 @@ export default function ItemInfoPage() {
   return (
     <div className="min-h-screen bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
+        <h1 className="text-xl font-bold text-[var(--color-ds-text)] md:text-2xl">
+          아이템 도감
+        </h1>
         {/* Category Filter */}
         <ItemInfoCategoryFilter
           categories={categories}
@@ -123,8 +126,8 @@ export default function ItemInfoPage() {
 
         {/* Results Info & Sort */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm text-[var(--color-ds-disabled)]">
-            <Info className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Info className="w-4 h-4 text-[var(--color-ds-disabled)]" />
             <span>
               {pageData ? (
                 <>

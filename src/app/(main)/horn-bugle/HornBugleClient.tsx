@@ -83,7 +83,9 @@ function HornBugleContent() {
 
         {/* 결과 카운트 */}
         {allItems.length > 0 && (
-          <div className="mb-4 text-sm text-gray-500">{itemCountLabel}</div>
+          <div className="mb-4 text-sm text-muted-foreground">
+            {itemCountLabel}
+          </div>
         )}
 
         {/* 리스트 */}
@@ -95,7 +97,7 @@ function HornBugleContent() {
           className="h-20 flex items-center justify-center"
         >
           {isFetchingNextPage && (
-            <div className="text-sm text-gray-400">로딩 중...</div>
+            <div className="text-sm text-muted-foreground">로딩 중...</div>
           )}
         </div>
       </div>
@@ -121,7 +123,7 @@ function HornBugleLoadingFallback() {
             {SERVER_TABS.map((server) => (
               <div
                 key={server}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground"
               >
                 {server}
               </div>
@@ -129,7 +131,9 @@ function HornBugleLoadingFallback() {
           </div>
         </div>
         {/* 로딩 표시 */}
-        <div className="text-sm text-gray-400 text-center py-8">로딩 중...</div>
+        <div className="text-sm text-muted-foreground text-center py-8">
+          로딩 중...
+        </div>
       </div>
     </div>
   );

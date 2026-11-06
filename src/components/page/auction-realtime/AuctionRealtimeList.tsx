@@ -93,14 +93,14 @@ function RealtimeDesktopRow({
         </div>
         <div className="col-span-2 flex items-center justify-end whitespace-nowrap text-[13px] font-bold text-[var(--color-ds-primary)]">
           {formatPrice(item.auctionPricePerUnit)}
-          <span className="ml-1 text-sm font-normal text-[var(--color-ds-disabled)]">
+          <span className="ml-1 text-sm font-normal text-muted-foreground">
             G
           </span>
         </div>
-        <div className="col-span-2 flex items-center justify-center text-sm text-[var(--color-ds-disabled)]">
+        <div className="col-span-2 flex items-center justify-center text-sm text-muted-foreground">
           {formatDateShort(item.dateAuctionExpire)}
         </div>
-        <div className="col-span-1 flex items-center justify-center text-sm text-[var(--color-ds-disabled)]">
+        <div className="col-span-1 flex items-center justify-center text-sm text-muted-foreground">
           {item.itemCount}
         </div>
       </Link>
@@ -134,17 +134,15 @@ export default function AuctionRealtimeList({
     `/auction-realtime/${encodeURIComponent(id)}?${new URLSearchParams({ return_to: returnTo })}`;
   if (isLoading)
     return (
-      <div className="rounded-lg border bg-white py-12 text-center text-[var(--color-ds-disabled)] dark:bg-navy-700">
+      <div className="rounded-lg border bg-white py-12 text-center text-muted-foreground dark:bg-navy-700">
         로딩 중...
       </div>
     );
   if (items.length === 0)
     return (
       <div className="rounded-lg border bg-white py-12 text-center dark:bg-navy-700">
-        <p className="text-lg text-[var(--color-ds-disabled)]">
-          검색 결과가 없습니다.
-        </p>
-        <p className="mt-2 text-sm text-[var(--color-ds-disabled)]">
+        <p className="text-lg text-muted-foreground">검색 결과가 없습니다.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
           다른 검색 조건으로 시도해보세요.
         </p>
       </div>
@@ -159,7 +157,7 @@ export default function AuctionRealtimeList({
               href={hrefFor(item.auctionId)}
               className="block px-4 py-3 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-[var(--color-ds-primary)]"
             >
-              <div className="mb-1 min-h-[14px] text-[10px] text-[var(--color-ds-disabled)]">
+              <div className="mb-1 min-h-[14px] text-[10px] text-muted-foreground">
                 {enchantPrefix(item.itemDisplayName, item.itemName) || "\u00A0"}
               </div>
               <div className="mb-1 flex items-center justify-between gap-2">
@@ -168,12 +166,10 @@ export default function AuctionRealtimeList({
                 </h3>
                 <span className="whitespace-nowrap text-[13px] font-bold text-[var(--color-ds-primary)]">
                   {formatPrice(item.auctionPricePerUnit)}{" "}
-                  <span className="font-normal text-[var(--color-ds-disabled)]">
-                    G
-                  </span>
+                  <span className="font-normal text-muted-foreground">G</span>
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-2 text-xs text-[var(--color-ds-disabled)]">
+              <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span className="truncate">
                   {itemAttributes(item.itemName)
                     .map((value) => `#${value}`)

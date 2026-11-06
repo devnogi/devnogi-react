@@ -36,7 +36,7 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
   };
 
   return (
-    <section aria-labelledby="activity-heading" className="mt-8 md:mt-10">
+    <section aria-labelledby="activity-heading" className="mt-6">
       <h2 id="activity-heading" className="sr-only">
         공개 활동
       </h2>
@@ -57,10 +57,10 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
             role="tab"
             aria-selected={tab === value}
             onClick={() => changeTab(value)}
-            className={`relative min-w-24 px-5 py-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-[#9a451f] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-navy-900 ${
+            className={`relative min-w-24 px-5 py-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:focus-visible:ring-offset-navy-900 ${
               tab === value
-                ? "text-[#8d3f25] after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 after:bg-[#9a451f] dark:text-[#e3aa73] dark:after:bg-[#e3aa73]"
-                : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                ? "text-[var(--color-ds-primary)] after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 after:bg-primary"
+                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             }`}
           >
             {label}
@@ -88,10 +88,10 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                 key={post.id}
                 href={`/community/${post.id}`}
                 prefetch={false}
-                className="block border-b border-gray-200 px-1 py-5 outline-none hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-[#9a451f] dark:border-navy-600 dark:hover:bg-navy-800 sm:px-4"
+                className="block border-b border-gray-200 px-1 py-5 outline-none hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-ring dark:border-navy-600 dark:hover:bg-navy-800 sm:px-4"
               >
                 <article>
-                  <div className="flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center justify-between gap-3 text-xs text-gray-600 dark:text-gray-400">
                     <time dateTime={post.createdAt}>
                       {relativeDate(post.createdAt)}
                     </time>
@@ -100,7 +100,7 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                   <h3 className="mt-2 break-words text-base font-semibold leading-6 text-gray-950 dark:text-white">
                     {post.title}
                   </h3>
-                  <div className="mt-3 flex gap-4 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="mt-3 flex gap-4 text-xs text-gray-600 dark:text-gray-400">
                     <span className="inline-flex items-center gap-1">
                       <Heart className="h-4 w-4" aria-hidden="true" />
                       {post.likeCount.toLocaleString()}
@@ -135,10 +135,10 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                 key={comment.id}
                 href={`/community/${comment.postId}`}
                 prefetch={false}
-                className="block border-b border-gray-200 px-1 py-5 outline-none hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-[#9a451f] dark:border-navy-600 dark:hover:bg-navy-800 sm:px-4"
+                className="block border-b border-gray-200 px-1 py-5 outline-none hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-ring dark:border-navy-600 dark:hover:bg-navy-800 sm:px-4"
               >
                 <article>
-                  <div className="flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center justify-between gap-3 text-xs text-gray-600 dark:text-gray-400">
                     <span className="truncate">{comment.postTitle}</span>
                     <time className="shrink-0" dateTime={comment.createdAt}>
                       {relativeDate(comment.createdAt)}
@@ -147,7 +147,7 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                   <p className="mt-2 break-words text-sm leading-6 text-gray-800 dark:text-gray-100">
                     {comment.content}
                   </p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
                     <Heart className="h-4 w-4" aria-hidden="true" />
                     {comment.likeCount.toLocaleString()}
                   </span>
@@ -184,7 +184,10 @@ function ActivityState({
 }) {
   if (loading) {
     return (
-      <div className="py-16 text-center text-sm text-gray-500" role="status">
+      <div
+        className="py-16 text-center text-sm text-gray-600 dark:text-gray-400"
+        role="status"
+      >
         활동을 불러오는 중입니다.
       </div>
     );
@@ -209,7 +212,7 @@ function ActivityState({
   }
   if (empty) {
     return (
-      <p className="py-16 text-center text-sm text-gray-500 dark:text-gray-400">
+      <p className="py-16 text-center text-sm text-gray-600 dark:text-gray-400">
         {emptyText}
       </p>
     );

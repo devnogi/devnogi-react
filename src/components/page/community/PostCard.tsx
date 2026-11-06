@@ -113,7 +113,7 @@ export default function PostCard({ post }: Props) {
       <div className="flex gap-3">
         <Link
           href={profileHref}
-          className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#9a451f] text-white"
+          className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-primary text-primary-foreground"
           aria-label={`${post.author.nickname} 프로필`}
         >
           {post.author.profileImageUrl ? (
@@ -138,7 +138,7 @@ export default function PostCard({ post }: Props) {
                 <span className="truncate">{post.author.nickname}</span>
                 {post.author.verified && <VerifiedBadge size="sm" />}
               </Link>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 <span>{post.author.serverName || "에린"}</span>
                 <span aria-hidden="true"> · </span>
                 <Link
@@ -156,7 +156,7 @@ export default function PostCard({ post }: Props) {
               <button
                 type="button"
                 onClick={() => setMenuOpen((value) => !value)}
-                className="flex h-11 w-11 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-navy-700"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-navy-700"
                 aria-label="게시글 메뉴"
               >
                 <MoreHorizontal className="h-5 w-5" />
@@ -237,7 +237,7 @@ export default function PostCard({ post }: Props) {
               )}
             </div>
           )}
-          <div className="mt-2 flex items-center justify-between text-gray-500">
+          <div className="mt-2 flex items-center justify-between text-gray-500 dark:text-gray-400">
             <Link
               href={`/community/${post.id}#comments`}
               className="flex h-11 min-w-11 items-center gap-1.5 rounded-full px-2 hover:bg-gray-100 dark:hover:bg-navy-700"
@@ -261,7 +261,7 @@ export default function PostCard({ post }: Props) {
             <button
               type="button"
               onClick={toggleBookmark}
-              className={`flex h-11 w-11 items-center justify-center rounded-full hover:bg-amber-50 ${bookmarked ? "text-[#9a451f] dark:text-gold-300" : ""}`}
+              className={`flex h-11 w-11 items-center justify-center rounded-full hover:bg-[var(--color-ds-primary-50)] ${bookmarked ? "text-[var(--color-ds-primary)]" : ""}`}
               aria-pressed={bookmarked}
               aria-label="즐겨찾기"
             >

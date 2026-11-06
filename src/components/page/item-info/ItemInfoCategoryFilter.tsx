@@ -34,15 +34,21 @@ export default function ItemInfoCategoryFilter({
     <div className="space-y-3">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-[var(--color-ds-secondary)] mb-2">
-            탑카테고리
+          <label
+            htmlFor="item-info-top-category"
+            className="block text-sm font-medium text-[var(--color-ds-secondary)] mb-2"
+          >
+            상위 분류
           </label>
           <Select
             value={selectedTopCategory}
             onValueChange={onTopCategoryChange}
           >
-            <SelectTrigger className="w-full h-11 bg-white dark:bg-navy-800 border-[var(--color-ds-neutral-tone)] text-[var(--color-ds-text)]">
-              <SelectValue placeholder="탑카테고리를 선택하세요" />
+            <SelectTrigger
+              id="item-info-top-category"
+              className="w-full h-11 bg-white dark:bg-navy-800 border-[var(--color-ds-neutral-tone)] text-[var(--color-ds-text)]"
+            >
+              <SelectValue placeholder="상위 분류를 선택하세요" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
@@ -58,8 +64,11 @@ export default function ItemInfoCategoryFilter({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--color-ds-secondary)] mb-2">
-            서브카테고리
+          <label
+            htmlFor="item-info-sub-category"
+            className="block text-sm font-medium text-[var(--color-ds-secondary)] mb-2"
+          >
+            하위 분류
           </label>
           <Select
             value={subCategoryValue}
@@ -68,8 +77,11 @@ export default function ItemInfoCategoryFilter({
             }
             disabled={subCategories.length === 0}
           >
-            <SelectTrigger className="w-full h-11 bg-white dark:bg-navy-800 border-[var(--color-ds-neutral-tone)] text-[var(--color-ds-text)]">
-              <SelectValue placeholder="서브카테고리를 선택하세요" />
+            <SelectTrigger
+              id="item-info-sub-category"
+              className="w-full h-11 bg-white dark:bg-navy-800 border-[var(--color-ds-neutral-tone)] text-[var(--color-ds-text)]"
+            >
+              <SelectValue placeholder="하위 분류를 선택하세요" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__all__">전체</SelectItem>
@@ -84,8 +96,8 @@ export default function ItemInfoCategoryFilter({
       </div>
 
       <div>
-        <p className="text-xs text-[var(--color-ds-disabled)]">
-          탑카테고리를 먼저 선택하면 해당 서브카테고리 목록이 표시됩니다.
+        <p className="text-xs text-muted-foreground">
+          상위 분류를 먼저 선택하면 해당 하위 분류 목록이 표시됩니다.
         </p>
       </div>
     </div>

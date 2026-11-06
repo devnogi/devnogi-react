@@ -96,7 +96,7 @@ function CommentThread({
           type="button"
           onClick={loadMore}
           disabled={isFetching}
-          className="ml-12 mt-2 flex h-11 items-center gap-2 rounded-full px-3 text-xs font-semibold text-[#9a451f] hover:bg-amber-50 disabled:opacity-50 dark:text-gold-300 dark:hover:bg-navy-700"
+          className="ml-12 mt-2 flex h-11 items-center gap-2 rounded-full px-3 text-xs font-semibold text-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-50)] disabled:opacity-50 dark:hover:bg-navy-700"
         >
           {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           답글 {remaining || PAGE_SIZE}개 더 보기
@@ -145,7 +145,7 @@ export default function CommentList({ postId }: CommentListProps) {
     return (
       <div className="py-8 text-center">
         <p className="text-red-500">댓글을 불러오는데 실패했습니다.</p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {error instanceof Error ? error.message : "알 수 없는 오류"}
         </p>
       </div>
@@ -162,7 +162,7 @@ export default function CommentList({ postId }: CommentListProps) {
         <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
       </h3>
       {threads.length === 0 ? (
-        <p className="py-8 text-center text-gray-500">
+        <p className="py-8 text-center text-gray-500 dark:text-gray-400">
           첫 댓글을 작성해보세요!
         </p>
       ) : (

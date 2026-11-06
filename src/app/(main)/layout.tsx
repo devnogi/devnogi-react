@@ -14,13 +14,13 @@ export default function RootLayout({
   return (
     <HomeSearchProvider>
       <div className="min-h-screen flex flex-col bg-background transition-colors duration-300">
-        {/* Single-row navigation */}
+        {/* Responsive navigation */}
         <Suspense fallback={null}>
           <ThreeTierNav />
         </Suspense>
 
-        {/* Main Content: pt-16 matches the fixed 64px navigation. */}
-        <main className="flex-1 pt-16 bg-background">
+        {/* Main Content: 112px mobile / 64px desktop fixed navigation. */}
+        <main className="flex-1 pt-28 md:pt-16 bg-background">
           <div className="max-w-7xl w-full mx-auto h-full px-4 md:px-6 py-6 md:py-8">
             <Suspense fallback={null}>{children}</Suspense>
           </div>

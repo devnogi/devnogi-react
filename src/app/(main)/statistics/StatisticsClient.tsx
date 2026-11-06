@@ -15,6 +15,7 @@ import PeriodToggle, {
   PeriodType,
 } from "@/components/page/statistics/PeriodToggle";
 import PriceChart from "@/components/page/statistics/PriceChart";
+import StatisticsExamples from "@/components/page/statistics/StatisticsExamples";
 import StatisticsSearchForm from "@/components/page/statistics/StatisticsSearchForm";
 import StatisticsSkeleton from "@/components/page/statistics/StatisticsSkeleton";
 import StatisticsSummaryCards from "@/components/page/statistics/StatisticsSummaryCards";
@@ -307,7 +308,7 @@ function StatisticsPageContent() {
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-50 mb-1">
             시세 정보
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             아이템 및 카테고리별 가격 추이와 거래 통계를 확인하세요
           </p>
         </div>
@@ -387,7 +388,7 @@ function StatisticsPageContent() {
         {/* Content */}
         {!hasSearched ? (
           <div className="bg-white dark:bg-navy-700 rounded-lg p-12 border border-gray-100 dark:border-navy-600 text-center">
-            <div className="text-gray-400 dark:text-gray-500 mb-2">
+            <div className="text-gray-400 dark:text-gray-600 mb-2">
               <svg
                 className="w-12 h-12 mx-auto mb-3"
                 fill="none"
@@ -402,15 +403,18 @@ function StatisticsPageContent() {
                 />
               </svg>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               위 검색 조건을 입력하고 조회 버튼을 클릭해주세요
             </p>
+            {activeTab === "item" && (
+              <StatisticsExamples onSearch={handleSearch} />
+            )}
           </div>
         ) : isLoading ? (
           <StatisticsSkeleton />
         ) : chartData.length === 0 ? (
           <div className="bg-white dark:bg-navy-700 rounded-lg p-12 border border-gray-100 dark:border-navy-600 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               조회 결과가 없습니다
             </p>
           </div>

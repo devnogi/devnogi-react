@@ -215,7 +215,7 @@ export function HomeSearch({
             setSelected(-1);
           }
         }}
-        className={`${styles.input} w-full border bg-white text-gray-900 placeholder:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a63f20] dark:border-navy-500 dark:bg-navy-700 dark:text-white ${location === "hero" ? "h-14 rounded-full border-[#c85f40] pl-5 pr-28 text-base shadow-sm" : "h-10 rounded-xl border-gray-300 bg-gray-50 pl-3 pr-16 text-sm"}`}
+        className={`${styles.input} w-full border bg-white text-gray-900 placeholder:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:border-navy-500 dark:bg-navy-700 dark:text-white ${location === "hero" ? "h-14 rounded-full border-border pl-5 pr-28 text-base shadow-sm" : "h-10 rounded-xl border-gray-300 bg-gray-50 pl-3 pr-16 text-sm"}`}
       />
       <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
         {value && (
@@ -237,7 +237,7 @@ export function HomeSearch({
           aria-label={`${label} 실행`}
           className={
             location === "hero"
-              ? "rounded-full bg-[#b84c2d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#973c23]"
+              ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[var(--color-ds-primary-hover)]"
               : "rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-navy-600"
           }
         >
@@ -307,7 +307,7 @@ export function HomeSearch({
                     keyboardSelection.current = false;
                     setSelected(index);
                   }}
-                  className={`cursor-pointer px-4 py-3 text-sm text-gray-900 dark:text-gray-100 ${selected === index ? "bg-orange-50 dark:bg-navy-600" : "hover:bg-gray-50 dark:hover:bg-navy-600"}`}
+                  className={`cursor-pointer px-4 py-3 text-sm text-gray-900 dark:text-gray-100 ${selected === index ? "bg-[var(--color-ds-primary-50)]" : "hover:bg-gray-50 dark:hover:bg-navy-600"}`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span>{item.label}</span>

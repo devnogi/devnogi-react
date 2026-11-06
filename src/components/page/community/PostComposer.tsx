@@ -164,7 +164,7 @@ export default function PostComposer({
       aria-label={postId ? "게시글 수정" : "게시글 작성"}
     >
       <div className="flex gap-3 p-4 sm:p-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#9a451f] text-sm font-bold text-white">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-bold text-primary-foreground">
           {user?.profileImageUrl ? (
             <img
               className="h-full w-full object-cover"
@@ -191,7 +191,7 @@ export default function PostComposer({
               });
             }}
             placeholder="오늘 에린에서는 어떤 일이 있었나요?"
-            className="min-h-16 w-full resize-none bg-transparent text-[15px] leading-6 text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100"
+            className="min-h-16 w-full resize-none bg-transparent text-[15px] leading-6 text-gray-900 outline-none placeholder:text-gray-500 dark:placeholder:text-gray-400 dark:text-gray-100"
             aria-label="게시글 내용"
           />
           {previews.length > 0 && (
@@ -257,7 +257,7 @@ export default function PostComposer({
           )}
           <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-navy-600">
             <label
-              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-[#9a451f] hover:bg-amber-50 dark:text-gold-300"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-50)]"
               aria-label="사진 또는 영상 첨부"
             >
               <ImagePlus className="h-5 w-5" />
@@ -274,7 +274,7 @@ export default function PostComposer({
             </label>
             <div className="flex items-center gap-3">
               {length >= 800 && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {length}/{POST_CONTENT_LIMIT}
                 </span>
               )}
@@ -282,7 +282,7 @@ export default function PostComposer({
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="h-11 rounded-full px-4 text-sm text-gray-600"
+                  className="h-11 rounded-full px-4 text-sm text-gray-600 dark:text-gray-300"
                 >
                   취소
                 </button>
@@ -291,7 +291,7 @@ export default function PostComposer({
                 type="button"
                 onClick={submit}
                 disabled={submitting || !content.trim()}
-                className="flex h-11 min-w-20 items-center justify-center rounded-full bg-[#9a451f] px-5 text-sm font-semibold text-white hover:bg-[#7f3819] disabled:opacity-45 dark:bg-gold-400 dark:text-navy-900"
+                className="flex h-11 min-w-20 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-[var(--color-ds-primary-hover)] disabled:opacity-45"
               >
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -303,7 +303,7 @@ export default function PostComposer({
               </button>
             </div>
           </div>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             사진·영상 최대 5개 · 각 5MB 이하 · 영상 1개까지
           </p>
         </div>

@@ -75,7 +75,7 @@ export default function AuctionItemSearch({
 
   return (
     <form
-      className="mb-4 rounded-xl border border-[var(--color-ds-neutral-tone)] bg-white p-3 dark:bg-navy-700"
+      className="mb-4 rounded-xl border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] p-3"
       onSubmit={submit}
       role="search"
     >
@@ -110,7 +110,7 @@ export default function AuctionItemSearch({
             <button
               type="button"
               aria-label="아이템 검색어 지우기"
-              className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-[var(--color-ds-disabled)] hover:bg-gray-100"
+              className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-ring"
               onClick={() => {
                 setInputValue("");
                 setIsOpen(false);
