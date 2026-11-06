@@ -41,6 +41,7 @@ function CommentForm({
         }),
       );
       setText("");
+      await cache.resetQueries({ queryKey: ["outfits", "feed"] });
       await cache.invalidateQueries({ queryKey: ["outfits"] });
       onDone?.();
     } catch (error) {
@@ -105,6 +106,7 @@ function CommentRow({
       await outfitRequest(`/${outfitId}/comments/${comment.id}`, {
         method: "DELETE",
       });
+      await cache.resetQueries({ queryKey: ["outfits", "feed"] });
       await cache.invalidateQueries({ queryKey: ["outfits"] });
     } catch {
       toast.error("댓글을 삭제하지 못했어요.");

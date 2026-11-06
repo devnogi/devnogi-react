@@ -78,6 +78,7 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
         initial ? `/${initial.id}` : "",
         { method: initial ? "PUT" : "POST", body: form },
       );
+      await cache.resetQueries({ queryKey: ["outfits", "feed"] });
       await cache.invalidateQueries({ queryKey: ["outfits"] });
       toast.success("의장을 저장했어요.");
       router.push(`/outfits/${saved.id}`);

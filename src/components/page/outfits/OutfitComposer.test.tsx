@@ -47,15 +47,15 @@ const initial: Outfit = {
   ],
 };
 function mount(outfit = initial) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, refetchOnMount: false } },
+  });
   render(
-    <QueryClientProvider
-      client={
-        new QueryClient({ defaultOptions: { queries: { retry: false } } })
-      }
-    >
+    <QueryClientProvider client={client}>
       <OutfitComposer initial={outfit} />
     </QueryClientProvider>,
   );
+  return client;
 }
 beforeEach(() => {
   jest.mocked(outfitRequest).mockReset();
@@ -84,10 +84,15 @@ it("preserves the draft after a failed save", async () => {
 });
 it("submits ordered retained image ids and navigates to the saved detail", async () => {
   jest.mocked(outfitRequest).mockResolvedValue(initial);
-  mount();
+  const cache = mount();
+  cache.setQueryData(["outfits", "feed", "public"], {
+    pages: [{ content: [] }],
+    pageParams: [0],
+  });
   fireEvent.click(screen.getAllByRole("button", { name: "대표로" })[1]);
   fireEvent.click(screen.getByRole("button", { name: "의장 저장" }));
   await waitFor(() => expect(push).toHaveBeenCalledWith("/outfits/1"));
+  expect(cache.getQueryData(["outfits", "feed", "public"])).toBeUndefined();
   const [, request] = jest.mocked(outfitRequest).mock.calls[0];
   expect(request?.method).toBe("PUT");
   const data = (request?.body as FormData).get("data") as Blob;

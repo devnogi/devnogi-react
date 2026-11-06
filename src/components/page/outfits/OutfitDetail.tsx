@@ -88,6 +88,7 @@ function Detail({
     setRemoving(true);
     try {
       await outfitRequest(`/${id}`, { method: "DELETE" });
+      await cache.resetQueries({ queryKey: ["outfits", "feed"] });
       await cache.invalidateQueries({ queryKey: ["outfits"] });
       router.push("/outfits");
     } catch {
