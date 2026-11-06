@@ -20,8 +20,11 @@ export default function RootLayout({
         </Suspense>
 
         {/* Main Content: 112px mobile / 64px desktop fixed navigation. */}
-        <main className="flex-1 pt-28 md:pt-16 bg-background">
-          <div className="max-w-7xl w-full mx-auto h-full px-4 md:px-6 py-6 md:py-8">
+        <main data-page-shell className="flex-1 pt-28 md:pt-16 bg-background">
+          <div
+            data-page-frame
+            className="max-w-7xl w-full mx-auto h-full px-4 md:px-6 py-6 md:py-8"
+          >
             <Suspense fallback={null}>{children}</Suspense>
           </div>
         </main>

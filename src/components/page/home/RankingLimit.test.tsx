@@ -1,18 +1,15 @@
 import { render, screen } from "@testing-library/react";
 
 import {
-  useAllTimeHighestPriceRanking,
   useMonthLargestVolumeRanking,
   useTodayPopularRanking,
 } from "@/hooks/useRankings";
 
-import AllTimeHighlightCard from "./AllTimeHighlightCard";
 import MonthLargestCard from "./MonthLargestCard";
 import PopularRankingCard from "./PopularRankingCard";
 
 jest.mock("@/hooks/useRankings", () => ({
   useTodayPopularRanking: jest.fn(),
-  useAllTimeHighestPriceRanking: jest.fn(),
   useMonthLargestVolumeRanking: jest.fn(),
 }));
 
@@ -38,11 +35,6 @@ it("각 랭킹을 7건 요청하고 초과 응답도 7건까지만 보여준다"
       state as unknown as ReturnType<typeof useTodayPopularRanking>,
     );
   jest
-    .mocked(useAllTimeHighestPriceRanking)
-    .mockReturnValue(
-      state as unknown as ReturnType<typeof useAllTimeHighestPriceRanking>,
-    );
-  jest
     .mocked(useMonthLargestVolumeRanking)
     .mockReturnValue(
       state as unknown as ReturnType<typeof useMonthLargestVolumeRanking>,
@@ -50,13 +42,11 @@ it("각 랭킹을 7건 요청하고 초과 응답도 7건까지만 보여준다"
   render(
     <>
       <PopularRankingCard />
-      <AllTimeHighlightCard />
       <MonthLargestCard />
     </>,
   );
   expect(useTodayPopularRanking).toHaveBeenCalledWith(7);
-  expect(useAllTimeHighestPriceRanking).toHaveBeenCalledWith(7);
   expect(useMonthLargestVolumeRanking).toHaveBeenCalledWith(7);
-  expect(screen.getAllByText("아이템 7")).toHaveLength(3);
+  expect(screen.getAllByText("아이템 7")).toHaveLength(2);
   expect(screen.queryByText("아이템 8")).not.toBeInTheDocument();
 });

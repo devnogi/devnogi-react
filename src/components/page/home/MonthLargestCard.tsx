@@ -2,6 +2,7 @@
 
 import { useMonthLargestVolumeRanking } from "@/hooks/useRankings";
 
+import styles from "./HomeCards.module.css";
 import RankingCardSkeleton from "./RankingCardSkeleton";
 import RankingRow from "./RankingRow";
 import { formatDateTime, formatKoreanNumber } from "./utils";
@@ -10,11 +11,9 @@ export default function MonthLargestCard() {
   const { data, isLoading, error } = useMonthLargestVolumeRanking(7);
 
   return (
-    <div className="h-full min-w-0 rounded-lg border border-gray-200 bg-[var(--color-ds-card)] p-4 tabular-nums dark:border-navy-600 dark:bg-navy-800">
-      <div className="mb-2">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
-          이번 달 최대 거래액
-        </h3>
+    <div className={styles.card}>
+      <div className={styles.heading}>
+        <h3 className={styles.title}>이번 달 최대 거래액</h3>
       </div>
       {isLoading ? (
         <RankingCardSkeleton rows={7} compact />
@@ -28,13 +27,14 @@ export default function MonthLargestCard() {
         </div>
       ) : (
         <ol>
-          {data.slice(0, 7).map((item) => (
+          {data.slice(0, 7).map((item, index) => (
             <RankingRow
               key={item.rank + "-" + item.itemName}
               rank={item.rank}
+              featured={index === 0}
               name={item.itemDisplayName || item.itemName}
               category={item.itemTopCategory + " > " + item.itemSubCategory}
-              value={formatKoreanNumber(item.totalPrice)}
+              value={formatKoreanNumber(item.totalPrice) + " G"}
               detail={formatDateTime(item.dateAuctionBuy)}
             />
           ))}

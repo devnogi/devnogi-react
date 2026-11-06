@@ -18,7 +18,7 @@ export default function RankingCardSkeleton({
           key={i}
           className={
             compact
-              ? "flex h-10 items-center gap-2 animate-pulse"
+              ? "flex h-[68px] items-center gap-2 animate-pulse"
               : "flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-navy-700/50 animate-pulse"
           }
         >

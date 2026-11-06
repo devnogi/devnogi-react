@@ -339,3 +339,56 @@ html {
 .category-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgb(107 114 128);
 }
+
+/* Approved visual revision 2. Keep other routes and shared action tokens intact. */
+.visual-polish {
+  --background: #f7f7f5;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --secondary: #efefec;
+  --secondary-foreground: #111111;
+  --muted: #efefec;
+  --muted-foreground: #6b6b6b;
+  --border: #e3e3df;
+  --color-ds-background: #f7f7f5;
+  --color-ds-card: #ffffff;
+  --color-ds-text: #111111;
+  --color-ds-neutral-tone: #e3e3df;
+  --color-ds-ornamental: #6b6b6b;
+  --color-ds-neutral-50: #efefec;
+  --color-ds-neutral-100: #efefec;
+}
+
+.dark .visual-polish {
+  --background: #0f0f10;
+  --foreground: #f5f5f5;
+  --card: #18181a;
+  --card-foreground: #f5f5f5;
+  --secondary: #242426;
+  --secondary-foreground: #f5f5f5;
+  --muted: #242426;
+  --muted-foreground: #a1a1aa;
+  --border: #303034;
+  --color-ds-background: #0f0f10;
+  --color-ds-card: #18181a;
+  --color-ds-text: #f5f5f5;
+  --color-ds-neutral-tone: #303034;
+  --color-ds-ornamental: #a1a1aa;
+  --color-ds-neutral-50: #242426;
+  --color-ds-neutral-100: #242426;
+}
+
+[data-page-shell]:has(.visual-polish) {
+  background-color: #f7f7f5;
+}
+
+.dark [data-page-shell]:has(.visual-polish) {
+  background-color: #0f0f10;
+}
+
+@media (max-width: 767px) {
+  [data-page-frame]:has(.social-reading-page) {
+    padding: 0;
+  }
+}

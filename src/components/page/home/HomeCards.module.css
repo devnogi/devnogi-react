@@ -1,0 +1,180 @@
+.card {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--color-ds-card);
+  padding: 20px 16px 12px;
+  color: var(--color-ds-text);
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+  letter-spacing: -0.02em;
+}
+.row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 68px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.rank {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted-foreground);
+}
+.name {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.meta {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.value {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.values {
+  text-align: right;
+}
+.featured {
+  font-size: 24px;
+  line-height: 32px;
+}
+.hornRow {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+.hornMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted-foreground);
+}
+.server {
+  flex-shrink: 0;
+  border-radius: 3px;
+  background: var(--secondary);
+  padding: 1px 5px;
+}
+.hornText {
+  font-size: 14px;
+  line-height: 21px;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.posts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.post {
+  display: flex;
+  gap: 12px;
+  padding: 17px 0;
+  border-top: 1px solid var(--border);
+}
+.postBody {
+  min-width: 0;
+  flex: 1;
+}
+.preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted-foreground);
+}
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.stats svg:nth-of-type(2) {
+  margin-left: 8px;
+}
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.state {
+  padding: 48px 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+.skeleton {
+  height: 94px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+}
+.skeleton span {
+  height: 14px;
+  width: 88%;
+  border-radius: 4px;
+  background: var(--secondary);
+}
+.skeleton span:last-child {
+  width: 50%;
+  height: 10px;
+}
+@media (min-width: 768px) {
+  .card {
+    padding: 24px 24px 12px;
+  }
+  .row {
+    min-height: 64px;
+  }
+}
+@media (max-width: 600px) {
+  .row {
+    gap: 8px;
+  }
+  .values {
+    max-width: 124px;
+  }
+}

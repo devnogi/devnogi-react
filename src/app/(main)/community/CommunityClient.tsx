@@ -40,18 +40,18 @@ function CommunityPageContent() {
 
   return (
     <main
-      className={`mx-auto w-full pb-24 ${showPopular ? "max-w-[680px] lg:max-w-[1000px]" : "max-w-[680px]"}`}
+      className={`visual-polish social-reading-page mx-auto w-full pb-24 ${showPopular ? "max-w-[680px] lg:max-w-[980px]" : "max-w-[680px]"}`}
     >
       <div
         className={`grid items-start gap-5 ${showPopular ? "lg:grid-cols-[minmax(0,680px)_280px]" : ""}`}
       >
-        <section className="min-w-0 overflow-hidden border-x border-gray-200 bg-white dark:border-navy-600 dark:bg-navy-800 sm:rounded-2xl sm:border">
-          <header className="border-b border-gray-200 px-4 pt-4 dark:border-navy-600 sm:px-5">
+        <section className="min-w-0 overflow-hidden bg-card text-card-foreground sm:rounded-[10px] sm:border sm:border-border">
+          <header className="border-b border-border px-4 pt-4 sm:px-5">
             <div className="mb-3">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl font-bold text-card-foreground">
                 에린 이야기
               </h1>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm text-muted-foreground">
                 길게 고민하지 말고, 오늘의 한 장면을 가볍게 나눠보세요.
               </p>
             </div>
@@ -78,7 +78,7 @@ function CommunityPageContent() {
             </nav>
           </header>
           <div
-            className={`border-b border-gray-200 dark:border-navy-600 ${isAuthenticated ? "hidden sm:block" : ""}`}
+            className={`border-b border-border ${isAuthenticated ? "hidden sm:block" : ""}`}
           >
             {authLoading ? (
               <div

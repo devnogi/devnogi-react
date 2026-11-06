@@ -93,12 +93,12 @@ async function PostPage({ params }: PostPageProps) {
     : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-[1000px] pb-8">
+    <div className="visual-polish social-reading-page mx-auto w-full max-w-[680px] pb-8 lg:max-w-[980px]">
       <nav
         aria-label="현재 위치"
-        className="mb-4 text-sm text-gray-600 dark:text-gray-400"
+        className="mb-4 px-4 text-sm text-muted-foreground sm:px-0"
       >
-        <ol className="flex items-center gap-2">
+        <ol className="flex flex-wrap items-center gap-2 break-words [overflow-wrap:anywhere]">
           <li>
             <Link className="hover:underline" href="/">
               메모노기
@@ -125,19 +125,13 @@ async function PostPage({ params }: PostPageProps) {
       )}
       <div className="lg:grid lg:grid-cols-[minmax(0,680px)_280px] lg:gap-5">
         <section className="min-w-0 flex flex-col gap-4 md:gap-6">
-          {/* Post Detail */}
-          <PostDetailView
-            postId={id}
-            initialPost={initialPost}
-            cacheScope={cacheScope}
-          />
-
-          {/* Comments Section */}
-          <div className="w-full">
-            <div
-              id="comments"
-              className="bg-white dark:bg-navy-800 rounded-lg border border-gray-200 dark:border-navy-600 p-4 md:p-5"
-            >
+          <div className="overflow-hidden border-y border-border bg-card text-card-foreground sm:rounded-[10px] sm:border">
+            <PostDetailView
+              postId={id}
+              initialPost={initialPost}
+              cacheScope={cacheScope}
+            />
+            <div id="comments" className="border-t border-border">
               <CommentList postId={id} />
             </div>
           </div>

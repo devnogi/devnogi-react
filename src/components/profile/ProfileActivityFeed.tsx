@@ -43,7 +43,7 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
       <div
         role="tablist"
         aria-label="공개 활동 종류"
-        className="flex border-b border-gray-200 dark:border-navy-600"
+        className="flex border-b border-border"
       >
         {(
           [
@@ -88,25 +88,28 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                 key={post.id}
                 href={`/community/${post.id}`}
                 prefetch={false}
-                className="block border-b border-gray-200 px-1 py-5 outline-none hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-ring dark:border-navy-600 dark:hover:bg-navy-800 sm:px-4"
+                className="block border-b border-border px-1 py-5 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring sm:px-4"
               >
                 <article>
-                  <div className="flex items-center justify-between gap-3 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center justify-between gap-3 text-xs leading-[18px] text-muted-foreground">
                     <time dateTime={post.createdAt}>
                       {relativeDate(post.createdAt)}
                     </time>
                     <span>{post.viewCount.toLocaleString()}회 조회</span>
                   </div>
-                  <h3 className="mt-2 break-words text-base font-semibold leading-6 text-gray-950 dark:text-white">
+                  <h3 className="mt-2 break-words text-[15px] leading-6 font-normal tracking-[-0.01em] text-foreground">
                     {post.title}
                   </h3>
-                  <div className="mt-3 flex gap-4 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="mt-3 flex gap-6 text-xs leading-[18px] text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Heart className="h-4 w-4" aria-hidden="true" />
+                      <Heart className="h-[18px] w-[18px]" aria-hidden="true" />
                       {post.likeCount.toLocaleString()}
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                      <MessageCircle
+                        className="h-[18px] w-[18px]"
+                        aria-hidden="true"
+                      />
                       {post.commentCount.toLocaleString()}
                     </span>
                   </div>
@@ -135,20 +138,20 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                 key={comment.id}
                 href={`/community/${comment.postId}`}
                 prefetch={false}
-                className="block border-b border-gray-200 px-1 py-5 outline-none hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-ring dark:border-navy-600 dark:hover:bg-navy-800 sm:px-4"
+                className="block border-b border-border px-1 py-5 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring sm:px-4"
               >
                 <article>
-                  <div className="flex items-center justify-between gap-3 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center justify-between gap-3 text-xs leading-[18px] text-muted-foreground">
                     <span className="truncate">{comment.postTitle}</span>
                     <time className="shrink-0" dateTime={comment.createdAt}>
                       {relativeDate(comment.createdAt)}
                     </time>
                   </div>
-                  <p className="mt-2 break-words text-sm leading-6 text-gray-800 dark:text-gray-100">
+                  <p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6 font-normal tracking-[-0.01em] text-foreground">
                     {comment.content}
                   </p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                    <Heart className="h-4 w-4" aria-hidden="true" />
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs leading-[18px] text-muted-foreground">
+                    <Heart className="h-[18px] w-[18px]" aria-hidden="true" />
                     {comment.likeCount.toLocaleString()}
                   </span>
                 </article>
@@ -204,7 +207,7 @@ function ActivityState({
           className="mt-4"
           onClick={onRetry}
         >
-          <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
+          <RotateCcw className="mr-2 h-[18px] w-[18px]" aria-hidden="true" />
           다시 시도
         </Button>
       </div>

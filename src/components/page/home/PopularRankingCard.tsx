@@ -2,6 +2,7 @@
 
 import { useTodayPopularRanking } from "@/hooks/useRankings";
 
+import styles from "./HomeCards.module.css";
 import RankingCardSkeleton from "./RankingCardSkeleton";
 import RankingRow from "./RankingRow";
 import { formatKoreanNumber } from "./utils";
@@ -10,11 +11,12 @@ export default function PopularRankingCard() {
   const { data, isLoading, error } = useTodayPopularRanking(7);
 
   return (
-    <div className="h-full min-w-0 rounded-lg border border-gray-200 bg-[var(--color-ds-card)] p-4 tabular-nums dark:border-navy-600 dark:bg-navy-800">
-      <div className="mb-2">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
-          오늘의 인기 아이템
-        </h3>
+    <div className={styles.card}>
+      <div className={styles.heading}>
+        <div>
+          <h3 className={styles.title}>오늘의 인기 아이템</h3>
+          <p className={styles.meta}>오늘 가장 많이 거래된 아이템</p>
+        </div>
       </div>
       {isLoading ? (
         <RankingCardSkeleton rows={7} compact />
@@ -36,7 +38,6 @@ export default function PopularRankingCard() {
               category={item.itemTopCategory + " > " + item.itemSubCategory}
               value={formatKoreanNumber(item.totalQuantity) + "개"}
               detail={"평균 " + formatKoreanNumber(item.avgPrice)}
-              accent
             />
           ))}
         </ol>
