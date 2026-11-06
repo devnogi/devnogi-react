@@ -49,7 +49,7 @@ function NavigationItem({
     <Link
       href={href}
       className={clsx(
-        "relative flex h-12 md:h-16 shrink-0 items-center px-2.5 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
+        "relative flex h-12 md:h-16 shrink-0 items-center min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
         isActive
           ? "text-primary"
           : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
@@ -110,7 +110,7 @@ function NavigationDropdown({
         aria-controls={menuId}
         onClick={() => setIsOpen((open) => !open)}
         className={clsx(
-          "relative flex h-12 md:h-16 items-center gap-1 px-2.5 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
+          "relative flex h-12 md:h-16 items-center gap-1 min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
           isActive
             ? "text-primary"
             : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
@@ -201,6 +201,7 @@ export default function ThreeTierNav() {
             label="커뮤니티"
             pathname={pathname}
           />
+          <NavigationItem href="/outfits" label="의장" pathname={pathname} />
           <NavigationDropdown
             key={`${pathname}-auction`}
             label="경매장"

@@ -10,6 +10,7 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/auction-history",
   "/auction-realtime",
   "/community",
+  "/outfits",
   "/horn-bugle",
   "/item-info",
   "/item-option-info",

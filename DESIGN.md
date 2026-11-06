@@ -42,7 +42,7 @@ The community is a warm, low-pressure conversation space for life in Erinn. It s
 
 ## Screen contracts — revision 1
 
-- Below 768px, navigation has a 64px identity/account row and a 48px menu row. All five primary destinations remain visible without horizontal scrolling. At 768px and above retain the 64px single row. Content and dropdown offsets match the header.
+- Below 768px, navigation has a 64px identity/account row and a 48px menu row. All six primary destinations remain visible without horizontal scrolling. At 768px and above retain the 64px single row. Content and dropdown offsets match the header.
 - Auction order: short title, route tabs, search, filters, results. Data guidance and common categories are closed disclosures, retaining server-rendered links and SEO metadata. Route tabs carry only item name and top/subcategory; other criteria start at destination defaults.
 - Auction filter chips, dialogs, inputs, and footer actions use themed surfaces and text; touch targets are at least 44px. At 390×844 the default search, filters and one complete result fit in the first viewport.
 - Horn rows contain one wrapping metadata line (server, author, time) and the full message below, with 8px vertical padding and matching skeletons. Remove only one exact leading author-plus-`:` prefix. Home's horn card is not recomposed.
@@ -147,3 +147,12 @@ layers. Preserve visible focus and 44px interactive areas.
   Use a local synthetic gateway for authenticated/state tests, without production
   writes. Run targeted behavior tests, `npm run verify`, secret scan, workflow
   checks and independent read-only review. Merge/deployment remain unapproved.
+
+## Outfit snapshots — revision 2 (2026-11-07)
+
+- Outfit is an independent photo-first destination between Community and Auction, without a submenu. Keep the mobile 64px identity row and 48px menu row; all six destinations fit at 390px with 44px targets.
+- Use existing neutral tokens, Pretendard and light/dark palettes. The outfit feed is at most 1120px, with 2/3/4 columns below 768px/from 768px/from 1024px. Photos use 3:4 contain surfaces and 12px corners; no decorative gradients or shadows.
+- Detail shows full photos, author, optional plain text, tags and worn items. Composition has no title, requires 1–5 photos and catalog selections for clothing, hands and feet. Hair, two accessories, face decoration, tail, weapon, robe and motion are optional. Only motion allows custom text.
+- Filters use the same slots without mandatory fields; selected conditions combine with AND. Latest is default; popular covers the last seven days and may reorder after reactions. My Page separates ordinary posts from outfits and saved outfits.
+- Guests can read, but writing and reactions open the existing login modal. Preserve drafts on failed submission, visible focus, keyboard autocomplete, and loading/empty/error states.
+- Verify at 1440×1000, 768×1024 and 390×844 in both themes, including photo forms, item selection, custom motions, comments and navigation.

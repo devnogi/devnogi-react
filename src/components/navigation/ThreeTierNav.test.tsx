@@ -111,3 +111,13 @@ it("바깥 영역을 누르면 드롭다운을 닫는다", () => {
   fireEvent.pointerDown(document.body);
   expect(trigger).toHaveAttribute("aria-expanded", "false");
 });
+
+it("의장 메뉴를 커뮤니티와 경매장 사이에 표시하고 하위 경로를 활성화한다", () => {
+  pathname = "/outfits/123";
+  render(<ThreeTierNav />);
+  const nav = screen.getByRole("navigation", { name: "주요 메뉴" });
+  const link = within(nav).getByRole("link", { name: "의장" });
+  expect(link).toHaveAttribute("href", "/outfits");
+  expect(link).toHaveAttribute("aria-current", "page");
+  expect(nav.textContent).toMatch(/커뮤니티의장경매장/);
+});
