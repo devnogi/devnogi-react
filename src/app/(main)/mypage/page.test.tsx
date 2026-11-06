@@ -97,6 +97,7 @@ describe("마이페이지 닉네임 변경 경계", () => {
       type: "image/png",
     });
     fireEvent.change(fileInput, { target: { files: [file] } });
+    expect(fileInput.files?.[0]).toBe(file);
     await waitFor(() =>
       expect(screen.getByAltText("Profile Preview")).toBeInTheDocument(),
     );
@@ -107,6 +108,11 @@ describe("마이페이지 닉네임 변경 경계", () => {
     const form = jest.mocked(clientAxios.put).mock.calls[0][1] as FormData;
     expect(form.get("nickname")).toBe(legacyNickname);
     expect(form.get("nicknameTicket")).toBeNull();
+    expect(form.has("file")).toBe(true);
+    expect(String(form.get("file"))).toBe("[object File]");
+    expect(jest.mocked(clientAxios.put).mock.calls[0][2]).toEqual({
+      timeout: 30_000,
+    });
   });
 
   it("이름 변경에는 발급 후보와 해당 티켓을 함께 전송한다", async () => {

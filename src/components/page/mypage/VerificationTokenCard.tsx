@@ -11,7 +11,7 @@ import {
   PartyPopper,
   RefreshCw,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ export default function VerificationTokenCard({
 
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState<number>(0);
+  const notifiedTokenIds = useRef(new Set<number>());
   const cooldownUntil = info?.lastVerifiedAt
     ? new Date(
         new Date(info.lastVerifiedAt).getTime() + 7 * 24 * 60 * 60 * 1000,
@@ -93,11 +94,20 @@ export default function VerificationTokenCard({
 
   // Detect verification success via polling
   useEffect(() => {
-    if (token?.tokenStatus === "VERIFIED") {
-      toast.success("캐릭터 인증이 완료되었습니다!");
-      refreshUser();
-    }
-  }, [token?.tokenStatus, refreshUser]);
+    if (token?.tokenStatus !== "VERIFIED") return;
+
+    const notificationKey = `verification-success-notified:${token.tokenId}`;
+    if (
+      notifiedTokenIds.current.has(token.tokenId) ||
+      sessionStorage.getItem(notificationKey) === "true"
+    )
+      return;
+
+    notifiedTokenIds.current.add(token.tokenId);
+    sessionStorage.setItem(notificationKey, "true");
+    toast.success("캐릭터 인증이 완료되었습니다!");
+    void refreshUser();
+  }, [refreshUser, token?.tokenId, token?.tokenStatus]);
 
   const handleCopy = useCallback(async () => {
     if (!token?.verificationCode) return;

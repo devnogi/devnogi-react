@@ -97,3 +97,45 @@ it("두 게시글 작성 화면이 공유하는 payload에 boolean isDraft를 �
   expect(data).toBeInstanceOf(Blob);
   await expect((data as Blob).text()).resolves.toContain('"isDraft":false');
 });
+
+it("실제 미디어 파일을 30초 업로드 경계로 전송한다", async () => {
+  jest.mocked(clientAxios.post).mockResolvedValue({ data: {} });
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  render(
+    <QueryClientProvider client={queryClient}>
+      <PostComposer />
+    </QueryClientProvider>,
+  );
+  const file = new File(["synthetic-image"], "post.png", {
+    type: "image/png",
+  });
+  Object.defineProperty(URL, "createObjectURL", {
+    configurable: true,
+    value: jest.fn(() => "blob:post"),
+  });
+  Object.defineProperty(URL, "revokeObjectURL", {
+    configurable: true,
+    value: jest.fn(),
+  });
+  const input = screen
+    .getByLabelText("사진 또는 영상 첨부")
+    .querySelector("input") as HTMLInputElement;
+  fireEvent.change(input, { target: { files: [file] } });
+  expect(input.files?.[0]).toBe(file);
+  fireEvent.change(screen.getByLabelText("게시글 내용"), {
+    target: { value: "사진이 있는 게시글" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "게시" }));
+
+  await waitFor(() => expect(clientAxios.post).toHaveBeenCalledTimes(1));
+  const [, form, config] = jest.mocked(clientAxios.post).mock.calls[0] as [
+    string,
+    FormData,
+    { timeout: number },
+  ];
+  expect(form.has("media")).toBe(true);
+  expect(String(form.get("media"))).toBe("[object File]");
+  expect(config).toEqual({ timeout: 30_000 });
+});

@@ -25,7 +25,7 @@ export default function HornBugleCard() {
   }, []);
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} h-full`}>
       <div className={styles.heading}>
         <div>
           <h3 className={styles.title}>거대한 뿔피리</h3>

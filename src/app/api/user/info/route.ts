@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { USER_ENDPOINT } from "@/lib/api/constants";
 import { createAuthServerAxios } from "@/lib/api/server";
+import { MEDIA_UPLOAD_TIMEOUT_MS } from "@/lib/api/timeouts";
 import { createLogger } from "@/lib/logger";
 
 const logger = createLogger("API/user/info");
@@ -19,7 +20,13 @@ export async function PUT(request: NextRequest) {
     // DAS API: PUT /api/user/info (사용자 정보 수정)
     logger.info(`Gateway 요청: PUT ${USER_ENDPOINT}/info`);
 
-    const { data, status } = await axios.put(`${USER_ENDPOINT}/info`, formData);
+    const { data, status } = await axios.put(
+      `${USER_ENDPOINT}/info`,
+      formData,
+      {
+        timeout: MEDIA_UPLOAD_TIMEOUT_MS,
+      },
+    );
 
     logger.info(`Gateway 응답: status=${status}`);
     logger.info("========== PUT /api/user/info 요청 완료 ==========");
