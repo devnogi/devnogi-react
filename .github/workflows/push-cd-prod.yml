@@ -29,7 +29,7 @@ jobs:
   production:
     needs: workflow-contract
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    uses: devnogi/ci-workflows/.github/workflows/node-prod.yml@4fd2ea877beb52972fd8614396fa26eb022494aa
+    uses: devnogi/ci-workflows/.github/workflows/node-prod.yml@edc5b2b8ac5270b60227f995ead0dfa60e04b731
     with:
       service-name: react
       deployment-target: prod2
