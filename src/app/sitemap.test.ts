@@ -8,7 +8,8 @@ describe("sitemap route", () => {
     expect(entries).toContainEqual({
       url: "https://www.memonogi.com/auction-history",
     });
-    expect(entries).toHaveLength(8);
+    expect(entries).toHaveLength(9);
+    expect(entries).toContainEqual({ url: "https://www.memonogi.com/outfits" });
     expect(
       entries.every((entry) =>
         entry.url.startsWith("https://www.memonogi.com/"),

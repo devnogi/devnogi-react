@@ -30,6 +30,7 @@ import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
 import PostList from "@/components/page/community/PostList";
 import NotificationList from "@/components/page/mypage/NotificationList";
 import VerificationTab from "@/components/page/mypage/VerificationTab";
+import OutfitFeed from "@/components/page/outfits/OutfitFeed";
 import GameProfileFields from "@/components/profile/GameProfileFields";
 import { Button } from "@/components/ui/button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
@@ -225,7 +226,8 @@ function MyPageContent() {
 
   const tabs = [
     { key: "profile", label: "내 정보", icon: User },
-    { key: "posts", label: "내 게시글", icon: FileText },
+    { key: "posts", label: "일반 게시글", icon: FileText },
+    { key: "outfits", label: "의장 게시글", icon: Camera },
     { key: "notifications", label: "알림", icon: Bell, badge: unreadCount },
     { key: "verification", label: "인증", icon: BadgeCheck },
   ];
@@ -281,6 +283,8 @@ function MyPageContent() {
       {/* Tab Content */}
       {activeTab === "posts" ? (
         <PostList userId={userId} />
+      ) : activeTab === "outfits" ? (
+        <OutfitFeed personal />
       ) : activeTab === "notifications" ? (
         <NotificationList userId={userId} />
       ) : activeTab === "verification" ? (
