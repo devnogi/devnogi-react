@@ -176,7 +176,7 @@ function MyPageContent() {
             <p className="text-gray-600 mb-4">로그인이 필요합니다</p>
             <Button
               onClick={() => setIsLoginModalOpen(true)}
-              className="bg-[#9a451f] hover:bg-[#803b1d] text-white rounded-lg"
+              className="bg-primary hover:bg-[var(--color-ds-primary-hover)] text-primary-foreground rounded-lg"
             >
               로그인
             </Button>
@@ -291,7 +291,7 @@ function MyPageContent() {
             <div className="flex items-start gap-6">
               {/* Profile Image */}
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full bg-[#9a451f] flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold overflow-hidden">
                   {authUser?.profileImageUrl || user.profileImageUrl ? (
                     <img
                       src={authUser?.profileImageUrl || user.profileImageUrl!}
@@ -777,7 +777,7 @@ function EditProfileModal({
             <div className="flex items-center gap-4">
               <div
                 onClick={handleImageClick}
-                className="relative w-20 h-20 rounded-full bg-[#9a451f] flex items-center justify-center text-white text-2xl font-bold overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
+                className="relative w-20 h-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-2xl font-bold overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
               >
                 {previewUrl ? (
                   <img

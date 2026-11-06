@@ -69,7 +69,7 @@ export default function StatisticsTable({
                   <td className="px-4 py-2 text-right text-[var(--color-ds-primary)]">
                     {formatPrice(item.minPrice)}
                   </td>
-                  <td className="px-4 py-2 text-right text-gold-600 dark:text-gold-400">
+                  <td className="px-4 py-2 text-right text-[var(--color-ds-text)]">
                     {formatPrice(item.maxPrice)}
                   </td>
                   <td className="px-4 py-2 text-right text-gray-900 dark:text-gray-100">
@@ -105,25 +105,25 @@ export default function StatisticsTable({
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-gray-400">최저가</span>
+                  <span className="text-muted-foreground">최저가</span>
                   <div className="font-medium text-[var(--color-ds-primary)]">
                     {formatPrice(item.minPrice)}
                   </div>
                 </div>
                 <div>
-                  <span className="text-gray-400">최고가</span>
-                  <div className="font-medium text-gold-600 dark:text-gold-400">
+                  <span className="text-muted-foreground">최고가</span>
+                  <div className="font-medium text-[var(--color-ds-text)]">
                     {formatPrice(item.maxPrice)}
                   </div>
                 </div>
                 <div>
-                  <span className="text-gray-400">평균가</span>
+                  <span className="text-muted-foreground">평균가</span>
                   <div className="font-medium text-gray-900 dark:text-gray-100">
                     {formatPrice(item.avgPrice)}
                   </div>
                 </div>
                 <div>
-                  <span className="text-gray-400">거래수량</span>
+                  <span className="text-muted-foreground">거래수량</span>
                   <div className="font-medium text-gray-700 dark:text-gray-300">
                     {item.totalQuantity.toLocaleString()}
                   </div>

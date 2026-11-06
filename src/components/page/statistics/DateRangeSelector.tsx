@@ -24,19 +24,21 @@ export default function DateRangeSelector({
       </span>
       <input
         type="date"
+        aria-label="조회 시작일"
         value={dateFrom}
         onChange={(e) => onDateFromChange(e.target.value)}
         max={dateTo || today}
-        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
+        className="min-h-11 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]"
       />
       <span className="text-gray-400">~</span>
       <input
         type="date"
+        aria-label="조회 종료일"
         value={dateTo}
         onChange={(e) => onDateToChange(e.target.value)}
         min={dateFrom}
         max={today}
-        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
+        className="min-h-11 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]"
       />
     </div>
   );

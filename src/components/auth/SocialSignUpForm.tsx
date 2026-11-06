@@ -392,7 +392,7 @@ export default function SocialSignUpForm({
           />
 
           <details className="rounded-lg border border-border bg-background p-4">
-            <summary className="cursor-pointer text-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9a451f]">
+            <summary className="cursor-pointer text-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
               게임 프로필 (선택)
             </summary>
             <p className="mt-2 text-xs text-muted-foreground">
@@ -436,7 +436,7 @@ export default function SocialSignUpForm({
                 !!nicknameSubmissionError ||
                 !!emailSubmissionError
               }
-              className="flex-1 h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-lg transition-all duration-200"
+              className="flex-1 h-12 bg-primary text-primary-foreground hover:bg-[var(--color-ds-primary-hover)] font-semibold rounded-lg transition-all duration-200"
             >
               {isLoading ? (
                 <>

@@ -180,7 +180,7 @@ export default function VerificationTokenCard({
               <Button
                 onClick={handleIssue}
                 disabled={issueToken.isPending}
-                className="bg-[#9a451f] hover:bg-[#803b1d] text-white rounded-xl h-11 px-6"
+                className="rounded-xl h-11 px-6"
               >
                 {issueToken.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -268,7 +268,7 @@ export default function VerificationTokenCard({
             캐릭터 인증이 성공적으로 처리되었습니다.
           </p>
           {cooldownUntil && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               새 인증 코드는 {formatDateTime(cooldownUntil.toISOString())}{" "}
               이후에 다시 발급할 수 있습니다.
             </p>
@@ -284,13 +284,13 @@ export default function VerificationTokenCard({
               ? "인증 코드가 만료되었습니다."
               : "인증 코드가 폐기되었습니다."}
           </p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             새로운 인증 코드를 발급받아 다시 시도해주세요.
           </p>
           <Button
             onClick={handleReissue}
             disabled={reissueToken.isPending}
-            className="bg-[#9a451f] hover:bg-[#803b1d] text-white rounded-xl h-11 px-6"
+            className="rounded-xl h-11 px-6"
           >
             {reissueToken.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />

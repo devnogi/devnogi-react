@@ -33,7 +33,7 @@ export default function StatisticsSummaryCards({
     {
       label: "최고가",
       value: formatPrice(overallMax),
-      color: "text-gold-600 dark:text-gold-400",
+      color: "text-[var(--color-ds-text)]",
     },
     {
       label: "최저가",
@@ -63,7 +63,7 @@ export default function StatisticsSummaryCards({
             {card.value}
           </div>
           {card.sub && (
-            <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            <div className="text-xs text-muted-foreground mt-0.5">
               {card.sub}
             </div>
           )}

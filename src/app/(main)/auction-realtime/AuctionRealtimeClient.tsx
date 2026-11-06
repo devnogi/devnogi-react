@@ -280,7 +280,7 @@ function normalizeCategorySelection<
 }
 
 function parseSearchParamsFromUrl(
-  urlSearchParams: ReadonlyURLSearchParams,
+  urlSearchParams: ReadonlyURLSearchParams | URLSearchParams,
 ): AuctionRealtimeSearchParams {
   const parsed: AuctionRealtimeSearchParams = {
     ...DEFAULT_SEARCH_PARAMS,
@@ -447,10 +447,14 @@ function serializeSearchParams(params: AuctionRealtimeSearchParams): string {
   return sortedQueryParams.toString();
 }
 
-export default function Page() {
+export default function Page({ header }: { header?: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const urlSearchParams = useSearchParams();
+  const urlQuery = urlSearchParams.toString();
+  const incomingSearchParamsRef = useRef<AuctionRealtimeSearchParams | null>(
+    null,
+  );
   const lastSyncedQueryRef = useRef<string>("");
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -594,7 +598,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const parsed = parseSearchParamsFromUrl(urlSearchParams);
+    const parsed = parseSearchParamsFromUrl(new URLSearchParams(urlQuery));
     const parsedQuery = serializeSearchParams(parsed);
 
     if (parsedQuery === lastSyncedQueryRef.current) {
@@ -603,6 +607,7 @@ export default function Page() {
 
     lastSyncedQueryRef.current = parsedQuery;
 
+    incomingSearchParamsRef.current = parsed;
     setSearchParams(parsed);
     setItemName(parsed.itemName ?? "");
     setSelectedCategory(categoryIdFromSearchParams(parsed));
@@ -610,7 +615,15 @@ export default function Page() {
     setMobilePriceMax(parsed.priceSearchRequest?.priceTo?.toString() ?? "");
     setMobileEnchantPrefix(parsed.enchantSearchRequest?.enchantPrefix ?? null);
     setMobileEnchantSuffix(parsed.enchantSearchRequest?.enchantSuffix ?? null);
-  }, [urlSearchParams]);
+    setMobileMetalwareItems(
+      (parsed.metalwareSearchRequests ?? []).map((item, index) => ({
+        id: `mw-${index}`,
+        name: item.metalware,
+        levelFrom: item.levelFrom?.toString() ?? "",
+        levelTo: item.levelTo?.toString() ?? "",
+      })),
+    );
+  }, [urlQuery]);
 
   const applyExactItemNameChange = useCallback((value: boolean) => {
     setSearchParams((prev) => ({
@@ -657,6 +670,13 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    // Wait for incoming URL state before publishing local edits back to the URL.
+    if (
+      incomingSearchParamsRef.current &&
+      incomingSearchParamsRef.current !== searchParams
+    )
+      return;
+    incomingSearchParamsRef.current = null;
     const nextQuery = serializeSearchParams(searchParams);
 
     if (nextQuery === lastSyncedQueryRef.current) {
@@ -858,55 +878,54 @@ export default function Page() {
         delete next.priceSearchRequest;
       }
 
-      const filters =
-        data.activeFilters !== undefined
-          ? data.activeFilters
-          : mobileActiveFilters;
-      if (filters.length > 0) {
-        next.itemOptionSearchRequest = {};
+      if (data.activeFilters !== undefined) {
+        const filters = data.activeFilters;
+        if (filters.length > 0) {
+          next.itemOptionSearchRequest = {};
 
-        filters.forEach((filter) => {
-          Object.entries(filter.values).forEach(([key, value]) => {
-            if (value === undefined || value === "") return;
+          filters.forEach((filter) => {
+            Object.entries(filter.values).forEach(([key, value]) => {
+              if (value === undefined || value === "") return;
 
-            let optionSearchKey: string;
-            if (key.endsWith("From") || key.endsWith("To")) {
-              const baseName = key.replace(/(From|To)$/, "");
-              optionSearchKey = `${baseName}Search`;
-            } else if (key.endsWith("Standard")) {
-              const baseName = key.replace(/Standard$/, "");
-              optionSearchKey = `${baseName}Search`;
-            } else if (key === "wearingRestrictions") {
-              optionSearchKey = "wearingRestrictionsSearch";
-            } else if (key === "ergRank") {
-              optionSearchKey = "ergRankSearch";
-            } else {
-              optionSearchKey = `${key}Search`;
-            }
+              let optionSearchKey: string;
+              if (key.endsWith("From") || key.endsWith("To")) {
+                const baseName = key.replace(/(From|To)$/, "");
+                optionSearchKey = `${baseName}Search`;
+              } else if (key.endsWith("Standard")) {
+                const baseName = key.replace(/Standard$/, "");
+                optionSearchKey = `${baseName}Search`;
+              } else if (key === "wearingRestrictions") {
+                optionSearchKey = "wearingRestrictionsSearch";
+              } else if (key === "ergRank") {
+                optionSearchKey = "ergRankSearch";
+              } else {
+                optionSearchKey = `${key}Search`;
+              }
 
-            if (
-              !next.itemOptionSearchRequest![
-                optionSearchKey as keyof typeof next.itemOptionSearchRequest
-              ]
-            ) {
+              if (
+                !next.itemOptionSearchRequest![
+                  optionSearchKey as keyof typeof next.itemOptionSearchRequest
+                ]
+              ) {
+                (
+                  next.itemOptionSearchRequest as Record<
+                    string,
+                    Record<string, unknown>
+                  >
+                )[optionSearchKey] = {};
+              }
+
               (
                 next.itemOptionSearchRequest as Record<
                   string,
                   Record<string, unknown>
                 >
-              )[optionSearchKey] = {};
-            }
-
-            (
-              next.itemOptionSearchRequest as Record<
-                string,
-                Record<string, unknown>
-              >
-            )[optionSearchKey][key] = value;
+              )[optionSearchKey][key] = value;
+            });
           });
-        });
-      } else {
-        delete next.itemOptionSearchRequest;
+        } else {
+          delete next.itemOptionSearchRequest;
+        }
       }
 
       const enchantPrefixVal =
@@ -961,8 +980,20 @@ export default function Page() {
 
   if (isCategoriesLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-[var(--color-ds-disabled)]">로딩 중...</div>
+      <div className="-mx-4 -my-6 md:-mx-6 md:-my-8">
+        <div
+          className={`flex justify-center ${showCategorySidebar ? "px-72" : showFilterSidebar ? "pr-72" : ""}`}
+        >
+          <div className="w-full max-w-4xl px-4 pt-4 md:px-6 md:pt-6">
+            {header}
+            <div
+              role="status"
+              className="py-12 text-center text-[var(--color-ds-text)]"
+            >
+              로딩 중...
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -990,6 +1021,7 @@ export default function Page() {
         }`}
       >
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
+          {header}
           <AuctionItemSearch value={itemName} onSearch={handleItemSearch} />
           {showMobileFilter && (
             <div className="mb-4">
@@ -998,7 +1030,9 @@ export default function Page() {
                   hasExactItemName: !!searchParams.isExactItemName,
                   hasCategory: selectedCategory !== "all",
                   hasPrice: !!(mobilePriceMin || mobilePriceMax),
-                  hasOptions: mobileActiveFilters.length > 0,
+                  hasOptions:
+                    Object.keys(searchParams.itemOptionSearchRequest ?? {})
+                      .length > 0,
                   hasEnchant: !!(mobileEnchantPrefix || mobileEnchantSuffix),
                   hasMetalware: mobileMetalwareItems.some(
                     (f) => f.name.trim() !== "",
@@ -1034,7 +1068,9 @@ export default function Page() {
               </div>
               {categoryPath.map((p, index) => (
                 <React.Fragment key={p.id}>
-                  {index > 0 && <span className="text-cream-400">›</span>}
+                  {index > 0 && (
+                    <span className="text-muted-foreground">›</span>
+                  )}
                   <Badge
                     className="rounded-full cursor-pointer bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-50)] border-0 font-medium"
                     onClick={() => handleCategorySelect(p.id)}
@@ -1048,7 +1084,7 @@ export default function Page() {
 
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <div className="text-xs md:text-sm text-[var(--color-ds-disabled)]">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 {itemName ? (
                   <>
                     <span className="font-semibold text-[var(--color-ds-primary)]">
@@ -1067,7 +1103,8 @@ export default function Page() {
               <div ref={sortDropdownRef} className="relative">
                 <button
                   onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-lg transition-colors"
+                  aria-expanded={isSortDropdownOpen}
+                  className="flex min-h-11 items-center gap-1 px-3 py-1.5 text-xs md:text-sm text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)] rounded-lg transition-colors"
                 >
                   <span className="font-medium">
                     {selectedSortOption.label}
@@ -1100,7 +1137,8 @@ export default function Page() {
                             page: 1,
                           }));
                         }}
-                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                        aria-pressed={selectedSortOption.label === option.label}
+                        className={`min-h-11 w-full px-4 py-2 text-left text-sm transition-colors ${
                           selectedSortOption.label === option.label
                             ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
                             : "text-[var(--color-ds-text)] hover:bg-[var(--color-ds-neutral-50)]"
@@ -1122,9 +1160,7 @@ export default function Page() {
 
             {isFetching && !isLoading && (
               <div className="h-12 flex items-center justify-center">
-                <div className="text-sm text-[var(--color-ds-disabled)]">
-                  로딩 중...
-                </div>
+                <div className="text-sm text-muted-foreground">로딩 중...</div>
               </div>
             )}
 
@@ -1162,6 +1198,7 @@ export default function Page() {
             priceMin: mobilePriceMin,
             priceMax: mobilePriceMax,
             activeFilters: mobileActiveFilters,
+            optionRequest: searchParams.itemOptionSearchRequest,
             enchantPrefix: mobileEnchantPrefix,
             enchantSuffix: mobileEnchantSuffix,
             metalwareItems: mobileMetalwareItems,

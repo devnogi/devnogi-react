@@ -18,6 +18,19 @@ export default function PopularPostsHighlight({
     tab: "popular",
     size: 10,
   });
+  return (
+    <PopularPostsContent data={data} isLoading={isLoading} isError={isError} />
+  );
+}
+
+export function PopularPostsContent({
+  data,
+  isLoading,
+  isError,
+}: Pick<
+  ReturnType<typeof useInfinitePosts>,
+  "data" | "isLoading" | "isError"
+>) {
   const posts = data?.pages.flatMap((page) => page.items).slice(0, 5);
 
   if (isLoading) {
@@ -33,8 +46,8 @@ export default function PopularPostsHighlight({
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-            <Flame className="w-4 h-4 text-orange-500" />
+          <div className="flex items-center justify-center w-7 h-7 bg-[var(--color-ds-primary-50)] rounded-lg">
+            <Flame className="w-4 h-4 text-[var(--color-ds-primary)]" />
           </div>
           <h2 className="font-semibold text-base text-gray-900 dark:text-white">
             지금 뜨는 글
@@ -56,12 +69,8 @@ export default function PopularPostsHighlight({
             <div
               className={`flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center font-semibold text-xs ${
                 index === 0
-                  ? "bg-orange-500 text-white"
-                  : index === 1
-                    ? "bg-gray-400 text-white"
-                    : index === 2
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 dark:bg-navy-500 text-gray-600 dark:text-gray-300"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]"
               }`}
             >
               {index + 1}
@@ -104,7 +113,11 @@ export default function PopularPostsHighlight({
 
 function PopularPostsSkeleton() {
   return (
-    <section className="bg-white dark:bg-navy-800 rounded-lg p-4 md:p-5 border border-gray-200 dark:border-navy-600">
+    <section
+      role="status"
+      aria-label="인기글을 불러오는 중"
+      className="bg-white dark:bg-navy-800 rounded-lg p-4 md:p-5 border border-gray-200 dark:border-navy-600"
+    >
       <div className="flex items-center gap-2 mb-3">
         <div className="w-7 h-7 bg-gray-200 dark:bg-navy-600 rounded-lg animate-pulse" />
         <div className="h-5 w-20 bg-gray-200 dark:bg-navy-600 rounded animate-pulse" />

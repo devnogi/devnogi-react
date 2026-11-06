@@ -89,7 +89,7 @@ export default function PostList({
                 : "아직 게시글이 없어요."}
           </p>
           {!userId && tab !== "bookmarks" && tab !== "mine" && (
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
               첫 번째 게시글을 작성해보세요.
             </p>
           )}

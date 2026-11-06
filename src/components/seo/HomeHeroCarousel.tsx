@@ -75,7 +75,7 @@ export default function HomeHeroCarousel() {
         type="button"
         onClick={showPreviousSlide}
         aria-label="이전 Hero 이미지"
-        className="absolute bottom-4 left-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-gray-950/45 text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-sm transition-[background-color,transform] hover:scale-105 hover:bg-[#b9502b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:top-1/2 md:bottom-auto md:left-6 md:h-11 md:w-11 md:-translate-y-1/2"
+        className="absolute bottom-4 left-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-gray-950/45 text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-sm transition-[background-color,transform] hover:scale-105 hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:top-1/2 md:bottom-auto md:left-6 md:h-11 md:w-11 md:-translate-y-1/2"
       >
         <ChevronLeft aria-hidden="true" className="h-5 w-5" />
       </button>
@@ -83,7 +83,7 @@ export default function HomeHeroCarousel() {
         type="button"
         onClick={showNextSlide}
         aria-label="다음 Hero 이미지"
-        className="absolute right-3 bottom-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-gray-950/45 text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-sm transition-[background-color,transform] hover:scale-105 hover:bg-[#b9502b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:top-1/2 md:right-6 md:bottom-auto md:h-11 md:w-11 md:-translate-y-1/2"
+        className="absolute right-3 bottom-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-gray-950/45 text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-sm transition-[background-color,transform] hover:scale-105 hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:top-1/2 md:right-6 md:bottom-auto md:h-11 md:w-11 md:-translate-y-1/2"
       >
         <ChevronRight aria-hidden="true" className="h-5 w-5" />
       </button>

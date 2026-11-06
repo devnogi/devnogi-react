@@ -14,6 +14,8 @@ import TradeLogPage from "./AuctionHistoryClient";
 
 const mockRouter = { replace: jest.fn() };
 let mockUrlParams = new URLSearchParams();
+let mockCategoriesLoading = false;
+let mockMobile = false;
 
 jest.mock("next/navigation", () => ({
   useRouter: () => mockRouter,
@@ -29,7 +31,12 @@ jest.mock("@/hooks/useItemCategories", () => {
       children: [{ id: "근거리 장비/검", name: "검" }],
     },
   ];
-  return { useItemCategories: () => ({ data: categories, isLoading: false }) };
+  return {
+    useItemCategories: () => ({
+      data: categories,
+      isLoading: mockCategoriesLoading,
+    }),
+  };
 });
 
 jest.mock("@/hooks/useAuctionHistoryLayout", () => ({
@@ -37,9 +44,26 @@ jest.mock("@/hooks/useAuctionHistoryLayout", () => ({
     layoutMode: "desktop",
     showCategorySidebar: true,
     showFilterSidebar: true,
-    showMobileFilter: false,
+    showMobileFilter: mockMobile,
   }),
 }));
+
+jest.mock(
+  "@/components/page/auction-history/MobileFilterModal",
+  () =>
+    function MockModal({ onApply }: { onApply: (data: object) => void }) {
+      return (
+        <>
+          <button onClick={() => onApply({ priceMin: "200", priceMax: "" })}>
+            Mobile price
+          </button>
+          <button onClick={() => onApply({ activeFilters: [] })}>
+            Clear options
+          </button>
+        </>
+      );
+    },
+);
 
 jest.mock("@/components/commons/Category", () => {
   return function MockCategory({
@@ -156,13 +180,13 @@ function response(names: string[]) {
 let fetchSpy: jest.SpyInstance;
 let queryClient: QueryClient;
 
-function renderPage() {
+function renderPage(header?: React.ReactNode) {
   queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <TradeLogPage />
+      <TradeLogPage header={header} />
     </QueryClientProvider>,
   );
 }
@@ -177,6 +201,8 @@ function lastQuery() {
 
 describe("TradeLogPage", () => {
   beforeEach(() => {
+    mockCategoriesLoading = false;
+    mockMobile = false;
     localStorage.clear();
     mockUrlParams = new URLSearchParams();
     mockRouter.replace.mockClear();
@@ -187,6 +213,22 @@ describe("TradeLogPage", () => {
     cleanup();
     queryClient?.clear();
     fetchSpy.mockRestore();
+  });
+
+  it("keeps server-rendered heading and guidance visible while categories load", () => {
+    mockCategoriesLoading = true;
+    fetchSpy.mockResolvedValue(response([]));
+    renderPage(
+      <header>
+        <h1>경매장 거래내역</h1>
+        <p>데이터 안내</p>
+      </header>,
+    );
+    expect(
+      screen.getByRole("heading", { name: "경매장 거래내역" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("데이터 안내")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("로딩 중...");
   });
 
   it("마운트 시 현재 API 기본 파라미터를 보내고 거래 목록을 렌더링한다", async () => {
@@ -267,6 +309,60 @@ describe("TradeLogPage", () => {
       expect(lastQuery().has("itemName")).toBe(false);
       expect(lastQuery().get("itemTopCategory")).toBe("근거리 장비");
     });
+  });
+
+  it("does not overwrite incoming direct or back-navigation filters with stale state", async () => {
+    mockUrlParams = new URLSearchParams({
+      "metalwareSearchRequests[0].metalware": "최대 대미지",
+    });
+    fetchSpy.mockResolvedValue(response(["result"]));
+    const view = renderPage();
+    await waitFor(() =>
+      expect(lastQuery().get("metalwareSearchRequests[0].metalware")).toBe(
+        "최대 대미지",
+      ),
+    );
+    expect(mockRouter.replace).not.toHaveBeenCalled();
+    mockUrlParams = new URLSearchParams({ item_name: "뒤로 이동" });
+    view.rerender(
+      <QueryClientProvider client={queryClient}>
+        <TradeLogPage />
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(lastQuery().get("itemName")).toBe("뒤로 이동"));
+    expect(lastQuery().has("metalwareSearchRequests[0].metalware")).toBe(false);
+    expect(mockRouter.replace).not.toHaveBeenCalled();
+  });
+
+  it("preserves incoming options on a price-only apply and clears them only on options apply", async () => {
+    mockMobile = true;
+    mockUrlParams = new URLSearchParams({
+      "itemOptionSearchRequest.attackMaxSearch.attackMaxFrom": "10",
+    });
+    fetchSpy.mockResolvedValue(response(["result"]));
+    renderPage();
+    await waitFor(() =>
+      expect(
+        lastQuery().get(
+          "itemOptionSearchRequest.attackMaxSearch.attackMaxFrom",
+        ),
+      ).toBe("10"),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Mobile price" }));
+    await waitFor(() =>
+      expect(lastQuery().get("priceSearchRequest.priceFrom")).toBe("200"),
+    );
+    expect(
+      lastQuery().get("itemOptionSearchRequest.attackMaxSearch.attackMaxFrom"),
+    ).toBe("10");
+    fireEvent.click(screen.getByRole("button", { name: "Clear options" }));
+    await waitFor(() =>
+      expect(
+        lastQuery().has(
+          "itemOptionSearchRequest.attackMaxSearch.attackMaxFrom",
+        ),
+      ).toBe(false),
+    );
   });
 
   it("API 오류가 나면 로딩을 마치고 빈 목록을 렌더링한다", async () => {

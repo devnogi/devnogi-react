@@ -47,6 +47,7 @@ export default function MetalwareSearchFilter({
     top: number;
     left: number;
     width: number;
+    container: HTMLElement;
   } | null>(null);
 
   // activeDropdownId가 바뀔 때마다 해당 input 위치를 계산
@@ -62,6 +63,8 @@ export default function MetalwareSearchFilter({
       top: rect.bottom + 4, // mt-1 (4px)
       left: rect.left,
       width: rect.width,
+      // Keep portaled suggestions inside a modal focus/pointer boundary.
+      container: el.closest<HTMLElement>('[role="dialog"]') ?? document.body,
     });
   }, [activeDropdownId]);
 
@@ -248,11 +251,13 @@ export default function MetalwareSearchFilter({
                               type="button"
                               onMouseDown={(e) => {
                                 e.preventDefault();
-                                handleSelectSuggestion(item.id, suggestion);
                               }}
-                              className={`w-full px-3 py-2 text-left text-xs transition-colors first:rounded-t-xl last:rounded-b-xl ${
+                              onClick={() =>
+                                handleSelectSuggestion(item.id, suggestion)
+                              }
+                              className={`min-h-11 w-full px-3 py-2 text-left text-xs transition-colors first:rounded-t-xl last:rounded-b-xl ${
                                 item.name === suggestion
-                                  ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10 text-[var(--color-ds-primary)] font-medium"
+                                  ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-medium"
                                   : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-navy-600"
                               }`}
                             >
@@ -260,7 +265,7 @@ export default function MetalwareSearchFilter({
                             </button>
                           ))}
                         </div>,
-                        document.body,
+                        dropdownPos.container,
                       )}
                   </div>
                   <button

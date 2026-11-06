@@ -228,13 +228,17 @@ export default function StatisticsSearchForm({
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-3 lg:flex-row lg:items-end">
         {/* Top Category */}
         <div className="flex-1 min-w-0">
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-            탑 카테고리
+          <label
+            htmlFor="statistics-top-category"
+            className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+          >
+            상위 분류
           </label>
           <select
+            id="statistics-top-category"
             value={topCategory}
             onChange={(e) => handleTopCategorySelect(e.target.value)}
-            className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
+            className="w-full h-11 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]"
           >
             <option value="">선택하세요</option>
             {topCategories.map((cat) => (
@@ -248,14 +252,18 @@ export default function StatisticsSearchForm({
         {/* Sub Category - only for item and subcategory tabs */}
         {activeTab !== "top-category" && (
           <div className="flex-1 min-w-0">
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              서브 카테고리
+            <label
+              htmlFor="statistics-sub-category"
+              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >
+              하위 분류
             </label>
             <select
+              id="statistics-sub-category"
               value={subCategory}
               onChange={(e) => handleSubCategorySelect(e.target.value)}
               disabled={!topCategory}
-              className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 disabled:opacity-50"
+              className="w-full h-11 px-3 text-sm rounded-lg border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)] disabled:opacity-50"
             >
               <option value="">선택하세요</option>
               {subCategories.map((cat) => (
@@ -270,11 +278,15 @@ export default function StatisticsSearchForm({
         {/* Item Name - only for item tab */}
         {activeTab === "item" && (
           <div className="flex-1 min-w-0">
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label
+              htmlFor="statistics-item-name"
+              className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            >
               아이템명
             </label>
             <div className="relative">
               <input
+                id="statistics-item-name"
                 ref={inputRef}
                 type="text"
                 value={itemName}
@@ -311,7 +323,7 @@ export default function StatisticsSearchForm({
                   }
                 }}
                 placeholder="아이템명을 입력하세요"
-                className="w-full h-10 px-4 pr-10 text-sm rounded-full border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20"
+                className="w-full h-11 px-4 pr-10 text-sm rounded-full border border-gray-200 dark:border-navy-600 bg-white dark:bg-navy-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]"
               />
               {itemName && (
                 <button
@@ -359,7 +371,7 @@ export default function StatisticsSearchForm({
                               className={clsx(
                                 "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0",
                                 selectedIndex === index
-                                  ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/20 text-[var(--color-ds-primary)]"
+                                  ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]"
                                   : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                               )}
                             >
@@ -410,7 +422,7 @@ export default function StatisticsSearchForm({
                             className={clsx(
                               "w-full text-left px-4 py-3 transition-colors border-b border-gray-100 dark:border-navy-600 last:border-b-0 flex items-start gap-3",
                               selectedIndex === index
-                                ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/20 text-[var(--color-ds-primary)]"
+                                ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)]"
                                 : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-navy-600",
                             )}
                           >
@@ -440,7 +452,7 @@ export default function StatisticsSearchForm({
         <button
           type="submit"
           disabled={isSearchDisabled()}
-          className="h-10 px-6 text-sm font-medium text-primary-foreground bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="h-11 px-6 text-sm font-medium text-primary-foreground bg-[var(--color-ds-primary)] hover:bg-[var(--color-ds-primary-hover)] rounded-lg transition-colors flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-ds-primary)] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <Search className="w-4 h-4" />
           조회

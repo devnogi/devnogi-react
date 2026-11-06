@@ -112,7 +112,7 @@ export default function AuctionDetailView({ result, returnTo }: Props) {
       <div className="mx-auto max-w-3xl rounded-2xl border bg-white p-8 text-center dark:bg-navy-800">
         <h1 className="text-xl font-bold">{message}</h1>
         <Link
-          className="mt-6 inline-flex rounded-lg bg-[var(--color-ds-primary)] px-5 py-3 font-semibold text-white"
+          className="mt-6 inline-flex rounded-lg bg-[var(--color-ds-primary)] px-5 py-3 font-semibold text-primary-foreground"
           href={returnTo}
         >
           목록으로 돌아가기
@@ -188,7 +188,8 @@ export default function AuctionDetailView({ result, returnTo }: Props) {
                 key={value}
                 type="button"
                 onClick={() => setPeriod(value)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium ${period === value ? "bg-[var(--color-ds-primary)] text-white" : "text-gray-600"}`}
+                aria-pressed={period === value}
+                className={`min-h-11 rounded-md px-3 py-1.5 text-sm font-medium ${period === value ? "bg-[var(--color-ds-primary)] text-primary-foreground" : "text-muted-foreground"}`}
               >
                 {value === "daily" ? "최근 30일" : "최근 120일"}
               </button>

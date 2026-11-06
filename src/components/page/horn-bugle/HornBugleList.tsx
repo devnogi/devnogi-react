@@ -24,18 +24,17 @@ export default function HornBugleList({
 }: HornBugleListProps) {
   if (isLoading && items.length === 0) {
     return (
-      <div className="space-y-4">
+      <div
+        role="status"
+        aria-label="뿔피리를 불러오는 중"
+        className="overflow-hidden rounded-lg border border-gray-200 bg-white divide-y divide-gray-100 dark:border-navy-600 dark:bg-navy-800 dark:divide-navy-600"
+      >
         {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white dark:bg-navy-700 rounded-lg border border-gray-200 dark:border-navy-600 p-5 animate-pulse"
-          >
+          <div key={i} className="px-4 py-2 animate-pulse">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-gray-200 dark:bg-navy-600 rounded-full" />
               <div className="flex-1 space-y-2">
                 <div className="h-4 bg-gray-200 dark:bg-navy-600 rounded w-24" />
                 <div className="h-5 bg-gray-200 dark:bg-navy-600 rounded w-3/4" />
-                <div className="h-3 bg-gray-200 dark:bg-navy-600 rounded w-20" />
               </div>
             </div>
           </div>
@@ -66,35 +65,32 @@ export default function HornBugleList({
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white divide-y divide-gray-100 dark:border-navy-600 dark:bg-navy-800 dark:divide-navy-600">
       {items.map((item) => (
-        <div key={item.id} className="px-4 py-3">
+        <div key={item.id} className="px-4 py-2">
           <div className="flex items-start gap-3">
-            {/* 아이콘 */}
-            <div className="w-8 h-8 rounded-full bg-[var(--color-ds-primary-50)] flex items-center justify-center flex-shrink-0">
-              <Megaphone className="w-5 h-5 text-[var(--color-ds-primary)]" />
-            </div>
-
-            {/* 내용 */}
             <div className="flex-1 min-w-0">
               {/* 헤더: 서버 배지 + 캐릭터명 */}
-              <div className="flex items-center gap-2 mb-2">
+              <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${serverColors[item.serverName] || "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"}`}
                 >
                   {item.serverName}
                 </span>
-                <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                <span className="min-w-0 max-w-full break-words font-semibold text-gray-900 dark:text-white text-sm">
                   {item.characterName}
                 </span>
+                <time
+                  dateTime={item.dateSend}
+                  className="ml-auto text-xs text-gray-500 dark:text-gray-400"
+                >
+                  {formatTime(item.dateSend)}
+                </time>
               </div>
 
               {/* 메시지 */}
               <p className="text-gray-700 dark:text-gray-300 text-[13px] leading-5 break-words whitespace-pre-wrap">
-                {item.message}
-              </p>
-
-              {/* 시간 */}
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                {formatTime(item.dateSend)}
+                {item.message.startsWith(`${item.characterName} : `)
+                  ? item.message.slice(item.characterName.length + 3)
+                  : item.message}
               </p>
             </div>
           </div>

@@ -65,7 +65,7 @@ export default function HomeLanding() {
         <div className="mx-auto w-full space-y-8 lg:w-[60vw] lg:max-w-[1000px]">
           <HomeRankingCards />
           <details className="group border-t border-gray-200 dark:border-navy-600">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-sm px-1 text-sm font-semibold text-gray-700 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a63f20] dark:text-gray-300 dark:hover:text-gray-50 [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-sm px-1 text-sm font-semibold text-gray-700 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:text-gray-300 dark:hover:text-gray-50 [&::-webkit-details-marker]:hidden">
               주요 기능 보기
               <ChevronDown
                 aria-hidden="true"
@@ -77,7 +77,7 @@ export default function HomeLanding() {
                 <Link
                   key={href}
                   href={href}
-                  className="flex min-h-24 items-start gap-4 border-b border-gray-200 px-3 py-4 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a63f20] dark:border-navy-600 dark:hover:bg-navy-700"
+                  className="flex min-h-24 items-start gap-4 border-b border-gray-200 px-3 py-4 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:border-navy-600 dark:hover:bg-navy-700"
                 >
                   <Icon
                     className="mt-0.5 h-5 w-5 shrink-0 text-gray-600 dark:text-gray-300"

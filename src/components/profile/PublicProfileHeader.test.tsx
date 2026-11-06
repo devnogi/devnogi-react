@@ -55,3 +55,35 @@ it("현재 미인증이어도 기존 인증 횟수를 함께 표시한다", () =
   );
   expect(screen.getByText("인게임 미인증 · 인증 3회")).toBeInTheDocument();
 });
+
+it("인증 이력이 없으면 0회 문구를 숨기고 긴 이름과 소개는 보존한다", () => {
+  const nickname = "긴이름을가진밀레시안의프로필입니다";
+  const bio = "여러 줄의 소개\n함께 에린을 여행해요.";
+  render(
+    <PublicProfileHeader
+      profile={{
+        userId: 7,
+        nickname,
+        profileImageUrl: null,
+        serverName: null,
+        verified: false,
+        verificationCount: 0,
+        mainChannel: 8,
+        guildName: "에린 모험가",
+        race: null,
+        arcana: null,
+        preferredColors: [],
+        mbti: null,
+        bio,
+      }}
+    />,
+  );
+  expect(screen.getByRole("heading", { name: nickname })).toBeInTheDocument();
+  expect(screen.getByText("인게임 미인증")).toBeInTheDocument();
+  expect(screen.queryByText(/0회/)).not.toBeInTheDocument();
+  expect(
+    screen.getByText("여러 줄의 소개 함께 에린을 여행해요.").textContent,
+  ).toBe(bio);
+  expect(screen.getByText("8채널")).toBeInTheDocument();
+  expect(screen.getByText("에린 모험가")).toBeInTheDocument();
+});

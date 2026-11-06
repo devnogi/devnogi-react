@@ -41,7 +41,7 @@ const RecursiveCategoryItem = ({
         className={clsx(
           "px-2 py-2 cursor-pointer text-sm rounded-lg flex items-center transition-colors",
           isSelected
-            ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/20 text-[var(--color-ds-primary)] font-semibold"
+            ? "bg-[var(--color-ds-primary-50)] text-[var(--color-ds-primary)] font-semibold"
             : "text-cream-700 dark:text-gray-300 hover:bg-cream-100 dark:hover:bg-navy-600",
         )}
         onClick={handleSelect}

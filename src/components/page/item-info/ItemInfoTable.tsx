@@ -49,9 +49,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
               {item.inventoryWidth && item.inventoryHeight && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">
-                    인벤토리 크기:{" "}
-                  </span>
+                  <span className="text-muted-foreground">인벤토리 크기: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.inventoryWidth} x {item.inventoryHeight}
                   </span>
@@ -59,9 +57,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.inventoryMaxBundleCount && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">
-                    최대 번들:{" "}
-                  </span>
+                  <span className="text-muted-foreground">최대 번들: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.inventoryMaxBundleCount}개
                   </span>
@@ -69,9 +65,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.weaponType && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">
-                    무기 타입:{" "}
-                  </span>
+                  <span className="text-muted-foreground">무기 타입: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.weaponType}
                   </span>
@@ -79,9 +73,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.maxAlterationCount && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">
-                    최대 개조:{" "}
-                  </span>
+                  <span className="text-muted-foreground">최대 개조: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.maxAlterationCount}회
                   </span>
@@ -89,9 +81,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.storeSalesPrice && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">
-                    상점 판매가:{" "}
-                  </span>
+                  <span className="text-muted-foreground">상점 판매가: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.storeSalesPrice}
                   </span>
@@ -99,9 +89,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.repair && (
                 <div>
-                  <span className="text-[var(--color-ds-disabled)]">
-                    수리 정보:{" "}
-                  </span>
+                  <span className="text-muted-foreground">수리 정보: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.repair}
                   </span>
@@ -109,9 +97,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.history && (
                 <div className="col-span-full">
-                  <span className="text-[var(--color-ds-disabled)]">
-                    역사:{" "}
-                  </span>
+                  <span className="text-muted-foreground">역사: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.history}
                   </span>
@@ -119,9 +105,7 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
               )}
               {item.acquisitionMethod && (
                 <div className="col-span-full">
-                  <span className="text-[var(--color-ds-disabled)]">
-                    입수 방법:{" "}
-                  </span>
+                  <span className="text-muted-foreground">입수 방법: </span>
                   <span className="text-[var(--color-ds-text)]">
                     {item.acquisitionMethod}
                   </span>
@@ -158,8 +142,8 @@ export default function ItemInfoTable({
     return (
       <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] p-8 text-center">
         <Package className="w-12 h-12 text-[var(--color-ds-disabled)] mx-auto mb-3" />
-        <p className="text-[var(--color-ds-disabled)]">검색 결과가 없습니다.</p>
-        <p className="text-sm text-[var(--color-ds-disabled)] mt-1">
+        <p className="text-muted-foreground">검색 결과가 없습니다.</p>
+        <p className="text-sm text-muted-foreground mt-1">
           다른 카테고리나 검색어를 시도해보세요.
         </p>
       </div>

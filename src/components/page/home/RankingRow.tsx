@@ -33,7 +33,7 @@ export default function RankingRow({
       </div>
       <div className="text-right">
         <p
-          className={`text-[13px] font-semibold leading-4 ${accent ? "text-[#9a451f] dark:text-orange-300" : "text-gray-900 dark:text-gray-100"}`}
+          className={`text-[13px] font-semibold leading-4 ${accent ? "text-primary" : "text-gray-900 dark:text-gray-100"}`}
         >
           {value}
         </p>

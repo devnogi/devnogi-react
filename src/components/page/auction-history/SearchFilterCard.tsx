@@ -551,7 +551,7 @@ export default function SearchFilterCard({
         onClick={() => onExactItemNameChange?.(!isExactItemName)}
         className={`w-full rounded-lg border cursor-pointer py-2 px-3 flex items-center gap-2.5 transition-all ${
           isExactItemName
-            ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10 border-[var(--color-ds-primary)]"
+            ? "bg-[var(--color-ds-primary-50)] border-[var(--color-ds-primary)]"
             : "bg-white dark:bg-navy-700 border-gray-200 dark:border-navy-500 hover:border-gray-300 dark:hover:border-navy-400"
         }`}
       >
@@ -586,7 +586,7 @@ export default function SearchFilterCard({
         onClick={() => onItemPreviewEnabledChange?.(!isItemPreviewEnabled)}
         className={`flex w-full cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2 transition-all ${
           isItemPreviewEnabled
-            ? "border-[var(--color-ds-primary)] bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10"
+            ? "border-[var(--color-ds-primary)] bg-[var(--color-ds-primary-50)]"
             : "border-gray-200 bg-white hover:border-gray-300 dark:border-navy-500 dark:bg-navy-700"
         }`}
       >
@@ -665,7 +665,7 @@ export default function SearchFilterCard({
                     onClick={() => handleDatePresetSelect(preset.value)}
                     className={`h-8 rounded-lg text-xs transition-all ${
                       selectedDatePreset === preset.value
-                        ? "bg-[var(--color-ds-primary-50)] dark:bg-[var(--color-ds-primary)]/10 border border-[var(--color-ds-primary)] text-[var(--color-ds-primary)] font-semibold"
+                        ? "bg-[var(--color-ds-primary-50)] border border-[var(--color-ds-primary)] text-[var(--color-ds-primary)] font-semibold"
                         : "border border-gray-300 dark:border-navy-500 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-navy-600"
                     }`}
                   >
