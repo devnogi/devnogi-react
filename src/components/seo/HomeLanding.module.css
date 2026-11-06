@@ -4,11 +4,50 @@
   overflow-x: clip;
 }
 
-/* Use the scrollbar-free body width when sizing the overlapping card. */
+/* Use the scrollbar-free body width for the full-bleed home surface. */
 :global(body):has(.home) {
   container-type: inline-size;
 }
 
 .home {
   min-width: 0;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 224px;
+  padding: 32px 0 72px;
+}
+.searchContainer,
+.content {
+  width: calc(100% - 32px);
+  max-width: 1120px;
+  margin-inline: auto;
+}
+.searchContainer {
+  position: relative;
+  z-index: 20;
+  pointer-events: none;
+}
+.searchGroup {
+  max-width: 720px;
+  pointer-events: auto;
+}
+.content {
+  padding: 24px 0 32px;
+}
+@media (min-width: 768px) {
+  .hero {
+    min-height: 280px;
+    padding: 48px 0 64px;
+  }
+  .searchContainer,
+  .content {
+    width: calc(100% - 48px);
+  }
+  .content {
+    padding-top: 32px;
+  }
 }

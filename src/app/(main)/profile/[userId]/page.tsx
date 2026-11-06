@@ -45,7 +45,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const profile = await getProfile(userId);
 
   return (
-    <div className="mx-auto w-full max-w-4xl pb-8">
+    <div className="visual-polish mx-auto w-full max-w-4xl pb-8">
       <PublicProfileHeader profile={profile} />
       <ProfileActivityFeed userId={profile.userId} />
     </div>

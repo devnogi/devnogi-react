@@ -96,7 +96,7 @@ export default function PostCard({ post }: Props) {
   if (deleted) return null;
   if (editing) {
     return (
-      <article className="border-b border-gray-200 bg-white dark:border-navy-600 dark:bg-navy-800">
+      <article className="border-b border-border bg-card">
         <PostComposer
           postId={post.id}
           initialContent={post.content}
@@ -109,7 +109,7 @@ export default function PostCard({ post }: Props) {
   }
 
   return (
-    <article className="border-b border-gray-200 bg-white px-4 py-4 last:border-b-0 dark:border-navy-600 dark:bg-navy-800 sm:px-5">
+    <article className="border-b border-border bg-card px-4 py-5 last:border-b-0 sm:px-5">
       <div className="flex gap-3">
         <Link
           href={profileHref}
@@ -133,12 +133,12 @@ export default function PostCard({ post }: Props) {
             <div className="min-w-0">
               <Link
                 href={profileHref}
-                className="inline-flex max-w-full items-center gap-1 font-semibold text-gray-900 hover:underline dark:text-gray-100"
+                className="inline-flex max-w-full items-center gap-1 text-[15px] leading-[22px] font-semibold tracking-[-0.01em] text-card-foreground hover:underline"
               >
                 <span className="truncate">{post.author.nickname}</span>
                 {post.author.verified && <VerifiedBadge size="sm" />}
               </Link>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
+              <div className="text-xs leading-[18px] text-muted-foreground">
                 <span>{post.author.serverName || "에린"}</span>
                 <span aria-hidden="true"> · </span>
                 <Link
@@ -159,7 +159,7 @@ export default function PostCard({ post }: Props) {
                 className="flex h-11 w-11 items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-navy-700"
                 aria-label="게시글 메뉴"
               >
-                <MoreHorizontal className="h-5 w-5" />
+                <MoreHorizontal className="h-[18px] w-[18px]" />
               </button>
               {menuOpen && (
                 <div className="absolute right-0 top-10 z-10 w-28 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-md dark:border-navy-600 dark:bg-navy-700">
@@ -204,20 +204,20 @@ export default function PostCard({ post }: Props) {
           </header>
           <Link
             href={`/community/${post.id}`}
-            className="mt-2 block whitespace-pre-wrap break-words text-[15px] leading-6 text-gray-900 dark:text-gray-100"
+            className="mt-3 block whitespace-pre-wrap break-words text-[15px] leading-6 font-normal tracking-[-0.01em] text-card-foreground"
           >
             {post.content}
           </Link>
           {post.media.length > 0 && (
             <div
-              className={`mt-3 grid overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-navy-600 dark:bg-navy-700 ${post.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+              className={`mt-4 grid gap-1 overflow-hidden rounded-xl border border-border bg-muted ${post.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
             >
-              {post.media.map((media) =>
+              {post.media.map((media, index) =>
                 media.kind === "VIDEO" ? (
                   <video
                     key={media.id}
                     src={media.url}
-                    className="max-h-[520px] min-h-48 w-full object-cover"
+                    className={`aspect-video max-h-[520px] w-full min-w-0 self-center bg-black object-contain ${post.media.length % 2 === 1 && post.media.length > 1 && index === 0 ? "col-span-2" : ""}`}
                     controls
                     preload="metadata"
                   />
@@ -225,26 +225,28 @@ export default function PostCard({ post }: Props) {
                   <Link
                     href={`/community/${post.id}`}
                     key={media.id}
-                    className="block"
+                    className={`block min-w-0 ${post.media.length % 2 === 1 && post.media.length > 1 && index === 0 ? "col-span-2" : ""}`}
                   >
                     <img
                       src={media.url}
                       alt="게시글 첨부 이미지"
-                      className="max-h-[520px] min-h-48 w-full object-cover"
+                      className={`max-h-[520px] w-full object-contain ${post.media.length > 1 ? "aspect-video" : "h-auto"}`}
                     />
                   </Link>
                 ),
               )}
             </div>
           )}
-          <div className="mt-2 flex items-center justify-between text-gray-500 dark:text-gray-400">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-y-1 text-xs leading-[18px] text-muted-foreground sm:justify-start sm:gap-x-6">
             <Link
               href={`/community/${post.id}#comments`}
               className="flex h-11 min-w-11 items-center gap-1.5 rounded-full px-2 hover:bg-gray-100 dark:hover:bg-navy-700"
               aria-label={`댓글 ${post.commentCount}개`}
             >
               <MessageCircle className="h-[18px] w-[18px]" />
-              <span className="text-xs">{post.commentCount}</span>
+              <span className="text-xs leading-[18px] tabular-nums">
+                {post.commentCount}
+              </span>
             </Link>
             <button
               type="button"
@@ -256,7 +258,9 @@ export default function PostCard({ post }: Props) {
               <Heart
                 className={`h-[18px] w-[18px] ${liked ? "fill-current" : ""}`}
               />
-              <span className="text-xs">{likeCount}</span>
+              <span className="text-xs leading-[18px] tabular-nums">
+                {likeCount}
+              </span>
             </button>
             <button
               type="button"
@@ -278,7 +282,7 @@ export default function PostCard({ post }: Props) {
               <Share2 className="h-[18px] w-[18px]" />
             </button>
             <span
-              className="flex h-11 items-center gap-1 px-2 text-xs"
+              className="flex h-11 items-center gap-1 px-2 text-xs leading-[18px] tabular-nums"
               aria-label={`조회수 ${post.viewCount}`}
             >
               <Eye className="h-[18px] w-[18px]" />

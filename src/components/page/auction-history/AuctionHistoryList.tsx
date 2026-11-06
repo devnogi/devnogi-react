@@ -72,14 +72,14 @@ function HistoryDesktopRow({
     <Popover open={previewEnabled && open} onOpenChange={setOpen}>
       <Link
         href={href}
-        className="grid grid-cols-12 gap-4 px-4 py-2 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-ds-primary)]"
+        className="grid min-h-16 grid-cols-[minmax(0,1fr)_72px_184px_88px_32px] items-center gap-2.5 px-4 py-3 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-ds-primary)]"
         onFocus={() => previewEnabled && setOpen(true)}
         onBlur={() => setOpen(false)}
       >
-        <div className="col-span-5 flex min-w-0 items-center">
+        <div className="flex min-w-0 items-center">
           <PopoverAnchor asChild>
             <span
-              className="truncate text-[13px] font-medium text-[var(--color-ds-text)]"
+              className="min-w-0 break-words text-sm leading-5 font-medium text-[var(--color-ds-text)]"
               onMouseEnter={() => previewEnabled && setOpen(true)}
               onMouseLeave={() => setOpen(false)}
             >
@@ -87,21 +87,21 @@ function HistoryDesktopRow({
             </span>
           </PopoverAnchor>
         </div>
-        <div className="col-span-2 flex items-center justify-center">
-          <Badge className="rounded-md border-0 bg-[var(--color-ds-primary-50)] px-2 py-0.5 text-xs text-[var(--color-ds-primary)]">
+        <div className="flex min-w-0 items-center justify-center">
+          <Badge className="max-w-full rounded-md border-0 bg-[var(--color-ds-primary-50)] px-2 py-0.5 text-center text-xs leading-[18px] whitespace-normal break-words text-[var(--color-ds-primary)]">
             {item.itemSubCategory}
           </Badge>
         </div>
-        <div className="col-span-2 flex items-center justify-end whitespace-nowrap text-[13px] font-bold text-[var(--color-ds-primary)]">
+        <div className="flex items-baseline justify-end whitespace-nowrap text-[15px] leading-5 font-semibold tabular-nums text-[var(--color-ds-text)]">
           {formatPrice(item.auctionPricePerUnit)}
-          <span className="ml-1 text-sm font-normal text-muted-foreground">
+          <span className="ml-1 text-xs leading-[18px] font-normal text-muted-foreground">
             G
           </span>
         </div>
-        <div className="col-span-2 flex items-center justify-center text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center justify-center whitespace-nowrap text-xs leading-[18px] tabular-nums text-muted-foreground">
           {formatDateShort(item.dateAuctionBuy)}
         </div>
-        <div className="col-span-1 flex items-center justify-center text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center justify-center whitespace-nowrap text-xs leading-[18px] tabular-nums text-muted-foreground">
           {item.itemCount}
         </div>
       </Link>
@@ -136,13 +136,13 @@ export default function AuctionHistoryList({
 
   if (isLoading)
     return (
-      <div className="rounded-lg border bg-white py-12 text-center text-muted-foreground dark:bg-navy-700">
+      <div className="visual-polish rounded-lg border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] py-12 text-center text-muted-foreground">
         로딩 중...
       </div>
     );
   if (items.length === 0)
     return (
-      <div className="rounded-lg border bg-white py-12 text-center dark:bg-navy-700">
+      <div className="visual-polish rounded-lg border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] py-12 text-center">
         <p className="text-lg text-muted-foreground">검색 결과가 없습니다.</p>
         <p className="mt-2 text-sm text-muted-foreground">
           다른 검색 조건으로 시도해보세요.
@@ -152,28 +152,32 @@ export default function AuctionHistoryList({
 
   return (
     <>
-      <div className="overflow-hidden rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white md:hidden dark:bg-navy-700">
+      <div className="visual-polish overflow-hidden rounded-lg border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] md:hidden">
         <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item) => (
             <Link
               key={item.auctionBuyId}
               href={hrefFor(item.auctionBuyId)}
-              className="block px-4 py-3 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-[var(--color-ds-primary)]"
+              className="block px-4 py-4 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-[var(--color-ds-primary)]"
             >
-              <div className="mb-1 min-h-[14px] text-[10px] text-muted-foreground">
-                {enchantPrefix(item.itemDisplayName, item.itemName) || "\u00A0"}
-              </div>
-              <div className="mb-1 flex items-center justify-between gap-2">
-                <h3 className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[var(--color-ds-text)]">
+              <div className="mb-2 flex items-start justify-between gap-3">
+                <h3 className="min-w-0 flex-1 line-clamp-2 break-words text-sm leading-5 font-medium text-[var(--color-ds-text)]">
                   {itemNameWithoutAttributes(item.itemName)}
                 </h3>
-                <span className="whitespace-nowrap text-[13px] font-bold text-[var(--color-ds-primary)]">
+                <span className="shrink-0 whitespace-nowrap text-[15px] leading-5 font-semibold tabular-nums text-[var(--color-ds-text)]">
                   {formatPrice(item.auctionPricePerUnit)}{" "}
-                  <span className="font-normal text-muted-foreground">G</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    G
+                  </span>
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                <span className="truncate">
+              {enchantPrefix(item.itemDisplayName, item.itemName) && (
+                <div className="mb-1 break-words text-xs leading-[18px] text-muted-foreground">
+                  {enchantPrefix(item.itemDisplayName, item.itemName)}
+                </div>
+              )}
+              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 text-xs leading-[18px] tabular-nums text-muted-foreground">
+                <span className="min-w-0 break-words">
                   {itemAttributes(item.itemName)
                     .map((value) => `#${value}`)
                     .join(" ")}
@@ -187,15 +191,15 @@ export default function AuctionHistoryList({
           ))}
         </div>
       </div>
-      <div className="hidden overflow-hidden rounded-lg border border-[var(--color-ds-neutral-tone)] bg-white md:block dark:bg-navy-700">
-        <div className="grid grid-cols-12 gap-4 border-b border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-neutral-50)] px-4 py-2 text-sm font-semibold text-[var(--color-ds-ornamental)]">
-          <div className="col-span-5">아이템 이름</div>
-          <div className="col-span-2 text-center">카테고리</div>
-          <div className="col-span-2 text-right">가격</div>
-          <div className="col-span-2 text-center">거래일시</div>
-          <div className="col-span-1 text-center">수량</div>
+      <div className="visual-polish hidden overflow-hidden rounded-lg border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] md:block">
+        <div className="grid grid-cols-[minmax(0,1fr)_72px_184px_88px_32px] gap-2.5 border-b border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-neutral-50)] px-4 py-2 text-xs leading-[18px] font-medium text-muted-foreground">
+          <div className="min-w-0">아이템 이름</div>
+          <div className="text-center">카테고리</div>
+          <div className="text-right">가격</div>
+          <div className="text-center">거래일시</div>
+          <div className="text-center">수량</div>
         </div>
-        <div className="divide-y divide-[var(--color-ds-neutral-100)]">
+        <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item) => (
             <HistoryDesktopRow
               key={item.auctionBuyId}

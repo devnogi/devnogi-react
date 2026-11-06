@@ -73,10 +73,8 @@ export default function CommentForm({
               ? "답글을 작성하세요..."
               : "댓글을 작성하세요..."
         }
-        className={`w-full px-4 py-3 border border-gray-200 dark:border-navy-500 rounded-xl bg-white dark:bg-navy-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-ds-primary)]/20 focus:border-[var(--color-ds-primary)] resize-none ${
-          !isAuthenticated
-            ? "bg-gray-100 dark:bg-navy-700 cursor-not-allowed"
-            : ""
+        className={`w-full resize-none rounded-lg border border-border px-4 py-3 text-[15px] leading-6 font-normal tracking-[-0.01em] text-card-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20 ${
+          !isAuthenticated ? "bg-muted cursor-not-allowed" : "bg-card"
         }`}
         rows={parentCommentId ? 2 : 3}
         disabled={isSubmitting || !isAuthenticated}
@@ -89,7 +87,7 @@ export default function CommentForm({
             size="sm"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="rounded-xl"
+            className="min-h-11 rounded-lg"
           >
             취소
           </Button>
@@ -99,7 +97,7 @@ export default function CommentForm({
           size="sm"
           disabled={isSubmitting || (isAuthenticated && !content.trim())}
           onClick={!isAuthenticated ? handleDisabledClick : undefined}
-          className={`rounded-xl ${
+          className={`min-h-11 rounded-lg ${
             !isAuthenticated ? "opacity-50 saturate-50 cursor-not-allowed" : ""
           }`}
         >

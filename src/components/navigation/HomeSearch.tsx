@@ -177,6 +177,12 @@ export function HomeSearch({
         }
       }}
     >
+      {location === "hero" && (
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-foreground"
+        />
+      )}
       <input
         type="search"
         aria-label={label}
@@ -215,7 +221,7 @@ export function HomeSearch({
             setSelected(-1);
           }
         }}
-        className={`${styles.input} w-full border bg-white text-gray-900 placeholder:text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:border-navy-500 dark:bg-navy-700 dark:text-white ${location === "hero" ? "h-14 rounded-full border-border pl-5 pr-28 text-base shadow-sm" : "h-10 rounded-xl border-gray-300 bg-gray-50 pl-3 pr-16 text-sm"}`}
+        className={`${styles.input} w-full border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${location === "hero" ? "h-[52px] rounded-lg border-border bg-[var(--color-ds-card)] pl-12 pr-24 text-sm text-[var(--color-ds-text)] placeholder:text-muted-foreground md:h-14 md:text-[15px]" : "h-10 rounded-xl border-gray-300 bg-white bg-gray-50 pl-3 pr-16 text-sm text-gray-900 placeholder:text-gray-500 dark:border-navy-500 dark:bg-navy-700 dark:text-white"}`}
       />
       <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
         {value && (
@@ -237,7 +243,7 @@ export function HomeSearch({
           aria-label={`${label} 실행`}
           className={
             location === "hero"
-              ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-[var(--color-ds-primary-hover)]"
+              ? "min-h-11 min-w-11 rounded-lg px-3 text-sm font-semibold text-foreground hover:bg-secondary"
               : "rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-navy-600"
           }
         >

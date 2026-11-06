@@ -11,7 +11,7 @@ export default function PopularItemLinks() {
   return (
     <nav
       aria-label="오늘 많이 거래된 아이템"
-      className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-stone-950/85 px-4 py-2 text-sm text-white"
+      className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-white [text-shadow:0_1px_3px_#000]"
     >
       <span className="text-xs font-medium text-stone-200">
         오늘 많이 거래된 아이템

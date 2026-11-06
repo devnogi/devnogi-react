@@ -113,15 +113,6 @@ async function fetchAllTimeRanking(
   return result.data ?? [];
 }
 
-export function useAllTimeHighestPriceRanking(limit: number = 10) {
-  return useQuery({
-    queryKey: ["ranking", "all-time", "highest-price", limit],
-    queryFn: () => fetchAllTimeRanking("highest-price", limit),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-}
-
 export function useMonthLargestVolumeRanking(limit: number = 10) {
   return useQuery({
     queryKey: ["ranking", "all-time", "month-largest", limit],

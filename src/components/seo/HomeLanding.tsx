@@ -44,25 +44,20 @@ const featureLinks = [
 export default function HomeLanding() {
   return (
     <div
-      className={`${styles.home} relative left-1/2 -mt-6 -mb-6 w-screen -translate-x-1/2 bg-[var(--color-ds-background)] md:-mt-8 md:-mb-8 dark:bg-navy-900`}
+      className={`${styles.home} visual-polish relative left-1/2 -mt-6 -mb-6 w-[100cqw] -translate-x-1/2 bg-[var(--color-ds-background)] md:-mt-8 md:-mb-8`}
     >
-      <section
-        className="relative flex min-h-[280px] items-center justify-center px-4 py-10 md:h-[320px]"
-        aria-label="아이템 검색"
-      >
+      <section className={styles.hero} aria-label="아이템 검색">
         <HomeHeroCarousel />
-        <div className="relative z-20 w-full max-w-2xl">
-          <HomeSearch location="hero" />
-          <PopularItemLinks />
+        <div className={styles.searchContainer}>
+          <div className={styles.searchGroup}>
+            <HomeSearch location="hero" />
+            <PopularItemLinks />
+          </div>
         </div>
       </section>
 
-      <div
-        role="region"
-        aria-label="홈 콘텐츠"
-        className="relative z-10 mx-auto mt-6 w-[calc(100cqw_-_24px)] rounded-t-[20px] bg-[var(--color-ds-background)] px-4 py-8 sm:px-6 md:mt-8 md:rounded-t-[24px] lg:w-[66.7vw] lg:max-w-[1120px] lg:px-0 lg:py-10 dark:bg-navy-800"
-      >
-        <div className="mx-auto w-full space-y-8 lg:w-[60vw] lg:max-w-[1000px]">
+      <div role="region" aria-label="홈 콘텐츠" className={styles.content}>
+        <div className="w-full space-y-8">
           <HomeRankingCards />
           <details className="group border-t border-gray-200 dark:border-navy-600">
             <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-sm px-1 text-sm font-semibold text-gray-700 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:text-gray-300 dark:hover:text-gray-50 [&::-webkit-details-marker]:hidden">
@@ -103,12 +98,12 @@ export default function HomeLanding() {
             <div className="flex items-center gap-2">
               <h2
                 id="data-source-heading"
-                className="text-lg font-semibold text-gray-900 dark:text-gray-50"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 데이터 안내
               </h2>
             </div>
-            <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+            <p className="mt-2 text-xs leading-[18px] text-muted-foreground">
               이 서비스의 경매장 정보는 NEXON Open API를 기반으로 제공합니다.
               게임 내 실제 정보와 차이가 있을 수 있으므로 거래 전에는 게임에서
               다시 확인해 주세요.

@@ -87,7 +87,7 @@ describe("HomeLanding", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("검색은 히어로에 두고 기존 콘텐츠 전체를 겹침 카드에 담는다", () => {
+  it("검색은 히어로에 두고 본문과 기존 기능 링크를 유지한다", () => {
     render(<HomeLanding />);
 
     const hero = screen.getByRole("region", { name: "아이템 검색" });
@@ -105,18 +105,6 @@ describe("HomeLanding", () => {
     expect(
       within(hero).getByRole("search", { name: "메인 아이템 검색" }),
     ).toBeInTheDocument();
-    expect(hero).toHaveClass("min-h-[280px]", "md:h-[320px]");
-    expect(card).toHaveClass(
-      "mt-6",
-      "md:mt-8",
-      "rounded-t-[20px]",
-      "md:rounded-t-[24px]",
-    );
-    expect(card).toHaveClass(
-      "w-[calc(100cqw_-_24px)]",
-      "lg:w-[66.7vw]",
-      "lg:max-w-[1120px]",
-    );
 
     expect(
       within(card).getByRole("heading", { name: "데이터 안내" }),

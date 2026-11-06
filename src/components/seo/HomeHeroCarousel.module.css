@@ -1,0 +1,62 @@
+.image {
+  object-fit: cover;
+  filter: brightness(0.71) saturate(0.78);
+  transition: opacity 1200ms ease-in-out;
+}
+.library {
+  object-position: 35% 60%;
+}
+.winter {
+  object-position: 50% 55%;
+  filter: brightness(0.69) saturate(0.8);
+}
+.controls {
+  position: absolute;
+  z-index: 30;
+  right: max(16px, calc((100% - 1120px) / 2));
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ffffff50;
+  border-radius: 8px;
+  background: #161616b8;
+  color: white;
+}
+.controls button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+.controls button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+.controls button:last-child {
+  border-left: 1px solid #ffffff30;
+}
+.controls > span {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
+.controls > span span {
+  color: #ccc;
+}
+@media (min-width: 768px) {
+  .library {
+    object-position: center 68%;
+  }
+  .winter {
+    object-position: center;
+  }
+  .controls {
+    right: max(24px, calc((100% - 1120px) / 2));
+    bottom: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .image {
+    transition: none;
+  }
+}

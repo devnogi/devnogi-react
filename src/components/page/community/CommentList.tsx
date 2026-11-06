@@ -156,17 +156,19 @@ export default function CommentList({ postId }: CommentListProps) {
   );
   const totalCount = data?.pages[0]?.data.meta.totalElements ?? 0;
   return (
-    <div className="space-y-6">
-      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+    <div>
+      <h3 className="px-4 pt-5 pb-1 text-base leading-6 font-semibold text-card-foreground sm:px-5">
         댓글{" "}
-        <span className="text-[var(--color-ds-primary)]">{totalCount}</span>
+        <span className="text-xs leading-[18px] font-normal text-muted-foreground">
+          {totalCount}
+        </span>
       </h3>
       {threads.length === 0 ? (
         <p className="py-8 text-center text-gray-500 dark:text-gray-400">
           첫 댓글을 작성해보세요!
         </p>
       ) : (
-        <div className="space-y-2.5">
+        <div className="divide-y divide-border">
           {threads.map((thread) => (
             <CommentThread
               key={thread.comment.id}
@@ -178,7 +180,7 @@ export default function CommentList({ postId }: CommentListProps) {
         </div>
       )}
       {hasNextPage && (
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center px-4 py-4 sm:px-5">
           <Button
             variant="outline"
             size="sm"
@@ -197,7 +199,7 @@ export default function CommentList({ postId }: CommentListProps) {
           </Button>
         </div>
       )}
-      <div className="border-t border-gray-100 pt-4 dark:border-navy-600">
+      <div className="border-t border-border p-4 sm:p-5">
         <CommentForm postId={postId} onSuccess={handleRefetch} />
       </div>
     </div>

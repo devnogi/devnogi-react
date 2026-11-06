@@ -19,20 +19,15 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
         onClick={() => setIsExpanded(!isExpanded)}
         className="hover:bg-[var(--color-ds-neutral-50)] cursor-pointer transition-colors border-b border-[var(--color-ds-neutral-100)]"
       >
-        <td className="px-3 md:px-4 py-2">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-[var(--color-ds-neutral-100)] flex items-center justify-center flex-shrink-0">
-              <Package className="w-3.5 h-3.5 md:w-4 md:h-4 text-[var(--color-ds-secondary)]" />
-            </div>
-            <span className="font-medium text-[var(--color-ds-text)] text-[13px] truncate">
-              {item.name}
-            </span>
-          </div>
+        <td className="px-3 md:px-4 py-3">
+          <span className="block break-words text-sm leading-5 font-medium text-[var(--color-ds-text)]">
+            {item.name}
+          </span>
         </td>
-        <td className="hidden md:table-cell px-4 py-2 text-sm text-[var(--color-ds-secondary)]">
+        <td className="hidden md:table-cell px-4 py-3 break-words text-xs leading-[18px] text-muted-foreground">
           {item.topCategory}
         </td>
-        <td className="px-3 md:px-4 py-2 text-xs md:text-sm text-[var(--color-ds-secondary)]">
+        <td className="px-3 md:px-4 py-3 break-words text-xs leading-[18px] text-muted-foreground">
           {item.subCategory}
         </td>
         <td className="px-2 md:px-4 py-2">
@@ -45,8 +40,8 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
       </tr>
       {isExpanded && (
         <tr className="bg-[var(--color-ds-neutral-50)]">
-          <td colSpan={4} className="px-3 md:px-4 py-2 md:py-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+          <td colSpan={4} className="px-3 md:px-4 py-3 md:py-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 break-words text-sm">
               {item.inventoryWidth && item.inventoryHeight && (
                 <div>
                   <span className="text-muted-foreground">인벤토리 크기: </span>
@@ -125,7 +120,7 @@ export default function ItemInfoTable({
 }: ItemInfoTableProps) {
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+      <div className="visual-polish bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
         <div className="animate-pulse">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
@@ -140,7 +135,7 @@ export default function ItemInfoTable({
 
   if (items.length === 0) {
     return (
-      <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] p-8 text-center">
+      <div className="visual-polish bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] p-8 text-center">
         <Package className="w-12 h-12 text-[var(--color-ds-disabled)] mx-auto mb-3" />
         <p className="text-muted-foreground">검색 결과가 없습니다.</p>
         <p className="text-sm text-muted-foreground mt-1">
@@ -151,21 +146,21 @@ export default function ItemInfoTable({
   }
 
   return (
-    <div className="bg-white dark:bg-navy-700 rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
+    <div className="visual-polish bg-[var(--color-ds-card)] rounded-lg border border-[var(--color-ds-neutral-tone)] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead className="bg-[var(--color-ds-neutral-50)]">
             <tr>
-              <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="w-[60%] md:w-[46%] px-3 md:px-4 py-3 text-left text-xs leading-[18px] font-medium text-[var(--color-ds-text)]">
                 아이템명
               </th>
-              <th className="hidden md:table-cell px-4 py-2 text-left text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="hidden md:table-cell px-4 py-2 text-left text-xs leading-[18px] font-medium text-[var(--color-ds-text)]">
                 상위 분류
               </th>
-              <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold text-[var(--color-ds-text)]">
+              <th className="px-3 md:px-4 py-3 text-left text-xs leading-[18px] font-medium text-[var(--color-ds-text)]">
                 하위 분류
               </th>
-              <th className="px-2 md:px-4 py-2 w-8 md:w-10"></th>
+              <th className="px-2 md:px-4 py-2 w-8 md:w-12"></th>
             </tr>
           </thead>
           <tbody>

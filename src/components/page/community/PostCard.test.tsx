@@ -47,10 +47,10 @@ const post: PostSummary = {
 };
 
 describe("PostCard", () => {
-  const renderCard = () =>
+  const renderCard = (item: PostSummary = post) =>
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <PostCard post={post} />
+        <PostCard post={item} />
       </QueryClientProvider>,
     );
   beforeEach(() =>
@@ -66,6 +66,55 @@ describe("PostCard", () => {
         }),
       ]),
     );
+  });
+
+  it.each([1, 2, 5])(
+    "keeps every image linked to the post with %i attachments",
+    (count) => {
+      renderCard({
+        ...post,
+        media: Array.from({ length: count }, (_, index) => ({
+          id: index + 1,
+          kind: "IMAGE" as const,
+          url: `/sample-${index}.png`,
+          contentType: "image/png",
+          displayOrder: index,
+        })),
+      });
+      const images = screen.getAllByRole("img", { name: "게시글 첨부 이미지" });
+      expect(images).toHaveLength(count);
+      images.forEach((image) => {
+        expect(image.closest("a")).toHaveAttribute("href", "/community/7");
+      });
+    },
+  );
+
+  it("preserves native video controls without autoplay alongside images", () => {
+    const { container } = renderCard({
+      ...post,
+      media: [
+        {
+          id: 1,
+          kind: "VIDEO",
+          url: "/sample.webm",
+          contentType: "video/webm",
+          displayOrder: 0,
+        },
+        {
+          id: 2,
+          kind: "IMAGE",
+          url: "/sample.png",
+          contentType: "image/png",
+          displayOrder: 1,
+        },
+      ],
+    });
+    const video = container.querySelector("video");
+    expect(video).toHaveAttribute("controls");
+    expect(video).not.toHaveAttribute("autoplay");
+    expect(
+      screen.getByRole("img", { name: "게시글 첨부 이미지" }).closest("a"),
+    ).toHaveAttribute("href", "/community/7");
   });
 
   it("rolls back an optimistic bookmark when the request fails", async () => {

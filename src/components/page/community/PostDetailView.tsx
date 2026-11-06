@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 
 import { normalizePostSummary } from "@/hooks/useInfinitePosts";
 import { usePostDetail } from "@/hooks/usePostDetail";
@@ -28,13 +27,13 @@ export default function PostDetailView({
   } = usePostDetail(Number(postId), { initialData: initialPost, cacheScope });
   if (isLoading)
     return (
-      <div className="flex justify-center bg-white py-20 dark:bg-navy-800">
+      <div className="flex justify-center bg-card py-20">
         <Loader2 className="h-7 w-7 animate-spin text-gray-400" />
       </div>
     );
   if (isError || !post)
     return (
-      <div className="bg-white p-8 text-center dark:bg-navy-800">
+      <div className="bg-card p-8 text-center">
         <p className="text-gray-600 dark:text-gray-300">
           게시글을 불러오지 못했어요.
         </p>
@@ -59,15 +58,7 @@ export default function PostDetailView({
     bookmarked: post.bookmarked ?? post.isBookmarked ?? false,
   });
   return (
-    <div className="overflow-hidden border border-gray-200 bg-white dark:border-navy-600 dark:bg-navy-800 sm:rounded-2xl">
-      <div className="border-b border-gray-200 px-4 py-3 dark:border-navy-600">
-        <Link
-          href="/community"
-          className="text-sm font-semibold text-[var(--color-ds-primary)]"
-        >
-          ← 커뮤니티
-        </Link>
-      </div>
+    <div>
       <PostCard post={item} />
     </div>
   );

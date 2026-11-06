@@ -210,14 +210,14 @@ export default function CommentItem({
       <div
         className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}
       >
-        <div className="bg-gray-50 dark:bg-navy-600/40 rounded-xl p-3">
+        <div className="px-4 py-5 sm:px-5">
           <div className="flex items-center gap-2 mb-2">
             <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-navy-500" />
             <span className="text-gray-500 dark:text-gray-400 text-sm">
               알 수 없음
             </span>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+          <p className="text-[15px] leading-6 font-normal text-muted-foreground italic">
             {comment.isDeleted ? "삭제된 댓글입니다." : "차단된 댓글입니다."}
           </p>
         </div>
@@ -229,10 +229,10 @@ export default function CommentItem({
     <div
       className={`${isReply ? "ml-3 pl-2 md:ml-6 md:pl-3 border-l border-gray-200 dark:border-navy-500" : ""}`}
     >
-      <div className="bg-gray-50 dark:bg-navy-600/40 rounded-xl p-3">
+      <div className="px-4 py-5 sm:px-5">
         {/* Header: Avatar + Nickname + Date + Actions (같은 행) */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-start gap-3">
             {/* Author Avatar */}
             <Link
               href={`/profile/${comment.userId}`}
@@ -244,13 +244,22 @@ export default function CommentItem({
               </div>
             </Link>
             {/* Nickname */}
-            <Link
-              href={`/profile/${comment.userId}`}
-              className="font-semibold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-1 hover:underline"
-            >
-              {comment.nickname || `사용자 ${comment.userId}`}
-              {comment.verified === true && <VerifiedBadge size="sm" />}
-            </Link>
+            <div className="min-w-0">
+              <Link
+                href={`/profile/${comment.userId}`}
+                className="flex items-center gap-1 text-[15px] leading-[22px] font-semibold tracking-[-0.01em] text-card-foreground hover:underline"
+              >
+                <span className="break-words [overflow-wrap:anywhere]">
+                  {comment.nickname || `사용자 ${comment.userId}`}
+                </span>
+                {comment.verified === true && <VerifiedBadge size="sm" />}
+              </Link>
+              {comment.createdAt && (
+                <span className="text-xs leading-[18px] text-muted-foreground">
+                  {formatDate(comment.createdAt)}
+                </span>
+              )}
+            </div>
           </div>
           {/* Edit/Delete Buttons */}
           {!isEditing && (canEdit || canDelete) && (
@@ -262,7 +271,7 @@ export default function CommentItem({
                   className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:text-[var(--color-ds-primary)] dark:text-gray-400"
                   title="수정"
                 >
-                  <Pencil className="w-4 h-4" />
+                  <Pencil className="h-[18px] w-[18px]" />
                 </button>
               )}
               {canDelete && (
@@ -272,7 +281,7 @@ export default function CommentItem({
                   className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
                   title="삭제"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-[18px] w-[18px]" />
                 </button>
               )}
             </div>
@@ -281,7 +290,7 @@ export default function CommentItem({
 
         {/* Content */}
         {isEditing ? (
-          <div className="space-y-2">
+          <div className="ml-14 space-y-2">
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
@@ -319,43 +328,38 @@ export default function CommentItem({
             </div>
           </div>
         ) : (
-          <p className="text-gray-700 dark:text-gray-200 text-sm whitespace-pre-wrap">
+          <p className="ml-14 whitespace-pre-wrap break-words text-[15px] leading-6 font-normal tracking-[-0.01em] text-card-foreground [overflow-wrap:anywhere]">
             {comment.content}
           </p>
         )}
 
         {/* Meta: Date + Actions */}
         {!isEditing && (
-          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-navy-500">
-            {comment.createdAt && (
-              <span className="text-gray-500 dark:text-gray-400 text-xs mr-1">
-                {formatDate(comment.createdAt)}
-              </span>
-            )}
+          <div className="ml-14 mt-3 flex flex-wrap items-center gap-x-6 gap-y-1">
             <button
               onClick={handleLike}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-red-500 dark:bg-navy-700 dark:text-gray-400 dark:hover:text-red-400"
+              className="inline-flex min-h-11 min-w-11 items-center gap-1.5 rounded-full text-xs leading-[18px] tabular-nums text-muted-foreground transition-colors hover:text-red-500 dark:hover:text-red-400"
             >
               <Heart
-                className={`w-3.5 h-3.5 ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
+                className={`h-[18px] w-[18px] ${comment.isLiked ? "fill-red-500 text-red-500" : ""}`}
               />
               <span>{comment.likeCount}</span>
             </button>
             {!isReply && (
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-[var(--color-ds-primary)] dark:bg-navy-700 dark:text-gray-400"
+                className="inline-flex min-h-11 min-w-11 items-center gap-1.5 rounded-full text-xs leading-[18px] text-muted-foreground transition-colors hover:text-[var(--color-ds-primary)]"
               >
-                <MessageCircle className="w-3.5 h-3.5" />
+                <MessageCircle className="h-[18px] w-[18px]" />
                 <span>답글</span>
               </button>
             )}
             {canReport && (
               <button
                 onClick={() => setShowReportDialog(true)}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full bg-white px-2 text-xs text-gray-500 transition-colors hover:text-[var(--color-ds-primary)] dark:bg-navy-700 dark:text-gray-400"
+                className="inline-flex min-h-11 min-w-11 items-center gap-1.5 rounded-full text-xs leading-[18px] text-muted-foreground transition-colors hover:text-[var(--color-ds-primary)]"
               >
-                <Flag className="w-3.5 h-3.5" />
+                <Flag className="h-[18px] w-[18px]" />
                 <span>신고</span>
               </button>
             )}
