@@ -221,13 +221,14 @@ export function createServerAxios(request: NextRequest): AxiosInstance {
   );
   serverLogger.info("====================================================");
 
+  const headers: Record<string, string> = {};
+  if (authorization) headers.Authorization = authorization;
+  if (cookieHeader) headers.Cookie = cookieHeader;
+
   const instance = axios.create({
     baseURL: gatewayUrl,
     timeout: 5000,
-    headers: {
-      Authorization: authorization,
-      Cookie: cookieHeader ?? "",
-    },
+    headers,
   });
 
   addLoggingInterceptors(instance, serverLogger);

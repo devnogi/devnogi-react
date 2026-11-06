@@ -1,7 +1,7 @@
 import axios from "axios";
 import { NextRequest } from "next/server";
 
-import { createAuthServerAxios } from "./server";
+import { createAuthServerAxios, createServerAxios } from "./server";
 
 jest.mock("@/mocks/initServer", () => ({ initMockServer: jest.fn() }));
 jest.mock("./gateway-selector", () => ({
@@ -15,6 +15,34 @@ const request = (cookie?: string, authorization?: string) =>
       ...(authorization ? { authorization } : {}),
     },
   });
+
+describe("server axios 공개 조회 인증정보 전달 경계", () => {
+  it("익명 요청은 빈 Authorization 및 Cookie 헤더를 전송하지 않는다", () => {
+    const client = createServerAxios(request());
+
+    expect(client.defaults.headers.Authorization).toBeUndefined();
+    expect(client.defaults.headers.Cookie).toBeUndefined();
+  });
+
+  it("로그인 요청은 access token과 원본 쿠키를 전달한다", () => {
+    const client = createServerAxios(
+      request("theme=dark; access_token=valid-access; locale=ko"),
+    );
+
+    expect(client.defaults.headers.Authorization).toBe("Bearer valid-access");
+    expect(client.defaults.headers.Cookie).toBe(
+      "theme=dark; access_token=valid-access; locale=ko",
+    );
+  });
+
+  it("명시적인 Authorization 헤더가 access token 쿠키보다 우선한다", () => {
+    const client = createServerAxios(
+      request("access_token=cookie-access", "Bearer header-access"),
+    );
+
+    expect(client.defaults.headers.Authorization).toBe("Bearer header-access");
+  });
+});
 
 describe("auth axios 인증정보 전달 경계", () => {
   it("refresh는 만료 access와 무관한 쿠키를 제외하고 refresh만 전달한다", () => {
