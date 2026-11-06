@@ -13,7 +13,7 @@ export default function HomeRankingCards() {
       <h1 id="market-summary-heading" className="sr-only">
         오늘의 시세 현황
       </h1>
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
         <PopularRankingCard />
         <HornBugleCard />
       </div>

@@ -38,6 +38,7 @@ import { useNicknameCandidate } from "@/hooks/useNicknameCandidate";
 import { useUnreadNoticeCount } from "@/hooks/useNotices";
 import { useVerificationInfo } from "@/hooks/useUserVerification";
 import { clientAxios } from "@/lib/api/clients";
+import { MEDIA_UPLOAD_TIMEOUT_MS } from "@/lib/api/timeouts";
 import type { GameProfile, GameProfileDraft } from "@/types/profile";
 import {
   appendGameProfileFormData,
@@ -716,7 +717,9 @@ function EditProfileModal({
       }
       appendGameProfileFormData(formData, gameProfile);
 
-      await clientAxios.put("/user/info", formData);
+      await clientAxios.put("/user/info", formData, {
+        timeout: MEDIA_UPLOAD_TIMEOUT_MS,
+      });
 
       toast.success("프로필이 수정되었습니다.");
       onSuccess();

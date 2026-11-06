@@ -32,6 +32,14 @@ function LogoutProbe() {
   );
 }
 
+const observedRefreshCallbacks: Array<() => Promise<void>> = [];
+
+function RefreshProbe() {
+  const { refreshUser } = useAuth();
+  observedRefreshCallbacks.push(refreshUser);
+  return <button onClick={() => void refreshUser()}>refresh</button>;
+}
+
 describe("로그아웃 결과", () => {
   const originalFetch = global.fetch;
   const initialUser = {
@@ -100,4 +108,46 @@ describe("로그아웃 결과", () => {
       );
     },
   );
+});
+
+describe("인증 콜백 안정성", () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    observedRefreshCallbacks.length = 0;
+  });
+
+  it("사용자 정보가 갱신되어도 refreshUser 참조를 유지한다", async () => {
+    const response = () =>
+      new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            userId: 1,
+            email: "stable@example.test",
+            nickname: "stable",
+            profileImageUrl: null,
+          },
+        }),
+        { status: 200 },
+      );
+    const fetchMock = jest.fn().mockImplementation(response);
+    global.fetch = fetchMock;
+    render(
+      <AuthProvider>
+        <RefreshProbe />
+      </AuthProvider>,
+    );
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const initialCallback = observedRefreshCallbacks.at(-1);
+
+    fireEvent.click(screen.getByRole("button", { name: "refresh" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    expect(observedRefreshCallbacks.length).toBeGreaterThan(1);
+    expect(
+      observedRefreshCallbacks.every((item) => item === initialCallback),
+    ).toBe(true);
+  });
 });

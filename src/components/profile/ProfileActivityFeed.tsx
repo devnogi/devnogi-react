@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
 import { useInfiniteUserComments } from "@/hooks/useInfiniteUserComments";
 
@@ -92,9 +93,15 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
               >
                 <article>
                   <div className="flex items-center justify-between gap-3 text-xs leading-[18px] text-muted-foreground">
-                    <time dateTime={post.createdAt}>
-                      {relativeDate(post.createdAt)}
-                    </time>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <ServerCodeBadge
+                        serverName={post.author.serverName}
+                        verified={post.author.verified}
+                      />
+                      <time dateTime={post.createdAt}>
+                        {relativeDate(post.createdAt)}
+                      </time>
+                    </div>
                     <span>{post.viewCount.toLocaleString()}회 조회</span>
                   </div>
                   <h3 className="mt-2 break-words text-[15px] leading-6 font-normal tracking-[-0.01em] text-foreground">
@@ -142,7 +149,13 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
               >
                 <article>
                   <div className="flex items-center justify-between gap-3 text-xs leading-[18px] text-muted-foreground">
-                    <span className="truncate">{comment.postTitle}</span>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <ServerCodeBadge
+                        serverName={comment.serverName}
+                        verified={comment.verified}
+                      />
+                      <span className="truncate">{comment.postTitle}</span>
+                    </div>
                     <time className="shrink-0" dateTime={comment.createdAt}>
                       {relativeDate(comment.createdAt)}
                     </time>

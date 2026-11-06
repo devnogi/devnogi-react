@@ -33,6 +33,10 @@ function postRequest(headers?: HeadersInit) {
       type: "application/json",
     }),
   );
+  form.set(
+    "media",
+    new File(["synthetic-image"], "post.png", { type: "image/png" }),
+  );
   return new NextRequest("http://localhost/api/posts", {
     method: "POST",
     body: form,
@@ -53,7 +57,7 @@ beforeEach(() => {
   jest.mocked(selectServerGatewayUrl).mockReturnValue("https://gateway.test");
 });
 
-it("multipart 요청과 access token을 전달하고 201 응답을 보존한다", async () => {
+it("실제 파일이 포함된 multipart 요청과 access token을 전달하고 201 응답을 보존한다", async () => {
   fetchMock.mockResolvedValue(
     new Response('{"success":true}', {
       status: 201,

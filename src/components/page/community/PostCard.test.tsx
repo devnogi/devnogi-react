@@ -68,6 +68,19 @@ describe("PostCard", () => {
     );
   });
 
+  it("인증된 작성자 이름 앞에 서버 약어를 표시한다", () => {
+    renderCard({
+      ...post,
+      author: { ...post.author, verified: true },
+    });
+    expect(screen.getByLabelText("류트 서버")).toHaveTextContent("LT");
+  });
+
+  it("미인증 작성자에는 서버 약어를 표시하지 않는다", () => {
+    renderCard();
+    expect(screen.queryByLabelText("류트 서버")).not.toBeInTheDocument();
+  });
+
   it.each([1, 2, 5])(
     "keeps every image linked to the post with %i attachments",
     (count) => {
@@ -147,6 +160,7 @@ describe("PostCard", () => {
       expect(clientAxios.patch).toHaveBeenCalledWith(
         "/posts/7",
         expect.any(FormData),
+        { timeout: 30_000 },
       ),
     );
     const formData = (clientAxios.patch as jest.Mock).mock

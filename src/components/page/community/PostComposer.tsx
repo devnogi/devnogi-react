@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import type { PostSummary } from "@/hooks/useInfinitePosts";
 import { clientAxios } from "@/lib/api/clients";
+import { MEDIA_UPLOAD_TIMEOUT_MS } from "@/lib/api/timeouts";
 import {
   ACCEPTED_MEDIA_TYPES,
   codePointLength,
@@ -137,8 +138,10 @@ export default function PostComposer({
       previews.forEach(({ file }) => {
         if (file) formData.append("media", file);
       });
-      if (postId) await clientAxios.patch(`/posts/${postId}`, formData);
-      else await clientAxios.post("/posts", formData);
+      const uploadConfig = { timeout: MEDIA_UPLOAD_TIMEOUT_MS };
+      if (postId)
+        await clientAxios.patch(`/posts/${postId}`, formData, uploadConfig);
+      else await clientAxios.post("/posts", formData, uploadConfig);
       objectUrls.current.forEach((url) => URL.revokeObjectURL(url));
       objectUrls.current.clear();
       setContent("");

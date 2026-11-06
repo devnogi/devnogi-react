@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import type { GameProfile } from "@/types/profile";
 
@@ -36,12 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 초기 로드 시 인증 상태 확인
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       // JWT 토큰이 쿠키에 있으면 자동으로 전송됨
       const response = await fetch("/api/auth/me", {
@@ -81,35 +83,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const login = async (
-    email: string,
-    password: string,
-    rememberMe?: boolean,
-  ) => {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ email, password, rememberMe }),
-    }).catch(() => {
-      throw new Error("인증 서버에 연결할 수 없습니다. 다시 시도해주세요.");
-    });
-    const data = await response.json().catch(() => null);
-    if (!response.ok || !data?.success || !data?.data) {
-      throw new Error(
-        typeof data?.message === "string"
-          ? data.message
-          : "로그인에 실패했습니다. 다시 시도해주세요.",
-      );
-    }
-    setUser(data.data);
-  };
+  // 초기 로드 시 인증 상태 확인
+  useEffect(() => {
+    void checkAuth();
+  }, [checkAuth]);
 
-  const logout = async () => {
+  const login = useCallback(
+    async (email: string, password: string, rememberMe?: boolean) => {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email, password, rememberMe }),
+      }).catch(() => {
+        throw new Error("인증 서버에 연결할 수 없습니다. 다시 시도해주세요.");
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.success || !data?.data) {
+        throw new Error(
+          typeof data?.message === "string"
+            ? data.message
+            : "로그인에 실패했습니다. 다시 시도해주세요.",
+        );
+      }
+      setUser(data.data);
+    },
+    [],
+  );
+
+  const logout = useCallback(async () => {
     try {
       const response = await fetch("/api/auth/logout", {
         method: "POST",
@@ -126,26 +132,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null);
     }
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     await checkAuth();
-  };
+  }, [checkAuth]);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        logout,
-        refreshUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      isAuthenticated: Boolean(user),
+      isLoading,
+      login,
+      logout,
+      refreshUser,
+    }),
+    [isLoading, login, logout, refreshUser, user],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

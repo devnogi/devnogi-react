@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { clientAxios } from "@/lib/api/clients";
@@ -249,6 +250,10 @@ export default function CommentItem({
                 href={`/profile/${comment.userId}`}
                 className="flex items-center gap-1 text-[15px] leading-[22px] font-semibold tracking-[-0.01em] text-card-foreground hover:underline"
               >
+                <ServerCodeBadge
+                  serverName={comment.serverName}
+                  verified={comment.verified}
+                />
                 <span className="break-words [overflow-wrap:anywhere]">
                   {comment.nickname || `사용자 ${comment.userId}`}
                 </span>

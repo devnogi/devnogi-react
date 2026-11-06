@@ -11,6 +11,8 @@ interface UserCommentActivity {
   content: string;
   likeCount: number;
   createdAt: string;
+  serverName?: string | null;
+  verified?: boolean;
 }
 
 interface PageMeta {
