@@ -7,6 +7,8 @@ import axios, {
 
 function isSensitiveAuthRequest(url?: string): boolean {
   return (
+    /^\/(?:admin\/)?guilds(?:$|[/?])/.test(url ?? "") ||
+    url === "/user/verification/info" ||
     url === "/auth/oauth/exchange" ||
     url === "/auth/signup/social" ||
     url === "/user/info"
@@ -200,10 +202,16 @@ clientAxios.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
+      skipAuthRefresh?: boolean;
     };
 
     // 401이 아니거나, 이미 재시도한 요청이면 그대로 reject
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (
+      error.response?.status !== 401 ||
+      !originalRequest ||
+      originalRequest.skipAuthRefresh ||
+      originalRequest._retry
+    ) {
       return Promise.reject(error);
     }
 

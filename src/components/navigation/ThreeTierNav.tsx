@@ -201,6 +201,7 @@ export default function ThreeTierNav() {
             label="커뮤니티"
             pathname={pathname}
           />
+          <NavigationItem href="/guilds" label="길드" pathname={pathname} />
           <NavigationItem href="/outfits" label="의장" pathname={pathname} />
           <NavigationDropdown
             key={`${pathname}-auction`}
