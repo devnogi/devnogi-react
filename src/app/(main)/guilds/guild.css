@@ -1,0 +1,60 @@
+.guild-space h1 {
+  font-size: 2rem;
+  font-weight: 750;
+}
+.guild-space h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.65rem;
+}
+.guild-space h3 {
+  font-weight: 650;
+}
+.guild-space section,
+.guild-space article {
+  padding: 1.25rem;
+  border: 1px solid var(--border, #bbb);
+  border-radius: 1rem;
+  margin-block: 1rem;
+}
+.guild-space label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+}
+.guild-space .recruiting-filter {
+  display: flex;
+  align-items: center;
+  align-self: end;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+.guild-space input:not([type="checkbox"]),
+.guild-space textarea,
+.guild-space select {
+  border: 1px solid var(--border, #aaa);
+  border-radius: 0.5rem;
+  padding: 0.55rem;
+  color: inherit;
+  background: var(--background, transparent);
+  max-width: 100%;
+  width: 100%;
+}
+.guild-space textarea {
+  min-height: 5rem;
+}
+.guild-space a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.guild-space summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.guild-space form {
+  margin: 0.7rem 0;
+}
+.guild-space p {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
