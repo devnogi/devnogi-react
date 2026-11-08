@@ -27,6 +27,10 @@ it("streams multipart, keeps authorization and repeated filters, but never trust
   );
   const response = await proxyOutfit(request);
   expect(response.status).toBe(201);
+  await expect(response.json()).resolves.toEqual({
+    success: true,
+    data: { id: 1 },
+  });
   expect(response.headers.get("cache-control")).toBe("no-store");
   const [url, init] = mockFetch.mock.calls[0];
   expect(String(url)).toBe(
@@ -80,5 +84,48 @@ it("rejects path traversal and returns a bounded service error", async () => {
     new NextRequest("http://localhost/api/outfits"),
   );
   expect(response.status).toBe(503);
-  expect(await response.text()).not.toContain("private configuration");
+  await expect(response.json()).resolves.toMatchObject({
+    code: "OUTFIT_UPSTREAM_UNAVAILABLE",
+  });
+});
+
+it("returns a stable payload-too-large contract for upstream 413 responses", async () => {
+  mockFetch.mockResolvedValue(
+    new Response("upstream proxy page", { status: 413 }),
+  );
+
+  const response = await proxyOutfit(
+    new NextRequest("http://localhost/api/outfits", { method: "POST" }),
+  );
+
+  expect(response.status).toBe(413);
+  await expect(response.json()).resolves.toEqual({
+    success: false,
+    code: "OUTFIT_PAYLOAD_TOO_LARGE",
+    message:
+      "사진 용량이 너무 커요. 사진은 최대 5장, 각 5MiB까지 등록할 수 있어요.",
+  });
+});
+
+it("distinguishes upload timeouts from other upstream connection failures", async () => {
+  mockFetch.mockRejectedValueOnce(
+    new DOMException("The operation timed out", "TimeoutError"),
+  );
+
+  const timeoutResponse = await proxyOutfit(
+    new NextRequest("http://localhost/api/outfits", { method: "POST" }),
+  );
+  expect(timeoutResponse.status).toBe(504);
+  await expect(timeoutResponse.json()).resolves.toMatchObject({
+    code: "OUTFIT_UPLOAD_TIMEOUT",
+  });
+
+  mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
+  const unavailableResponse = await proxyOutfit(
+    new NextRequest("http://localhost/api/outfits", { method: "POST" }),
+  );
+  expect(unavailableResponse.status).toBe(503);
+  await expect(unavailableResponse.json()).resolves.toMatchObject({
+    code: "OUTFIT_UPSTREAM_UNAVAILABLE",
+  });
 });

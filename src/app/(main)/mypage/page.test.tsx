@@ -111,7 +111,7 @@ describe("마이페이지 닉네임 변경 경계", () => {
     expect(form.has("file")).toBe(true);
     expect(String(form.get("file"))).toBe("[object File]");
     expect(jest.mocked(clientAxios.put).mock.calls[0][2]).toEqual({
-      timeout: 30_000,
+      timeout: 120_000,
     });
   });
 

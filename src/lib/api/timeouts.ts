@@ -1,1 +1,1 @@
-export const MEDIA_UPLOAD_TIMEOUT_MS = 30_000;
+export const MEDIA_UPLOAD_TIMEOUT_MS = 120_000;

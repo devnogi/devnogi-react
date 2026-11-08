@@ -98,7 +98,7 @@ it("두 게시글 작성 화면이 공유하는 payload에 boolean isDraft를 �
   await expect((data as Blob).text()).resolves.toContain('"isDraft":false');
 });
 
-it("실제 미디어 파일을 30초 업로드 경계로 전송한다", async () => {
+it("실제 미디어 파일을 120초 업로드 경계로 전송한다", async () => {
   jest.mocked(clientAxios.post).mockResolvedValue({ data: {} });
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -137,5 +137,5 @@ it("실제 미디어 파일을 30초 업로드 경계로 전송한다", async ()
   ];
   expect(form.has("media")).toBe(true);
   expect(String(form.get("media"))).toBe("[object File]");
-  expect(config).toEqual({ timeout: 30_000 });
+  expect(config).toEqual({ timeout: 120_000 });
 });

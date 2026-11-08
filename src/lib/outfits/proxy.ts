@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { selectServerGatewayUrl } from "@/lib/api/gateway-selector";
 import { MEDIA_UPLOAD_TIMEOUT_MS } from "@/lib/api/timeouts";
+
+const OUTFIT_PAYLOAD_TOO_LARGE_MESSAGE =
+  "사진 용량이 너무 커요. 사진은 최대 5장, 각 5MiB까지 등록할 수 있어요.";
+
+function isTimeoutError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === "TimeoutError" || error.name === "AbortError")
+  );
+}
+
 export async function proxyOutfit(
   request: NextRequest,
   segments: string[] = [],
@@ -40,6 +51,16 @@ export async function proxyOutfit(
       cache: "no-store",
       signal: AbortSignal.timeout(MEDIA_UPLOAD_TIMEOUT_MS),
     } as RequestInit & { duplex: "half" });
+    if (response.status === 413) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: "OUTFIT_PAYLOAD_TOO_LARGE",
+          message: OUTFIT_PAYLOAD_TOO_LARGE_MESSAGE,
+        },
+        { status: 413, headers: { "cache-control": "no-store" } },
+      );
+    }
     const responseHeaders = new Headers({ "cache-control": "no-store" });
     const location = response.headers.get("location");
     // Next's internal image optimizer consumes bytes; it does not follow a local 302.
@@ -78,13 +99,22 @@ export async function proxyOutfit(
       status: response.status,
       headers: responseHeaders,
     });
-  } catch {
+  } catch (error) {
+    const timedOut = isTimeoutError(error);
     return NextResponse.json(
       {
         success: false,
-        message: "의장 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
+        code: timedOut
+          ? "OUTFIT_UPLOAD_TIMEOUT"
+          : "OUTFIT_UPSTREAM_UNAVAILABLE",
+        message: timedOut
+          ? "사진 업로드 시간이 초과됐어요. 네트워크를 확인한 뒤 다시 시도해 주세요."
+          : "의장 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.",
       },
-      { status: 503, headers: { "cache-control": "no-store" } },
+      {
+        status: timedOut ? 504 : 503,
+        headers: { "cache-control": "no-store" },
+      },
     );
   }
 }
