@@ -1,5 +1,6 @@
 "use client";
 
+import { isAxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,6 +14,18 @@ interface CommentFormProps {
   parentCommentId?: number;
   onSuccess?: () => void;
   onCancel?: () => void;
+}
+
+function getCommentErrorMessage(error: unknown): string {
+  if (isAxiosError(error)) {
+    const payload = error.response?.data as { message?: unknown } | undefined;
+    if (typeof payload?.message === "string" && payload.message.trim())
+      return payload.message;
+    if (error.message.trim()) return error.message;
+  }
+
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return "댓글 작성에 실패했습니다.";
 }
 
 export default function CommentForm({
@@ -48,7 +61,7 @@ export default function CommentForm({
       onSuccess?.();
     } catch (error) {
       console.error("Failed to submit comment:", error);
-      toast.error("댓글 작성에 실패했습니다.");
+      toast.error(getCommentErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }

@@ -38,7 +38,7 @@ it("마이페이지 BFF는 폼을 전달하되 프로필 문자열을 로그에 
   const response = await PUT(request);
   expect(response.status).toBe(200);
   expect(put).toHaveBeenCalledWith("/das/api/user/info", expect.any(FormData), {
-    timeout: 30_000,
+    timeout: 120_000,
   });
   expect((put.mock.calls[0][1] as FormData).get("nicknameTicket")).toBe(
     "synthetic-private-ticket",

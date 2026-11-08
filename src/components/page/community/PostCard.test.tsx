@@ -160,7 +160,7 @@ describe("PostCard", () => {
       expect(clientAxios.patch).toHaveBeenCalledWith(
         "/posts/7",
         expect.any(FormData),
-        { timeout: 30_000 },
+        { timeout: 120_000 },
       ),
     );
     const formData = (clientAxios.patch as jest.Mock).mock
