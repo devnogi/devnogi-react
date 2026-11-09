@@ -16,7 +16,14 @@ import { type Outfit, OUTFIT_SLOTS, type OutfitItem } from "@/types/outfits";
 
 import ItemPicker from "./ItemPicker";
 import { useOutfitAuth } from "./OutfitAuth";
+import OutfitPhotoCropDialog from "./OutfitPhotoCropDialog";
 type Photo = { key: string; url: string; imageId?: number; file?: File };
+type PendingPhoto = {
+  key: string;
+  file: File;
+  current: number;
+  total: number;
+};
 export default function OutfitComposer({ initial }: { initial?: Outfit }) {
   const { user, isLoading } = useAuth();
   const requireLogin = useOutfitAuth();
@@ -32,6 +39,7 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
       url: image.url,
     })) ?? [],
   );
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
   const objectUrls = useRef(new Set<string>());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +51,7 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
   }, []);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (pendingPhotos.length > 0) return;
     if (!requireLogin()) return;
     const normalizedTags = normalizeTags(tags);
     const invalid = validateOutfit(
@@ -90,6 +99,15 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
       setSaving(false);
     }
   };
+  const acceptCroppedPhoto = (file: File) => {
+    const url = URL.createObjectURL(file);
+    objectUrls.current.add(url);
+    setPhotos((current) => [
+      ...current,
+      { key: crypto.randomUUID(), file, url },
+    ]);
+    setPendingPhotos((current) => current.slice(1));
+  };
   if (initial && !isLoading && user && user.userId !== initial.userId)
     return <p role="alert">본인이 작성한 의장만 수정할 수 있어요.</p>;
   return (
@@ -106,7 +124,10 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
           주세요.
         </p>
       </div>
-      <fieldset disabled={saving} className="space-y-6">
+      <fieldset
+        disabled={saving || pendingPhotos.length > 0}
+        className="space-y-6"
+      >
         <legend className="mb-3 font-semibold">착용 사진 *</legend>
         <div className="flex gap-3 overflow-x-auto pb-2">
           {photos.map((photo, index) => (
@@ -117,7 +138,7 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
                   alt={`${index + 1}번째 착용 사진`}
                   fill
                   unoptimized
-                  className="object-contain"
+                  className="object-cover"
                   sizes="160px"
                 />
               </div>
@@ -180,14 +201,14 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
                 return;
               }
               setError(null);
-              setPhotos((current) => [
-                ...current,
-                ...files.map((file) => {
-                  const url = URL.createObjectURL(file);
-                  objectUrls.current.add(url);
-                  return { key: crypto.randomUUID(), file, url };
-                }),
-              ]);
+              setPendingPhotos(
+                files.map((file, index) => ({
+                  key: crypto.randomUUID(),
+                  file,
+                  current: index + 1,
+                  total: files.length,
+                })),
+              );
             }}
           />
         </label>
@@ -257,12 +278,22 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
         </button>
         <button
           type="submit"
-          disabled={saving || isLoading}
+          disabled={saving || isLoading || pendingPhotos.length > 0}
           className="min-h-11 rounded-lg bg-primary px-5 text-primary-foreground disabled:opacity-50"
         >
           {saving ? "저장 중…" : "의장 저장"}
         </button>
       </div>
+      {pendingPhotos[0] && (
+        <OutfitPhotoCropDialog
+          key={pendingPhotos[0].key}
+          file={pendingPhotos[0].file}
+          current={pendingPhotos[0].current}
+          total={pendingPhotos[0].total}
+          onCancel={() => setPendingPhotos((current) => current.slice(1))}
+          onConfirm={acceptCroppedPhoto}
+        />
+      )}
     </form>
   );
 }

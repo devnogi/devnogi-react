@@ -219,7 +219,7 @@ function Feed({ personal }: { personal: boolean }) {
                     src={`/api/outfits/${outfit.id}/images/${outfit.images[0].id}`}
                     alt={`${outfit.author.nickname}의 착용 사진`}
                     fill
-                    className="object-contain"
+                    className="object-cover"
                     sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 280px"
                   />
                 )}
