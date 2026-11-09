@@ -113,8 +113,8 @@ function Detail({
                 alt={`${outfit.author.nickname}의 의장 사진 ${photo + 1}`}
                 fill
                 priority
-                sizes="(max-width: 1023px) 100vw, 640px"
-                className="object-contain"
+                unoptimized
+                className="object-cover"
               />
             )}
           </div>
