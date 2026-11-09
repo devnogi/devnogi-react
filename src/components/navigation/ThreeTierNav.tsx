@@ -9,6 +9,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isAdminRole } from "@/utils/roles";
 
 type NavigationLink = {
   href: string;
@@ -165,6 +166,7 @@ function NavigationDropdown({
 export default function ThreeTierNav() {
   const pathname = usePathname();
   const { isAuthenticated, user } = useAuth();
+  const isAdminUser = isAdminRole(user?.role);
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
@@ -235,6 +237,18 @@ export default function ThreeTierNav() {
               <Sun aria-hidden="true" className="h-5 w-5" />
             )}
           </button>
+
+          {isAdminUser ? (
+            <Link
+              href="/admin"
+              aria-current={
+                isCurrentPath(pathname, "/admin") ? "page" : undefined
+              }
+              className="inline-flex h-11 items-center rounded-xl border border-primary/30 px-3 text-xs font-semibold text-primary transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              관리자
+            </Link>
+          ) : null}
 
           {isAuthenticated ? (
             <Link
