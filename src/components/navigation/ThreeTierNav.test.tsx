@@ -4,12 +4,20 @@ import ThreeTierNav from "./ThreeTierNav";
 
 let pathname = "/";
 const toggleTheme = jest.fn();
+let mockAuthState: {
+  isAuthenticated: boolean;
+  user: {
+    nickname: string;
+    role: string;
+    verified: boolean;
+  } | null;
+} = { isAuthenticated: false, user: null };
 
 jest.mock("next/navigation", () => ({
   usePathname: () => pathname,
 }));
 jest.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ isAuthenticated: false, user: null }),
+  useAuth: () => mockAuthState,
 }));
 jest.mock("@/contexts/ThemeContext", () => ({
   useTheme: () => ({ isDarkMode: false, toggleTheme }),
@@ -17,6 +25,7 @@ jest.mock("@/contexts/ThemeContext", () => ({
 
 beforeEach(() => {
   pathname = "/";
+  mockAuthState = { isAuthenticated: false, user: null };
   toggleTheme.mockClear();
 });
 
@@ -75,6 +84,36 @@ it("테마 전환과 로그인 진입점을 오른쪽에 제공한다", () => {
     "href",
     "/sign-in",
   );
+});
+
+it.each(["ADMIN", "SUPER_ADMIN"])(
+  "%s 로그인 사용자에게 관리자 버튼을 제공한다",
+  (role) => {
+    mockAuthState = {
+      isAuthenticated: true,
+      user: { nickname: "관리자", role, verified: false },
+    };
+
+    render(<ThreeTierNav />);
+
+    expect(screen.getByRole("link", { name: "관리자" })).toHaveAttribute(
+      "href",
+      "/admin",
+    );
+  },
+);
+
+it("일반 로그인 사용자에게 관리자 버튼을 노출하지 않는다", () => {
+  mockAuthState = {
+    isAuthenticated: true,
+    user: { nickname: "사용자", role: "USER", verified: false },
+  };
+
+  render(<ThreeTierNav />);
+
+  expect(
+    screen.queryByRole("link", { name: "관리자" }),
+  ).not.toBeInTheDocument();
 });
 
 it("하위 경로에서도 상위 드롭다운 메뉴를 활성 상태로 표시한다", () => {

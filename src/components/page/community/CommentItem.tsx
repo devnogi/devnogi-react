@@ -12,6 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -240,9 +241,20 @@ export default function CommentItem({
               aria-label={`${comment.nickname} 프로필`}
               className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full"
             >
-              <div className="w-full h-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
-                {comment.nickname?.[0] || comment.userId.toString()[0]}
-              </div>
+              {comment.profileImageUrl ? (
+                <Image
+                  src={comment.profileImageUrl}
+                  alt={`${comment.nickname ?? "사용자"} 프로필 사진`}
+                  fill
+                  sizes="44px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-primary text-sm font-semibold text-primary-foreground">
+                  {comment.nickname?.[0] || comment.userId.toString()[0]}
+                </div>
+              )}
             </Link>
             {/* Nickname */}
             <div className="min-w-0">
@@ -374,14 +386,17 @@ export default function CommentItem({
 
       {/* Reply Form */}
       {showReplyForm && !isReply && (
-        <div className="mt-2 ml-3 md:ml-6">
+        <section
+          aria-label="답글 작성"
+          className="mt-3 mr-3 ml-3 rounded-xl border border-border/80 bg-muted/30 p-3 md:mr-4 md:ml-6 md:p-4"
+        >
           <CommentForm
             postId={postId}
             parentCommentId={comment.id}
             onSuccess={handleReplySuccess}
             onCancel={() => setShowReplyForm(false)}
           />
-        </div>
+        </section>
       )}
 
       {/* Replies */}
