@@ -5,6 +5,7 @@ import { type FormEvent, type ReactNode, useState } from "react";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { guildRequest as api } from "@/lib/guilds/request";
+import type { ActivityGrade } from "@/types/experience";
 
 export { api };
 export function useGuildData<T>(path: string, enabled = true) {
@@ -138,6 +139,9 @@ export interface Application {
 export interface Entry {
   id: number;
   authorId: number;
+  authorNickname?: string;
+  authorVerified?: boolean;
+  activityGrade?: ActivityGrade | null;
   title: string;
   body: string;
   visibility?: string;

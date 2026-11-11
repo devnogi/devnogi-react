@@ -6,6 +6,7 @@ import { Heart, MessageCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { Button } from "@/components/ui/button";
 import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
@@ -98,6 +99,10 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                         serverName={post.author.serverName}
                         verified={post.author.verified}
                       />
+                      <ActivityGradeBadge
+                        grade={post.author.activityGrade}
+                        verified={post.author.verified}
+                      />
                       <time dateTime={post.createdAt}>
                         {relativeDate(post.createdAt)}
                       </time>
@@ -152,6 +157,10 @@ export default function ProfileActivityFeed({ userId }: { userId: number }) {
                     <div className="flex min-w-0 items-center gap-2">
                       <ServerCodeBadge
                         serverName={comment.serverName}
+                        verified={comment.verified}
+                      />
+                      <ActivityGradeBadge
+                        grade={comment.activityGrade}
                         verified={comment.verified}
                       />
                       <span className="truncate">{comment.postTitle}</span>

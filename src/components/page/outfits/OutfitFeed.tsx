@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { outfitRequest } from "@/lib/outfits/api";
 import type {
@@ -231,9 +232,13 @@ function Feed({ personal }: { personal: boolean }) {
               </Link>
               <Link
                 href={`/profile/${outfit.userId}`}
-                className="mt-2 flex min-h-11 items-center truncate text-sm font-semibold"
+                className="mt-2 flex min-h-11 flex-wrap items-center gap-2 text-sm font-semibold"
               >
-                {outfit.author.nickname}
+                <span className="truncate">{outfit.author.nickname}</span>
+                <ActivityGradeBadge
+                  grade={outfit.author.activityGrade}
+                  verified={outfit.author.verified}
+                />
               </Link>
               <OutfitActions
                 compact

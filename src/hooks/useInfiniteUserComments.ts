@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { clientAxios } from "@/lib/api/clients";
+import type { ActivityGrade } from "@/types/experience";
 
 interface UserCommentActivity {
   id: number;
@@ -13,6 +14,7 @@ interface UserCommentActivity {
   createdAt: string;
   serverName?: string | null;
   verified?: boolean;
+  activityGrade?: ActivityGrade | null;
 }
 
 interface PageMeta {

@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -260,7 +261,7 @@ export default function CommentItem({
             <div className="min-w-0">
               <Link
                 href={`/profile/${comment.userId}`}
-                className="flex items-center gap-1 text-[15px] leading-[22px] font-semibold tracking-[-0.01em] text-card-foreground hover:underline"
+                className="flex flex-wrap items-center gap-1 text-[15px] leading-[22px] font-semibold tracking-[-0.01em] text-card-foreground hover:underline"
               >
                 <ServerCodeBadge
                   serverName={comment.serverName}
@@ -270,6 +271,10 @@ export default function CommentItem({
                   {comment.nickname || `사용자 ${comment.userId}`}
                 </span>
                 {comment.verified === true && <VerifiedBadge size="sm" />}
+                <ActivityGradeBadge
+                  grade={comment.activityGrade}
+                  verified={comment.verified}
+                />
               </Link>
               {comment.createdAt && (
                 <span className="text-xs leading-[18px] text-muted-foreground">

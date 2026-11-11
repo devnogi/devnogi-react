@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -142,6 +143,10 @@ export default function PostCard({ post }: Props) {
                 />
                 <span className="truncate">{post.author.nickname}</span>
                 {post.author.verified && <VerifiedBadge size="sm" />}
+                <ActivityGradeBadge
+                  grade={post.author.activityGrade}
+                  verified={post.author.verified}
+                />
               </Link>
               <div className="text-xs leading-[18px] text-muted-foreground">
                 <span>{post.author.serverName || "에린"}</span>

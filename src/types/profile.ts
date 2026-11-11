@@ -1,3 +1,5 @@
+import type { ActivityGrade } from "@/types/experience";
+
 export const RACE_OPTIONS = [
   { value: "HUMAN", label: "인간" },
   { value: "GIANT", label: "자이언트" },
@@ -57,6 +59,7 @@ export interface PublicUserProfile extends GameProfile {
   profileImageUrl: string | null;
   serverName: string | null;
   verified: boolean;
+  activityGrade?: ActivityGrade | null;
   verificationCount: number;
 }
 

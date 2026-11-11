@@ -1,3 +1,5 @@
+import type { ActivityGrade } from "@/types/experience";
+
 export interface ApiResponse<T> {
   success: boolean;
   code: string;
@@ -14,6 +16,7 @@ interface PostAuthor {
   profileImageUrl: string | null;
   serverName: string | null;
   verified: boolean;
+  activityGrade?: ActivityGrade | null;
 }
 
 interface PostMedia {
@@ -64,6 +67,7 @@ export interface CommentPageResponseItem {
   createdAt?: string;
   updatedAt?: string;
   verified?: boolean;
+  activityGrade?: ActivityGrade | null;
 }
 
 export interface BackendCommentsResponse {

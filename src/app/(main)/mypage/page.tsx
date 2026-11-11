@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import LoginModal from "@/components/auth/LoginModal";
 import { NicknamePolicyHelp } from "@/components/auth/NicknamePolicyHelp";
 import PostList from "@/components/page/community/PostList";
+import ExperiencePanel from "@/components/page/mypage/ExperiencePanel";
 import NotificationList from "@/components/page/mypage/NotificationList";
 import VerificationTab from "@/components/page/mypage/VerificationTab";
 import OutfitFeed from "@/components/page/outfits/OutfitFeed";
@@ -351,6 +352,8 @@ function MyPageContent() {
               </div>
             </div>
           </div>
+
+          {userId ? <ExperiencePanel key={userId} userId={userId} /> : null}
 
           {/* Account Information */}
           <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-5">

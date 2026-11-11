@@ -11,7 +11,8 @@ function isSensitiveAuthRequest(url?: string): boolean {
     url === "/user/verification/info" ||
     url === "/auth/oauth/exchange" ||
     url === "/auth/signup/social" ||
-    url === "/user/info"
+    url === "/user/info" ||
+    /^\/user\/experience(?:$|[/?])/.test(url ?? "")
   );
 }
 
