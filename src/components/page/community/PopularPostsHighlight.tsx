@@ -1,11 +1,11 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
 import { ChevronRight, Eye, Flame, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+
+import CommunityTime from "./CommunityTime";
 
 interface PopularPostsHighlightProps {
   boardId?: number;
@@ -97,10 +97,7 @@ export function PopularPostsContent({
                   {post.commentCount.toLocaleString()}
                 </span>
                 <span className="hidden md:inline">
-                  {formatDistanceToNow(new Date(post.createdAt), {
-                    addSuffix: true,
-                    locale: ko,
-                  })}
+                  <CommunityTime value={post.createdAt} />
                 </span>
               </div>
             </div>

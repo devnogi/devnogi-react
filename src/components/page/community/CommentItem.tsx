@@ -1,7 +1,5 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
 import {
   Check,
   Flag,
@@ -36,6 +34,7 @@ import { clientAxios } from "@/lib/api/clients";
 import { CommentPageResponseItem } from "@/types/community";
 
 import CommentForm from "./CommentForm";
+import CommunityTime from "./CommunityTime";
 import ReportDialog from "./ReportDialog";
 
 interface CommentItemProps {
@@ -196,17 +195,6 @@ export default function CommentItem({
     }
   }, [comment.id, onRefetch]);
 
-  const formatDate = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), {
-        addSuffix: true,
-        locale: ko,
-      });
-    } catch {
-      return "";
-    }
-  };
-
   // 삭제되거나 차단된 댓글 표시
   if (comment.isDeleted || comment.isBlocked) {
     return (
@@ -278,7 +266,7 @@ export default function CommentItem({
               </Link>
               {comment.createdAt && (
                 <span className="text-xs leading-[18px] text-muted-foreground">
-                  {formatDate(comment.createdAt)}
+                  <CommunityTime value={comment.createdAt} />
                 </span>
               )}
             </div>

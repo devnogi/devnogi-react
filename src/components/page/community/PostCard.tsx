@@ -1,7 +1,5 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
 import {
   Bookmark,
   Eye,
@@ -23,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { PostSummary } from "@/hooks/useInfinitePosts";
 import { clientAxios } from "@/lib/api/clients";
 
+import CommunityTime from "./CommunityTime";
 import PostComposer from "./PostComposer";
 import ReportDialog from "./ReportDialog";
 
@@ -32,9 +31,37 @@ interface Props {
 
 export default function PostCard({ post }: Props) {
   const { user, isAuthenticated } = useAuth();
-  const [liked, setLiked] = useState(post.liked);
-  const [likeCount, setLikeCount] = useState(post.likeCount);
-  const [bookmarked, setBookmarked] = useState(post.bookmarked);
+  const [like, setLike] = useState({
+    sourceLiked: post.liked,
+    sourceCount: post.likeCount,
+    liked: post.liked,
+    count: post.likeCount,
+    pending: false,
+  });
+  const [bookmark, setBookmark] = useState({
+    source: post.bookmarked,
+    value: post.bookmarked,
+    pending: false,
+  });
+  // Reconcile fresh server props before rendering, but let an in-flight write finish.
+  if (like.sourceLiked !== post.liked || like.sourceCount !== post.likeCount) {
+    setLike({
+      sourceLiked: post.liked,
+      sourceCount: post.likeCount,
+      liked: like.pending ? like.liked : post.liked,
+      count: like.pending ? like.count : post.likeCount,
+      pending: like.pending,
+    });
+  }
+  if (bookmark.source !== post.bookmarked) {
+    setBookmark({
+      source: post.bookmarked,
+      value: bookmark.pending ? bookmark.value : post.bookmarked,
+      pending: bookmark.pending,
+    });
+  }
+  const { liked, count: likeCount } = like;
+  const bookmarked = bookmark.value;
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -43,29 +70,60 @@ export default function PostCard({ post }: Props) {
   const profileHref = `/profile/${post.userId}`;
 
   const toggleLike = async () => {
+    if (like.pending) return;
     const previous = liked;
-    setLiked(!previous);
-    setLikeCount((count) => count + (previous ? -1 : 1));
+    setLike({
+      ...like,
+      liked: !previous,
+      count: likeCount + (previous ? -1 : 1),
+      pending: true,
+    });
     try {
       await clientAxios.post("/posts/like", { postId: post.id });
+      setLike((current) => ({
+        ...current,
+        count:
+          current.sourceCount +
+          (current.sourceLiked === current.liked ? 0 : current.liked ? 1 : -1),
+        pending: false,
+      }));
     } catch {
-      setLiked(previous);
-      setLikeCount((count) => count + (previous ? 1 : -1));
+      setLike((current) => ({
+        ...current,
+        liked:
+          current.sourceLiked === like.sourceLiked &&
+          current.sourceCount === like.sourceCount
+            ? like.liked
+            : current.sourceLiked,
+        count:
+          current.sourceLiked === like.sourceLiked &&
+          current.sourceCount === like.sourceCount
+            ? like.count
+            : current.sourceCount,
+        pending: false,
+      }));
       toast.error("좋아요를 반영하지 못했어요.");
     }
   };
 
   const toggleBookmark = async () => {
+    if (bookmark.pending) return;
     const previous = bookmarked;
-    setBookmarked(!previous);
+    setBookmark({ ...bookmark, value: !previous, pending: true });
     try {
       await clientAxios.request({
         url: `/posts/${post.id}/bookmark`,
         method: previous ? "DELETE" : "PUT",
       });
     } catch {
-      setBookmarked(previous);
+      setBookmark((current) => ({
+        ...current,
+        value:
+          current.source === bookmark.source ? bookmark.value : current.source,
+      }));
       toast.error("즐겨찾기를 반영하지 못했어요.");
+    } finally {
+      setBookmark((current) => ({ ...current, pending: false }));
     }
   };
 
@@ -155,10 +213,7 @@ export default function PostCard({ post }: Props) {
                   href={`/community/${post.id}`}
                   className="hover:underline"
                 >
-                  {formatDistanceToNow(new Date(post.createdAt), {
-                    addSuffix: true,
-                    locale: ko,
-                  })}
+                  <CommunityTime value={post.createdAt} />
                 </Link>
               </div>
             </div>
@@ -261,6 +316,7 @@ export default function PostCard({ post }: Props) {
             <button
               type="button"
               onClick={toggleLike}
+              disabled={like.pending}
               className={`flex h-11 min-w-11 items-center gap-1.5 rounded-full px-2 hover:bg-red-50 ${liked ? "text-red-500" : ""}`}
               aria-pressed={liked}
               aria-label="좋아요"
@@ -275,6 +331,7 @@ export default function PostCard({ post }: Props) {
             <button
               type="button"
               onClick={toggleBookmark}
+              disabled={bookmark.pending}
               className={`flex h-11 w-11 items-center justify-center rounded-full hover:bg-[var(--color-ds-primary-50)] ${bookmarked ? "text-[var(--color-ds-primary)]" : ""}`}
               aria-pressed={bookmarked}
               aria-label="즐겨찾기"
