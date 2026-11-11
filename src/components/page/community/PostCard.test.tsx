@@ -1,5 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 
 import {
   normalizePostSummary,
@@ -50,6 +58,120 @@ const post: PostSummary = {
 };
 
 describe("PostCard", () => {
+  const card = (item: PostSummary) => (
+    <QueryClientProvider client={new QueryClient()}>
+      <PostCard post={item} />
+    </QueryClientProvider>
+  );
+
+  it("reconciles personalized reactions and later count updates", () => {
+    const view = render(card(post));
+    view.rerender(
+      card({ ...post, liked: true, likeCount: 8, bookmarked: true }),
+    );
+    expect(screen.getByRole("button", { name: "좋아요" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "좋아요" })).toHaveTextContent(
+      "8",
+    );
+    expect(screen.getByRole("button", { name: "즐겨찾기" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    view.rerender(card({ ...post, likeCount: 9 }));
+    expect(screen.getByRole("button", { name: "좋아요" })).toHaveTextContent(
+      "9",
+    );
+    expect(screen.getByRole("button", { name: "좋아요" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+  });
+
+  it("keeps a pending optimistic reaction, blocks duplicate clicks and rolls back to fresh props", async () => {
+    let reject!: (error: Error) => void;
+    (clientAxios.post as jest.Mock).mockImplementationOnce(
+      () =>
+        new Promise((_, fail) => {
+          reject = fail;
+        }),
+    );
+    const view = render(card(post));
+    const like = screen.getByRole("button", { name: "좋아요" });
+    fireEvent.click(like);
+    expect(like).toBeDisabled();
+    fireEvent.click(like);
+    view.rerender(card({ ...post, likeCount: 10 }));
+    expect(like).toHaveAttribute("aria-pressed", "true");
+    expect(like).toHaveTextContent("3");
+    await act(async () => reject(new Error("failed")));
+    expect(like).toHaveAttribute("aria-pressed", "false");
+    expect(like).toHaveTextContent("10");
+    expect(like).not.toBeDisabled();
+  });
+
+  it("restores the last successful local state when a subsequent toggle fails before refresh", async () => {
+    (clientAxios.post as jest.Mock)
+      .mockResolvedValueOnce({})
+      .mockRejectedValueOnce(new Error("failed"));
+    render(card(post));
+    const like = screen.getByRole("button", { name: "좋아요" });
+    fireEvent.click(like);
+    await waitFor(() => expect(like).not.toBeDisabled());
+    expect(like).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(like);
+    await waitFor(() => expect(like).not.toBeDisabled());
+    expect(like).toHaveAttribute("aria-pressed", "true");
+    expect(like).toHaveTextContent("3");
+  });
+
+  it("hydrates the timestamp without recoverable errors across server/client clocks", async () => {
+    const clock = jest
+      .spyOn(Date, "now")
+      .mockReturnValue(Date.parse("2026-11-11T00:00:00Z"));
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(
+      card({ ...post, createdAt: "2026-11-10 00:37:53" }),
+    );
+    document.body.append(container);
+    clock.mockReturnValue(Date.parse("2026-11-12T12:00:00Z"));
+    const onRecoverableError = jest.fn();
+    let root!: ReturnType<typeof hydrateRoot>;
+    await act(async () => {
+      root = hydrateRoot(
+        container,
+        card({ ...post, createdAt: "2026-11-10 00:37:53" }),
+        { onRecoverableError },
+      );
+    });
+    expect(onRecoverableError).not.toHaveBeenCalled();
+    await act(async () => root.unmount());
+    container.remove();
+    clock.mockRestore();
+  });
+
+  it("retains a successful like across stale in-flight props, then accepts the authoritative refresh", async () => {
+    let resolve!: (value: object) => void;
+    (clientAxios.post as jest.Mock).mockImplementationOnce(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+    const view = render(card(post));
+    const like = screen.getByRole("button", { name: "좋아요" });
+    fireEvent.click(like);
+    view.rerender(card({ ...post, likeCount: 10 }));
+    await act(async () => resolve({}));
+    expect(like).toHaveAttribute("aria-pressed", "true");
+    expect(like).toHaveTextContent("11");
+    view.rerender(card({ ...post, liked: true, likeCount: 12 }));
+    expect(like).toHaveTextContent("12");
+    view.rerender(card({ ...post, liked: false, likeCount: 11 }));
+    expect(like).toHaveAttribute("aria-pressed", "false");
+  });
   const renderCard = (item: PostSummary = post) =>
     render(
       <QueryClientProvider client={new QueryClient()}>
