@@ -92,6 +92,7 @@ export const normalizePostSummary = (post: BackendPostSummary): PostSummary => {
       serverName: post.author?.serverName ?? null,
       verified: post.author?.verified ?? false,
       activityGrade: post.author?.activityGrade ?? null,
+      arcana: post.author?.arcana ?? null,
     },
     content,
     media,

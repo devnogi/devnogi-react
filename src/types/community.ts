@@ -1,4 +1,5 @@
 import type { ActivityGrade } from "@/types/experience";
+import type { GameProfile } from "@/types/profile";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -17,6 +18,7 @@ interface PostAuthor {
   serverName: string | null;
   verified: boolean;
   activityGrade?: ActivityGrade | null;
+  arcana?: GameProfile["arcana"];
 }
 
 interface PostMedia {
@@ -68,6 +70,7 @@ export interface CommentPageResponseItem {
   updatedAt?: string;
   verified?: boolean;
   activityGrade?: ActivityGrade | null;
+  arcana?: GameProfile["arcana"];
 }
 
 export interface BackendCommentsResponse {
