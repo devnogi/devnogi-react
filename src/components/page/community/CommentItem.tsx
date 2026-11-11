@@ -15,7 +15,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +33,7 @@ import { clientAxios } from "@/lib/api/clients";
 import { CommentPageResponseItem } from "@/types/community";
 
 import CommentForm from "./CommentForm";
-import CommunityTime from "./CommunityTime";
+import CommunityAuthorMeta from "./CommunityAuthorMeta";
 import ReportDialog from "./ReportDialog";
 
 interface CommentItemProps {
@@ -259,16 +258,13 @@ export default function CommentItem({
                   {comment.nickname || `사용자 ${comment.userId}`}
                 </span>
                 {comment.verified === true && <VerifiedBadge size="sm" />}
-                <ActivityGradeBadge
-                  grade={comment.activityGrade}
-                  verified={comment.verified}
-                />
               </Link>
-              {comment.createdAt && (
-                <span className="text-xs leading-[18px] text-muted-foreground">
-                  <CommunityTime value={comment.createdAt} />
-                </span>
-              )}
+              <CommunityAuthorMeta
+                grade={comment.activityGrade}
+                verified={comment.verified}
+                arcana={comment.arcana}
+                createdAt={comment.createdAt}
+              />
             </div>
           </div>
           {/* Edit/Delete Buttons */}

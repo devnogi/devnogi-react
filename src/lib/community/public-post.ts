@@ -1,6 +1,7 @@
 import { cache } from "react";
 
 import type { ActivityGrade } from "@/types/experience";
+import type { GameProfile } from "@/types/profile";
 
 export interface PostDetail {
   id: number;
@@ -26,6 +27,7 @@ export interface PostDetail {
     serverName: string | null;
     verified: boolean;
     activityGrade?: ActivityGrade | null;
+    arcana?: GameProfile["arcana"];
   };
   media?: Array<{
     id: number;

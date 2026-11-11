@@ -204,10 +204,20 @@ describe("PostCard", () => {
   it("작성자 응답의 활동 등급을 정규화 후에도 유지한다", () => {
     const item = normalizePostSummary({
       ...post,
-      author: { ...post.author, verified: true, activityGrade: "MASTER" },
+      author: {
+        ...post.author,
+        verified: true,
+        activityGrade: "MASTER",
+        arcana: "DARK_MAGE",
+      },
     });
     renderCard(item);
     expect(screen.getByLabelText("활동 등급: 마스터")).toBeInTheDocument();
+    expect(screen.getByLabelText("활동 등급: 마스터").closest("a")).toBeNull();
+    expect(screen.getByText("다크 메이지")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("활동 등급: 마스터").parentElement,
+    ).toHaveTextContent(/마스터·다크 메이지·/);
   });
 
   it("미인증 작성자에는 서버 약어를 표시하지 않는다", () => {

@@ -14,14 +14,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import type { PostSummary } from "@/hooks/useInfinitePosts";
 import { clientAxios } from "@/lib/api/clients";
 
-import CommunityTime from "./CommunityTime";
+import CommunityAuthorMeta from "./CommunityAuthorMeta";
 import PostComposer from "./PostComposer";
 import ReportDialog from "./ReportDialog";
 
@@ -201,21 +200,14 @@ export default function PostCard({ post }: Props) {
                 />
                 <span className="truncate">{post.author.nickname}</span>
                 {post.author.verified && <VerifiedBadge size="sm" />}
-                <ActivityGradeBadge
-                  grade={post.author.activityGrade}
-                  verified={post.author.verified}
-                />
               </Link>
-              <div className="text-xs leading-[18px] text-muted-foreground">
-                <span>{post.author.serverName || "에린"}</span>
-                <span aria-hidden="true"> · </span>
-                <Link
-                  href={`/community/${post.id}`}
-                  className="hover:underline"
-                >
-                  <CommunityTime value={post.createdAt} />
-                </Link>
-              </div>
+              <CommunityAuthorMeta
+                grade={post.author.activityGrade}
+                verified={post.author.verified}
+                arcana={post.author.arcana}
+                createdAt={post.createdAt}
+                href={`/community/${post.id}`}
+              />
             </div>
             <div className="relative">
               <button
