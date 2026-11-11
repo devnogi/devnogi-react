@@ -28,7 +28,11 @@ beforeEach(() => {
               id: 2,
               outfitId: 1,
               userId: 3,
-              author: { nickname: "다른 사용자" },
+              author: {
+                nickname: "다른 사용자",
+                verified: true,
+                activityGrade: "SENIOR",
+              },
               content: "좋은 의장이에요",
               parentId: null,
               deleted: false,
@@ -52,6 +56,7 @@ it("hides editing controls for another user's comment and submits a one-level re
     </QueryClientProvider>,
   );
   await screen.findByText("좋은 의장이에요");
+  expect(screen.getByLabelText("활동 등급: 수석")).toBeInTheDocument();
   expect(
     screen.queryByRole("button", { name: "수정" }),
   ).not.toBeInTheDocument();

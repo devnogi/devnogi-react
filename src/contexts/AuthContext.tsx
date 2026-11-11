@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 
+import type { ActivityGrade } from "@/types/experience";
 import type { GameProfile } from "@/types/profile";
 
 export interface User extends GameProfile {
@@ -18,6 +19,7 @@ export interface User extends GameProfile {
   profileImageUrl: string | null;
   role?: "USER" | "ADMIN" | "SUPER_ADMIN";
   verified?: boolean;
+  activityGrade?: ActivityGrade | null;
   serverName?: string | null;
   characterName?: string | null;
   createdAt?: string;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { outfitJson, outfitRequest } from "@/lib/outfits/api";
 import type { OutfitComment, OutfitPage } from "@/types/outfits";
@@ -120,9 +121,13 @@ function CommentRow({
         {!comment.deleted && (
           <Link
             href={`/profile/${comment.userId}`}
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-foreground"
+            className="inline-flex min-h-11 flex-wrap items-center gap-2 text-sm font-semibold text-foreground"
           >
             {comment.author.nickname}
+            <ActivityGradeBadge
+              grade={comment.author.activityGrade}
+              verified={comment.author.verified}
+            />
           </Link>
         )}
         <time dateTime={comment.createdAt}>

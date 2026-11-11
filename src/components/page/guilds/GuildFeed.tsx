@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import type { UserVerificationInfoResponse } from "@/types/verification";
 
@@ -220,6 +221,15 @@ export default function GuildFeed({
                 <Link href={"/" + path + "/" + e.id}>{e.title}</Link>
               )}
             </h3>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <Link href={`/profile/${e.authorId}`}>
+                {e.authorNickname || `사용자 ${e.authorId}`}
+              </Link>
+              <ActivityGradeBadge
+                grade={e.activityGrade}
+                verified={e.authorVerified}
+              />
+            </div>
             <small>
               {isPost
                 ? e.visibility === "MEMBERS"

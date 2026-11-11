@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import type { PostSummary } from "@/hooks/useInfinitePosts";
+import {
+  normalizePostSummary,
+  type PostSummary,
+} from "@/hooks/useInfinitePosts";
 import { clientAxios } from "@/lib/api/clients";
 
 import PostCard from "./PostCard";
@@ -74,6 +77,15 @@ describe("PostCard", () => {
       author: { ...post.author, verified: true },
     });
     expect(screen.getByLabelText("류트 서버")).toHaveTextContent("LT");
+  });
+
+  it("작성자 응답의 활동 등급을 정규화 후에도 유지한다", () => {
+    const item = normalizePostSummary({
+      ...post,
+      author: { ...post.author, verified: true, activityGrade: "MASTER" },
+    });
+    renderCard(item);
+    expect(screen.getByLabelText("활동 등급: 마스터")).toBeInTheDocument();
   });
 
   it("미인증 작성자에는 서버 약어를 표시하지 않는다", () => {

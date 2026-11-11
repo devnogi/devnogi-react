@@ -1,6 +1,7 @@
 import { BadgeCheck } from "lucide-react";
 import Image from "next/image";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import type { PublicUserProfile } from "@/types/profile";
 import {
   ARCANA_OPTIONS,
@@ -59,6 +60,10 @@ export default function PublicProfileHeader({
           <h1 className="min-w-0 break-words text-2xl font-bold tracking-tight text-gray-950 dark:text-white md:text-[28px]">
             {profile.nickname}
           </h1>
+          <ActivityGradeBadge
+            grade={profile.activityGrade}
+            verified={profile.verified}
+          />
           {profile.verified ? (
             <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-ds-primary)]">
               <BadgeCheck className="h-5 w-5" aria-hidden="true" />

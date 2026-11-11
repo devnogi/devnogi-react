@@ -35,16 +35,19 @@ const comment = {
   createdAt: "2026-11-07T00:00:00Z",
   updatedAt: "2026-11-07T00:00:00Z",
   verified: true,
+  activityGrade: "SENIOR" as const,
 };
 
 it("인증된 댓글 작성자 이름 앞에 서버 약어를 표시한다", () => {
   render(<CommentItem comment={comment} postId="7" />);
   expect(screen.getByLabelText("만돌린 서버")).toHaveTextContent("MD");
+  expect(screen.getByLabelText("활동 등급: 수석")).toBeInTheDocument();
 });
 
 it("미인증 댓글 작성자에는 서버 약어를 표시하지 않는다", () => {
   render(<CommentItem comment={{ ...comment, verified: false }} postId="7" />);
   expect(screen.queryByLabelText("만돌린 서버")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("활동 등급: 수석")).not.toBeInTheDocument();
 });
 
 it.each([

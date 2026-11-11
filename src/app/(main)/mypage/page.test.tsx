@@ -38,6 +38,13 @@ jest.mock("sonner", () => ({
 }));
 jest.mock("@/components/auth/LoginModal", () => () => null);
 jest.mock("@/components/page/mypage/NotificationList", () => () => null);
+jest.mock(
+  "@/components/page/mypage/ExperiencePanel",
+  () =>
+    function MockExperiencePanel() {
+      return <div>활동 경험치</div>;
+    },
+);
 jest.mock("@/components/page/mypage/VerificationTab", () => () => null);
 jest.mock("@/components/page/community/PostList", () => () => null);
 

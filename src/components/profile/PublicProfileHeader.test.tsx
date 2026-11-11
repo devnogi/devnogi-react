@@ -11,6 +11,7 @@ it("null 항목은 숨기고 설정된 게임 프로필만 표시한다", () => 
         profileImageUrl: null,
         serverName: "류트",
         verified: true,
+        activityGrade: "EXPERT",
         verificationCount: 3,
         mainChannel: 7,
         guildName: null,
@@ -25,6 +26,7 @@ it("null 항목은 숨기고 설정된 게임 프로필만 표시한다", () => 
 
   expect(screen.getByRole("heading", { name: "밀레시안" })).toBeInTheDocument();
   expect(screen.getByText("인게임 인증 · 3회")).toBeInTheDocument();
+  expect(screen.getByLabelText("활동 등급: 달인")).toBeInTheDocument();
   expect(screen.getByText("7채널")).toBeInTheDocument();
   expect(screen.getByText("엘프")).toBeInTheDocument();
   expect(screen.queryByText("길드")).not.toBeInTheDocument();
@@ -42,6 +44,7 @@ it("현재 미인증이어도 기존 인증 횟수를 함께 표시한다", () =
         profileImageUrl: null,
         serverName: null,
         verified: false,
+        activityGrade: "EXPERT",
         verificationCount: 3,
         mainChannel: null,
         guildName: null,
@@ -54,6 +57,7 @@ it("현재 미인증이어도 기존 인증 횟수를 함께 표시한다", () =
     />,
   );
   expect(screen.getByText("인게임 미인증 · 인증 3회")).toBeInTheDocument();
+  expect(screen.queryByLabelText("활동 등급: 달인")).not.toBeInTheDocument();
 });
 
 it("인증 이력이 없으면 0회 문구를 숨기고 긴 이름과 소개는 보존한다", () => {

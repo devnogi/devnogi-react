@@ -46,7 +46,7 @@ it("retains personalized state for every loaded card after more than 48 results"
       content: Array.from({ length: 24 }, (_, i) => ({
         id: page * 24 + i + 1,
         userId: 7,
-        author: { nickname: "작성자" },
+        author: { nickname: "작성자", verified: true, activityGrade: "EXPERT" },
         images: [],
         likeCount: 1,
         commentCount: 0,
@@ -67,6 +67,7 @@ it("retains personalized state for every loaded card after more than 48 results"
   await waitFor(() =>
     expect(screen.getByTestId("state-1")).toHaveTextContent("true"),
   );
+  expect(screen.getAllByLabelText("활동 등급: 달인")).toHaveLength(24);
   fireEvent.click(screen.getByRole("button", { name: "더 보기" }));
   await screen.findByTestId("state-48");
   await waitFor(() =>

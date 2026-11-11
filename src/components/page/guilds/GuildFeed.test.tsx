@@ -12,6 +12,9 @@ const entry = {
   body: "함께해요",
   status: "OPEN",
   authorId: 20,
+  authorNickname: "길드 작성자",
+  authorVerified: true,
+  activityGrade: "EXPERT",
 };
 function mount(role: string | null) {
   const guild = {
@@ -59,6 +62,11 @@ it("인증된 같은 서버 방문자가 모집글에 지원한다", async () =>
     ),
   );
   expect(screen.queryByText("모집글 작성")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("활동 등급: 달인")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "길드 작성자" })).toHaveAttribute(
+    "href",
+    "/profile/20",
+  );
 });
 it("부마스터에게 모집 편집과 심사 기능을 표시한다", async () => {
   mount("DEPUTY");

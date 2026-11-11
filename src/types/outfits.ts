@@ -1,3 +1,5 @@
+import type { ActivityGrade } from "@/types/experience";
+
 export const OUTFIT_SLOTS = [
   ["HEAD", "머리(헤어)", false],
   ["ACCESSORY_1", "액세서리 1", false],
@@ -29,6 +31,7 @@ interface OutfitAuthor {
   profileImageUrl: string | null;
   serverName: string | null;
   verified: boolean;
+  activityGrade?: ActivityGrade | null;
 }
 interface OutfitImage {
   id: number;

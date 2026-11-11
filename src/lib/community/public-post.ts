@@ -1,5 +1,7 @@
 import { cache } from "react";
 
+import type { ActivityGrade } from "@/types/experience";
+
 export interface PostDetail {
   id: number;
   boardId: number;
@@ -23,6 +25,7 @@ export interface PostDetail {
     profileImageUrl: string | null;
     serverName: string | null;
     verified: boolean;
+    activityGrade?: ActivityGrade | null;
   };
   media?: Array<{
     id: number;

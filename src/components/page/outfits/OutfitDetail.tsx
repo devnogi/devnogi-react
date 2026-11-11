@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { outfitRequest } from "@/lib/outfits/api";
@@ -139,9 +140,13 @@ function Detail({
             <div>
               <Link
                 href={`/profile/${outfit.userId}`}
-                className="inline-flex min-h-11 items-center gap-2 font-semibold"
+                className="inline-flex min-h-11 flex-wrap items-center gap-2 break-words font-semibold"
               >
                 {outfit.author.nickname}
+                <ActivityGradeBadge
+                  grade={outfit.author.activityGrade}
+                  verified={outfit.author.verified}
+                />
                 <ServerCodeBadge
                   serverName={outfit.author.serverName}
                   verified={outfit.author.verified}

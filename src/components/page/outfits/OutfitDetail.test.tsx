@@ -51,7 +51,8 @@ const outfit: Outfit = {
     nickname: "작성자",
     profileImageUrl: null,
     serverName: null,
-    verified: false,
+    verified: true,
+    activityGrade: "GRANDMASTER",
   },
   content: "",
   images: [{ id: 10, url: "/photo.png", displayOrder: 0 }],
@@ -80,6 +81,7 @@ it("renders the detail photo from the original endpoint without optimization", (
   expect(
     screen.getByRole("img", { name: "작성자의 의장 사진 1" }),
   ).toBeVisible();
+  expect(screen.getByLabelText("활동 등급: 그랜드마스터")).toBeInTheDocument();
   expect(imageProps.mock.calls[0][0]).toMatchObject({
     src: "/api/outfits/1/images/10",
     unoptimized: true,
