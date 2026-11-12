@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperience } from "@/hooks/useExperience";
 import { heroRequest } from "@/lib/hero/request";
-import { heroTime } from "@/lib/hero/validation";
+import { heroStartTime, heroTime } from "@/lib/hero/validation";
 import type {
   HeroAuction,
   HeroAuctionsResponse,
@@ -460,7 +460,9 @@ export default function HeroAuctionsPage() {
       ) : null}
       {query.data && !query.data.enabled ? (
         <p role="status" className="rounded-lg border p-4">
-          경매 오픈 준비 중입니다. 공개된 시작 일정부터 입찰할 수 있습니다.
+          {query.data.scheduledStartAt
+            ? `${heroStartTime(query.data.scheduledStartAt)} (한국 시간) 시작 예정입니다. 시작 시각부터 입찰할 수 있습니다.`
+            : "현재 광고 경매가 비활성화되어 있습니다."}
         </p>
       ) : null}
       {isLoading ? (

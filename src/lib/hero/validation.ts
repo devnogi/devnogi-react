@@ -72,6 +72,21 @@ export function heroTime(value: string | null): string {
     : "제한 없음";
 }
 
+const heroStartFormatter = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  weekday: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+export function heroStartTime(value: string): string {
+  return heroStartFormatter.format(new Date(value));
+}
+
 export function toKoreanInput(value: string | null): string {
   return value
     ? new Date(Date.parse(value) + 9 * 60 * 60 * 1000)
