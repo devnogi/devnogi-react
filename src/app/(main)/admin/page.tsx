@@ -392,6 +392,9 @@ export default function AdminPage() {
           <div>
             <p className="text-sm text-gray-500">ADMIN 전용</p>
             <h1 className="text-2xl font-bold">운영자 작업 콘솔</h1>
+            <Link href="/admin/hero" className="underline underline-offset-4">
+              메인 Hero·광고 경매 관리
+            </Link>
             <Link href="/admin/guilds" className="underline underline-offset-4">
               길드 등록 심사 및 마스터 지정
             </Link>

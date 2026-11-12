@@ -13,6 +13,11 @@ export interface ExperienceSummary {
   eligible: boolean;
   activityGrade: ActivityGrade | null;
   totalXp: number;
+  currentXp?: number;
+  spentXp?: number;
+  reservedXp?: number;
+  availableXp?: number;
+  deficitXp?: number;
   currentGradeMinXp: number;
   nextGrade: ActivityGrade | null;
   nextGradeMinXp: number | null;
