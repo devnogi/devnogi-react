@@ -4,8 +4,13 @@ import clsx from "clsx";
 import { ChevronDown, Home, Moon, Sun, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { useState } from "react";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -74,98 +79,67 @@ function NavigationDropdown({
 }) {
   const isActive = links.some(({ href }) => isCurrentPath(pathname, href));
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuId = useId();
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const closeOutside = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node))
-        setIsOpen(false);
-    };
-    document.addEventListener("pointerdown", closeOutside);
-    return () => document.removeEventListener("pointerdown", closeOutside);
-  }, [isOpen]);
-
   return (
-    <div
-      ref={containerRef}
-      className="relative shrink-0"
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget))
-          setIsOpen(false);
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape" && isOpen) {
-          event.preventDefault();
-          setIsOpen(false);
-          triggerRef.current?.focus();
-        }
-      }}
-    >
-      <button
-        type="button"
-        ref={triggerRef}
-        aria-expanded={isOpen}
-        aria-controls={menuId}
-        onClick={() => setIsOpen((open) => !open)}
-        className={clsx(
-          "relative flex h-12 md:h-16 items-center gap-1 min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
-          isActive
-            ? "text-primary"
-            : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
-        )}
-      >
-        {label}
-        <ChevronDown
-          aria-hidden="true"
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-expanded={isOpen}
           className={clsx(
-            "h-3.5 w-3.5 transition-transform duration-150",
-            isOpen && "rotate-180",
+            "relative flex h-12 shrink-0 md:h-16 items-center gap-1 min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
+            isActive
+              ? "text-primary"
+              : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
           )}
-        />
-        {isActive ? <ActiveIndicator /> : null}
-      </button>
+        >
+          {label}
+          <ChevronDown
+            aria-hidden="true"
+            className={clsx(
+              "h-3.5 w-3.5 transition-transform duration-150",
+              isOpen && "rotate-180",
+            )}
+          />
+          {isActive ? <ActiveIndicator /> : null}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="center"
+        sideOffset={8}
+        collisionPadding={16}
+        aria-label={`${label} 메뉴`}
+        className="w-48 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-[0_14px_34px_rgba(61,56,47,0.16)] md:w-44 dark:border-navy-600 dark:bg-navy-700 dark:shadow-[0_14px_34px_rgba(0,0,0,0.34)]"
+      >
+        <div role="group" aria-label={`${label} 메뉴`}>
+          {links.map(({ href, label: itemLabel }) => {
+            const isItemActive = isCurrentPath(pathname, href);
 
-      {isOpen ? (
-        <div className="fixed top-28 left-4 z-50 w-48 pt-2 md:absolute md:top-full md:left-1/2 md:w-44 md:-translate-x-1/2">
-          <div
-            id={menuId}
-            role="group"
-            aria-label={`${label} 메뉴`}
-            className="overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-[0_14px_34px_rgba(61,56,47,0.16)] dark:border-navy-600 dark:bg-navy-700 dark:shadow-[0_14px_34px_rgba(0,0,0,0.34)]"
-          >
-            {links.map(({ href, label: itemLabel }) => {
-              const isItemActive = isCurrentPath(pathname, href);
-
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setIsOpen(false)}
-                  className={clsx(
-                    "flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
-                    isItemActive
-                      ? "bg-[var(--color-ds-primary-50)] text-primary"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-950 dark:text-gray-200 dark:hover:bg-navy-600 dark:hover:text-white",
-                  )}
-                  aria-current={isItemActive ? "page" : undefined}
-                >
-                  {itemLabel}
-                </Link>
-              );
-            })}
-          </div>
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setIsOpen(false)}
+                className={clsx(
+                  "flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring",
+                  isItemActive
+                    ? "bg-[var(--color-ds-primary-50)] text-primary"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-950 dark:text-gray-200 dark:hover:bg-navy-600 dark:hover:text-white",
+                )}
+                aria-current={isItemActive ? "page" : undefined}
+              >
+                {itemLabel}
+              </Link>
+            );
+          })}
         </div>
-      ) : null}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
 export default function ThreeTierNav() {
   const pathname = usePathname();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const isAdminUser = isAdminRole(user?.role);
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -182,7 +156,7 @@ export default function ThreeTierNav() {
 
         <nav
           aria-label="주요 메뉴"
-          className="col-span-2 row-start-2 flex h-12 min-w-0 items-center justify-between border-t border-border md:col-span-1 md:col-start-2 md:row-start-1 md:h-16 md:justify-start md:border-0"
+          className="col-span-2 row-start-2 flex h-12 min-w-0 items-center justify-between overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-t border-border md:overflow-visible md:col-span-1 md:col-start-2 md:row-start-1 md:h-16 md:justify-start md:border-0"
         >
           <Link
             href="/"
@@ -203,11 +177,13 @@ export default function ThreeTierNav() {
             label="커뮤니티"
             pathname={pathname}
           />
-          <NavigationItem
-            href="/hero-auctions"
-            label="광고 경매"
-            pathname={pathname}
-          />
+          {!isLoading && isAuthenticated ? (
+            <NavigationItem
+              href="/hero-auctions"
+              label="광고 경매"
+              pathname={pathname}
+            />
+          ) : null}
           <NavigationItem href="/guilds" label="길드" pathname={pathname} />
           <NavigationItem href="/outfits" label="의장" pathname={pathname} />
           <NavigationDropdown

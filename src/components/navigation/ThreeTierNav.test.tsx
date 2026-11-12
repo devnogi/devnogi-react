@@ -1,4 +1,11 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import ThreeTierNav from "./ThreeTierNav";
 
@@ -6,6 +13,7 @@ let pathname = "/";
 const toggleTheme = jest.fn();
 let mockAuthState: {
   isAuthenticated: boolean;
+  isLoading?: boolean;
   user: {
     nickname: string;
     role: string;
@@ -127,28 +135,32 @@ it("하위 경로에서도 상위 드롭다운 메뉴를 활성 상태로 표시
   );
 });
 
-it("드롭다운을 열고 Escape로 닫으면 트리거로 포커스를 돌린다", () => {
+it("드롭다운을 열고 Escape로 닫으면 트리거로 포커스를 돌린다", async () => {
+  const user = userEvent.setup();
   render(<ThreeTierNav />);
   const trigger = screen.getByRole("button", { name: "경매장" });
   expect(trigger).toHaveAttribute("aria-expanded", "false");
-  fireEvent.click(trigger);
+  await user.click(trigger);
   expect(trigger).toHaveAttribute("aria-expanded", "true");
-  const link = screen.getByRole("link", { name: "시세 정보" });
-  link.focus();
-  fireEvent.keyDown(link, { key: "Escape" });
-  expect(trigger).toHaveAttribute("aria-expanded", "false");
-  expect(trigger).toHaveFocus();
+  await user.keyboard("{Escape}");
+  await waitFor(() =>
+    expect(trigger).toHaveAttribute("aria-expanded", "false"),
+  );
+  await waitFor(() => expect(trigger).toHaveFocus());
   expect(
     screen.queryByRole("group", { name: "경매장 메뉴" }),
   ).not.toBeInTheDocument();
 });
 
-it("바깥 영역을 누르면 드롭다운을 닫는다", () => {
+it("바깥 영역을 누르면 드롭다운을 닫는다", async () => {
+  const user = userEvent.setup();
   render(<ThreeTierNav />);
   const trigger = screen.getByRole("button", { name: "경매장" });
-  fireEvent.click(trigger);
-  fireEvent.pointerDown(document.body);
-  expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await user.click(trigger);
+  await user.click(document.body);
+  await waitFor(() =>
+    expect(trigger).toHaveAttribute("aria-expanded", "false"),
+  );
 });
 
 it("의장 메뉴를 커뮤니티와 경매장 사이에 표시하고 하위 경로를 활성화한다", () => {
@@ -158,9 +170,45 @@ it("의장 메뉴를 커뮤니티와 경매장 사이에 표시하고 하위 경
   const link = within(nav).getByRole("link", { name: "의장" });
   expect(link).toHaveAttribute("href", "/outfits");
   expect(link).toHaveAttribute("aria-current", "page");
-  expect(nav.textContent).toMatch(/커뮤니티광고 경매길드의장경매장/);
+  expect(nav.textContent).toMatch(/커뮤니티길드의장경매장/);
   expect(within(nav).getByRole("link", { name: "길드" })).toHaveAttribute(
     "href",
     "/guilds",
   );
+});
+
+it("비로그인 및 인증 로딩 중에는 광고 경매 메뉴를 숨긴다", () => {
+  const { rerender } = render(<ThreeTierNav />);
+  expect(
+    screen.queryByRole("link", { name: "광고 경매" }),
+  ).not.toBeInTheDocument();
+  mockAuthState = {
+    isAuthenticated: true,
+    isLoading: true,
+    user: { nickname: "회원", role: "USER", verified: false },
+  };
+  rerender(<ThreeTierNav />);
+  expect(
+    screen.queryByRole("link", { name: "광고 경매" }),
+  ).not.toBeInTheDocument();
+  mockAuthState = { ...mockAuthState, isLoading: false };
+  rerender(<ThreeTierNav />);
+  expect(screen.getByRole("link", { name: "광고 경매" })).toHaveAttribute(
+    "href",
+    "/hero-auctions",
+  );
+});
+
+it("모바일 메뉴는 가로 스크롤하며 드롭다운은 헤더 밖 Portal에 표시한다", async () => {
+  const user = userEvent.setup();
+  render(<ThreeTierNav />);
+  const navigation = screen.getByRole("navigation", { name: "주요 메뉴" });
+  expect(navigation).toHaveClass("overflow-x-auto", "md:overflow-visible");
+  await user.click(screen.getByRole("button", { name: "도감" }));
+  const menu = await screen.findByRole("group", { name: "도감 메뉴" });
+  expect(navigation).not.toContainElement(menu);
+  expect(menu.closest("header")).toBeNull();
+  expect(
+    within(menu).getByRole("link", { name: "아이템 도감" }),
+  ).toHaveAttribute("href", "/item-info");
 });
