@@ -12,4 +12,20 @@ API 제공자는 Auth이며 BFF는 `/api/hero`, `/api/user/hero`, `/api/admin/he
 
 검증: `npm run verify`. 주요 회귀 검증은 Hero 캐러셀·일정 만료, URL 우회, BFF 쿠키/CSRF 경계, 관리자 최소 이미지 보호, 입찰 자격·소재 선택, 외부 상위 입찰 후 XP 예약 해제 표시다.
 
-운영에서는 Auth 스키마와 API를 먼저 배포한 후 프런트를 배포한다. Auth의 경매 활성화 및 시작일 설정 전에는 경매 오픈 준비 상태를 표시한다. PR 병합과 운영 설정 변경은 별도 승인 절차를 따른다.
+운영에서는 Auth 스키마와 API를 먼저 배포한 후 프런트를 배포한다. 경매 응답의 `enabled`는 현재 입찰 가능 여부이며, 활성화 설정 후 미래 시작일을 기다리면 `scheduledStartAt`에 UTC 시작 시각이 제공된다. 사용자와 관리자 화면은 이를 한국 시간의 날짜·요일·24시간 시각으로 표시한다. 비활성화 상태 또는 이미 시작된 경매에서는 `scheduledStartAt`이 `null`이다. 이전 API에서 필드가 생략되어도 동작하며, `enabled=false`이고 예정 시각이 없으면 비활성화 안내를 표시한다. PR 병합과 운영 설정 변경은 별도 승인 절차를 따른다.
+
+## 시작 예정 안내 수정 v1 — 2026-11-12
+
+- 대상: React 사용자 `/hero-auctions`, 관리자 `/admin/hero`, 경매 응답 타입 및 날짜 표현·화면 회귀 테스트.
+- 완료 기준: `2026-11-15T15:00:00Z`를 `2026년 11월 16일 월요일 00:00 (한국 시간)` 시작 예정으로 표시한다. 예약 시작과 비활성화를 구분하고, 예정 상태에서는 기존 `enabled=false` 입찰 차단을 유지한다.
+- 호환성: `scheduledStartAt`은 선택 필드다. `null`·필드 없음·개장 상태를 테스트하며 입찰·정산 정책은 변경하지 않는다.
+- 버전: `1.0.28`. 두 workflow 계약 테스트의 기대 버전과 package lock을 함께 갱신한다.
+- 검증: Node 20에서 `npm run verify` 및 `node --test scripts/workflow-contract.test.mjs scripts/test-production-workflow.mjs`. 실제 Chromium에서 양쪽 화면의 예정·비활성 상태를 별도로 확인한다.
+- 로컬 production 실행: 검증 빌드가 완료된 작업 폴더에서 로컬 Gateway URL을 지정하고 `npm run start -- -H 127.0.0.1 -p 3327`을 실행한다. 개발 서버와 빌드를 같은 `.next`에서 동시에 실행하지 않는다. 실제 운영 연결이나 운영 설정 변경은 이 수정 범위에 포함하지 않는다.
+
+## 동일 출처 변경 요청 수정 v2 — 2026-11-12
+
+- 실제 Chromium에서 Origin·Host가 모두 `127.0.0.1:3327`인 관리자 순서 변경이 403으로 차단되었다. Next.js 15의 `NextURL`은 loopback hostname을 `localhost`로 정규화하며, reverse proxy 뒤에서는 내부 서버 주소를 사용할 수 있다.
+- BFF의 변경 요청 검증은 브라우저 Origin을 실제 HTTP `Host`와 단일 `X-Forwarded-Proto` (`http` 또는 `https`, 없으면 요청 protocol)로 구성한 출처에 대조한다. `X-Forwarded-Host`는 사용하지 않으며 `localhost`와 `127.0.0.1`을 서로 같은 출처로 취급하지 않는다.
+- Host의 공백·쉼표·사용자 정보·경로·쿼리·프래그먼트 및 복수 protocol을 거부한다. 기존 변경 헤더와 cross-site/same-site 차단을 유지한다.
+- 회귀 검증: IPv4·IPv6·localhost의 정상 동일 출처, HTTPS reverse proxy, 위조 forwarded-host, 다른 호스트·포트·scheme 및 잘못된 Host/protocol. 표준 verify 후 로컬 production BFF와 실제 Chromium 관리자 순서 변경으로 다시 확인한다.

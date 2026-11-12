@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { heroRequest } from "@/lib/hero/request";
 import {
   fromKoreanInput,
+  heroStartTime,
   heroTime,
   toKoreanInput,
 } from "@/lib/hero/validation";
@@ -324,9 +325,10 @@ export default function HeroAdministration() {
         {auctions.isPending ? <p role="status">경매 불러오는 중…</p> : null}
         {auctions.isError ? <p role="alert">{auctions.error.message}</p> : null}
         {auctions.data && !auctions.data.enabled ? (
-          <p className="text-sm">
-            현재 경매가 비활성화되어 있습니다. 운영 설정과 시작일을
-            확인해주세요.
+          <p role="status" className="text-sm">
+            {auctions.data.scheduledStartAt
+              ? `${heroStartTime(auctions.data.scheduledStartAt)} (한국 시간) 시작 예정입니다. 시작 시각부터 입찰할 수 있습니다.`
+              : "현재 경매가 비활성화되어 있습니다. 운영 설정을 확인해주세요."}
           </p>
         ) : null}
         {Array.from(

@@ -43,6 +43,7 @@ export interface HeroAuctionsResponse {
   auctions: HeroAuction[];
   serverTime: string;
   enabled: boolean;
+  scheduledStartAt?: string | null;
 }
 
 export interface HeroHistory {

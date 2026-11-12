@@ -22,6 +22,7 @@ it("forwards only Auth access cookie and multipart boundary, never spoofed ident
       method: "POST",
       headers: {
         origin: "https://www.memonogi.com",
+        host: "www.memonogi.com",
         "x-hero-action": "1",
         cookie: "access_token=member; refresh_token=private",
         "content-type": "multipart/form-data; boundary=test",
@@ -54,11 +55,118 @@ it.each([
 ])("rejects cross-origin and ambient-cookie mutations %#", async (headers) => {
   const request = new NextRequest(
     "https://www.memonogi.com/api/admin/hero/slides",
-    { method: "POST", headers: headers as HeadersInit },
+    {
+      method: "POST",
+      headers: { host: "www.memonogi.com", ...headers } as HeadersInit,
+    },
   );
   expect((await proxyHero(request, ["slides"], "admin")).status).toBe(403);
   expect(fetch).not.toHaveBeenCalled();
 });
+
+it.each(["127.0.0.1:3327", "[::1]:3327", "localhost:3327"])(
+  "accepts the actual loopback Host %s despite NextURL normalization",
+  async (host) => {
+    const request = new NextRequest(
+      `http://${host}/api/admin/hero/slides/order`,
+      {
+        method: "PUT",
+        headers: {
+          host,
+          origin: `http://${host}`,
+          "x-hero-action": "1",
+          "sec-fetch-site": "same-origin",
+        },
+        body: '{"ids":[1,2]}',
+      },
+    );
+    expect(request.nextUrl.origin).toBe("http://localhost:3327");
+    expect(
+      (await proxyHero(request, ["slides", "order"], "admin")).status,
+    ).toBe(200);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  },
+);
+
+it("accepts HTTPS proxy traffic using its actual Host and single forwarded protocol", async () => {
+  const request = new NextRequest(
+    "http://0.0.0.0:3010/api/admin/hero/slides/order",
+    {
+      method: "PUT",
+      headers: {
+        host: "www.memonogi.com",
+        origin: "https://www.memonogi.com",
+        "x-forwarded-proto": "https",
+        "x-forwarded-host": "evil.com",
+        "x-hero-action": "1",
+        "sec-fetch-site": "same-origin",
+      },
+      body: '{"ids":[1,2]}',
+    },
+  );
+  expect((await proxyHero(request, ["slides", "order"], "admin")).status).toBe(
+    200,
+  );
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it.each([
+  {
+    host: "127.0.0.1:3327",
+    origin: "http://localhost:3327",
+    "x-forwarded-proto": "http",
+  },
+  {
+    host: "www.memonogi.com",
+    origin: "https://evil.com",
+    "x-forwarded-host": "evil.com",
+  },
+  { host: "www.memonogi.com", origin: "http://www.memonogi.com" },
+  { host: "www.memonogi.com", origin: "https://www.memonogi.com:444" },
+  { host: "www.memonogi.com", origin: "https://www.memonogi.com/path" },
+  {
+    host: "www.memonogi.com",
+    origin: "https://www.memonogi.com",
+    "x-forwarded-proto": "https,http",
+  },
+  {
+    host: "www.memonogi.com",
+    origin: "https://www.memonogi.com",
+    "x-forwarded-proto": "javascript",
+  },
+  { host: "www.memonogi.com,evil.com", origin: "https://www.memonogi.com" },
+  { host: "evil.com@www.memonogi.com", origin: "https://www.memonogi.com" },
+  { host: "www.memonogi.com/path", origin: "https://www.memonogi.com" },
+  { host: "www.memonogi.com\\evil", origin: "https://www.memonogi.com" },
+  { host: "www.memonogi.com#evil", origin: "https://www.memonogi.com" },
+  { host: "www.memonogi.com?evil", origin: "https://www.memonogi.com" },
+  {
+    host: "",
+    origin: "https://www.memonogi.com",
+    "x-forwarded-host": "www.memonogi.com",
+  },
+])(
+  "rejects different origins and malformed proxy authority %#",
+  async (headers) => {
+    const request = new NextRequest(
+      "http://0.0.0.0:3010/api/admin/hero/slides/order",
+      {
+        method: "PUT",
+        headers: {
+          "x-hero-action": "1",
+          "sec-fetch-site": "same-origin",
+          "x-forwarded-proto": "https",
+          ...headers,
+        } as HeadersInit,
+        body: '{"ids":[1,2]}',
+      },
+    );
+    expect(
+      (await proxyHero(request, ["slides", "order"], "admin")).status,
+    ).toBe(403);
+    expect(fetch).not.toHaveBeenCalled();
+  },
+);
 
 it("public reads do not forward cookies, and invalid paths never reach upstream", async () => {
   const request = new NextRequest("https://www.memonogi.com/api/hero", {

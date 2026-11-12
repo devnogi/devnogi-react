@@ -3,6 +3,32 @@ import { NextRequest, NextResponse } from "next/server";
 import { selectServerGatewayUrl } from "@/lib/api/gateway-selector";
 import { MEDIA_UPLOAD_TIMEOUT_MS } from "@/lib/api/timeouts";
 
+function hasSameRequestOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  const host = request.headers.get("host");
+  const protocol =
+    request.headers.get("x-forwarded-proto") ??
+    request.nextUrl.protocol.replace(/:$/, "");
+  if (
+    !origin ||
+    !host ||
+    /[\s,/@\\?#]/.test(host) ||
+    !["http", "https"].includes(protocol)
+  )
+    return false;
+  try {
+    const source = new URL(origin);
+    // NextURL rewrites loopback addresses and may use the internal server host.
+    // Compare the browser Origin with the HTTP Host; never trust forwarded-host.
+    return (
+      source.origin === origin &&
+      source.origin === new URL(`${protocol}://${host}`).origin
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function proxyHero(
   request: NextRequest,
   segments: string[],
@@ -13,12 +39,10 @@ export async function proxyHero(
     "x-content-type-options": "nosniff",
   };
   const writes = !["GET", "HEAD"].includes(request.method);
-  const origin = request.headers.get("origin");
   if (
     writes &&
     (request.headers.get("x-hero-action") !== "1" ||
-      !origin ||
-      origin !== request.nextUrl.origin ||
+      !hasSameRequestOrigin(request) ||
       ["cross-site", "same-site"].includes(
         request.headers.get("sec-fetch-site") ?? "",
       ))

@@ -15,6 +15,7 @@ jest.mock("@/lib/hero/request", () => ({ heroRequest: jest.fn() }));
 const request = jest.mocked(heroRequest);
 const auth = jest.mocked(useAuth);
 const experience = jest.mocked(useExperience);
+let availability: { enabled: boolean; scheduledStartAt?: string | null };
 const slide = {
   id: 1,
   imageUrl: "/home-hero-library-v2.png",
@@ -56,6 +57,7 @@ function mount(page: React.ReactNode) {
   );
 }
 beforeEach(() => {
+  availability = { enabled: true };
   auth.mockReturnValue({
     user: {
       mainChannel: null,
@@ -94,7 +96,7 @@ beforeEach(() => {
     if (path.includes("auctions") && !path.startsWith("user/"))
       return {
         auctions: [auction, { ...auction, id: 11, slot: 2 }],
-        enabled: true,
+        ...availability,
         serverTime: "2026-11-12T00:00:00Z",
       };
     if (path.endsWith("creatives")) return [creative];
@@ -191,4 +193,56 @@ it("does not request administrator data for an ordinary member", () => {
   mount(<HeroAdministration />);
   expect(screen.getByRole("alert")).toHaveTextContent("관리자 계정");
   expect(request).not.toHaveBeenCalled();
+});
+
+describe.each([
+  ["user", HeroAuctionsPage],
+  ["admin", HeroAdministration],
+] as const)("%s auction availability", (audience, Page) => {
+  it("distinguishes the scheduled Korean opening from a disabled auction", async () => {
+    availability = { enabled: false, scheduledStartAt: "2026-11-15T15:00:00Z" };
+    mount(<Page />);
+    expect(
+      await screen.findByText(
+        "2026년 11월 16일 월요일 00:00 (한국 시간) 시작 예정입니다. 시작 시각부터 입찰할 수 있습니다.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/비활성화되어 있습니다/)).not.toBeInTheDocument();
+    if (audience === "user") {
+      fireEvent.click(await screen.findByRole("radio", { name: "내 광고" }));
+      fireEvent.change(
+        screen.getByRole("spinbutton", { name: "1번 입찰액 (XP)" }),
+        { target: { value: "10" } },
+      );
+      expect(
+        screen.getByRole("button", { name: "1번 입찰하기" }),
+      ).toBeDisabled();
+    }
+  });
+
+  it.each([null, undefined])(
+    "shows disabled when the opening is %s, including older APIs",
+    async (scheduledStartAt) => {
+      availability = {
+        enabled: false,
+        ...(scheduledStartAt === undefined ? {} : { scheduledStartAt }),
+      };
+      mount(<Page />);
+      expect(
+        await screen.findByText(/비활성화되어 있습니다/),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/시작 예정입니다/)).not.toBeInTheDocument();
+    },
+  );
+
+  it("shows no pending or disabled announcement when the auction has opened", async () => {
+    availability = { enabled: true, scheduledStartAt: null };
+    mount(<Page />);
+    if (audience === "user")
+      await screen.findByRole("spinbutton", { name: "1번 입찰액 (XP)" });
+    else await screen.findByText("기본 이미지 (1/10)");
+    expect(
+      screen.queryByText(/시작 예정입니다|비활성화되어 있습니다/),
+    ).not.toBeInTheDocument();
+  });
 });

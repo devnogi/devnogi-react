@@ -1,6 +1,7 @@
 import fixtures from "../../../docs/hero-link-fixtures.json";
 import {
   fromKoreanInput,
+  heroStartTime,
   toKoreanInput,
   validateHeroImage,
   validateHeroLink,
@@ -17,6 +18,12 @@ it("uses Korean time regardless of browser timezone, with optional seconds", () 
     "2026-11-15T13:00:30.000Z",
   );
   expect(toKoreanInput("2026-11-15T13:00:00Z")).toBe("2026-11-15T22:00");
+});
+
+it("formats the scheduled opening with Korean calendar date, weekday and midnight", () => {
+  expect(heroStartTime("2026-11-15T15:00:00Z")).toBe(
+    "2026년 11월 16일 월요일 00:00",
+  );
 });
 
 it("rejects empty, oversized, and unsupported images before decoding", async () => {
