@@ -397,7 +397,11 @@ export default function HeroAuctionsPage() {
       <main className="mx-auto max-w-3xl space-y-4 py-8">
         <h1 className="text-xl font-semibold">로그인이 필요합니다</h1>
         <p>광고 경매는 로그인 후 이용할 수 있습니다.</p>
-        <Link href="/sign-in" className="text-primary underline">
+        <Link
+          href="/sign-in"
+          prefetch={false}
+          className="text-primary underline"
+        >
           로그인하기
         </Link>
       </main>
