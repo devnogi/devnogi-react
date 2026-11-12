@@ -22,3 +22,10 @@ API 제공자는 Auth이며 BFF는 `/api/hero`, `/api/user/hero`, `/api/admin/he
 - 버전: `1.0.28`. 두 workflow 계약 테스트의 기대 버전과 package lock을 함께 갱신한다.
 - 검증: Node 20에서 `npm run verify` 및 `node --test scripts/workflow-contract.test.mjs scripts/test-production-workflow.mjs`. 실제 Chromium에서 양쪽 화면의 예정·비활성 상태를 별도로 확인한다.
 - 로컬 production 실행: 검증 빌드가 완료된 작업 폴더에서 로컬 Gateway URL을 지정하고 `npm run start -- -H 127.0.0.1 -p 3327`을 실행한다. 개발 서버와 빌드를 같은 `.next`에서 동시에 실행하지 않는다. 실제 운영 연결이나 운영 설정 변경은 이 수정 범위에 포함하지 않는다.
+
+## 동일 출처 변경 요청 수정 v2 — 2026-11-12
+
+- 실제 Chromium에서 Origin·Host가 모두 `127.0.0.1:3327`인 관리자 순서 변경이 403으로 차단되었다. Next.js 15의 `NextURL`은 loopback hostname을 `localhost`로 정규화하며, reverse proxy 뒤에서는 내부 서버 주소를 사용할 수 있다.
+- BFF의 변경 요청 검증은 브라우저 Origin을 실제 HTTP `Host`와 단일 `X-Forwarded-Proto` (`http` 또는 `https`, 없으면 요청 protocol)로 구성한 출처에 대조한다. `X-Forwarded-Host`는 사용하지 않으며 `localhost`와 `127.0.0.1`을 서로 같은 출처로 취급하지 않는다.
+- Host의 공백·쉼표·사용자 정보·경로·쿼리·프래그먼트 및 복수 protocol을 거부한다. 기존 변경 헤더와 cross-site/same-site 차단을 유지한다.
+- 회귀 검증: IPv4·IPv6·localhost의 정상 동일 출처, HTTPS reverse proxy, 위조 forwarded-host, 다른 호스트·포트·scheme 및 잘못된 Host/protocol. 표준 verify 후 로컬 production BFF와 실제 Chromium 관리자 순서 변경으로 다시 확인한다.
