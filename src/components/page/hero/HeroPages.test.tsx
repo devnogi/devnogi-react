@@ -1,5 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import HeroAdministration from "@/app/(main)/admin/hero/page";
 import HeroAuctionsPage from "@/app/(main)/hero-auctions/page";
@@ -52,11 +59,13 @@ function mount(page: React.ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(
-    <QueryClientProvider client={client}>{page}</QueryClientProvider>,
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
+  return render(page, { wrapper });
 }
 beforeEach(() => {
+  experience.mockClear();
   availability = { enabled: true };
   auth.mockReturnValue({
     user: {
@@ -107,6 +116,92 @@ beforeEach(() => {
       serverTime: "2026-11-12T00:00:00Z",
     };
   });
+});
+
+it.each([false, true])(
+  "blocks auction contents and all requests during anonymous/loading=%s access",
+  (isLoading) => {
+    auth.mockReturnValue({
+      ...auth(),
+      user: null,
+      isAuthenticated: false,
+      isLoading,
+    });
+    mount(<HeroAuctionsPage />);
+    expect(
+      screen.queryByRole("heading", { name: "XP로 나의 광고를 알리세요" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "경매 규칙 보기" }),
+    ).not.toBeInTheDocument();
+    expect(request).not.toHaveBeenCalled();
+    expect(experience).not.toHaveBeenCalled();
+    if (isLoading)
+      expect(screen.getByRole("status")).toHaveTextContent("로그인 확인 중");
+    else
+      expect(screen.getByRole("link", { name: "로그인하기" })).toHaveAttribute(
+        "href",
+        "/sign-in",
+      );
+  },
+);
+
+it("hides stale member contents while authentication is being checked", () => {
+  auth.mockReturnValue({ ...auth(), isLoading: true });
+  mount(<HeroAuctionsPage />);
+  expect(screen.getByRole("status")).toHaveTextContent("로그인 확인 중");
+  expect(request).not.toHaveBeenCalled();
+});
+
+it("removes cached auction contents immediately after logout", async () => {
+  const { rerender } = mount(<HeroAuctionsPage />);
+  await screen.findByRole("spinbutton", { name: "1번 입찰액 (XP)" });
+  request.mockClear();
+  auth.mockReturnValue({ ...auth(), user: null, isAuthenticated: false });
+  rerender(<HeroAuctionsPage />);
+  expect(
+    screen.getByRole("heading", { name: "로그인이 필요합니다" }),
+  ).toBeInTheDocument();
+  expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("heading", { name: "내 참여 이력" }),
+  ).not.toBeInTheDocument();
+  expect(request).not.toHaveBeenCalled();
+});
+
+it("opens the preserved rules in a scrollable dialog and returns focus after Escape", async () => {
+  const user = userEvent.setup();
+  mount(<HeroAuctionsPage />);
+  const trigger = screen.getByRole("button", { name: "경매 규칙 보기" });
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  await user.click(trigger);
+  const dialog = await screen.findByRole("dialog", { name: "광고 경매 규칙" });
+  expect(dialog).toHaveAccessibleDescription(
+    "입찰 전 참여 조건과 XP 처리 규칙을 확인해주세요.",
+  );
+  expect(within(dialog).getAllByRole("listitem")).toHaveLength(6);
+  expect(
+    within(dialog).getByText(/경매는 매주 월요일 00시부터 일요일 22시까지/),
+  ).toBeInTheDocument();
+  expect(
+    within(dialog).getByRole("region", { name: "광고 경매 규칙 내용" }),
+  ).toHaveClass("overflow-y-auto");
+  expect(dialog).toHaveClass("max-h-[calc(100dvh-2rem)]");
+  await user.keyboard("{Escape}");
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  await waitFor(() => expect(trigger).toHaveFocus());
+  await user.click(trigger);
+  await user.click(
+    within(
+      await screen.findByRole("dialog", { name: "광고 경매 규칙" }),
+    ).getByRole("button", { name: "닫기" }),
+  );
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  await waitFor(() => expect(trigger).toHaveFocus());
 });
 
 it("requires a selected creative and submits an idempotent bid without trusting role for grade", async () => {

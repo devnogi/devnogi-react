@@ -8,6 +8,16 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import HeroCreativeForm from "@/components/page/hero/HeroCreativeForm";
 import HeroTransactionHistory from "@/components/page/hero/HeroTransactionHistory";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useExperience } from "@/hooks/useExperience";
 import { heroRequest } from "@/lib/hero/request";
@@ -380,7 +390,22 @@ function Participation({
 }
 
 export default function HeroAuctionsPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
+  if (isLoading) return <p role="status">로그인 확인 중…</p>;
+  if (!isAuthenticated || !user)
+    return (
+      <main className="mx-auto max-w-3xl space-y-4 py-8">
+        <h1 className="text-xl font-semibold">로그인이 필요합니다</h1>
+        <p>광고 경매는 로그인 후 이용할 수 있습니다.</p>
+        <Link href="/sign-in" className="text-primary underline">
+          로그인하기
+        </Link>
+      </main>
+    );
+  return <MemberHeroAuctions userId={user.userId} />;
+}
+
+function MemberHeroAuctions({ userId }: { userId: number }) {
   const query = useQuery({
     queryKey: ["hero", "auctions"],
     queryFn: () => heroRequest<HeroAuctionsResponse>("hero/auctions/current"),
@@ -415,40 +440,67 @@ export default function HeroAuctionsPage() {
           시간입니다.
         </p>
       </header>
-      <details className="rounded-xl border p-4">
-        <summary className="cursor-pointer font-medium">
-          입찰 전에 경매 규칙 확인
-        </summary>
-        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6">
-          <li>
-            인증된 정상 회원이면서 수석(45 XP) 이상이어야 합니다. 최소 10 XP, 1
-            XP 단위로 현재 최고가보다 높게 입찰합니다.
-          </li>
-          <li>
-            최고 입찰액은 예약되며 다른 사람이 높은 금액을 부르면 즉시
-            해제됩니다. 낙찰자만 최종 입찰액을 지불하고 등급이 내려갈 수
-            있습니다.
-          </li>
-          <li>
-            두 자리 모두 낙찰받을 수 있습니다. 마감 직전 등급과 합산 잔액을
-            검사하며, 합산 잔액이 부족하면 두 입찰 모두 무효입니다. 차순위에게
-            승계하지 않습니다.
-          </li>
-          <li>
-            입찰 취소·금액 인하·자동 입찰·마감 연장은 없습니다. 소재 교체는 더
-            높은 금액으로 재입찰해야 하며 낙찰 이후에는 바꿀 수 없습니다.
-          </li>
-          <li>
-            정책 위반 소재는 사전 심사 없이도 관리자가 차단할 수 있으며 노출
-            중단 시 환불하지 않습니다. 운영 사유로 경매를 취소하면 전액
-            환불합니다.
-          </li>
-          <li>
-            활동 삭제로 XP가 회수될 수 있습니다. 이미 소비한 XP의 부족분은 이후
-            적립에서 먼저 상쇄됩니다.
-          </li>
-        </ul>
-      </details>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline">경매 규칙 보기</Button>
+        </DialogTrigger>
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-2xl">
+          <DialogHeader className="shrink-0 pr-8">
+            <DialogTitle>광고 경매 규칙</DialogTitle>
+            <DialogDescription>
+              입찰 전 참여 조건과 XP 처리 규칙을 확인해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <div
+            role="region"
+            aria-label="광고 경매 규칙 내용"
+            tabIndex={0}
+            className="min-h-0 overflow-y-auto pr-2 focus-visible:outline-2 focus-visible:outline-ring"
+          >
+            <p className="text-sm leading-6">
+              경매는 매주 월요일 00시부터 일요일 22시까지 열립니다. 낙찰 광고는
+              다음 월요일 00시부터 7일간 노출됩니다. 모든 시각은 한국
+              시간입니다.
+            </p>
+            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6">
+              <li>
+                인증된 정상 회원이면서 수석(45 XP) 이상이어야 합니다. 최소 10
+                XP, 1 XP 단위로 현재 최고가보다 높게 입찰합니다.
+              </li>
+              <li>
+                최고 입찰액은 예약되며 다른 사람이 높은 금액을 부르면 즉시
+                해제됩니다. 낙찰자만 최종 입찰액을 지불하고 등급이 내려갈 수
+                있습니다.
+              </li>
+              <li>
+                두 자리 모두 낙찰받을 수 있습니다. 마감 직전 등급과 합산 잔액을
+                검사하며, 합산 잔액이 부족하면 두 입찰 모두 무효입니다.
+                차순위에게 승계하지 않습니다.
+              </li>
+              <li>
+                입찰 취소·금액 인하·자동 입찰·마감 연장은 없습니다. 소재 교체는
+                더 높은 금액으로 재입찰해야 하며 낙찰 이후에는 바꿀 수 없습니다.
+              </li>
+              <li>
+                정책 위반 소재는 사전 심사 없이도 관리자가 차단할 수 있으며 노출
+                중단 시 환불하지 않습니다. 운영 사유로 경매를 취소하면 전액
+                환불합니다.
+              </li>
+              <li>
+                활동 삭제로 XP가 회수될 수 있습니다. 이미 소비한 XP의 부족분은
+                이후 적립에서 먼저 상쇄됩니다.
+              </li>
+            </ul>
+          </div>
+          <DialogFooter className="shrink-0">
+            <DialogClose asChild>
+              <Button variant="outline" className="min-h-11">
+                닫기
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {query.isPending ? <p role="status">경매 불러오는 중…</p> : null}
       {query.isError ? (
         <p role="alert">
@@ -465,29 +517,12 @@ export default function HeroAuctionsPage() {
             : "현재 광고 경매가 비활성화되어 있습니다."}
         </p>
       ) : null}
-      {isLoading ? (
-        <p role="status">로그인 확인 중…</p>
-      ) : user ? (
-        <Participation
-          userId={user.userId}
-          auctions={current}
-          enabled={query.data?.enabled ?? false}
-          now={serverNow}
-        />
-      ) : (
-        <section className="space-y-3 rounded-xl border p-5">
-          <p>광고 소재 등록과 입찰은 로그인 후 이용할 수 있습니다.</p>
-          <Link className="text-primary underline" href="/sign-in">
-            로그인하기
-          </Link>
-          {current.map((auction) => (
-            <p key={auction.id}>
-              {auction.slot}번 · 최고가 {auction.highestBid.toLocaleString()} XP
-              · 마감 {heroTime(auction.closesAt)}
-            </p>
-          ))}
-        </section>
-      )}
+      <Participation
+        userId={userId}
+        auctions={current}
+        enabled={query.data?.enabled ?? false}
+        now={serverNow}
+      />
       {all.some((item) => item.weekStart !== latest) ? (
         <section className="space-y-3 rounded-xl border p-5">
           <h2 className="text-lg font-semibold">지난 경매 결과</h2>
