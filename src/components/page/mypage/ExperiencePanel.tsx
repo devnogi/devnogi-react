@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import HeroTransactionHistory from "@/components/page/hero/HeroTransactionHistory";
 import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { Button } from "@/components/ui/button";
 import { useExperience, useExperienceHistory } from "@/hooks/useExperience";
@@ -56,12 +57,28 @@ export default function ExperiencePanel({ userId }: { userId: number }) {
               verified={data.eligible}
             />
             <p className="text-2xl font-semibold tabular-nums">
-              {data.totalXp.toLocaleString()}{" "}
+              {(data.currentXp ?? data.totalXp).toLocaleString()}{" "}
               <span className="text-sm font-normal text-muted-foreground">
                 XP
               </span>
             </p>
           </div>
+          <p className="mt-3 text-sm text-muted-foreground">
+            예약 {data.reservedXp ?? 0} XP · 사용 가능{" "}
+            {data.availableXp ?? data.currentXp ?? data.totalXp} XP · 광고
+            순소비 {data.spentXp ?? 0} XP
+          </p>
+          {(data.deficitXp ?? 0) > 0 ? (
+            <p className="mt-2 text-sm text-destructive">
+              부족분 {data.deficitXp} XP는 이후 적립분에서 먼저 상쇄됩니다.
+            </p>
+          ) : null}
+          <Link
+            href="/hero-auctions"
+            className="mt-2 inline-block text-sm text-primary underline"
+          >
+            주간 광고 경매 참여하기
+          </Link>
           {data.eligible ? (
             <div className="mt-3">
               <progress
@@ -94,7 +111,7 @@ export default function ExperiencePanel({ userId }: { userId: number }) {
             </summary>
             <table className="mt-3 w-full text-left text-sm">
               <caption className="sr-only">
-                누적 경험치에 따른 활동 등급
+                현재 경험치에 따른 활동 등급
               </caption>
               <thead>
                 <tr>
@@ -102,7 +119,7 @@ export default function ExperiencePanel({ userId }: { userId: number }) {
                     등급
                   </th>
                   <th scope="col" className="py-2 text-right font-medium">
-                    필요 누적 경험치
+                    필요 현재 경험치
                   </th>
                 </tr>
               </thead>
@@ -181,6 +198,7 @@ export default function ExperiencePanel({ userId }: { userId: number }) {
           </Button>
         ) : null}
       </div>
+      <HeroTransactionHistory userId={userId} />
     </section>
   );
 }

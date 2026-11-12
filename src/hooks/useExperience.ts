@@ -9,7 +9,10 @@ import type {
   ExperienceSummary,
 } from "@/types/experience";
 
-export function useExperience(userId: number) {
+export function useExperience(
+  userId: number,
+  options?: { refetchInterval: number },
+) {
   return useQuery({
     queryKey: ["experience", userId, "summary"],
     queryFn: async () => {
@@ -22,6 +25,8 @@ export function useExperience(userId: number) {
       return data.data;
     },
     refetchOnMount: "always",
+    refetchInterval: options?.refetchInterval,
+    refetchOnWindowFocus: options ? "always" : false,
     retry: false,
   });
 }

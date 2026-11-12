@@ -7,6 +7,7 @@ import axios, {
 
 function isSensitiveAuthRequest(url?: string): boolean {
   return (
+    /^\/(?:user\/|admin\/)?hero(?:$|[/?])/.test(url ?? "") ||
     /^\/(?:admin\/)?guilds(?:$|[/?])/.test(url ?? "") ||
     url === "/user/verification/info" ||
     url === "/auth/oauth/exchange" ||

@@ -2,6 +2,22 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import HomeLanding from "./HomeLanding";
 
+jest.mock("@/hooks/useHero", () => ({
+  useHero: () =>
+    ["/home-hero-library-v2.png", "/home-hero-winter.png"].map(
+      (imageUrl, index) => ({
+        id: index + 1,
+        imageUrl,
+        altText: "메인 이미지",
+        linkUrl: null,
+        position: index + 1,
+        advertisement: false,
+        startsAt: null,
+        endsAt: null,
+      }),
+    ),
+}));
+
 jest.mock("@/app/(main)/home/HomeRankingCards", () => {
   function HomeRankingCardsMock() {
     return <div data-testid="ranking-cards" />;

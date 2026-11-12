@@ -15,6 +15,10 @@ import {
 
 import ExperiencePanel from "./ExperiencePanel";
 
+jest.mock("@/lib/hero/request", () => ({
+  heroRequest: jest.fn().mockResolvedValue({ bids: [], charges: [] }),
+}));
+
 jest.mock("@/lib/api/clients", () => ({ clientAxios: { get: jest.fn() } }));
 
 const get = jest.mocked(clientAxios.get);
