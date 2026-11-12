@@ -9,6 +9,15 @@ import userEvent from "@testing-library/user-event";
 
 import ThreeTierNav from "./ThreeTierNav";
 
+jest.mock("next/link", () => {
+  const Link = jest.requireActual("next/link").default;
+  return function ObservedLink(
+    props: React.ComponentProps<typeof import("next/link").default>,
+  ) {
+    return <Link {...props} data-prefetch={String(props.prefetch ?? "auto")} />;
+  };
+});
+
 let pathname = "/";
 const toggleTheme = jest.fn();
 let mockAuthState: {
@@ -35,6 +44,31 @@ beforeEach(() => {
   pathname = "/";
   mockAuthState = { isAuthenticated: false, user: null };
   toggleTheme.mockClear();
+});
+
+it("길드와 로그인 진입점만 자동 프리패치를 끄고 나머지 메뉴 기본값을 유지한다", () => {
+  render(<ThreeTierNav />);
+  expect(screen.getByRole("link", { name: "길드" })).toHaveAttribute(
+    "data-prefetch",
+    "false",
+  );
+  expect(screen.getByRole("link", { name: "로그인" })).toHaveAttribute(
+    "data-prefetch",
+    "false",
+  );
+  expect(screen.getByRole("link", { name: "커뮤니티" })).toHaveAttribute(
+    "data-prefetch",
+    "auto",
+  );
+  expect(screen.getByRole("link", { name: "의장" })).toHaveAttribute(
+    "data-prefetch",
+    "auto",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "도감" }));
+  expect(screen.getByRole("link", { name: "아이템 도감" })).toHaveAttribute(
+    "data-prefetch",
+    "auto",
+  );
 });
 
 it("주요 메뉴를 요청된 순서로 제공하고 검색폼은 노출하지 않는다", () => {

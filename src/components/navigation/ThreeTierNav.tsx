@@ -48,12 +48,14 @@ function NavigationItem({
   href,
   label,
   pathname,
-}: NavigationLink & { pathname: string }) {
+  prefetch,
+}: NavigationLink & { pathname: string; prefetch?: boolean }) {
   const isActive = isCurrentPath(pathname, href);
 
   return (
     <Link
       href={href}
+      prefetch={prefetch}
       className={clsx(
         "relative flex h-12 md:h-16 shrink-0 items-center min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
         isActive
@@ -184,7 +186,12 @@ export default function ThreeTierNav() {
               pathname={pathname}
             />
           ) : null}
-          <NavigationItem href="/guilds" label="길드" pathname={pathname} />
+          <NavigationItem
+            href="/guilds"
+            label="길드"
+            pathname={pathname}
+            prefetch={false}
+          />
           <NavigationItem href="/outfits" label="의장" pathname={pathname} />
           <NavigationDropdown
             key={`${pathname}-auction`}
@@ -246,6 +253,7 @@ export default function ThreeTierNav() {
           ) : (
             <Link
               href="/sign-in"
+              prefetch={false}
               className="inline-flex h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[var(--color-ds-primary-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               로그인

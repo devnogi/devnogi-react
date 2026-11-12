@@ -19,6 +19,15 @@ jest.mock("@/contexts/AuthContext", () => ({ useAuth: jest.fn() }));
 jest.mock("@/hooks/useExperience", () => ({ useExperience: jest.fn() }));
 jest.mock("@/lib/hero/request", () => ({ heroRequest: jest.fn() }));
 
+jest.mock("next/link", () => {
+  const Link = jest.requireActual("next/link").default;
+  return function ObservedLink(
+    props: React.ComponentProps<typeof import("next/link").default>,
+  ) {
+    return <Link {...props} data-prefetch={String(props.prefetch ?? "auto")} />;
+  };
+});
+
 const request = jest.mocked(heroRequest);
 const auth = jest.mocked(useAuth);
 const experience = jest.mocked(useExperience);
@@ -136,13 +145,18 @@ it.each([false, true])(
     ).not.toBeInTheDocument();
     expect(request).not.toHaveBeenCalled();
     expect(experience).not.toHaveBeenCalled();
-    if (isLoading)
+    if (isLoading) {
       expect(screen.getByRole("status")).toHaveTextContent("로그인 확인 중");
-    else
+    } else {
       expect(screen.getByRole("link", { name: "로그인하기" })).toHaveAttribute(
         "href",
         "/sign-in",
       );
+      expect(screen.getByRole("link", { name: "로그인하기" })).toHaveAttribute(
+        "data-prefetch",
+        "false",
+      );
+    }
   },
 );
 
