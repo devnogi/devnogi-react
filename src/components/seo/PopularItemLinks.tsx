@@ -15,6 +15,7 @@ export default async function PopularItemLinks() {
             topCategory: item.itemTopCategory,
             subCategory: item.itemSubCategory,
           }),
+          300,
         ),
       ),
     );

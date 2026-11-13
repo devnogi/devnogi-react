@@ -11,6 +11,22 @@ beforeEach(() => {
 });
 afterEach(() => jest.restoreAllMocks());
 
+it("keeps detail lookups uncached and only opts homepage lookups into five-minute revalidation", async () => {
+  jest
+    .mocked(fetch)
+    .mockResolvedValue(response({ item, seoEligible: true, lastTrade: null }));
+  await getItemSeo(encodeItemKey(item));
+  expect(jest.mocked(fetch).mock.calls[0][1]).toMatchObject({
+    cache: "no-store",
+  });
+  expect(jest.mocked(fetch).mock.calls[0][1]).not.toHaveProperty("next");
+  await getItemSeo(encodeItemKey(item), 300);
+  expect(jest.mocked(fetch).mock.calls[1][1]).toMatchObject({
+    next: { revalidate: 300 },
+  });
+  expect(jest.mocked(fetch).mock.calls[1][1]).not.toHaveProperty("cache");
+});
+
 it("does not confuse missing catalogue items and transient errors", async () => {
   jest.mocked(fetch).mockResolvedValueOnce(response({}, 404));
   await expect(getItemSeo(encodeItemKey(item))).resolves.toBeNull();

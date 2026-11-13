@@ -140,13 +140,14 @@ export async function getItemStatistics(
 }
 
 export const getItemSeo = cache(
-  async (key: string): Promise<ItemSeoData | null> => {
+  async (key: string, revalidate?: 300): Promise<ItemSeoData | null> => {
     const identity = decodeItemKey(key);
     if (!identity) return null;
     try {
       const params = new URLSearchParams({ ...identity });
       const result = await getPublicItemJson<ItemSeoData>(
         `/oab/api/item-infos/seo?${params}`,
+        revalidate,
       );
       if (
         !result?.item ||

@@ -22,6 +22,7 @@ it("renders links only for exact known catalogue entries", async () => {
   expect(renderToStaticMarkup(await PopularItemLinks())).toContain(
     itemPath(item),
   );
+  expect(getItemSeo).toHaveBeenCalledWith(expect.any(String), 300);
   jest.mocked(getItemSeo).mockResolvedValue(null);
   expect(await PopularItemLinks()).toBeNull();
 });
