@@ -67,7 +67,10 @@ function validCursor(kind: Kind, cursor: string) {
 async function projection(kind: Kind, cursor: string): Promise<Projection> {
   const params = new URLSearchParams({ limit: "1000" });
   if (cursor) params.set("cursor", cursor);
-  const data = await publicJson<Projection>(`${sources[kind]}?${params}`);
+  // Catalogue projections may exceed the interactive page's five-second budget.
+  const data = await publicJson<Projection>(`${sources[kind]}?${params}`, {
+    timeoutMs: 20000,
+  });
   if (
     !Array.isArray(data?.items) ||
     data.items.length > 1000 ||

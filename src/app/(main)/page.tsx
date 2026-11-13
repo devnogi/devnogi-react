@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import HomeLanding from "@/components/seo/HomeLanding";
 import { createPageMetadata } from "@/lib/seo/site";
 
+// Docker builds have no gateway; retry a build-time fallback after deployment.
+export const revalidate = 300;
+
 export const metadata: Metadata = createPageMetadata({
   title: "마비노기 경매장·시세·아이템 정보",
   description:
