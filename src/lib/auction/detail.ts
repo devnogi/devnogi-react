@@ -3,6 +3,7 @@ import { cache } from "react";
 import { AuctionHistoryItem } from "@/hooks/useAuctionHistory";
 import { AuctionRealtimeItem } from "@/hooks/useAuctionRealtime";
 import { getItemStatistics, getPublicItemJson } from "@/lib/items/data";
+import { isAuctionRealtimeItem } from "@/types/auction-realtime";
 import { ItemInfoResponse, PageResponse } from "@/types/item-info";
 import { ItemDailyStatistics, ItemWeeklyStatistics } from "@/types/statistics";
 
@@ -35,7 +36,18 @@ export const getAuctionDetail = cache(
         : `/oab/auction-realtime/${encodeURIComponent(id)}`;
     let record: AuctionRecord;
     try {
+      if (
+        source === "realtime" &&
+        (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id)))
+      ) {
+        throw Object.assign(new Error("Invalid realtime auction ID"), {
+          status: 404,
+        });
+      }
       record = await getPublicItemJson<AuctionRecord>(recordPath);
+      if (source === "realtime" && !isAuctionRealtimeItem(record)) {
+        throw new Error("실시간 매물 응답 형식이 올바르지 않습니다.");
+      }
     } catch (error) {
       const status =
         typeof error === "object" && error !== null && "status" in error

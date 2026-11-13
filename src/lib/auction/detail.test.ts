@@ -160,6 +160,87 @@ describe("getAuctionDetail", () => {
     }
   });
 
+  it("loads the realtime wire ID and registration date without alias fields", async () => {
+    const realtime = {
+      id: 123,
+      itemName: "롱소드",
+      itemDisplayName: "강한 롱소드",
+      itemCount: 2,
+      auctionPricePerUnit: 1200,
+      dateRegister: "2026-11-05T09:00:00Z",
+      dateAuctionExpire: "2026-11-08T09:00:00Z",
+      itemSubCategory: "검",
+      itemTopCategory: "근거리 장비",
+      itemOptions: [],
+    };
+    jest
+      .mocked(fetch)
+      .mockImplementation(async (input) =>
+        String(input).includes("/auction-realtime/")
+          ? jsonResponse({ success: true, data: realtime })
+          : successFetch(input),
+      );
+    const result = await getAuctionDetail("realtime", "123");
+    expect(result.status).toBe("available");
+    expect(result.record).toEqual(realtime);
+    expect(fetch).toHaveBeenCalledTimes(4);
+  });
+
+  it.each([
+    "undefined",
+    "null",
+    "0",
+    "-1",
+    "1.5",
+    "abc",
+    "1e3",
+    " 12",
+    "9007199254740992",
+  ])("rejects invalid realtime URL ID %s before any request", async (id) => {
+    await expect(getAuctionDetail("realtime", id)).resolves.toMatchObject({
+      status: "not-found",
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("returns an error for a realtime record without its wire ID", async () => {
+    jest
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        jsonResponse({ ...record, dateRegister: "2026-11-05" }),
+      );
+    await expect(getAuctionDetail("realtime", "123")).resolves.toMatchObject({
+      status: "error",
+    });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["optionDesc", "optionSubType", "optionValue2"])(
+    "rejects unsafe realtime %s before rendering or dependent requests",
+    async (field) => {
+      jest.mocked(fetch).mockResolvedValueOnce(
+        jsonResponse({
+          ...record,
+          id: 123,
+          dateRegister: "2026-11-05",
+          dateAuctionExpire: "2026-11-08",
+          itemOptions: [
+            {
+              optionType: "인챈트",
+              optionValue: "x",
+              optionSubType: "접두",
+              [field]: 123,
+            },
+          ],
+        }),
+      );
+      await expect(getAuctionDetail("realtime", "123")).resolves.toMatchObject({
+        status: "error",
+      });
+      expect(fetch).toHaveBeenCalledTimes(1);
+    },
+  );
+
   it("distinguishes a missing primary record from a primary timeout", async () => {
     jest.mocked(fetch).mockResolvedValueOnce(jsonResponse({}, 404));
     await expect(

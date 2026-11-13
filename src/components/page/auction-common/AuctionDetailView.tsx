@@ -18,6 +18,7 @@ interface Props {
 }
 
 function dateLabel(value: string) {
+  if (!Number.isFinite(Date.parse(value))) return "일시 정보 없음";
   return new Intl.DateTimeFormat("ko-KR", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -64,7 +65,7 @@ function RecordFacts({ record }: { record: AuctionRecord }) {
         <>
           <DetailField
             label="등록 일시"
-            value={dateLabel(record.dateAuctionRegister)}
+            value={dateLabel(record.dateRegister)}
           />
           <DetailField
             label="만료 일시"

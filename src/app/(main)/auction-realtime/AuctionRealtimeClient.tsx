@@ -11,7 +11,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CategorySection from "@/components/commons/Category";
 import CategoryDropdown from "@/components/commons/CategoryDropdown";
+import DataFetchError from "@/components/commons/DataFetchError";
 import { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
+import QueryRefreshControls from "@/components/commons/QueryRefreshControls";
 import AuctionItemSearch from "@/components/page/auction-common/AuctionItemSearch";
 import AuctionRealtimeList from "@/components/page/auction-realtime/AuctionRealtimeList";
 import MobileFilterChips from "@/components/page/auction-realtime/MobileFilterChips";
@@ -505,7 +507,8 @@ export default function Page({ header }: { header?: React.ReactNode }) {
     showMobileFilter,
   } = useAuctionHistoryLayout();
 
-  const { data, isLoading, isFetching } = useAuctionRealtime(searchParams);
+  const { data, isLoading, isFetching, isError, refetch, dataUpdatedAt } =
+    useAuctionRealtime(searchParams);
   const { isPreviewEnabled, setIsPreviewEnabled } =
     useAuctionItemPreviewPreference();
 
@@ -515,6 +518,19 @@ export default function Page({ header }: { header?: React.ReactNode }) {
   const currentPage = meta?.currentPage ?? searchParams.page ?? 1;
   const totalPages = meta?.totalPages ?? 1;
   const pageSize = meta?.pageSize ?? searchParams.size ?? DEFAULT_PAGE_SIZE;
+  const hasData = data !== undefined;
+  const initialError = isError && !hasData;
+  const refresh = () => {
+    if (!isFetching) void refetch({ cancelRefetch: false });
+  };
+
+  useEffect(() => {
+    if (!data || isError || isFetching) return;
+    const lastPage = Math.max(1, data.meta.totalPages);
+    if ((searchParams.page ?? 1) > lastPage) {
+      setSearchParams((previous) => ({ ...previous, page: lastPage }));
+    }
+  }, [data, isError, isFetching, searchParams.page]);
 
   const selectedSortOption =
     SORT_OPTIONS.find(
@@ -523,7 +539,7 @@ export default function Page({ header }: { header?: React.ReactNode }) {
         option.direction === searchParams.direction,
     ) || SORT_OPTIONS[0];
 
-  const isResultCountLoading = isLoading || isFetching;
+  const isResultCountLoading = !hasData && !isError;
   const resultCountNode = isResultCountLoading ? (
     <Skeleton className="inline-block h-4 w-12 align-middle rounded-md ml-1" />
   ) : (
@@ -1087,9 +1103,17 @@ export default function Page({ header }: { header?: React.ReactNode }) {
           )}
 
           <div>
+            <QueryRefreshControls
+              updatedAt={dataUpdatedAt}
+              isFetching={isFetching}
+              onRefresh={refresh}
+              className="mb-3"
+            />
             <div className="mb-4 flex items-center justify-between">
               <div className="text-xs md:text-sm text-muted-foreground">
-                {itemName ? (
+                {initialError ? (
+                  "조회하지 못했습니다"
+                ) : itemName ? (
                   <>
                     <span className="font-semibold text-[var(--color-ds-primary)]">
                       {itemName}
@@ -1156,25 +1180,35 @@ export default function Page({ header }: { header?: React.ReactNode }) {
               </div>
             </div>
 
-            <AuctionRealtimeList
-              items={allItems}
-              isLoading={isLoading}
-              previewEnabled={isPreviewEnabled}
-            />
-
-            {isFetching && !isLoading && (
-              <div className="h-12 flex items-center justify-center">
-                <div className="text-sm text-muted-foreground">로딩 중...</div>
-              </div>
+            {isError && (
+              <DataFetchError
+                message={
+                  hasData
+                    ? "갱신하지 못했습니다. 이전 조회 결과를 표시합니다."
+                    : "현재 매물을 불러오지 못했습니다."
+                }
+                onRetry={refresh}
+                isRetrying={isFetching}
+                compact={hasData}
+                className="mb-4"
+              />
             )}
-
-            <ItemInfoPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalElements={totalElements}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-            />
+            {!initialError && (
+              <AuctionRealtimeList
+                items={allItems}
+                isLoading={isLoading || (!hasData && !isError)}
+                previewEnabled={isPreviewEnabled}
+              />
+            )}
+            {hasData && (
+              <ItemInfoPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
         </div>
       </div>

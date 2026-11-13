@@ -1,49 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { readAuctionRealtimeResponse } from "@/types/auction-realtime";
+
 export const dynamic = "force-dynamic";
-
-interface ItemOption {
-  id: string;
-  optionType: string;
-  optionSubType: string | null;
-  optionValue: string;
-  optionValue2: string | null;
-  optionDesc: string | null;
-}
-
-interface AuctionRealtimeItem {
-  itemName: string;
-  itemDisplayName: string;
-  itemCount: number;
-  auctionPricePerUnit: number;
-  dateAuctionExpire: string;
-  dateAuctionRegister: string;
-  auctionId: string;
-  itemSubCategory: string;
-  itemTopCategory: string;
-  itemOptions: ItemOption[];
-}
-
-interface PageMeta {
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalElements: number;
-  isFirst: boolean;
-  isLast: boolean;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  code: string;
-  message: string;
-  data: T;
-  timestamp: string;
-}
-
-interface AuctionRealtimeResponse {
-  items: AuctionRealtimeItem[];
-  meta: PageMeta;
-}
 
 const MIN_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 50;
@@ -220,7 +179,8 @@ export async function GET(request: NextRequest) {
     const response = await fetch(
       `${gatewayUrl}/oab/auction-realtime/search?${queryString}`,
       {
-        next: { revalidate: 60 }, // Cache for 1 minute (실시간 데이터라 짧게)
+        cache: "no-store",
+        signal: request.signal,
       },
     );
 
@@ -228,25 +188,20 @@ export async function GET(request: NextRequest) {
       throw new Error(`OAB API 호출 실패: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<AuctionRealtimeResponse> =
-      await response.json();
-
-    if (!apiResponse.success) {
-      throw new Error(apiResponse.message || "실시간 경매장 조회 실패");
-    }
+    const data = readAuctionRealtimeResponse(await response.json());
 
     return NextResponse.json(
       {
         success: true,
         code: "COMMON_SUCCESS",
         message: "요청이 성공적으로 처리되었습니다.",
-        data: apiResponse.data,
+        data,
         timestamp: new Date().toISOString(),
       },
       {
         status: 200,
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+          "Cache-Control": "no-store",
         },
       },
     );
@@ -261,7 +216,7 @@ export async function GET(request: NextRequest) {
         data: null,
         timestamp: new Date().toISOString(),
       },
-      { status: 500 },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
     );
   }
 }
