@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 
+import DataFetchError from "@/components/commons/DataFetchError";
 import DateRangeSelector from "@/components/page/statistics/DateRangeSelector";
 import PeriodToggle, {
   PeriodType,
@@ -386,6 +387,19 @@ function StatisticsPageContent() {
         </div>
 
         {/* Content */}
+        {hasSearched &&
+          currentQuery.isError &&
+          currentQuery.data !== undefined && (
+            <DataFetchError
+              message="통계를 갱신하지 못했습니다. 이전 결과를 표시합니다."
+              compact
+              isRetrying={currentQuery.isFetching}
+              onRetry={() => {
+                if (!currentQuery.isFetching) void currentQuery.refetch();
+              }}
+              className="mb-4"
+            />
+          )}
         {!hasSearched ? (
           <div className="bg-white dark:bg-navy-700 rounded-lg p-12 border border-gray-100 dark:border-navy-600 text-center">
             <div className="text-gray-400 dark:text-gray-600 mb-2">
@@ -412,6 +426,14 @@ function StatisticsPageContent() {
           </div>
         ) : isLoading ? (
           <StatisticsSkeleton />
+        ) : currentQuery.isError && currentQuery.data === undefined ? (
+          <DataFetchError
+            message="통계를 불러오지 못했습니다."
+            isRetrying={currentQuery.isFetching}
+            onRetry={() => {
+              if (!currentQuery.isFetching) void currentQuery.refetch();
+            }}
+          />
         ) : chartData.length === 0 ? (
           <div className="bg-white dark:bg-navy-700 rounded-lg p-12 border border-gray-100 dark:border-navy-600 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">

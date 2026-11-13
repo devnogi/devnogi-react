@@ -34,6 +34,7 @@ function formatPrice(price: number) {
 }
 
 function formatDateShort(value: string) {
+  if (!Number.isFinite(Date.parse(value))) return "일시 정보 없음";
   return new Intl.DateTimeFormat("ko-KR", {
     month: "2-digit",
     day: "2-digit",
@@ -130,8 +131,8 @@ export default function AuctionRealtimeList({
   const pathname = usePathname(),
     searchParams = useSearchParams();
   const returnTo = `${pathname}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
-  const hrefFor = (id: string) =>
-    `/auction-realtime/${encodeURIComponent(id)}?${new URLSearchParams({ return_to: returnTo })}`;
+  const hrefFor = (id: number) =>
+    `/auction-realtime/${encodeURIComponent(String(id))}?${new URLSearchParams({ return_to: returnTo })}`;
   if (isLoading)
     return (
       <div className="visual-polish rounded-lg border border-[var(--color-ds-neutral-tone)] bg-[var(--color-ds-card)] py-12 text-center text-muted-foreground">
@@ -153,8 +154,8 @@ export default function AuctionRealtimeList({
         <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item) => (
             <Link
-              key={item.auctionId}
-              href={hrefFor(item.auctionId)}
+              key={item.id}
+              href={hrefFor(item.id)}
               className="block px-4 py-4 transition-colors hover:bg-[var(--color-ds-primary-50)] focus-visible:outline-2 focus-visible:outline-[var(--color-ds-primary)]"
             >
               <div className="mb-2 flex items-start justify-between gap-3">
@@ -199,9 +200,9 @@ export default function AuctionRealtimeList({
         <div className="divide-y divide-[var(--color-ds-neutral-tone)]">
           {items.map((item) => (
             <RealtimeDesktopRow
-              key={item.auctionId}
+              key={item.id}
               item={item}
-              href={hrefFor(item.auctionId)}
+              href={hrefFor(item.id)}
               previewEnabled={previewEnabled}
             />
           ))}

@@ -12,7 +12,10 @@ import {
   useState,
 } from "react";
 
+import DataFetchError from "@/components/commons/DataFetchError";
+import QueryRefreshControls from "@/components/commons/QueryRefreshControls";
 import HornBugleList from "@/components/page/horn-bugle/HornBugleList";
+import { Button } from "@/components/ui/button";
 import { useInfiniteHornBugle } from "@/hooks/useInfiniteHornBugle";
 import { HORN_BUGLE_SERVERS } from "@/types/horn-bugle";
 
@@ -24,6 +27,7 @@ function HornBugleContent() {
   const pathname = usePathname();
   const [selectedServer, setSelectedServer] = useState<string>("전체");
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const listStartRef = useRef<HTMLDivElement>(null);
 
   // URL에서 검색어 읽기
   const urlSearchParams = useSearchParams();
@@ -56,8 +60,28 @@ function HornBugleContent() {
     [selectedServer, keyword],
   );
 
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useInfiniteHornBugle(fetchParams);
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetching,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    hasNextPage,
+    fetchNextPage,
+    refreshLatest,
+    isRefreshing,
+    refreshError,
+    checkError,
+    isChecking,
+    hasNewMessages,
+    lastCheckedAt,
+  } = useInfiniteHornBugle(fetchParams);
+  const busy = isFetching || isChecking || isRefreshing;
+  const refresh = async () => {
+    if (await refreshLatest())
+      listStartRef.current?.scrollIntoView({ block: "start" });
+  };
 
   const allItems = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
@@ -72,8 +96,15 @@ function HornBugleContent() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+        if (
+          entries[0].isIntersecting &&
+          hasNextPage &&
+          !busy &&
+          !isError &&
+          !refreshError &&
+          !checkError
+        ) {
+          void fetchNextPage({ cancelRefetch: false });
         }
       },
       { threshold: 0.1 },
@@ -85,7 +116,7 @@ function HornBugleContent() {
     return () => {
       if (currentRef) observer.unobserve(currentRef);
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, busy, isError, refreshError, checkError, fetchNextPage]);
 
   return (
     <div className="min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
@@ -151,6 +182,54 @@ function HornBugleContent() {
           </div>
         </div>
 
+        <div ref={listStartRef} className="scroll-mt-32">
+          <QueryRefreshControls
+            updatedAt={lastCheckedAt}
+            isFetching={busy}
+            onRefresh={() => {
+              void refresh();
+            }}
+            className="mb-3"
+          />
+          <p className="mb-4 text-xs text-muted-foreground">
+            1분마다 최신 정보를 확인합니다. 원본 수집 주기에 따라 내용이 같을 수
+            있습니다.
+          </p>
+        </div>
+        {hasNewMessages && (
+          <div
+            className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card p-3"
+            aria-live="polite"
+          >
+            <p className="text-sm">새 메시지가 있습니다</p>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11"
+              disabled={busy}
+              onClick={() => {
+                void refresh();
+              }}
+            >
+              최신 목록 보기
+            </Button>
+          </div>
+        )}
+        {data !== undefined &&
+          (refreshError ||
+            checkError ||
+            (isError && !isFetchNextPageError)) && (
+            <DataFetchError
+              compact
+              message="최신 정보를 확인하지 못했습니다. 기존 목록을 표시합니다."
+              isRetrying={busy}
+              onRetry={() => {
+                void refresh();
+              }}
+              className="mb-4"
+            />
+          )}
+
         {/* 결과 카운트 */}
         {allItems.length > 0 && (
           <div className="mb-4 text-sm text-muted-foreground">
@@ -159,7 +238,29 @@ function HornBugleContent() {
         )}
 
         {/* 리스트 */}
-        <HornBugleList items={allItems} isLoading={isLoading} />
+        {data === undefined && (isError || refreshError) ? (
+          <DataFetchError
+            message="뿔피리 정보를 불러오지 못했습니다."
+            isRetrying={busy}
+            onRetry={() => {
+              void refresh();
+            }}
+          />
+        ) : (
+          <HornBugleList items={allItems} isLoading={isLoading} />
+        )}
+
+        {isFetchNextPageError && data !== undefined && (
+          <DataFetchError
+            compact
+            message="다음 메시지를 불러오지 못했습니다."
+            isRetrying={busy}
+            onRetry={() => {
+              void fetchNextPage({ cancelRefetch: false });
+            }}
+            className="mt-4"
+          />
+        )}
 
         {/* 무한 스크롤 트리거 */}
         <div

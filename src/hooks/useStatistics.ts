@@ -7,6 +7,7 @@ import {
   ItemStatisticsParams,
   ItemWeeklyStatistics,
   StatisticsApiResponse,
+  StatisticsBase,
   SubcategoryDailyStatistics,
   SubcategoryStatisticsParams,
   SubcategoryWeeklyStatistics,
@@ -14,6 +15,33 @@ import {
   TopCategoryStatisticsParams,
   TopCategoryWeeklyStatistics,
 } from "@/types/statistics";
+
+function statisticsRows<T extends StatisticsBase>(
+  result: StatisticsApiResponse<T[]> | null,
+  dateFields: readonly (keyof T)[],
+): T[] {
+  const fields: (keyof StatisticsBase)[] = [
+    "minPrice",
+    "maxPrice",
+    "avgPrice",
+    "totalVolume",
+    "totalQuantity",
+  ];
+  if (
+    result?.success !== true ||
+    !Array.isArray(result.data) ||
+    !result.data.every(
+      (row) =>
+        row !== null &&
+        typeof row === "object" &&
+        fields.every((field) => Number.isFinite(row[field])) &&
+        dateFields.every((field) => typeof row[field] === "string"),
+    )
+  ) {
+    throw new Error("Invalid statistics response");
+  }
+  return result.data;
+}
 
 // ===== 아이템 일간 통계 =====
 
@@ -36,7 +64,7 @@ async function fetchItemDailyStatistics(
   }
   const result: StatisticsApiResponse<ItemDailyStatistics[]> =
     await response.json();
-  return result.data ?? [];
+  return statisticsRows(result, ["date"]);
 }
 
 export function useItemDailyStatistics(params: ItemStatisticsParams) {
@@ -70,7 +98,7 @@ async function fetchItemWeeklyStatistics(
   }
   const result: StatisticsApiResponse<ItemWeeklyStatistics[]> =
     await response.json();
-  return result.data ?? [];
+  return statisticsRows(result, ["weekStart", "weekEnd"]);
 }
 
 export function useItemWeeklyStatistics(params: ItemStatisticsParams) {
@@ -103,7 +131,7 @@ async function fetchSubcategoryDailyStatistics(
   }
   const result: StatisticsApiResponse<SubcategoryDailyStatistics[]> =
     await response.json();
-  return result.data ?? [];
+  return statisticsRows(result, ["date"]);
 }
 
 export function useSubcategoryDailyStatistics(
@@ -138,7 +166,7 @@ async function fetchSubcategoryWeeklyStatistics(
   }
   const result: StatisticsApiResponse<SubcategoryWeeklyStatistics[]> =
     await response.json();
-  return result.data ?? [];
+  return statisticsRows(result, ["weekStart", "weekEnd"]);
 }
 
 export function useSubcategoryWeeklyStatistics(
@@ -172,7 +200,7 @@ async function fetchTopCategoryDailyStatistics(
   }
   const result: StatisticsApiResponse<TopCategoryDailyStatistics[]> =
     await response.json();
-  return result.data ?? [];
+  return statisticsRows(result, ["date"]);
 }
 
 export function useTopCategoryDailyStatistics(
@@ -206,7 +234,7 @@ async function fetchTopCategoryWeeklyStatistics(
   }
   const result: StatisticsApiResponse<TopCategoryWeeklyStatistics[]> =
     await response.json();
-  return result.data ?? [];
+  return statisticsRows(result, ["weekStart", "weekEnd"]);
 }
 
 export function useTopCategoryWeeklyStatistics(

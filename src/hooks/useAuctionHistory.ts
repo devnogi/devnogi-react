@@ -104,14 +104,57 @@ async function fetchAuctionHistory(
     throw new Error(`Failed to fetch auction history: ${response.status}`);
   }
 
-  const apiResponse: ApiResponse<AuctionHistoryResponse> =
+  const apiResponse: ApiResponse<AuctionHistoryResponse> | null =
     await response.json();
 
-  if (!apiResponse.success) {
-    throw new Error(apiResponse.message || "Failed to fetch auction history");
+  if (apiResponse?.success !== true) {
+    throw new Error(apiResponse?.message || "Failed to fetch auction history");
   }
 
-  return apiResponse.data || { items: [], meta: {} as PageMeta };
+  const data = apiResponse.data;
+  if (
+    !data ||
+    !Array.isArray(data.items) ||
+    !data.items.every(
+      (item) =>
+        item !== null &&
+        typeof item === "object" &&
+        typeof item.auctionBuyId === "string" &&
+        typeof item.itemName === "string" &&
+        typeof item.itemDisplayName === "string" &&
+        typeof item.itemTopCategory === "string" &&
+        typeof item.itemSubCategory === "string" &&
+        typeof item.dateAuctionBuy === "string" &&
+        Number.isFinite(item.itemCount) &&
+        Number.isFinite(item.auctionPricePerUnit) &&
+        Array.isArray(item.itemOptions) &&
+        item.itemOptions.every(
+          (option) =>
+            option !== null &&
+            typeof option === "object" &&
+            typeof option.optionType === "string" &&
+            typeof option.optionValue === "string" &&
+            (option.optionDesc == null ||
+              typeof option.optionDesc === "string") &&
+            (option.optionSubType == null ||
+              typeof option.optionSubType === "string") &&
+            (option.optionValue2 == null ||
+              typeof option.optionValue2 === "string"),
+        ),
+    ) ||
+    !data.meta ||
+    !Number.isInteger(data.meta.currentPage) ||
+    data.meta.currentPage < 1 ||
+    !Number.isInteger(data.meta.pageSize) ||
+    data.meta.pageSize < 1 ||
+    !Number.isInteger(data.meta.totalPages) ||
+    data.meta.totalPages < 0 ||
+    !Number.isInteger(data.meta.totalElements) ||
+    data.meta.totalElements < 0
+  ) {
+    throw new Error("Invalid auction history response");
+  }
+  return data;
 }
 
 export function useAuctionHistory(params: AuctionHistorySearchParams) {
