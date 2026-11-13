@@ -12,6 +12,7 @@ import PostList from "@/components/page/community/PostList";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+import type { BackendPostsData } from "@/lib/community/feed";
 import type { FeedTab } from "@/types/community";
 
 const tabs: Array<{ value: FeedTab; label: string }> = [
@@ -21,7 +22,12 @@ const tabs: Array<{ value: FeedTab; label: string }> = [
   { value: "mine", label: "내 글" },
 ];
 
-function CommunityPageContent() {
+interface Props {
+  initial?: BackendPostsData;
+  startPage?: number;
+}
+
+function CommunityPageContent({ initial, startPage = 1 }: Props) {
   const keyword = useSearchParams().get("q") ?? "";
   const [tab, setTab] = useState<FeedTab>("latest");
   const [composerOpen, setComposerOpen] = useState(false);
@@ -49,10 +55,10 @@ function CommunityPageContent() {
           <header className="border-b border-border px-4 pt-4 sm:px-5">
             <div className="mb-3">
               <h1 className="text-xl font-bold text-card-foreground">
-                에린 이야기
+                마비노기 커뮤니티
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                길게 고민하지 말고, 오늘의 한 장면을 가볍게 나눠보세요.
+                에린 이야기 · 마비노기 질문과 플레이 경험을 나눠보세요.
               </p>
             </div>
             {keyword && (
@@ -101,7 +107,12 @@ function CommunityPageContent() {
               </div>
             )}
           </div>
-          <PostList tab={tab} keyword={keyword || undefined} />
+          <PostList
+            tab={tab}
+            keyword={keyword || undefined}
+            initial={tab === "latest" ? initial : undefined}
+            startPage={tab === "latest" ? startPage : 1}
+          />
         </section>
         {showPopular && (
           <aside aria-label="인기 게시글" className="hidden lg:block">
@@ -137,7 +148,7 @@ function CommunityPageContent() {
   );
 }
 
-export default function CommunityPage() {
+export default function CommunityPage(props: Props) {
   return (
     <Suspense
       fallback={
@@ -146,7 +157,7 @@ export default function CommunityPage() {
         </div>
       }
     >
-      <CommunityPageContent />
+      <CommunityPageContent {...props} />
     </Suspense>
   );
 }

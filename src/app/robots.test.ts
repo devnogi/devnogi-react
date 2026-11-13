@@ -5,7 +5,7 @@ describe("robots route", () => {
     expect(robots()).toEqual({
       rules: {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/api/outfits/*/images/*"],
         disallow: [
           "/api",
           "/api/",

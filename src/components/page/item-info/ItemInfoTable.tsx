@@ -1,8 +1,10 @@
 "use client";
 
 import { ChevronDown, ChevronUp, Package } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
+import { itemPath } from "@/lib/items/identity";
 import { ItemInfoResponse } from "@/types/item-info";
 
 interface ItemInfoTableProps {
@@ -20,9 +22,13 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
         className="hover:bg-[var(--color-ds-neutral-50)] cursor-pointer transition-colors border-b border-[var(--color-ds-neutral-100)]"
       >
         <td className="px-3 md:px-4 py-3">
-          <span className="block break-words text-sm leading-5 font-medium text-[var(--color-ds-text)]">
+          <Link
+            href={itemPath(item)}
+            onClick={(event) => event.stopPropagation()}
+            className="block break-words text-sm leading-5 font-medium text-[var(--color-ds-text)] hover:underline"
+          >
             {item.name}
-          </span>
+          </Link>
         </td>
         <td className="hidden md:table-cell px-4 py-3 break-words text-xs leading-[18px] text-muted-foreground">
           {item.topCategory}
@@ -31,11 +37,22 @@ function ItemInfoRow({ item }: { item: ItemInfoResponse }) {
           {item.subCategory}
         </td>
         <td className="px-2 md:px-4 py-2">
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-[var(--color-ds-disabled)]" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-[var(--color-ds-disabled)]" />
-          )}
+          <button
+            type="button"
+            aria-label={`${item.name} 정보 펼치기`}
+            aria-expanded={isExpanded}
+            className="min-h-11 min-w-8"
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+          >
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 text-[var(--color-ds-disabled)]" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-[var(--color-ds-disabled)]" />
+            )}
+          </button>
         </td>
       </tr>
       {isExpanded && (

@@ -79,7 +79,7 @@ it("renders the detail photo from the original endpoint without optimization", (
   );
 
   expect(
-    screen.getByRole("img", { name: "작성자의 의장 사진 1" }),
+    screen.getByRole("img", { name: "작성자의 의장 #1 사진 1" }),
   ).toBeVisible();
   expect(screen.getByLabelText("활동 등급: 그랜드마스터")).toBeInTheDocument();
   expect(imageProps.mock.calls[0][0]).toMatchObject({

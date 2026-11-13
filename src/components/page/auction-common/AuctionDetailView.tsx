@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import ItemOptionPopover from "@/components/page/auction-history/ItemOptionPopover";
+import ItemMetadata from "@/components/page/items/ItemMetadata";
 import PriceChart from "@/components/page/statistics/PriceChart";
 import StatisticsSummaryCards from "@/components/page/statistics/StatisticsSummaryCards";
 import VolumeChart from "@/components/page/statistics/VolumeChart";
 import { AuctionDetailResult, AuctionRecord } from "@/lib/auction/detail";
-import { ItemInfoResponse } from "@/types/item-info";
+import { itemPath } from "@/lib/items/identity";
 
 interface Props {
   result: AuctionDetailResult;
@@ -75,29 +76,6 @@ function RecordFacts({ record }: { record: AuctionRecord }) {
   );
 }
 
-function ItemMetadata({ info }: { info: ItemInfoResponse }) {
-  return (
-    <dl className="grid grid-cols-2 gap-4 md:grid-cols-3">
-      <DetailField label="설명" value={info.description} />
-      <DetailField
-        label="인벤토리 크기"
-        value={
-          info.inventoryWidth && info.inventoryHeight
-            ? `${info.inventoryWidth} × ${info.inventoryHeight}`
-            : null
-        }
-      />
-      <DetailField label="최대 번들" value={info.inventoryMaxBundleCount} />
-      <DetailField label="입수 방법" value={info.acquisitionMethod} />
-      <DetailField label="상점 판매가" value={info.storeSalesPrice} />
-      <DetailField label="무기 타입" value={info.weaponType} />
-      <DetailField label="수리" value={info.repair} />
-      <DetailField label="최대 개조 횟수" value={info.maxAlterationCount} />
-      <DetailField label="아이템 역사" value={info.history} />
-    </dl>
-  );
-}
-
 export default function AuctionDetailView({ result, returnTo }: Props) {
   const router = useRouter();
   const [period, setPeriod] = useState<"daily" | "weekly">("daily");
@@ -159,7 +137,15 @@ export default function AuctionDetailView({ result, returnTo }: Props) {
       <section className="rounded-2xl border bg-white p-5 dark:bg-navy-800">
         <h2 className="mb-4 text-lg font-bold">아이템 정보</h2>
         {result.itemInfoStatus === "available" && result.itemInfo ? (
-          <ItemMetadata info={result.itemInfo} />
+          <>
+            <ItemMetadata info={result.itemInfo} />
+            <Link
+              href={itemPath(result.itemInfo)}
+              className="mt-4 inline-flex min-h-11 items-center font-medium text-primary underline"
+            >
+              아이템 시세와 정보 보기
+            </Link>
+          </>
         ) : result.itemInfoStatus === "error" ? (
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm text-red-600">

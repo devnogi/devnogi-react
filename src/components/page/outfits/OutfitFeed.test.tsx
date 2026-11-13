@@ -48,6 +48,8 @@ it("retains personalized state for every loaded card after more than 48 results"
         userId: 7,
         author: { nickname: "작성자", verified: true, activityGrade: "EXPERT" },
         images: [],
+        items: [],
+        content: "의장 이야기",
         likeCount: 1,
         commentCount: 0,
       })),

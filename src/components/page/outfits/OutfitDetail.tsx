@@ -9,7 +9,9 @@ import { toast } from "sonner";
 import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import ServerCodeBadge from "@/components/ui/ServerCodeBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import { itemPath } from "@/lib/items/identity";
 import { outfitRequest } from "@/lib/outfits/api";
+import { outfitTitle } from "@/lib/outfits/seo";
 import {
   type Outfit,
   type OutfitViewerState,
@@ -105,13 +107,14 @@ function Detail({
       >
         ← 의장 둘러보기
       </Link>
+      <h1 className="mb-5 text-2xl font-semibold">{outfitTitle(outfit)}</h1>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div>
           <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted">
             {image && (
               <Image
                 src={`/api/outfits/${outfit.id}/images/${image.id}`}
-                alt={`${outfit.author.nickname}의 의장 사진 ${photo + 1}`}
+                alt={`${outfitTitle(outfit)} 사진 ${photo + 1}`}
                 fill
                 priority
                 unoptimized
@@ -197,7 +200,7 @@ function Detail({
             state={isAuthenticated ? state.data?.[0] : undefined}
           />
           <section className="mt-6 border-t border-border pt-5">
-            <h1 className="mb-3 text-lg font-semibold">착용 아이템</h1>
+            <h2 className="mb-3 text-lg font-semibold">착용 아이템</h2>
             <dl className="divide-y divide-border">
               {outfit.items.map((item) => (
                 <div
@@ -214,6 +217,20 @@ function Detail({
                     >
                       {item.name}
                     </Link>
+                    {item.inputType === "CATALOG" &&
+                      item.topCategory &&
+                      item.subCategory && (
+                        <Link
+                          className="flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
+                          href={itemPath({
+                            name: item.name,
+                            topCategory: item.topCategory,
+                            subCategory: item.subCategory,
+                          })}
+                        >
+                          시세·아이템 정보
+                        </Link>
+                      )}
                     {item.inputType === "CUSTOM" && (
                       <p className="text-xs text-muted-foreground">
                         직접 입력한 모션

@@ -3,6 +3,14 @@ import React from "react";
 
 import AuctionHistoryPage from "./page";
 
+jest.mock(
+  "@/components/page/auction-common/AuctionMarketSummary",
+  () =>
+    function AuctionMarketSummary() {
+      return <p>시세 요약</p>;
+    },
+);
+
 jest.mock("./AuctionHistoryClient", () => {
   return function AuctionHistoryClient({
     header,
@@ -24,7 +32,7 @@ describe("AuctionHistoryPage SEO landing content", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "경매장 거래내역",
+        name: "마비노기 경매장 거래내역·시세",
       }),
     ).toBeInTheDocument();
     expect(screen.getByText(/NEXON Open API를 기반/)).toBeInTheDocument();

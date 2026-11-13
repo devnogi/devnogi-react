@@ -25,7 +25,7 @@ export default function RootLayout({
             data-page-frame
             className="max-w-7xl w-full mx-auto h-full px-4 md:px-6 py-6 md:py-8"
           >
-            <Suspense fallback={null}>{children}</Suspense>
+            {children}
           </div>
         </main>
 
