@@ -86,7 +86,9 @@ const publicPost: PostDetail = {
 describe("community post SEO", () => {
   beforeEach(() => {
     getPublicPost.mockResolvedValue({ status: "available", post: publicPost });
-    mockNotFound.mockReset();
+    mockNotFound.mockReset().mockImplementation(() => {
+      throw new Error("not-found");
+    });
   });
 
   it("provides public post metadata with a canonical URL", async () => {
@@ -102,7 +104,7 @@ describe("community post SEO", () => {
     });
   });
 
-  it("renders public content and Article data before client hydration", async () => {
+  it("renders public content and forum data before client hydration", async () => {
     render(await PostPage({ params: Promise.resolve({ id: "42" }) }));
 
     expect(
@@ -124,39 +126,38 @@ describe("community post SEO", () => {
       "public:2026-10-29T00:00:00.000Z",
     );
     expect(
+      document.querySelectorAll('script[type="application/ld+json"]')[1],
+    ).toHaveTextContent('"@type":"DiscussionForumPosting"');
+    expect(
       document.querySelector('script[type="application/ld+json"]'),
-    ).toHaveTextContent('"@type":"Article"');
+    ).toHaveTextContent('"@type":"BreadcrumbList"');
   });
 
-  it("marks non-public posts as noindex", async () => {
+  it("resolves non-public posts as not found before metadata streams", async () => {
     getPublicPost.mockResolvedValue({ status: "not-public" });
 
     await expect(
       generateMetadata({ params: Promise.resolve({ id: "42" }) }),
-    ).resolves.toMatchObject({
-      robots: { index: false, follow: false },
-    });
+    ).rejects.toThrow("not-found");
   });
 
-  it("does not reuse a public content cache scope for a restricted response", async () => {
+  it("does not render restricted content", async () => {
     getPublicPost.mockResolvedValue({ status: "not-public" });
 
-    render(await PostPage({ params: Promise.resolve({ id: "42" }) }));
+    await expect(
+      PostPage({ params: Promise.resolve({ id: "42" }) }),
+    ).rejects.toThrow("not-found");
+  });
 
-    expect(screen.getByRole("article")).toHaveAttribute(
-      "data-cache-scope",
-      "restricted",
-    );
-    expect(
-      screen.queryByText("공개된 게시글의 본문입니다."),
-    ).not.toBeInTheDocument();
-    expect(screen.getByTestId("related-posts")).not.toHaveAttribute(
-      "data-board-id",
-    );
-    expect(screen.getByTestId("related-posts")).toHaveAttribute(
-      "data-cache-scope",
-      "restricted",
-    );
+  it("propagates outages without missing-content or noindex metadata", async () => {
+    getPublicPost.mockResolvedValue({ status: "unavailable" });
+    await expect(
+      generateMetadata({ params: Promise.resolve({ id: "42" }) }),
+    ).rejects.toThrow("공개 게시글");
+    await expect(
+      PostPage({ params: Promise.resolve({ id: "42" }) }),
+    ).rejects.toThrow("공개 게시글");
+    expect(mockNotFound).not.toHaveBeenCalled();
   });
 
   it("delegates a deleted post to the not-found boundary", async () => {

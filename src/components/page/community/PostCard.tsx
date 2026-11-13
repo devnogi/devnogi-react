@@ -26,10 +26,12 @@ import ReportDialog from "./ReportDialog";
 
 interface Props {
   post: PostSummary;
+  viewerPending?: boolean;
 }
 
-export default function PostCard({ post }: Props) {
-  const { user, isAuthenticated } = useAuth();
+export default function PostCard({ post, viewerPending = false }: Props) {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const actionsPending = authLoading || viewerPending;
   const [like, setLike] = useState({
     sourceLiked: post.liked,
     sourceCount: post.likeCount,
@@ -69,7 +71,7 @@ export default function PostCard({ post }: Props) {
   const profileHref = `/profile/${post.userId}`;
 
   const toggleLike = async () => {
-    if (like.pending) return;
+    if (actionsPending || like.pending) return;
     const previous = liked;
     setLike({
       ...like,
@@ -106,7 +108,7 @@ export default function PostCard({ post }: Props) {
   };
 
   const toggleBookmark = async () => {
-    if (bookmark.pending) return;
+    if (actionsPending || bookmark.pending) return;
     const previous = bookmarked;
     setBookmark({ ...bookmark, value: !previous, pending: true });
     try {
@@ -308,7 +310,7 @@ export default function PostCard({ post }: Props) {
             <button
               type="button"
               onClick={toggleLike}
-              disabled={like.pending}
+              disabled={actionsPending || like.pending}
               className={`flex h-11 min-w-11 items-center gap-1.5 rounded-full px-2 hover:bg-red-50 ${liked ? "text-red-500" : ""}`}
               aria-pressed={liked}
               aria-label="좋아요"
@@ -323,7 +325,7 @@ export default function PostCard({ post }: Props) {
             <button
               type="button"
               onClick={toggleBookmark}
-              disabled={bookmark.pending}
+              disabled={actionsPending || bookmark.pending}
               className={`flex h-11 w-11 items-center justify-center rounded-full hover:bg-[var(--color-ds-primary-50)] ${bookmarked ? "text-[var(--color-ds-primary)]" : ""}`}
               aria-pressed={bookmarked}
               aria-label="즐겨찾기"

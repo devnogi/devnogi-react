@@ -1,16 +1,21 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import DataFetchError from "@/components/commons/DataFetchError";
+import { useAuth } from "@/contexts/AuthContext";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+import type { BackendPostsData } from "@/lib/community/feed";
 import type { FeedTab } from "@/types/community";
 
 import PostCard from "./PostCard";
 import PostListSkeleton from "./PostListSkeleton";
 
 interface PostListProps {
+  initial?: BackendPostsData;
+  startPage?: number;
   tab?: FeedTab;
   boardId?: number;
   keyword?: string;
@@ -19,12 +24,15 @@ interface PostListProps {
 }
 
 export default function PostList({
+  initial,
+  startPage = 1,
   tab,
   boardId,
   keyword,
   sortType,
   userId,
 }: PostListProps) {
+  const { user } = useAuth();
   const {
     data,
     fetchNextPage,
@@ -32,8 +40,18 @@ export default function PostList({
     isFetchingNextPage,
     isLoading,
     isError,
+    isPlaceholderData,
     refetch,
-  } = useInfinitePosts({ tab, boardId, keyword, sortType, userId });
+  } = useInfinitePosts({
+    tab,
+    boardId,
+    keyword,
+    sortType,
+    userId,
+    initialData: initial,
+    startPage,
+    cacheScope: user ? `user:${user.userId}` : "public",
+  });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -103,10 +121,41 @@ export default function PostList({
       {/* Card List Layout */}
       <div>
         {allPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard
+            key={post.id}
+            post={post}
+            viewerPending={!!user && isPlaceholderData}
+          />
         ))}
       </div>
 
+      {(!tab || tab === "latest") && !userId && !keyword && (
+        <nav
+          aria-label="커뮤니티 페이지 이동"
+          className="flex justify-center gap-6 border-t border-border px-4 py-3 text-sm"
+        >
+          {startPage > 1 && (
+            <Link
+              className="inline-flex min-h-11 items-center"
+              href={
+                startPage === 2
+                  ? "/community"
+                  : `/community?page=${startPage - 1}`
+              }
+            >
+              이전 페이지
+            </Link>
+          )}
+          {hasNextPage && (
+            <Link
+              className="inline-flex min-h-11 items-center"
+              href={`/community?page=${(data?.pages.at(-1)?.meta.currentPage ?? startPage) + 1}`}
+            >
+              다음 페이지
+            </Link>
+          )}
+        </nav>
+      )}
       {/* Infinite Scroll Observer */}
       <div ref={observerTarget} className="py-4">
         {isFetchingNextPage && (

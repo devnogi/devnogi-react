@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import AuctionMarketSummary from "@/components/page/auction-common/AuctionMarketSummary";
 import AuctionPageHeader from "@/components/page/auction-common/AuctionPageHeader";
 import { itemCategories } from "@/data/item-category";
 import { canonicalUrl } from "@/lib/seo/site";
@@ -11,6 +12,8 @@ import { type AuctionSearchParams, getAuctionSearchMetadata } from "./seo";
 type AuctionHistoryPageProps = {
   searchParams: Promise<AuctionSearchParams>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   searchParams,
@@ -40,6 +43,7 @@ export default function AuctionHistoryPage() {
       <AuctionHistoryClient
         header={
           <AuctionPageHeader currentView="history">
+            <AuctionMarketSummary />
             <div className="mt-2 flex flex-wrap gap-x-4 text-sm text-[var(--color-ds-text)]">
               <details className="group basis-full sm:basis-auto sm:flex-1">
                 <summary className="min-h-11 cursor-pointer content-center rounded-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">

@@ -2,6 +2,8 @@ import { cache } from "react";
 
 import { selectServerGatewayUrl } from "@/lib/api/gateway-selector";
 import type { Outfit } from "@/types/outfits";
+
+import { publicOutfit } from "./seo";
 export const getPublicOutfit = cache(
   async (id: number): Promise<Outfit | null> => {
     if (!Number.isSafeInteger(id) || id < 1) return null;
@@ -14,6 +16,6 @@ export const getPublicOutfit = cache(
     const payload = await response.json();
     if (!payload.success || !payload.data)
       throw new Error("의장을 불러오지 못했어요.");
-    return payload.data;
+    return publicOutfit(payload.data);
   },
 );

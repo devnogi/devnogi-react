@@ -30,38 +30,13 @@ jest.mock("@/components/navigation/HomeSearch", () => ({
   HomeSearch: () => <div role="search" aria-label="메인 아이템 검색" />,
 }));
 
-jest.mock("@/hooks/useRankings", () => ({
-  useTodayPopularRanking: () => ({
-    data: ["향기로운 꿀 우유", "낙지", "물의 결정", "네 번째"].map(
-      (itemName, index) => ({
-        rank: index + 1,
-        itemName,
-        itemTopCategory: "기타",
-        itemSubCategory: "재료",
-      }),
-    ),
-  }),
+// The async server child has its own contract/rendering tests.
+jest.mock("./PopularItemLinks", () => ({
+  __esModule: true,
+  default: () => null,
 }));
 
 describe("HomeLanding", () => {
-  it("상위 세 아이템을 해당 거래내역에 연결한다", () => {
-    render(<HomeLanding />);
-    const links = within(
-      screen.getByRole("navigation", { name: "오늘 많이 거래된 아이템" }),
-    ).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual([
-      "향기로운 꿀 우유",
-      "낙지",
-      "물의 결정",
-    ]);
-    const url = new URL(links[0].getAttribute("href")!, "http://localhost");
-    expect(url.pathname).toBe("/auction-history");
-    expect(Object.fromEntries(url.searchParams)).toEqual({
-      item_name: "향기로운 꿀 우유",
-      top_category: "기타",
-      sub_category: "재료",
-    });
-  });
   it("홈 검색과 기존 주요 기능을 제공한다", () => {
     render(<HomeLanding />);
 

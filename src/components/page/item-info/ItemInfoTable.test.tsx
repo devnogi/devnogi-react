@@ -26,17 +26,29 @@ it("preserves categories and expanded item details when the row is toggled", () 
   expect(screen.getByText("스태프")).toBeInTheDocument();
   expect(screen.queryByText(item.history!)).not.toBeInTheDocument();
 
-  fireEvent.click(screen.getByText(item.name));
+  fireEvent.click(
+    screen.getByRole("button", { name: `${item.name} 정보 펼치기` }),
+  );
   expect(screen.getByText(item.history!)).toBeInTheDocument();
   expect(screen.getByText(item.acquisitionMethod!)).toBeInTheDocument();
   expect(screen.getByText("2 x 4")).toBeInTheDocument();
   expect(screen.getByText("10,000")).toBeInTheDocument();
 
-  fireEvent.click(screen.getByText(item.name));
+  fireEvent.click(
+    screen.getByRole("button", { name: `${item.name} 정보 펼치기` }),
+  );
   expect(screen.queryByText(item.history!)).not.toBeInTheDocument();
 });
 
 it("keeps the empty-result guidance", () => {
   render(<ItemInfoTable items={[]} />);
   expect(screen.getByText("검색 결과가 없습니다.")).toBeInTheDocument();
+});
+
+it("provides a permanent catalog link without toggling the row", () => {
+  render(<ItemInfoTable items={[item]} />);
+  const link = screen.getByRole("link", { name: item.name });
+  expect(link).toHaveAttribute("href", expect.stringContaining("/items/"));
+  fireEvent.click(link);
+  expect(screen.queryByText(item.history!)).not.toBeInTheDocument();
 });

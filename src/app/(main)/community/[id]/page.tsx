@@ -12,6 +12,7 @@ import {
 } from "@/lib/community/post-content";
 import { getPublicPost, type PostDetail } from "@/lib/community/public-post";
 import { canonicalUrl } from "@/lib/seo/site";
+import { breadcrumbs, jsonLd } from "@/lib/seo/structured-data";
 
 interface PostPageProps {
   params: Promise<{
@@ -28,7 +29,8 @@ function toDescription(post: PostDetail): string {
 function articleJsonLd(post: PostDetail, postPath: string) {
   return JSON.stringify({
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "DiscussionForumPosting",
+    text: post.content,
     headline: derivePostTitle(post.content),
     description: toDescription(post),
     datePublished: post.createdAt,
@@ -36,6 +38,7 @@ function articleJsonLd(post: PostDetail, postPath: string) {
     author: {
       "@type": "Person",
       name: post.username,
+      url: canonicalUrl(`/profile/${post.userId}`),
     },
     mainEntityOfPage: canonicalUrl(postPath),
   }).replace(/</g, "\\u003c");
@@ -48,12 +51,9 @@ export async function generateMetadata({
   const postId = Number(id);
   const result = await getPublicPost(postId);
 
-  if (result.status !== "available") {
-    return {
-      title: "커뮤니티 게시글",
-      robots: { index: false, follow: false },
-    };
-  }
+  if (result.status === "unavailable")
+    throw new Error("공개 게시글을 불러오지 못했어요.");
+  if (result.status !== "available") notFound();
 
   return {
     title: derivePostTitle(result.post.content),
@@ -80,7 +80,9 @@ async function PostPage({ params }: PostPageProps) {
   const postId = Number(id);
   const result = await getPublicPost(postId);
 
-  if (result.status === "not-found") {
+  if (result.status === "unavailable")
+    throw new Error("공개 게시글을 불러오지 못했어요.");
+  if (result.status !== "available") {
     notFound();
   }
 
@@ -115,6 +117,22 @@ async function PostPage({ params }: PostPageProps) {
           )}
         </ol>
       </nav>
+      {initialPost && canonicalPath && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLd(
+              breadcrumbs([
+                { name: "마비노기 커뮤니티", path: "/community" },
+                {
+                  name: derivePostTitle(initialPost.content),
+                  path: canonicalPath,
+                },
+              ]),
+            ),
+          }}
+        />
+      )}
       {initialPost && canonicalPath && (
         <script
           type="application/ld+json"

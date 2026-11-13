@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Resolve public metadata/existence before streaming a successful response.
+  htmlLimitedBots: /.*/,
   async redirects() {
     return [
       {

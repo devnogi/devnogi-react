@@ -8,6 +8,7 @@ import { useState } from "react";
 import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { outfitRequest } from "@/lib/outfits/api";
+import { outfitTitle } from "@/lib/outfits/seo";
 import type {
   Outfit,
   OutfitItem,
@@ -20,16 +21,32 @@ import { OutfitAuth, useOutfitAuth } from "./OutfitAuth";
 import OutfitFilters from "./OutfitFilters";
 export default function OutfitFeed({
   personal = false,
+  initial,
+  initialCursor = "",
 }: {
   personal?: boolean;
+  initial?: OutfitPage<Outfit>;
+  initialCursor?: string;
 }) {
   return (
     <OutfitAuth>
-      <Feed personal={personal} />
+      <Feed
+        personal={personal}
+        initial={initial}
+        initialCursor={initialCursor}
+      />
     </OutfitAuth>
   );
 }
-function Feed({ personal }: { personal: boolean }) {
+function Feed({
+  personal,
+  initial,
+  initialCursor,
+}: {
+  personal: boolean;
+  initial?: OutfitPage<Outfit>;
+  initialCursor: string;
+}) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -50,8 +67,13 @@ function Feed({ personal }: { personal: boolean }) {
       personal ? user?.userId : null,
       sort,
       queryString,
+      initialCursor,
     ],
-    initialPageParam: { page: 0, cursor: "" },
+    initialPageParam: { page: 0, cursor: initialCursor },
+    initialData:
+      !personal && initial
+        ? { pages: [initial], pageParams: [{ page: 0, cursor: initialCursor }] }
+        : undefined,
     queryFn: ({ pageParam, signal }) => {
       const query = new URLSearchParams(queryString);
       query.set("sort", sort);
@@ -108,7 +130,7 @@ function Feed({ personal }: { personal: boolean }) {
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">
-            {personal ? "의장 게시글" : "의장"}
+            {personal ? "의장 게시글" : "마비노기 의장·코디 모음"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {personal
@@ -145,6 +167,7 @@ function Feed({ personal }: { personal: boolean }) {
               else {
                 const next = new URLSearchParams(params.toString());
                 next.set("sort", key);
+                next.delete("cursor");
                 router.push(`${pathname}?${next}`);
               }
             }}
@@ -218,7 +241,7 @@ function Feed({ personal }: { personal: boolean }) {
                 {outfit.images[0] && (
                   <Image
                     src={`/api/outfits/${outfit.id}/images/${outfit.images[0].id}`}
-                    alt={`${outfit.author.nickname}의 착용 사진`}
+                    alt={`${outfitTitle(outfit)} 착용 사진`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 280px"
@@ -230,6 +253,16 @@ function Feed({ personal }: { personal: boolean }) {
                   </span>
                 )}
               </Link>
+              <h2 className="mt-3 text-sm font-semibold">
+                <Link href={`/outfits/${outfit.id}`}>
+                  {outfitTitle(outfit)}
+                </Link>
+              </h2>
+              {outfit.content && (
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                  {outfit.content}
+                </p>
+              )}
               <Link
                 href={`/profile/${outfit.userId}`}
                 className="mt-2 flex min-h-11 flex-wrap items-center gap-2 text-sm font-semibold"
@@ -252,6 +285,26 @@ function Feed({ personal }: { personal: boolean }) {
             </article>
           ))}
         </div>
+      )}
+      {!personal && sort === "LATEST" && !queryString && (
+        <nav
+          aria-label="의장 페이지 이동"
+          className="flex justify-center gap-6 text-sm"
+        >
+          {initialCursor && (
+            <Link className="inline-flex min-h-11 items-center" href="/outfits">
+              처음으로
+            </Link>
+          )}
+          {feed.hasNextPage && feed.data?.pages.at(-1)?.nextCursor && (
+            <Link
+              className="inline-flex min-h-11 items-center"
+              href={`/outfits?${new URLSearchParams({ cursor: feed.data.pages.at(-1)!.nextCursor! })}`}
+            >
+              다음 페이지
+            </Link>
+          )}
+        </nav>
       )}
       {feed.hasNextPage && (
         <div className="text-center">

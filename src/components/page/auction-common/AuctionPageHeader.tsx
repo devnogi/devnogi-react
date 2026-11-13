@@ -12,7 +12,9 @@ export default function AuctionPageHeader({
   return (
     <header className="mb-4">
       <h1 className="text-xl font-bold text-[var(--color-ds-text)] md:text-2xl">
-        {currentView === "history" ? "경매장 거래내역" : "경매장 현재 매물"}
+        {currentView === "history"
+          ? "마비노기 경매장 거래내역·시세"
+          : "마비노기 경매장 현재 매물"}
       </h1>
       <AuctionViewTabs currentView={currentView} />
       {children}

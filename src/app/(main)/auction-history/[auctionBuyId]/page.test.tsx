@@ -25,3 +25,35 @@ describe("auction history detail metadata", () => {
     });
   });
 });
+
+it("uses a self canonical independent of return_to", async () => {
+  jest.mocked(getAuctionDetail).mockResolvedValue({
+    status: "available",
+    record: { itemName: "검" },
+  } as never);
+  const result = await generateMetadata({
+    params: Promise.resolve({ auctionBuyId: "record-1" }),
+    searchParams: Promise.resolve({ return_to: "/auction-history?page=2" }),
+  });
+  expect(result.alternates?.canonical).toBe(
+    "https://www.memonogi.com/auction-history/record-1",
+  );
+});
+it("propagates missing and failed primary records", async () => {
+  jest
+    .mocked(getAuctionDetail)
+    .mockResolvedValue({ status: "not-found" } as never);
+  await expect(
+    generateMetadata({
+      params: Promise.resolve({ auctionBuyId: "missing" }),
+      searchParams: Promise.resolve({}),
+    }),
+  ).rejects.toThrow();
+  jest.mocked(getAuctionDetail).mockResolvedValue({ status: "error" } as never);
+  await expect(
+    generateMetadata({
+      params: Promise.resolve({ auctionBuyId: "error" }),
+      searchParams: Promise.resolve({}),
+    }),
+  ).rejects.toThrow();
+});

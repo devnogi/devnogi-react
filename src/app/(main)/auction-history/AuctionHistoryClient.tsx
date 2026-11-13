@@ -1035,7 +1035,7 @@ export default function Page({ header }: { header?: React.ReactNode }) {
     return (
       <div className="-mx-4 -my-6 md:-mx-6 md:-my-8">
         <div
-          className={`flex justify-center ${showCategorySidebar ? "px-72" : showFilterSidebar ? "pr-72" : ""}`}
+          className={`flex justify-center ${showCategorySidebar ? "min-[1240px]:pr-72 min-[1452px]:pl-72" : showFilterSidebar ? "min-[1240px]:pr-72" : ""}`}
         >
           <div className="w-full max-w-4xl px-4 pt-4 md:px-6 md:pt-6">
             {header}
@@ -1055,7 +1055,7 @@ export default function Page({ header }: { header?: React.ReactNode }) {
     <div className="select-none min-h-full bg-[var(--color-ds-background)] dark:bg-navy-900 -mx-4 md:-mx-6 -my-6 md:-my-8">
       {showCategorySidebar && (
         <div
-          className="fixed top-[140px] bottom-8 w-56 z-40"
+          className="hidden min-[1452px]:block fixed top-[140px] bottom-8 w-56 z-40"
           style={{ left: "max(16px, calc(50% - 678px))" }}
         >
           <CategorySection
@@ -1070,7 +1070,11 @@ export default function Page({ header }: { header?: React.ReactNode }) {
 
       <div
         className={`min-h-full flex justify-center [scrollbar-gutter:stable] ${
-          showCategorySidebar ? "px-72" : showFilterSidebar ? "pr-72" : ""
+          showCategorySidebar
+            ? "min-[1240px]:pr-72 min-[1452px]:pl-72"
+            : showFilterSidebar
+              ? "min-[1240px]:pr-72"
+              : ""
         }`}
       >
         <div className="w-full max-w-4xl px-4 md:px-6 pt-4 md:pt-6 pb-4 md:pb-8">
@@ -1231,16 +1235,18 @@ export default function Page({ header }: { header?: React.ReactNode }) {
       </div>
 
       {showFilterSidebar && (
-        <SearchFilterCard
-          onFilterApply={handleFilterApply}
-          isModal={isFilterModalOpen}
-          onClose={() => setIsFilterModalOpen(false)}
-          layoutMode={layoutMode}
-          isExactItemName={!!searchParams.isExactItemName}
-          onExactItemNameChange={handleExactItemNameChange}
-          isItemPreviewEnabled={isPreviewEnabled}
-          onItemPreviewEnabledChange={setIsPreviewEnabled}
-        />
+        <div className="hidden min-[1240px]:block">
+          <SearchFilterCard
+            onFilterApply={handleFilterApply}
+            isModal={isFilterModalOpen}
+            onClose={() => setIsFilterModalOpen(false)}
+            layoutMode={layoutMode}
+            isExactItemName={!!searchParams.isExactItemName}
+            onExactItemNameChange={handleExactItemNameChange}
+            isItemPreviewEnabled={isPreviewEnabled}
+            onItemPreviewEnabledChange={setIsPreviewEnabled}
+          />
+        </div>
       )}
 
       {showMobileFilter && (
