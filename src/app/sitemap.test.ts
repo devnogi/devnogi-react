@@ -65,6 +65,7 @@ describe("public sitemap XML", () => {
     expect(get).toHaveBeenCalledTimes(1);
     expect(get).toHaveBeenCalledWith(
       "/dcs/api/posts/sitemap?limit=1000&cursor=99",
+      { timeoutMs: 20000 },
     );
     expect(xml).toContain("/community/100</loc>");
     expect(xml).toContain("<lastmod>2026-11-13T09:00:00+09:00</lastmod>");
