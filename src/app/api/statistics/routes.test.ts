@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { createServerAxios } from "@/lib/api/server";
+import mockGateway from "@/mocks/data/statisticsData.json";
 
 import { GET as dailyItems } from "./daily/items/route";
 import { GET as dailySubs } from "./daily/subcategories/route";
@@ -16,15 +17,15 @@ beforeEach(() => {
   jest.mocked(createServerAxios).mockReturnValue({ get } as never);
 });
 const routes = [
-  ["daily", "items", dailyItems],
-  ["weekly", "items", weeklyItems],
-  ["daily", "subcategories", dailySubs],
-  ["weekly", "subcategories", weeklySubs],
-  ["daily", "top-categories", dailyTops],
-  ["weekly", "top-categories", weeklyTops],
+  ["daily", "items", dailyItems, mockGateway.itemDaily],
+  ["weekly", "items", weeklyItems, mockGateway.itemWeekly],
+  ["daily", "subcategories", dailySubs, mockGateway.subcategoryDaily],
+  ["weekly", "subcategories", weeklySubs, mockGateway.subcategoryWeekly],
+  ["daily", "top-categories", dailyTops, mockGateway.topCategoryDaily],
+  ["weekly", "top-categories", weeklyTops, mockGateway.topCategoryWeekly],
 ] as const;
 
-describe.each(routes)("%s/%s", (period, scope, handler) => {
+describe.each(routes)("%s/%s", (period, scope, handler, mockResponse) => {
   const request = () =>
     new NextRequest(
       "http://localhost/api/statistics/" +
@@ -95,6 +96,20 @@ describe.each(routes)("%s/%s", (period, scope, handler) => {
       ]);
     },
   );
+  it("serves the configured MSW gateway fixture", async () => {
+    get.mockResolvedValue({ status: 200, data: mockResponse });
+    const response = await handler(request());
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.length).toBeGreaterThan(0);
+    expect(body.data).toHaveLength(mockResponse.data.length);
+    expect(body.data[0]).toMatchObject(
+      period === "daily"
+        ? { date: "2025-07-01" }
+        : { weekStart: "2025-06-16", weekEnd: "2025-06-22" },
+    );
+  });
   it("returns valid empty arrays", async () => {
     get.mockResolvedValue({ status: 200, data: { success: true, data: [] } });
     const response = await handler(request());
