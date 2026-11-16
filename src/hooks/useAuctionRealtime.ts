@@ -2,44 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { AuctionRealtimeSearchParams } from "@/types/auction-realtime";
-import { ApiResponse } from "@/types/community";
+import { liveQueryOptions } from "@/lib/api/live-query";
+import {
+  AuctionRealtimeResponse,
+  AuctionRealtimeSearchParams,
+  readAuctionRealtimeResponse,
+} from "@/types/auction-realtime";
 
-interface ItemOption {
-  id: string;
-  optionType: string;
-  optionSubType: string | null;
-  optionValue: string;
-  optionValue2: string | null;
-  optionDesc: string | null;
-}
-
-export interface AuctionRealtimeItem {
-  itemName: string;
-  itemDisplayName: string;
-  itemCount: number;
-  auctionPricePerUnit: number;
-  dateAuctionExpire: string;
-  dateAuctionRegister: string;
-  auctionId: string;
-  itemSubCategory: string;
-  itemTopCategory: string;
-  itemOptions: ItemOption[];
-}
-
-interface PageMeta {
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalElements: number;
-  isFirst: boolean;
-  isLast: boolean;
-}
-
-export interface AuctionRealtimeResponse {
-  items: AuctionRealtimeItem[];
-  meta: PageMeta;
-}
+export type { AuctionRealtimeItem } from "@/types/auction-realtime";
 
 function buildNestedQueryParams(
   obj: Record<string, unknown>,
@@ -85,6 +55,7 @@ function buildNestedQueryParams(
 
 async function fetchAuctionRealtime(
   params: AuctionRealtimeSearchParams,
+  signal: AbortSignal,
 ): Promise<AuctionRealtimeResponse> {
   const queryParams = buildNestedQueryParams(
     params as unknown as Record<string, unknown>,
@@ -92,28 +63,22 @@ async function fetchAuctionRealtime(
 
   const response = await fetch(
     `/api/auction-realtime/search?${queryParams.toString()}`,
+    { cache: "no-store", signal },
   );
 
   if (!response.ok) {
     throw new Error(`Failed to fetch auction realtime: ${response.status}`);
   }
 
-  const apiResponse: ApiResponse<AuctionRealtimeResponse> =
-    await response.json();
-
-  if (!apiResponse.success) {
-    throw new Error(apiResponse.message || "Failed to fetch auction realtime");
-  }
-
-  return apiResponse.data || { items: [], meta: {} as PageMeta };
+  return readAuctionRealtimeResponse(await response.json());
 }
 
 export function useAuctionRealtime(params: AuctionRealtimeSearchParams) {
   return useQuery({
     queryKey: ["auction-realtime", params],
-    queryFn: () => fetchAuctionRealtime(params),
+    queryFn: ({ signal }) => fetchAuctionRealtime(params, signal),
     enabled: true,
-    staleTime: 1 * 60 * 1000,
+    ...liveQueryOptions,
     gcTime: 5 * 60 * 1000,
   });
 }

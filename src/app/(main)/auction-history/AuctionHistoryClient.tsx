@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CategorySection from "@/components/commons/Category";
 import CategoryDropdown from "@/components/commons/CategoryDropdown";
+import DataFetchError from "@/components/commons/DataFetchError";
 import { MetalwareFilterItem } from "@/components/commons/MetalwareSearchFilter";
 import AuctionItemSearch from "@/components/page/auction-common/AuctionItemSearch";
 import AuctionHistoryList from "@/components/page/auction-history/AuctionHistoryList";
@@ -530,7 +531,9 @@ export default function Page({ header }: { header?: React.ReactNode }) {
     showMobileFilter,
   } = useAuctionHistoryLayout();
 
-  const { data, isLoading, isFetching } = useAuctionHistory(searchParams);
+  const { data, isLoading, isFetching, isError, refetch } =
+    useAuctionHistory(searchParams);
+  const hasData = data !== undefined;
   const { isPreviewEnabled, setIsPreviewEnabled } =
     useAuctionItemPreviewPreference();
 
@@ -548,7 +551,7 @@ export default function Page({ header }: { header?: React.ReactNode }) {
         option.direction === searchParams.direction,
     ) || SORT_OPTIONS[0];
 
-  const isResultCountLoading = isLoading || isFetching;
+  const isResultCountLoading = !hasData && isLoading;
   const resultCountNode = isResultCountLoading ? (
     <Skeleton className="inline-block h-4 w-12 align-middle rounded-md ml-1" />
   ) : (
@@ -1144,18 +1147,24 @@ export default function Page({ header }: { header?: React.ReactNode }) {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <div className="text-xs md:text-sm text-muted-foreground">
-                {itemName ? (
-                  <>
-                    <span className="font-semibold text-[var(--color-ds-primary)]">
-                      {itemName}
-                    </span>{" "}
-                    검색결과
-                    {resultCountNode}개
-                  </>
+                {isError && !hasData ? (
+                  "검색결과를 불러오지 못했습니다"
                 ) : (
                   <>
-                    검색결과
-                    {resultCountNode}개
+                    {itemName ? (
+                      <>
+                        <span className="font-semibold text-[var(--color-ds-primary)]">
+                          {itemName}
+                        </span>{" "}
+                        검색결과
+                        {resultCountNode}개
+                      </>
+                    ) : (
+                      <>
+                        검색결과
+                        {resultCountNode}개
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -1211,11 +1220,28 @@ export default function Page({ header }: { header?: React.ReactNode }) {
               </div>
             </div>
 
-            <AuctionHistoryList
-              items={allItems}
-              isLoading={isLoading}
-              previewEnabled={isPreviewEnabled}
-            />
+            {isError && (
+              <DataFetchError
+                message={
+                  hasData
+                    ? "거래내역을 갱신하지 못했습니다. 이전 결과를 표시합니다."
+                    : "거래내역을 불러오지 못했습니다."
+                }
+                compact={hasData}
+                isRetrying={isFetching}
+                onRetry={() => {
+                  if (!isFetching) void refetch();
+                }}
+                className="mb-4"
+              />
+            )}
+            {(!isError || hasData) && (
+              <AuctionHistoryList
+                items={allItems}
+                isLoading={isLoading}
+                previewEnabled={isPreviewEnabled}
+              />
+            )}
 
             {isFetching && !isLoading && (
               <div className="h-12 flex items-center justify-center">
@@ -1223,13 +1249,15 @@ export default function Page({ header }: { header?: React.ReactNode }) {
               </div>
             )}
 
-            <ItemInfoPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalElements={totalElements}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-            />
+            {hasData && (
+              <ItemInfoPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
         </div>
       </div>

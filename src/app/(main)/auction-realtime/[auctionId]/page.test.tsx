@@ -32,11 +32,11 @@ it("uses a self canonical independent of return_to", async () => {
     record: { itemName: "검" },
   } as never);
   const result = await generateMetadata({
-    params: Promise.resolve({ auctionId: "record-1" }),
+    params: Promise.resolve({ auctionId: "123" }),
     searchParams: Promise.resolve({ return_to: "/auction-realtime?page=2" }),
   });
   expect(result.alternates?.canonical).toBe(
-    "https://www.memonogi.com/auction-realtime/record-1",
+    "https://www.memonogi.com/auction-realtime/123",
   );
 });
 it("propagates missing and failed primary records", async () => {

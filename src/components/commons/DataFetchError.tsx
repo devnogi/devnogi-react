@@ -13,6 +13,8 @@ interface DataFetchErrorProps {
   showRetry?: boolean;
   /** 컨테이너 className */
   className?: string;
+  isRetrying?: boolean;
+  compact?: boolean;
 }
 
 /**
@@ -23,29 +25,43 @@ export default function DataFetchError({
   onRetry,
   showRetry = true,
   className = "",
+  isRetrying = false,
+  compact = false,
 }: DataFetchErrorProps) {
   return (
     <div
-      className={`bg-white rounded-2xl border border-gray-200 shadow-xl p-8 ${className}`}
+      role="status"
+      className={`rounded-2xl border border-border bg-card text-card-foreground ${compact ? "p-4" : "p-8 shadow-xl"} ${className}`}
     >
-      <div className="flex flex-col items-center justify-center gap-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-          <AlertCircle className="w-6 h-6 text-red-500" />
-        </div>
+      <div
+        className={`flex items-center gap-4 ${compact ? "flex-wrap justify-between" : "flex-col justify-center text-center"}`}
+      >
+        {!compact && (
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-red-500" aria-hidden="true" />
+          </div>
+        )}
         <div>
-          <p className="text-gray-700 text-lg font-medium">{message}</p>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className={`font-medium ${compact ? "text-sm" : "text-lg"}`}>
+            {message}
+          </p>
+          <p className="text-muted-foreground text-sm mt-1">
             잠시 후 다시 시도해주세요
           </p>
         </div>
         {showRetry && onRetry && (
           <Button
             variant="outline"
+            type="button"
             onClick={onRetry}
-            className="mt-2 gap-2 rounded-xl border-gray-300 hover:bg-gray-50"
+            disabled={isRetrying}
+            className="min-h-11 gap-2 rounded-xl"
           >
-            <RefreshCw className="w-4 h-4" />
-            다시 시도
+            <RefreshCw
+              className={`w-4 h-4 ${isRetrying ? "animate-spin" : ""}`}
+              aria-hidden="true"
+            />
+            {isRetrying ? "다시 조회 중..." : "다시 시도"}
           </Button>
         )}
       </div>

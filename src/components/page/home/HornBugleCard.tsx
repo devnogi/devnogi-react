@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import DataFetchError from "@/components/commons/DataFetchError";
+import QueryRefreshControls from "@/components/commons/QueryRefreshControls";
 import { useLatestHornBugle } from "@/hooks/useLatestHornBugle";
 
 import styles from "./HomeCards.module.css";
@@ -17,7 +19,11 @@ function formatTime(dateString: string, now: number) {
 }
 
 export default function HornBugleCard() {
-  const { data, isLoading, error } = useLatestHornBugle();
+  const { data, isLoading, error, isFetching, dataUpdatedAt, refetch } =
+    useLatestHornBugle();
+  const retry = () => {
+    void refetch({ cancelRefetch: false });
+  };
   const [now, setNow] = useState(Date.now);
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 15_000);
@@ -39,12 +45,32 @@ export default function HornBugleCard() {
           더보기
         </Link>
       </div>
+      {data !== undefined && (
+        <QueryRefreshControls
+          updatedAt={dataUpdatedAt}
+          isFetching={isFetching}
+          onRefresh={retry}
+          className="mb-3"
+        />
+      )}
+      {data !== undefined && error && (
+        <DataFetchError
+          compact
+          message="최신 정보를 확인하지 못했습니다. 기존 메시지를 표시합니다."
+          onRetry={retry}
+          isRetrying={isFetching}
+          className="mb-3"
+        />
+      )}
       {isLoading ? (
         <RankingCardSkeleton rows={7} compact />
-      ) : error ? (
-        <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-300">
-          데이터를 불러올 수 없습니다
-        </div>
+      ) : error && data === undefined ? (
+        <DataFetchError
+          compact
+          message="데이터를 불러올 수 없습니다"
+          onRetry={retry}
+          isRetrying={isFetching}
+        />
       ) : !data || data.length === 0 ? (
         <div className="py-8 text-center text-sm text-gray-600 dark:text-gray-300">
           뿔피리 내역이 없습니다

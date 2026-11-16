@@ -54,6 +54,40 @@ const baseResult: AuctionDetailResult = {
 describe("AuctionDetailView section states", () => {
   beforeEach(() => refresh.mockClear());
 
+  it("renders the actual realtime dateRegister field and tolerates an invalid expiry", () => {
+    render(
+      <AuctionDetailView
+        result={{
+          ...baseResult,
+          source: "realtime",
+          record: {
+            id: 123,
+            itemName: "롱소드",
+            itemDisplayName: "강한 롱소드",
+            itemCount: 1,
+            auctionPricePerUnit: 1000,
+            dateRegister: "2026-11-05T09:00:00Z",
+            dateAuctionExpire: "invalid",
+            itemSubCategory: "검",
+            itemTopCategory: "근거리 장비",
+            itemOptions: [],
+          },
+        }}
+        returnTo="/auction-realtime?page=3"
+      />,
+    );
+    expect(screen.getByText("등록 일시").nextElementSibling).toHaveTextContent(
+      "2026",
+    );
+    expect(screen.getByText("만료 일시").nextElementSibling).toHaveTextContent(
+      "일시 정보 없음",
+    );
+    expect(screen.getByRole("link", { name: /목록/ })).toHaveAttribute(
+      "href",
+      "/auction-realtime?page=3",
+    );
+  });
+
   it("shows retry controls for failed item info and the failed current period", () => {
     render(
       <AuctionDetailView

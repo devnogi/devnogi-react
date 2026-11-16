@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -365,16 +366,68 @@ describe("TradeLogPage", () => {
     );
   });
 
-  it("API 오류가 나면 로딩을 마치고 빈 목록을 렌더링한다", async () => {
-    fetchSpy.mockRejectedValue(new Error("API Error"));
+  it("최초 실패를 빈 결과와 구분하고 다시 시도로 복구한다", async () => {
+    fetchSpy
+      .mockResolvedValueOnce(Response.json({}, { status: 500 }))
+      .mockResolvedValue(response(["복구된 거래"]));
     renderPage();
-    await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
+    await screen.findByText("거래내역을 불러오지 못했습니다.");
+    expect(screen.queryByTestId("trade-log-list")).not.toBeInTheDocument();
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "다음 페이지" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "다시 시도" }));
+    expect(await screen.findByText("복구된 거래")).toBeInTheDocument();
+    expect(
+      screen.queryByText("거래내역을 불러오지 못했습니다."),
+    ).not.toBeInTheDocument();
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("같은 조건의 재조회 실패는 기존 거래와 건수를 유지한다", async () => {
+    fetchSpy
+      .mockResolvedValueOnce(response(["기존 거래"]))
+      .mockRejectedValue(new Error("offline"));
+    renderPage();
+    await screen.findByText("기존 거래");
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ["auction-history"] });
+    });
+    await screen.findByText(
+      "거래내역을 갱신하지 못했습니다. 이전 결과를 표시합니다.",
+    );
+    expect(screen.getByText("기존 거래")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
+    fetchSpy.mockResolvedValue(response(["최신 거래"]));
+    fireEvent.click(screen.getByRole("button", { name: "다시 시도" }));
+    expect(await screen.findByText("최신 거래")).toBeInTheDocument();
+    expect(screen.queryByText("기존 거래")).not.toBeInTheDocument();
+  });
+
+  it("검색 조건 변경 후 실패하면 이전 조건의 결과를 표시하지 않는다", async () => {
+    fetchSpy
+      .mockResolvedValueOnce(response(["이전 조건 거래"]))
+      .mockRejectedValue(new Error("offline"));
+    renderPage();
+    await screen.findByText("이전 조건 거래");
+    fireEvent.click(screen.getByRole("button", { name: "Direct Search" }));
+    await screen.findByText("거래내역을 불러오지 못했습니다.");
+    expect(screen.queryByText("이전 조건 거래")).not.toBeInTheDocument();
+  });
+
+  it("성공한 빈 응답은 오류 없이 0건으로 표시한다", async () => {
+    fetchSpy.mockResolvedValue(response([]));
+    renderPage();
     await waitFor(() =>
       expect(screen.getByTestId("trade-log-list")).toHaveAttribute(
         "aria-busy",
         "false",
       ),
     );
-    expect(screen.queryAllByTestId("log-item")).toHaveLength(0);
+    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "다시 시도" }),
+    ).not.toBeInTheDocument();
   });
 });
