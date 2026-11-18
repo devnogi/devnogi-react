@@ -52,6 +52,29 @@ beforeEach(() => {
   for (const key of new Set(mockSearch.keys())) mockSearch.delete(key);
   jest.mocked(outfitRequest).mockReset();
 });
+it("keeps the filter trigger mounted when the URL filter changes", () => {
+  jest.mocked(outfitRequest).mockResolvedValue({
+    content: [],
+    hasNext: false,
+    nextCursor: null,
+  });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const { rerender } = render(
+    <QueryClientProvider client={client}>
+      <OutfitFeed />
+    </QueryClientProvider>,
+  );
+  const trigger = screen.getByRole("button", { name: "필터 적용" });
+  mockSearch.set("gender", "MALE");
+  rerender(
+    <QueryClientProvider client={client}>
+      <OutfitFeed />
+    </QueryClientProvider>,
+  );
+  expect(screen.getByRole("button", { name: "필터 적용" })).toBe(trigger);
+});
 it("keeps list actions hidden without viewer-state requests across pages", async () => {
   jest.mocked(outfitRequest).mockImplementation(async (path = "") => {
     if (path.startsWith("/viewer-state"))

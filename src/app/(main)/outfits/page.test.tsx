@@ -34,6 +34,7 @@ it("uses a self canonical for crawlable cursor pages", async () => {
   expect(getPublicOutfits).toHaveBeenCalledWith("cursor=abc");
   const page = await Page(props({ cursor: "abc" }));
   expect(page.props.children.props.initialCursor).toBe("abc");
+  expect(page.props.children.key).toBeNull();
 });
 
 it.each([

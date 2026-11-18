@@ -101,14 +101,20 @@ export default function OutfitFilters({
       ),
     );
   };
-  const applyCategory = (draft: OutfitItem[]) => {
+  const applyCategory = (draft: OutfitItem[], cleared: boolean) => {
     if (!category) return;
     change((next) => {
       writeItems(next, [
         ...items.filter((item) => !category.slots.includes(item.slot)),
         ...draft.filter((item) => category.slots.includes(item.slot)),
       ]);
-      if (category.slots.includes("MOTION")) next.delete("motion");
+      if (
+        category.slots.includes("MOTION") &&
+        (cleared ||
+          JSON.stringify(draft.filter((item) => item.slot === "MOTION")) !==
+            JSON.stringify(items.filter((item) => item.slot === "MOTION")))
+      )
+        next.delete("motion");
     });
     setCategory(null);
   };

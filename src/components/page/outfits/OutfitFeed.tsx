@@ -163,11 +163,7 @@ function Feed({
         ))}
       </div>
       {!personal && (
-        <OutfitFilters
-          key={queryString}
-          search={queryString}
-          onApply={updateFilters}
-        />
+        <OutfitFilters search={queryString} onApply={updateFilters} />
       )}
       {!personal && sort === "POPULAR" && (
         <p className="text-xs text-muted-foreground">

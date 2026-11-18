@@ -27,7 +27,6 @@ async function load(searchParams: Props["searchParams"]) {
     return {
       initial,
       cursor,
-      query: params.toString(),
       filtered: Object.keys(query).some(
         (key) =>
           key !== "cursor" && !(key === "sort" && query.sort === "LATEST"),
@@ -58,10 +57,10 @@ export async function generateMetadata({ searchParams }: Props) {
 }
 
 export default async function Page({ searchParams }: Props) {
-  const { initial, cursor, query } = await load(searchParams);
+  const { initial, cursor } = await load(searchParams);
   return (
     <Suspense>
-      <OutfitFeed key={query} initial={initial} initialCursor={cursor} />
+      <OutfitFeed initial={initial} initialCursor={cursor} />
     </Suspense>
   );
 }

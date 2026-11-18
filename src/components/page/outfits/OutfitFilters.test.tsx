@@ -101,6 +101,10 @@ it("applies two accessory choices together and discards cancelled edits", async 
   fireEvent.click(screen.getByRole("button", { name: "ACCESSORY_1 선택" }));
   fireEvent.click(screen.getByRole("button", { name: "ACCESSORY_2 선택" }));
   fireEvent.click(screen.getByRole("button", { name: "의장 보기" }));
+  await waitFor(() => expect(trigger).toHaveFocus());
+  expect(
+    within(screen.getByLabelText("의장 필터")).getAllByRole("button")[3],
+  ).toBe(trigger);
   const query = new URLSearchParams(applied.mock.lastCall?.[0]);
   expect(query.getAll("tags")).toEqual(["겨울"]);
   expect(JSON.parse(query.get("items") ?? "[]")).toMatchObject([
@@ -137,4 +141,19 @@ it("keeps legacy tag and motion links visible and clearable", () => {
   ]);
   fireEvent.click(screen.getByRole("button", { name: "전체 초기화" }));
   expect(applied).toHaveBeenLastCalledWith("");
+});
+
+it("preserves an unchanged legacy motion filter and clears it explicitly", () => {
+  render(<Harness initial="motion=%EC%B6%A4" />);
+  fireEvent.click(screen.getByRole("button", { name: "모션" }));
+  fireEvent.click(screen.getByRole("button", { name: "의장 보기" }));
+  expect(new URLSearchParams(applied.mock.lastCall?.[0]).get("motion")).toBe(
+    "춤",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "모션" }));
+  fireEvent.click(screen.getByRole("button", { name: "선택 해제" }));
+  fireEvent.click(screen.getByRole("button", { name: "의장 보기" }));
+  expect(new URLSearchParams(applied.mock.lastCall?.[0]).has("motion")).toBe(
+    false,
+  );
 });

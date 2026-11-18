@@ -23,16 +23,18 @@ export default function OutfitFilterDialog({
 }: {
   category: { label: string; slots: readonly OutfitSlot[] } | null;
   items: OutfitItem[];
-  onApply: (items: OutfitItem[]) => void;
+  onApply: (items: OutfitItem[], cleared: boolean) => void;
   onClose: () => void;
   returnFocus: () => void;
 }) {
   const [draft, setDraft] = useState(items);
+  const [cleared, setCleared] = useState(false);
   const [pickerVersion, setPickerVersion] = useState(0);
   const slots = category?.slots ?? [];
   useEffect(() => {
     if (!category) return;
     setDraft(items);
+    setCleared(false);
     setPickerVersion((value) => value + 1);
   }, [category, items]);
   return (
@@ -77,6 +79,7 @@ export default function OutfitFilterDialog({
               setDraft((current) =>
                 current.filter((item) => !slots.includes(item.slot)),
               );
+              setCleared(true);
               setPickerVersion((value) => value + 1);
             }}
             className="min-h-11 rounded-lg border border-border px-4 text-sm"
@@ -85,7 +88,7 @@ export default function OutfitFilterDialog({
           </button>
           <button
             type="button"
-            onClick={() => onApply(draft)}
+            onClick={() => onApply(draft, cleared)}
             className="min-h-11 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground"
           >
             의장 보기
