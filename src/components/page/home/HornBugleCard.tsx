@@ -4,11 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import DataFetchError from "@/components/commons/DataFetchError";
-import QueryRefreshControls from "@/components/commons/QueryRefreshControls";
 import { useLatestHornBugle } from "@/hooks/useLatestHornBugle";
 
 import styles from "./HomeCards.module.css";
 import RankingCardSkeleton from "./RankingCardSkeleton";
+
+const koreanTimeFormatter = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
 
 function formatTime(dateString: string, now: number) {
   // The horn mapper adds nine hours before serializing its Instant with Z.
@@ -29,14 +36,20 @@ export default function HornBugleCard() {
     const timer = window.setInterval(() => setNow(Date.now()), 15_000);
     return () => window.clearInterval(timer);
   }, []);
+  const lastChecked =
+    dataUpdatedAt > 0
+      ? koreanTimeFormatter.format(new Date(dataUpdatedAt))
+      : null;
 
   return (
     <div className={`${styles.card} h-full`}>
       <div className={styles.heading}>
-        <div>
-          <h3 className={styles.title}>거대한 뿔피리</h3>
-          <p className={styles.meta}>에린에서 지금 들려오는 이야기</p>
-        </div>
+        <h3
+          className={styles.title}
+          title={lastChecked ? `마지막 조회시각 ${lastChecked}` : undefined}
+        >
+          거대한 뿔피리
+        </h3>
         <Link
           href="/horn-bugle"
           aria-label="거대한 뿔피리 더보기"
@@ -45,14 +58,6 @@ export default function HornBugleCard() {
           더보기
         </Link>
       </div>
-      {data !== undefined && (
-        <QueryRefreshControls
-          updatedAt={dataUpdatedAt}
-          isFetching={isFetching}
-          onRefresh={retry}
-          className="mb-3"
-        />
-      )}
       {data !== undefined && error && (
         <DataFetchError
           compact

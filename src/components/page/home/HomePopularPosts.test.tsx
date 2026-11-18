@@ -43,10 +43,13 @@ it.each([0, 1, 5, 10])(
       items.slice(0, 5).map((item) => `/community/${item.id}`),
     );
     expect(screen.queryByText("본문 99")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "커뮤니티 보기" })).toHaveAttribute(
-      "href",
-      "/community",
-    );
+    expect(
+      screen.getByRole("link", { name: "인기 게시글 더보기" }),
+    ).toHaveAttribute("href", "/community");
+    expect(screen.queryByText("커뮤니티 보기")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("밀레시안들의 이야기를 만나보세요"),
+    ).not.toBeInTheDocument();
   },
 );
 it("빈 결과와 로딩 상태를 표시한다", () => {

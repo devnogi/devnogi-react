@@ -1,7 +1,7 @@
 "use client";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ChevronRight, Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
@@ -19,12 +19,16 @@ export default function HomePopularPosts() {
       aria-labelledby="home-popular-posts-heading"
     >
       <div className={styles.heading}>
-        <div>
-          <h2 id="home-popular-posts-heading" className={styles.title}>
-            인기 게시글
-          </h2>
-          <p className={styles.meta}>밀레시안들의 이야기를 만나보세요</p>
-        </div>
+        <h2 id="home-popular-posts-heading" className={styles.title}>
+          인기 게시글
+        </h2>
+        <Link
+          href="/community"
+          aria-label="인기 게시글 더보기"
+          className="inline-flex min-h-11 items-center rounded px-2 text-xs text-muted-foreground hover:underline focus-visible:outline-2"
+        >
+          더보기
+        </Link>
       </div>
       {isLoading ? (
         <div role="status" aria-label="인기 게시글 불러오는 중">
@@ -84,10 +88,6 @@ export default function HomePopularPosts() {
           ))}
         </ol>
       )}
-      <Link href="/community" className={styles.footer}>
-        커뮤니티 보기
-        <ChevronRight size={16} aria-hidden="true" />
-      </Link>
     </section>
   );
 }

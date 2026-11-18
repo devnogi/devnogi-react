@@ -15,7 +15,7 @@ it("네 카드를 순서대로 한 번씩 표시한다", () => {
     screen
       .getAllByText(/^(인기 랭킹|뿔피리|월간 랭킹|인기 게시글)$/)
       .map((card) => card.textContent),
-  ).toEqual(["인기 랭킹", "뿔피리", "월간 랭킹", "인기 게시글"]);
+  ).toEqual(["인기 게시글", "뿔피리", "월간 랭킹", "인기 랭킹"]);
   expect(screen.queryByText("거래량 랭킹")).not.toBeInTheDocument();
   expect(container.querySelector(".items-stretch")).toBeInTheDocument();
 });
