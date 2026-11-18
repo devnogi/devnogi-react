@@ -16,7 +16,9 @@ it("7개 랭킹 요청을 한 번 사용하고 실제 값을 표시한다", () =
         itemTopCategory: "무기",
         itemSubCategory: "검",
         totalQuantity: 42,
+        totalVolume: 50_400,
         avgPrice: 1200,
+        dateAuctionBuy: "2026-11-18",
       },
     ],
     isLoading: false,
@@ -28,6 +30,12 @@ it("7개 랭킹 요청을 한 번 사용하고 실제 값을 표시한다", () =
   expect(screen.getByText("테스트 아이템")).toBeInTheDocument();
   expect(screen.getByText("42개")).toBeInTheDocument();
   expect(screen.getByText("평균 1,200")).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "오늘의 인기 아이템" }),
+  ).toHaveAttribute("title", "2026-11-18 가장 거래량이 많은 아이템");
+  expect(
+    screen.queryByText("오늘 가장 많이 거래된 아이템"),
+  ).not.toBeInTheDocument();
 });
 
 it.each([

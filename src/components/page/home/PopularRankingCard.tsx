@@ -15,10 +15,16 @@ export default function PopularRankingCard() {
   return (
     <div className={`${styles.card} h-full`}>
       <div className={styles.heading}>
-        <div>
-          <h3 className={styles.title}>오늘의 인기 아이템</h3>
-          <p className={styles.meta}>오늘 가장 많이 거래된 아이템</p>
-        </div>
+        <h3
+          className={styles.title}
+          title={
+            data?.[0]?.dateAuctionBuy
+              ? `${data[0].dateAuctionBuy} 가장 거래량이 많은 아이템`
+              : undefined
+          }
+        >
+          오늘의 인기 아이템
+        </h3>
       </div>
       {isLoading ? (
         <RankingCardSkeleton rows={7} compact />

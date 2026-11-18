@@ -7,11 +7,12 @@ function renderCard() {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  return render(
+  const view = render(
     <QueryClientProvider client={client}>
       <HornBugleCard />
     </QueryClientProvider>,
   );
+  return { client, ...view };
 }
 
 afterEach(() => jest.restoreAllMocks());
@@ -59,6 +60,16 @@ it("전체 서버의 최신 메시지를 기존 API 순서대로 최대 7건 표
   expect(screen.getAllByText("류트")).toHaveLength(4);
   expect(screen.getByText("캐릭터 1")).toBeInTheDocument();
   expect(screen.getByText("1분 전")).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "거대한 뿔피리" }),
+  ).toHaveAttribute("title", "마지막 조회시각 12:08:35");
+  expect(
+    screen.queryByText("에린에서 지금 들려오는 이야기"),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText(/^마지막 조회/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "새로고침" }),
+  ).not.toBeInTheDocument();
   expect(screen.queryByText("메시지 8")).not.toBeInTheDocument();
   expect(
     screen
@@ -93,10 +104,15 @@ it("첫 실패를 빈 결과와 구분하고 명시적 재시도로 복구한다
   } as Response);
   fireEvent.click(screen.getByRole("button", { name: "다시 시도" }));
   expect(await screen.findByText("뿔피리 내역이 없습니다")).toBeInTheDocument();
-  expect(screen.getByText(/마지막 조회/)).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "거대한 뿔피리" }),
+  ).toHaveAttribute(
+    "title",
+    expect.stringMatching(/^마지막 조회시각 \d{2}:\d{2}:\d{2}$/),
+  );
 });
 
-it("수동 갱신 실패 시 기존 메시지와 마지막 성공 시각을 유지한다", async () => {
+it("자동 갱신 실패 시 기존 메시지와 마지막 성공 시각을 유지한다", async () => {
   const item = {
     id: 1,
     serverName: "류트",
@@ -109,14 +125,18 @@ it("수동 갱신 실패 시 기존 메시지와 마지막 성공 시각을 유�
     ok: true,
     json: async () => envelope([item]),
   } as Response);
-  renderCard();
+  const { client } = renderCard();
   await screen.findByText("유지할 메시지");
-  const checkedAt = screen.getByText(/마지막 조회/).textContent;
+  const heading = screen.getByRole("heading", { name: "거대한 뿔피리" });
+  const checkedAt = heading.getAttribute("title");
   fetchMock.mockResolvedValue({ ok: false, status: 503 } as Response);
-  fireEvent.click(screen.getByRole("button", { name: "새로고침" }));
+  await client.refetchQueries({ queryKey: ["horn-bugle", "home", 7] });
   await screen.findByText(
     "최신 정보를 확인하지 못했습니다. 기존 메시지를 표시합니다.",
   );
   expect(screen.getByText("유지할 메시지")).toBeInTheDocument();
-  expect(screen.getByText(/마지막 조회/)).toHaveTextContent(checkedAt!);
+  expect(heading).toHaveAttribute("title", checkedAt);
+  expect(
+    screen.queryByRole("button", { name: "새로고침" }),
+  ).not.toBeInTheDocument();
 });
