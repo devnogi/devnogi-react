@@ -1,11 +1,45 @@
 "use client";
-import { useState } from "react";
 
-import { normalizeTags } from "@/lib/outfits/validation";
-import { OUTFIT_SLOTS, type OutfitItem } from "@/types/outfits";
+import { ChevronDown } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 
-import ItemPicker from "./ItemPicker";
-function readOutfitFilters(params: URLSearchParams): OutfitItem[] {
+import { cn } from "@/lib/utils";
+import {
+  OUTFIT_SLOTS,
+  type OutfitGender,
+  type OutfitItem,
+  type OutfitSlot,
+} from "@/types/outfits";
+
+import OutfitFilterConditions from "./OutfitFilterConditions";
+import OutfitFilterDialog from "./OutfitFilterDialog";
+
+const outfitCategories: {
+  label: string;
+  slots: readonly OutfitSlot[];
+}[] = [
+  { label: "머리", slots: ["HEAD"] },
+  { label: "액세서리", slots: ["ACCESSORY_1", "ACCESSORY_2"] },
+  { label: "얼굴장식", slots: ["FACE"] },
+  { label: "의상", slots: ["CLOTHING"] },
+  { label: "꼬리", slots: ["TAIL"] },
+  { label: "장갑", slots: ["HANDS"] },
+  { label: "신발", slots: ["FEET"] },
+  { label: "무기", slots: ["WEAPON"] },
+  { label: "로브", slots: ["ROBE"] },
+  { label: "모션", slots: ["MOTION"] },
+];
+const genders: [OutfitGender, string][] = [
+  ["MALE", "남"],
+  ["FEMALE", "여"],
+];
+const buttonStyle =
+  "min-h-11 shrink-0 rounded-lg border px-4 text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring";
+const selectedStyle = "border-primary bg-secondary text-foreground";
+const unselectedStyle =
+  "border-border bg-card text-muted-foreground hover:bg-accent";
+
+function readItems(params: URLSearchParams): OutfitItem[] {
   try {
     const parsed: unknown = JSON.parse(params.get("items") ?? "[]");
     if (!Array.isArray(parsed)) return [];
@@ -21,76 +55,136 @@ function readOutfitFilters(params: URLSearchParams): OutfitItem[] {
     return [];
   }
 }
+
+function writeItems(next: URLSearchParams, items: OutfitItem[]) {
+  if (items.length) next.set("items", JSON.stringify(items));
+  else next.delete("items");
+}
+
 export default function OutfitFilters({
   search,
   onApply,
 }: {
   search: string;
-  onApply: (items: OutfitItem[], tags: string[]) => void;
+  onApply: (params: URLSearchParams) => void;
 }) {
   const params = new URLSearchParams(search);
-  const [items, setItems] = useState<OutfitItem[]>(readOutfitFilters(params));
-  const [tags, setTags] = useState(params.getAll("tags").join(", "));
+  const items = useMemo(() => readItems(new URLSearchParams(search)), [search]);
+  const selectedGenders = params.getAll("gender");
+  const tags = params.getAll("tags");
+  const motion = params.get("motion");
+  const [category, setCategory] = useState<
+    (typeof outfitCategories)[number] | null
+  >(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const change = (edit: (next: URLSearchParams) => void) => {
+    const next = new URLSearchParams(search);
+    edit(next);
+    onApply(next);
+  };
+  const toggleGender = (gender: OutfitGender) => {
+    change((next) => {
+      const selected = new Set(next.getAll("gender"));
+      if (selected.has(gender)) selected.delete(gender);
+      else selected.add(gender);
+      next.delete("gender");
+      genders.forEach(([value]) => {
+        if (selected.has(value)) next.append("gender", value);
+      });
+    });
+  };
+  const clearItem = (slot: OutfitSlot) => {
+    change((next) =>
+      writeItems(
+        next,
+        items.filter((item) => item.slot !== slot),
+      ),
+    );
+  };
+  const applyCategory = (draft: OutfitItem[]) => {
+    if (!category) return;
+    change((next) => {
+      writeItems(next, [
+        ...items.filter((item) => !category.slots.includes(item.slot)),
+        ...draft.filter((item) => category.slots.includes(item.slot)),
+      ]);
+      if (category.slots.includes("MOTION")) next.delete("motion");
+    });
+    setCategory(null);
+  };
   return (
-    <details className="rounded-lg border border-border bg-card">
-      <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-medium">
-        아이템·모션·태그로 찾기
-        {items.length > 0 ? ` · ${items.length}개 부위` : ""}
-      </summary>
-      <form
-        className="space-y-5 border-t border-border p-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          onApply(items, normalizeTags(tags));
-        }}
+    <div className="space-y-3">
+      <div
+        aria-label="의장 필터"
+        className="flex max-w-full flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-2 sm:flex-wrap sm:overflow-visible"
       >
-        <p className="text-sm text-muted-foreground">
-          원하는 부위만 선택해 주세요. 선택한 조건을 모두 포함한 의장을 찾아요.
-        </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {OUTFIT_SLOTS.map(([slot]) => (
-            <ItemPicker
-              key={slot}
-              slot={slot}
-              value={items.find((item) => item.slot === slot)}
-              onChange={(item) =>
-                setItems((current) => [
-                  ...current.filter((entry) => entry.slot !== slot),
-                  ...(item ? [item] : []),
-                ])
-              }
-            />
-          ))}
-        </div>
-        <label className="block text-sm">
-          태그
-          <input
-            value={tags}
-            onChange={(event) => setTags(event.target.value)}
-            placeholder="쉼표로 구분"
-            className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-          />
-        </label>
-        <div className="flex justify-end gap-2">
+        {genders.map(([value, label]) => (
           <button
+            key={value}
             type="button"
-            className="min-h-11 rounded-lg border border-border px-4"
-            onClick={() => {
-              setItems([]);
-              setTags("");
-              onApply([], []);
-            }}
+            aria-pressed={selectedGenders.includes(value)}
+            onClick={() => toggleGender(value)}
+            className={cn(
+              buttonStyle,
+              selectedGenders.includes(value) ? selectedStyle : unselectedStyle,
+            )}
           >
-            초기화
+            {label}
           </button>
-          <button
-            type="submit"
-            className="min-h-11 rounded-lg bg-primary px-5 text-primary-foreground"
-          >
-            의장 찾기
-          </button>
-        </div>
-      </form>
-    </details>
+        ))}
+        {outfitCategories.map((entry) => {
+          const count = items.filter((item) =>
+            entry.slots.includes(item.slot),
+          ).length;
+          const active = count > 0 || (entry.label === "모션" && !!motion);
+          return (
+            <button
+              key={entry.label}
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={category?.label === entry.label}
+              onClick={(event) => {
+                trigger.current = event.currentTarget;
+                setCategory(entry);
+              }}
+              className={cn(
+                buttonStyle,
+                "inline-flex items-center gap-2",
+                active ? selectedStyle : unselectedStyle,
+              )}
+            >
+              {entry.label}
+              {count > 0 && <span className="text-xs">{count}</span>}
+              <ChevronDown aria-hidden="true" className="size-4" />
+            </button>
+          );
+        })}
+      </div>
+      <OutfitFilterConditions
+        genders={genders.filter(([value]) => selectedGenders.includes(value))}
+        items={items}
+        tags={tags}
+        motion={motion}
+        onClearGender={toggleGender}
+        onClearItem={clearItem}
+        onClearTag={(index) =>
+          change((next) => {
+            next.delete("tags");
+            tags.forEach((entry, current) => {
+              if (current !== index) next.append("tags", entry);
+            });
+          })
+        }
+        onClearMotion={() => change((next) => next.delete("motion"))}
+        onReset={() => onApply(new URLSearchParams())}
+      />
+      <OutfitFilterDialog
+        category={category}
+        items={items}
+        onApply={applyCategory}
+        onClose={() => setCategory(null)}
+        returnFocus={() => trigger.current?.focus()}
+      />
+    </div>
   );
 }

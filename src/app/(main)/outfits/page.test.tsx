@@ -13,7 +13,7 @@ jest.mock("next/navigation", () => ({
     throw new Error("NOT_FOUND");
   },
 }));
-const props = (query: Record<string, string | undefined> = {}) => ({
+const props = (query: Record<string, string | string[] | undefined> = {}) => ({
   searchParams: Promise.resolve(query),
 });
 
@@ -36,15 +36,22 @@ it("uses a self canonical for crawlable cursor pages", async () => {
   expect(page.props.children.props.initialCursor).toBe("abc");
 });
 
-it.each([{ sort: "POPULAR" }, { tags: "겨울" }, { motion: "true" }])(
-  "keeps filter variants out of the index: %j",
-  async (query) => {
-    expect(await generateMetadata(props(query))).toMatchObject({
-      alternates: { canonical: "/outfits" },
-      robots: { index: false, follow: true },
-    });
-  },
-);
+it.each([
+  { sort: "POPULAR" },
+  { tags: "겨울" },
+  { motion: "true" },
+  { gender: "MALE" },
+])("keeps filter variants out of the index: %j", async (query) => {
+  expect(await generateMetadata(props(query))).toMatchObject({
+    alternates: { canonical: "/outfits" },
+    robots: { index: false, follow: true },
+  });
+});
+
+it("forwards both selected genders to the server-rendered feed", async () => {
+  await Page(props({ gender: ["MALE", "FEMALE"] }));
+  expect(getPublicOutfits).toHaveBeenCalledWith("gender=MALE&gender=FEMALE");
+});
 
 it("distinguishes empty, missing cursor, and unavailable provider", async () => {
   jest

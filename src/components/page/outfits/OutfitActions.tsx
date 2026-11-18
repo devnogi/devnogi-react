@@ -13,11 +13,9 @@ import { useOutfitAuth } from "./OutfitAuth";
 export default function OutfitActions({
   outfit,
   state,
-  compact = false,
 }: {
   outfit: Outfit;
   state?: OutfitViewerState;
-  compact?: boolean;
 }) {
   const requireLogin = useOutfitAuth();
   const { isAuthenticated } = useAuth();
@@ -88,13 +86,7 @@ export default function OutfitActions({
     }
   };
   return (
-    <div
-      className={
-        compact
-          ? "grid grid-cols-2 items-center gap-1 text-sm sm:flex sm:flex-wrap"
-          : "flex flex-wrap items-center gap-1 text-sm"
-      }
-    >
+    <div className="flex flex-wrap items-center gap-1 text-sm">
       <button
         aria-label="좋아요"
         aria-pressed={liked}

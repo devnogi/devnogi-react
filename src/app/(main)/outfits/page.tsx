@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 async function load(searchParams: Props["searchParams"]) {
   const query = await searchParams;
   const params = new URLSearchParams();
-  for (const key of ["sort", "cursor", "items", "tags", "motion"]) {
+  for (const key of ["sort", "cursor", "items", "tags", "motion", "gender"]) {
     const value = query[key];
     for (const entry of Array.isArray(value) ? value : value ? [value] : [])
       params.append(key, entry);

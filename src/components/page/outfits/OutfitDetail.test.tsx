@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
 
 import type { Outfit } from "@/types/outfits";
 
@@ -20,8 +20,14 @@ jest.mock("next/image", () => ({
 }));
 jest.mock("next/link", () => ({
   __esModule: true,
-  default: ({ children, href }: { children: ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
+  default: ({
+    children,
+    href,
+    ...props
+  }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
   ),
 }));
 jest.mock("next/navigation", () => ({
@@ -33,8 +39,8 @@ jest.mock("@/contexts/AuthContext", () => ({
 jest.mock("@/lib/outfits/api", () => ({ outfitRequest: jest.fn() }));
 jest.mock("./OutfitAuth", () => ({
   OutfitAuth: ({ children }: { children: ReactNode }) => children,
+  useOutfitAuth: () => () => true,
 }));
-jest.mock("./OutfitActions", () => ({ __esModule: true, default: () => null }));
 jest.mock("./OutfitComments", () => ({
   __esModule: true,
   default: () => null,
@@ -47,6 +53,7 @@ jest.mock("./OutfitComposer", () => ({
 const outfit: Outfit = {
   id: 1,
   userId: 7,
+  gender: null,
   author: {
     nickname: "작성자",
     profileImageUrl: null,
@@ -82,6 +89,10 @@ it("renders the detail photo from the original endpoint without optimization", (
     screen.getByRole("img", { name: "작성자의 의장 #1 사진 1" }),
   ).toBeVisible();
   expect(screen.getByLabelText("활동 등급: 그랜드마스터")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "좋아요" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "즐겨찾기" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "공유하기" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "댓글 0개" })).toBeInTheDocument();
   expect(imageProps.mock.calls[0][0]).toMatchObject({
     src: "/api/outfits/1/images/10",
     unoptimized: true,

@@ -14,6 +14,7 @@ export const OUTFIT_SLOTS = [
   ["MOTION", "모션", false],
 ] as const;
 export type OutfitSlot = (typeof OUTFIT_SLOTS)[number][0];
+export type OutfitGender = "MALE" | "FEMALE";
 export interface CatalogItem {
   name: string;
   topCategory: string;
@@ -41,6 +42,7 @@ interface OutfitImage {
 export interface Outfit {
   id: number;
   userId: number;
+  gender: OutfitGender | null;
   author: OutfitAuthor;
   content: string;
   images: OutfitImage[];
