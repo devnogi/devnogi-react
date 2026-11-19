@@ -2,6 +2,7 @@
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { useHero } from "@/hooks/useHero";
@@ -91,6 +92,9 @@ export default function HomeHeroCarousel() {
           </div>
         );
       })}
+      <Link href="/hero-auctions" className={styles.auctionLink}>
+        광고 경매로 이 자리에 광고를 올릴 수 있습니다
+      </Link>
       <div
         className={styles.controls}
         role="group"

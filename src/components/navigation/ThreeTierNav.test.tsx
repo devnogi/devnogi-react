@@ -204,27 +204,23 @@ it("의장 메뉴를 커뮤니티와 경매장 사이에 표시하고 하위 경
   const link = within(nav).getByRole("link", { name: "의장" });
   expect(link).toHaveAttribute("href", "/outfits");
   expect(link).toHaveAttribute("aria-current", "page");
-  expect(nav.textContent).toMatch(/커뮤니티길드의장경매장/);
+  expect(nav.textContent).toMatch(/커뮤니티광고 경매길드의장경매장/);
   expect(within(nav).getByRole("link", { name: "길드" })).toHaveAttribute(
     "href",
     "/guilds",
   );
 });
 
-it("비로그인 및 인증 로딩 중에는 광고 경매 메뉴를 숨긴다", () => {
+it("비로그인 및 인증 로딩 중에도 광고 경매 메뉴를 표시한다", () => {
   const { rerender } = render(<ThreeTierNav />);
-  expect(
-    screen.queryByRole("link", { name: "광고 경매" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "광고 경매" })).toBeInTheDocument();
   mockAuthState = {
     isAuthenticated: true,
     isLoading: true,
     user: { nickname: "회원", role: "USER", verified: false },
   };
   rerender(<ThreeTierNav />);
-  expect(
-    screen.queryByRole("link", { name: "광고 경매" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "광고 경매" })).toBeInTheDocument();
   mockAuthState = { ...mockAuthState, isLoading: false };
   rerender(<ThreeTierNav />);
   expect(screen.getByRole("link", { name: "광고 경매" })).toHaveAttribute(

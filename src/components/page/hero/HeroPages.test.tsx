@@ -141,8 +141,11 @@ it.each([false, true])(
       screen.queryByRole("heading", { name: "XP로 나의 광고를 알리세요" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "경매 규칙 보기" }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: "상세 경매 규칙 보기" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "광고 등록과 입찰 방법" }),
+    ).toBeInTheDocument();
     expect(request).not.toHaveBeenCalled();
     expect(experience).not.toHaveBeenCalled();
     if (isLoading) {
@@ -174,7 +177,7 @@ it("removes cached auction contents immediately after logout", async () => {
   auth.mockReturnValue({ ...auth(), user: null, isAuthenticated: false });
   rerender(<HeroAuctionsPage />);
   expect(
-    screen.getByRole("heading", { name: "로그인이 필요합니다" }),
+    screen.getByRole("heading", { name: "로그인 후 광고를 등록하세요" }),
   ).toBeInTheDocument();
   expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
   expect(
@@ -183,40 +186,50 @@ it("removes cached auction contents immediately after logout", async () => {
   expect(request).not.toHaveBeenCalled();
 });
 
-it("opens the preserved rules in a scrollable dialog and returns focus after Escape", async () => {
-  const user = userEvent.setup();
-  mount(<HeroAuctionsPage />);
-  const trigger = screen.getByRole("button", { name: "경매 규칙 보기" });
-  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  await user.click(trigger);
-  const dialog = await screen.findByRole("dialog", { name: "광고 경매 규칙" });
-  expect(dialog).toHaveAccessibleDescription(
-    "입찰 전 참여 조건과 XP 처리 규칙을 확인해주세요.",
-  );
-  expect(within(dialog).getAllByRole("listitem")).toHaveLength(6);
-  expect(
-    within(dialog).getByText(/경매는 매주 월요일 00시부터 일요일 22시까지/),
-  ).toBeInTheDocument();
-  expect(
-    within(dialog).getByRole("region", { name: "광고 경매 규칙 내용" }),
-  ).toHaveClass("overflow-y-auto");
-  expect(dialog).toHaveClass("max-h-[calc(100dvh-2rem)]");
-  await user.keyboard("{Escape}");
-  await waitFor(() =>
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
-  );
-  await waitFor(() => expect(trigger).toHaveFocus());
-  await user.click(trigger);
-  await user.click(
-    within(
-      await screen.findByRole("dialog", { name: "광고 경매 규칙" }),
-    ).getByRole("button", { name: "닫기" }),
-  );
-  await waitFor(() =>
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
-  );
-  await waitFor(() => expect(trigger).toHaveFocus());
-});
+it.each([true, false])(
+  "opens rules and returns focus for authenticated=%s",
+  async (isAuthenticated) => {
+    auth.mockReturnValue({
+      ...auth(),
+      isAuthenticated,
+      user: isAuthenticated ? auth().user : null,
+    });
+    const user = userEvent.setup();
+    mount(<HeroAuctionsPage />);
+    const trigger = screen.getByRole("button", { name: "상세 경매 규칙 보기" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.click(trigger);
+    const dialog = await screen.findByRole("dialog", {
+      name: "광고 경매 규칙",
+    });
+    expect(dialog).toHaveAccessibleDescription(
+      "입찰 전 참여 조건과 XP 처리 규칙을 확인해주세요.",
+    );
+    expect(within(dialog).getAllByRole("listitem")).toHaveLength(6);
+    expect(
+      within(dialog).getByText(/경매는 매주 월요일 00시부터 일요일 22시까지/),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("region", { name: "광고 경매 규칙 내용" }),
+    ).toHaveClass("overflow-y-auto");
+    expect(dialog).toHaveClass("max-h-[calc(100dvh-2rem)]");
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await user.click(trigger);
+    await user.click(
+      within(
+        await screen.findByRole("dialog", { name: "광고 경매 규칙" }),
+      ).getByRole("button", { name: "닫기" }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    await waitFor(() => expect(trigger).toHaveFocus());
+  },
+);
 
 it("requires a selected creative and submits an idempotent bid without trusting role for grade", async () => {
   mount(<HeroAuctionsPage />);
@@ -354,4 +367,16 @@ describe.each([
       screen.queryByText(/시작 예정입니다|비활성화되어 있습니다/),
     ).not.toBeInTheDocument();
   });
+});
+
+it("blocks material registration for an ineligible member", async () => {
+  experience.mockReturnValue({
+    data: { ...experienceSummaryFixture, eligible: false },
+    isPending: false,
+    isError: false,
+  } as ReturnType<typeof useExperience>);
+  mount(<HeroAuctionsPage />);
+  expect(
+    await screen.findByRole("button", { name: "새 광고 소재 등록" }),
+  ).toBeDisabled();
 });

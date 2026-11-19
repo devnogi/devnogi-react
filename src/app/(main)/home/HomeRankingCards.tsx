@@ -13,11 +13,11 @@ export default function HomeRankingCards() {
       <h1 id="market-summary-heading" className="sr-only">
         오늘의 시세 현황
       </h1>
-      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
         <HomePopularPosts />
         <HornBugleCard />
       </div>
-      <div className="mt-6 grid grid-cols-1 items-start gap-6 border-t border-border pt-6 md:mt-8 md:pt-8 lg:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 items-start gap-4 border-t border-border pt-4 md:mt-6 md:pt-6 lg:grid-cols-2">
         <MonthLargestCard />
         <PopularRankingCard />
       </div>

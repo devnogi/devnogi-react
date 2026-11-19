@@ -141,7 +141,7 @@ function NavigationDropdown({
 
 export default function ThreeTierNav() {
   const pathname = usePathname();
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const isAdminUser = isAdminRole(user?.role);
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -179,13 +179,11 @@ export default function ThreeTierNav() {
             label="커뮤니티"
             pathname={pathname}
           />
-          {!isLoading && isAuthenticated ? (
-            <NavigationItem
-              href="/hero-auctions"
-              label="광고 경매"
-              pathname={pathname}
-            />
-          ) : null}
+          <NavigationItem
+            href="/hero-auctions"
+            label="광고 경매"
+            pathname={pathname}
+          />
           <NavigationItem
             href="/guilds"
             label="길드"
