@@ -15,10 +15,7 @@
 
 .hero {
   position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 224px;
-  padding: 32px 0 72px;
+  height: 320px;
 }
 .searchContainer,
 .content {
@@ -29,19 +26,18 @@
 .searchContainer {
   position: relative;
   z-index: 20;
-  pointer-events: none;
+  padding-top: 24px;
 }
 .searchGroup {
   max-width: 720px;
-  pointer-events: auto;
+  margin-inline: auto;
 }
 .content {
   padding: 24px 0 32px;
 }
 @media (min-width: 768px) {
   .hero {
-    min-height: 280px;
-    padding: 48px 0 64px;
+    height: 480px;
   }
   .searchContainer,
   .content {

@@ -59,8 +59,8 @@ it("빈 랭킹에 전용 원형 이미지를 안내 문구 위에 표시한다",
   render(<PopularRankingCard />);
   const image = screen.getByRole("img", { name: "비어 있는 랭킹 보드" });
   const emptyState = screen.getByText("랭킹 데이터가 없습니다").parentElement;
-  expect(emptyState).toHaveClass("lg:min-h-[420px]");
-  expect(emptyState).not.toHaveClass("min-h-[420px]");
+  expect(emptyState).toHaveClass("lg:min-h-[360px]");
+  expect(emptyState).not.toHaveClass("min-h-[360px]");
   expect(image).toHaveClass("[clip-path:circle(43%_at_50%_50%)]");
   expect(image).toHaveAttribute(
     "src",

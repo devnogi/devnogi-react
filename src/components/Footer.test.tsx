@@ -6,16 +6,14 @@ describe("Footer", () => {
   it("렌더링 테스트 - 사이트명과 문구가 표시된다", () => {
     render(<Footer />);
 
-    expect(screen.getAllByText("MEMONOGI").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("공식 사이트 아님").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("MEMONOGI")).toHaveLength(1);
+    expect(screen.getAllByText(/공식 사이트가 아닙니다/)).toHaveLength(1);
   });
 
   it("렌더링 테스트 - 데이터 출처가 표시된다", () => {
     render(<Footer />);
 
-    expect(
-      screen.getAllByText("Data provided by NEXON Open API").length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText(/NEXON Open API/)).toHaveLength(1);
   });
 
   it.each([

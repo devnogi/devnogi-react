@@ -33,7 +33,7 @@ export default function PopularRankingCard() {
           데이터를 불러올 수 없습니다
         </div>
       ) : !data || data.length === 0 ? (
-        <div className="flex flex-col items-center justify-center px-4 py-10 text-center text-sm text-gray-600 dark:text-gray-300 lg:min-h-[420px]">
+        <div className="flex flex-col items-center justify-center px-4 py-10 text-center text-sm text-gray-600 dark:text-gray-300 lg:min-h-[360px]">
           <Image
             src="/ranking-empty-medallion.png"
             alt="비어 있는 랭킹 보드"

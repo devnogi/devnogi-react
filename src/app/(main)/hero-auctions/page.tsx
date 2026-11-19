@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CircleHelp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -264,11 +265,12 @@ function Participation({
         ) : null}
         <Button
           variant="outline"
+          disabled={!data?.eligible || xp.isPending || xp.isError}
           onClick={() => setShowUpload((value) => !value)}
         >
           {showUpload ? "등록 닫기" : "새 광고 소재 등록"}
         </Button>
-        {showUpload ? (
+        {showUpload && data?.eligible && !xp.isPending && !xp.isError ? (
           <HeroCreativeForm
             onSave={async (form) => {
               const created = await heroRequest<HeroCreative>(
@@ -389,24 +391,172 @@ function Participation({
   );
 }
 
+function AuctionGuide() {
+  return (
+    <>
+      <section
+        className="relative rounded-xl border bg-card p-5 pr-16"
+        aria-labelledby="auction-guide-heading"
+      >
+        <h1 id="auction-guide-heading" className="text-xl font-semibold">
+          광고 경매 안내
+        </h1>
+        <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+          <div>
+            <dt className="text-muted-foreground">경매 기간</dt>
+            <dd className="mt-1">
+              매주 월요일 00:00 ~ 일요일 22:00 (한국 시간)
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">광고 노출</dt>
+            <dd className="mt-1">
+              메인 1·2번 자리 · 낙찰 다음 월요일부터 7일간
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">참여 조건</dt>
+            <dd className="mt-1">
+              로그인 및 캐릭터 인증을 완료한 정상 회원 · 수석(45 XP) 이상
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">입찰 금액</dt>
+            <dd className="mt-1">
+              최소 10 XP · 최고가보다 1 XP 이상 높게 입찰
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-xs text-muted-foreground">
+          최고 입찰액은 예약되며, 낙찰자만 최종 입찰액을 지불합니다.
+        </p>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="상세 경매 규칙 보기"
+              className="absolute right-3 top-3 min-h-11 min-w-11"
+            >
+              <CircleHelp aria-hidden="true" className="h-5 w-5" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-2xl">
+            <DialogHeader className="shrink-0 pr-8">
+              <DialogTitle>광고 경매 규칙</DialogTitle>
+              <DialogDescription>
+                입찰 전 참여 조건과 XP 처리 규칙을 확인해주세요.
+              </DialogDescription>
+            </DialogHeader>
+            <div
+              role="region"
+              aria-label="광고 경매 규칙 내용"
+              tabIndex={0}
+              className="min-h-0 overflow-y-auto pr-2 focus-visible:outline-2 focus-visible:outline-ring"
+            >
+              <p className="text-sm leading-6">
+                경매는 매주 월요일 00시부터 일요일 22시까지 열립니다. 낙찰
+                광고는 다음 월요일 00시부터 7일간 노출됩니다. 모든 시각은 한국
+                시간입니다.
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6">
+                <li>
+                  인증된 정상 회원이면서 수석(45 XP) 이상이어야 합니다. 최소 10
+                  XP, 1 XP 단위로 현재 최고가보다 높게 입찰합니다.
+                </li>
+                <li>
+                  최고 입찰액은 예약되며 다른 사람이 높은 금액을 부르면 즉시
+                  해제됩니다. 낙찰자만 최종 입찰액을 지불하고 등급이 내려갈 수
+                  있습니다.
+                </li>
+                <li>
+                  두 자리 모두 낙찰받을 수 있습니다. 마감 직전 등급과 합산
+                  잔액을 검사하며, 합산 잔액이 부족하면 두 입찰 모두 무효입니다.
+                  차순위에게 승계하지 않습니다.
+                </li>
+                <li>
+                  입찰 취소·금액 인하·자동 입찰·마감 연장은 없습니다. 소재
+                  교체는 더 높은 금액으로 재입찰해야 하며 낙찰 이후에는 바꿀 수
+                  없습니다.
+                </li>
+                <li>
+                  정책 위반 소재는 사전 심사 없이도 관리자가 차단할 수 있으며
+                  노출 중단 시 환불하지 않습니다. 운영 사유로 경매를 취소하면
+                  전액 환불합니다.
+                </li>
+                <li>
+                  활동 삭제로 XP가 회수될 수 있습니다. 이미 소비한 XP의 부족분은
+                  이후 적립에서 먼저 상쇄됩니다.
+                </li>
+              </ul>
+            </div>
+            <DialogFooter className="shrink-0">
+              <DialogClose asChild>
+                <Button variant="outline" className="min-h-11">
+                  닫기
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </section>
+      <section
+        aria-labelledby="auction-steps-heading"
+        className="rounded-xl border bg-card p-5"
+      >
+        <h2 id="auction-steps-heading" className="font-semibold">
+          광고 등록과 입찰 방법
+        </h2>
+        <ol className="mt-3 grid gap-4 text-sm sm:grid-cols-3">
+          <li>
+            <strong>1. 광고 소재 등록</strong>
+            <p className="mt-1 text-muted-foreground">
+              로그인 후 ‘새 광고 소재 등록’에서 이미지와 설명을 등록하세요.
+              링크는 선택 사항입니다.
+            </p>
+          </li>
+          <li>
+            <strong>2. 소재 선택</strong>
+            <p className="mt-1 text-muted-foreground">
+              등록한 소재 중 입찰에 사용할 광고를 선택하세요.
+            </p>
+          </li>
+          <li>
+            <strong>3. XP 입찰</strong>
+            <p className="mt-1 text-muted-foreground">
+              원하는 광고 자리의 입찰액을 입력하고 입찰하세요.
+            </p>
+          </li>
+        </ol>
+      </section>
+    </>
+  );
+}
 export default function HeroAuctionsPage() {
   const { user, isLoading, isAuthenticated } = useAuth();
-  if (isLoading) return <p role="status">로그인 확인 중…</p>;
-  if (!isAuthenticated || !user)
-    return (
-      <main className="mx-auto max-w-3xl space-y-4 py-8">
-        <h1 className="text-xl font-semibold">로그인이 필요합니다</h1>
-        <p>광고 경매는 로그인 후 이용할 수 있습니다.</p>
-        <Link
-          href="/sign-in"
-          prefetch={false}
-          className="text-primary underline"
-        >
-          로그인하기
-        </Link>
-      </main>
-    );
-  return <MemberHeroAuctions userId={user.userId} />;
+  return (
+    <div className="mx-auto max-w-5xl space-y-6 py-5">
+      <AuctionGuide />
+      {isLoading ? (
+        <p role="status">로그인 확인 중…</p>
+      ) : !isAuthenticated || !user ? (
+        <section className="space-y-3 rounded-xl border bg-card p-5">
+          <h2 className="font-semibold">로그인 후 광고를 등록하세요</h2>
+          <p className="text-sm text-muted-foreground">
+            광고 소재 등록과 입찰은 로그인하고 캐릭터 인증을 완료한 회원만
+            이용할 수 있습니다. 입찰에는 수석(45 XP) 이상 등급이 필요합니다.
+          </p>
+          <Button asChild>
+            <Link href="/sign-in" prefetch={false}>
+              로그인하기
+            </Link>
+          </Button>
+        </section>
+      ) : (
+        <MemberHeroAuctions key={user.userId} userId={user.userId} />
+      )}
+    </div>
+  );
 }
 
 function MemberHeroAuctions({ userId }: { userId: number }) {
@@ -434,77 +584,7 @@ function MemberHeroAuctions({ userId }: { userId: number }) {
     .filter((item) => item.weekStart === latest)
     .sort((a, b) => a.slot - b.slot);
   return (
-    <main className="mx-auto max-w-5xl space-y-6 py-5">
-      <header className="space-y-2">
-        <p className="text-sm text-muted-foreground">메인 Hero · 주간 광고</p>
-        <h1 className="text-3xl font-bold">XP로 나의 광고를 알리세요</h1>
-        <p className="text-sm leading-6 text-muted-foreground">
-          매주 월요일 00시부터 일요일 22시까지, 1·2번 자리를 각각 경매합니다.
-          낙찰 광고는 다음 월요일부터 7일간 노출됩니다. 모든 시각은 한국
-          시간입니다.
-        </p>
-      </header>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline">경매 규칙 보기</Button>
-        </DialogTrigger>
-        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-2xl">
-          <DialogHeader className="shrink-0 pr-8">
-            <DialogTitle>광고 경매 규칙</DialogTitle>
-            <DialogDescription>
-              입찰 전 참여 조건과 XP 처리 규칙을 확인해주세요.
-            </DialogDescription>
-          </DialogHeader>
-          <div
-            role="region"
-            aria-label="광고 경매 규칙 내용"
-            tabIndex={0}
-            className="min-h-0 overflow-y-auto pr-2 focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            <p className="text-sm leading-6">
-              경매는 매주 월요일 00시부터 일요일 22시까지 열립니다. 낙찰 광고는
-              다음 월요일 00시부터 7일간 노출됩니다. 모든 시각은 한국
-              시간입니다.
-            </p>
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6">
-              <li>
-                인증된 정상 회원이면서 수석(45 XP) 이상이어야 합니다. 최소 10
-                XP, 1 XP 단위로 현재 최고가보다 높게 입찰합니다.
-              </li>
-              <li>
-                최고 입찰액은 예약되며 다른 사람이 높은 금액을 부르면 즉시
-                해제됩니다. 낙찰자만 최종 입찰액을 지불하고 등급이 내려갈 수
-                있습니다.
-              </li>
-              <li>
-                두 자리 모두 낙찰받을 수 있습니다. 마감 직전 등급과 합산 잔액을
-                검사하며, 합산 잔액이 부족하면 두 입찰 모두 무효입니다.
-                차순위에게 승계하지 않습니다.
-              </li>
-              <li>
-                입찰 취소·금액 인하·자동 입찰·마감 연장은 없습니다. 소재 교체는
-                더 높은 금액으로 재입찰해야 하며 낙찰 이후에는 바꿀 수 없습니다.
-              </li>
-              <li>
-                정책 위반 소재는 사전 심사 없이도 관리자가 차단할 수 있으며 노출
-                중단 시 환불하지 않습니다. 운영 사유로 경매를 취소하면 전액
-                환불합니다.
-              </li>
-              <li>
-                활동 삭제로 XP가 회수될 수 있습니다. 이미 소비한 XP의 부족분은
-                이후 적립에서 먼저 상쇄됩니다.
-              </li>
-            </ul>
-          </div>
-          <DialogFooter className="shrink-0">
-            <DialogClose asChild>
-              <Button variant="outline" className="min-h-11">
-                닫기
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+    <div className="space-y-6">
       {query.isPending ? <p role="status">경매 불러오는 중…</p> : null}
       {query.isError ? (
         <p role="alert">
@@ -547,6 +627,6 @@ function MemberHeroAuctions({ userId }: { userId: number }) {
             ))}
         </section>
       ) : null}
-    </main>
+    </div>
   );
 }

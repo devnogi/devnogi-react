@@ -161,5 +161,19 @@ it("현재 광고의 검증된 링크만 활성화한다", () => {
   );
   expect(screen.getByText("광고")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "다음 Hero 이미지" }));
-  expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "겨울" })).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("link", {
+      name: "광고 경매로 이 자리에 광고를 올릴 수 있습니다",
+    }),
+  ).toHaveAttribute("href", "/hero-auctions");
+});
+
+it("기본 이미지에서도 광고 안내 링크를 제공한다", () => {
+  render(<HomeHeroCarousel />);
+  expect(
+    screen.getByRole("link", {
+      name: "광고 경매로 이 자리에 광고를 올릴 수 있습니다",
+    }),
+  ).toHaveAttribute("href", "/hero-auctions");
 });
