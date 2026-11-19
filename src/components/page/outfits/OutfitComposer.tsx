@@ -12,7 +12,12 @@ import {
   validateOutfit,
   validatePhoto,
 } from "@/lib/outfits/validation";
-import { type Outfit, OUTFIT_SLOTS, type OutfitItem } from "@/types/outfits";
+import {
+  type Outfit,
+  OUTFIT_SLOTS,
+  type OutfitGender,
+  type OutfitItem,
+} from "@/types/outfits";
 
 import ItemPicker from "./ItemPicker";
 import { useOutfitAuth } from "./OutfitAuth";
@@ -30,6 +35,9 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
   const router = useRouter();
   const cache = useQueryClient();
   const [content, setContent] = useState(initial?.content ?? "");
+  const [gender, setGender] = useState<OutfitGender | null>(
+    initial?.gender ?? null,
+  );
   const [tags, setTags] = useState(initial?.tags.join(", ") ?? "");
   const [items, setItems] = useState<OutfitItem[]>(initial?.items ?? []);
   const [photos, setPhotos] = useState<Photo[]>(
@@ -59,6 +67,7 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
       normalizedTags,
       items,
       photos.length,
+      gender,
     );
     if (invalid) {
       setError(invalid);
@@ -78,7 +87,15 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
     form.append(
       "data",
       new Blob(
-        [JSON.stringify({ content, tags: normalizedTags, items, mediaOrder })],
+        [
+          JSON.stringify({
+            content,
+            gender,
+            tags: normalizedTags,
+            items,
+            mediaOrder,
+          }),
+        ],
         { type: "application/json" },
       ),
     );
@@ -212,6 +229,32 @@ export default function OutfitComposer({ initial }: { initial?: Outfit }) {
             }}
           />
         </label>
+      </fieldset>
+      <fieldset disabled={saving} className="space-y-3">
+        <legend className="font-semibold">캐릭터 성별 *</legend>
+        <div className="flex gap-2">
+          {(
+            [
+              ["MALE", "남"],
+              ["FEMALE", "여"],
+            ] as const
+          ).map(([value, label]) => (
+            <label
+              key={value}
+              className={`inline-flex min-h-11 min-w-16 cursor-pointer items-center justify-center rounded-lg border px-4 text-sm font-medium focus-within:outline-2 focus-within:outline-ring ${gender === value ? "border-primary bg-secondary text-foreground" : "border-border bg-background text-muted-foreground"}`}
+            >
+              <input
+                type="radio"
+                name="gender"
+                value={value}
+                checked={gender === value}
+                onChange={() => setGender(value)}
+                className="sr-only"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
       </fieldset>
       <fieldset disabled={saving}>
         <legend className="mb-4 font-semibold">착용 아이템</legend>

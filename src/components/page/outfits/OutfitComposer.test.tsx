@@ -55,6 +55,7 @@ const items: OutfitItem[] = ["CLOTHING", "HANDS", "FEET"].map((slot) => ({
 const initial: Outfit = {
   id: 1,
   userId: 7,
+  gender: "MALE",
   author: {
     nickname: "작성자",
     profileImageUrl: null,
@@ -103,6 +104,12 @@ it("blocks saving without required gloves", () => {
   expect(screen.getByRole("alert")).toHaveTextContent("손(장갑)");
   expect(outfitRequest).not.toHaveBeenCalled();
 });
+it("requires a gender when editing a legacy outfit", () => {
+  mount({ ...initial, gender: null });
+  fireEvent.click(screen.getByRole("button", { name: "의장 저장" }));
+  expect(screen.getByRole("alert")).toHaveTextContent("성별");
+  expect(outfitRequest).not.toHaveBeenCalled();
+});
 it("preserves the draft after a failed save", async () => {
   jest.mocked(outfitRequest).mockRejectedValue(new Error("카탈로그 일시 오류"));
   mount();
@@ -137,6 +144,7 @@ it("submits ordered retained image ids and navigates to the saved detail", async
     mediaOrder: [{ imageId: 11 }, { imageId: 10 }],
     items,
     content: "기존 이야기",
+    gender: "MALE",
   });
 });
 

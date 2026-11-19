@@ -1,5 +1,5 @@
 "use client";
-import { useInfiniteQuery, useQueries } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -9,14 +9,8 @@ import ActivityGradeBadge from "@/components/ui/ActivityGradeBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { outfitRequest } from "@/lib/outfits/api";
 import { outfitTitle } from "@/lib/outfits/seo";
-import type {
-  Outfit,
-  OutfitItem,
-  OutfitPage,
-  OutfitViewerState,
-} from "@/types/outfits";
+import type { Outfit, OutfitPage } from "@/types/outfits";
 
-import OutfitActions from "./OutfitActions";
 import { OutfitAuth, useOutfitAuth } from "./OutfitAuth";
 import OutfitFilters from "./OutfitFilters";
 export default function OutfitFeed({
@@ -58,6 +52,8 @@ function Feed({
   if (params.has("items")) filterQuery.set("items", params.get("items")!);
   for (const tag of params.getAll("tags")) filterQuery.append("tags", tag);
   if (params.has("motion")) filterQuery.set("motion", params.get("motion")!);
+  for (const gender of params.getAll("gender"))
+    filterQuery.append("gender", gender);
   const queryString = filterQuery.toString();
   const feed = useInfiniteQuery({
     queryKey: [
@@ -99,45 +95,35 @@ function Feed({
       ]),
     ).values(),
   ];
-  const batches = Array.from(
-    { length: Math.ceil(outfits.length / 50) },
-    (_, index) =>
-      outfits
-        .slice(index * 50, (index + 1) * 50)
-        .map((outfit) => outfit.id)
-        .join(","),
-  );
-  const viewerQueries = useQueries({
-    queries: batches.map((ids) => ({
-      queryKey: ["outfits", "viewer", user?.userId, ids],
-      queryFn: ({ signal }: { signal: AbortSignal }) =>
-        outfitRequest<OutfitViewerState[]>(`/viewer-state?ids=${ids}`, {
-          signal,
-        }),
-      enabled: isAuthenticated && !!ids,
-    })),
-  });
-  const states = viewerQueries.flatMap((query) => query.data ?? []);
-  const updateFilters = (items: OutfitItem[], tags: string[]) => {
-    const query = new URLSearchParams();
-    query.set("sort", sort);
-    if (items.length) query.set("items", JSON.stringify(items));
-    tags.forEach((tag) => query.append("tags", tag));
+  const updateFilters = (filters: URLSearchParams) => {
+    const query = new URLSearchParams(params.toString());
+    for (const key of ["items", "tags", "motion", "gender", "cursor"])
+      query.delete(key);
+    filters.forEach((value, key) => {
+      if (["items", "tags", "motion", "gender"].includes(key))
+        query.append(key, value);
+    });
     router.push(`${pathname}?${query}`);
   };
   return (
     <section className="visual-polish mx-auto max-w-[1120px] space-y-6 py-6">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">
-            {personal ? "의장 게시글" : "마비노기 의장·코디 모음"}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {personal
-              ? "내가 남기고 모아 둔 에린의 스타일"
-              : "에린에서 만나는 나만의 스타일"}
-          </p>
-        </div>
+      <header
+        className={
+          personal
+            ? "flex items-start justify-between gap-4"
+            : "flex items-start justify-end gap-4"
+        }
+      >
+        {personal ? (
+          <div>
+            <h1 className="text-2xl font-semibold">의장 게시글</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              내가 남기고 모아 둔 에린의 스타일
+            </p>
+          </div>
+        ) : (
+          <h1 className="sr-only">의장 둘러보기</h1>
+        )}
         <button
           className="min-h-11 shrink-0 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
           onClick={() => {
@@ -177,11 +163,7 @@ function Feed({
         ))}
       </div>
       {!personal && (
-        <OutfitFilters
-          key={queryString}
-          search={queryString}
-          onApply={updateFilters}
-        />
+        <OutfitFilters search={queryString} onApply={updateFilters} />
       )}
       {!personal && sort === "POPULAR" && (
         <p className="text-xs text-muted-foreground">
@@ -273,15 +255,6 @@ function Feed({
                   verified={outfit.author.verified}
                 />
               </Link>
-              <OutfitActions
-                compact
-                outfit={outfit}
-                state={
-                  isAuthenticated
-                    ? states.find((state) => state.outfitId === outfit.id)
-                    : undefined
-                }
-              />
             </article>
           ))}
         </div>
