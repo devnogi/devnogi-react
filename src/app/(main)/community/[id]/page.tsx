@@ -162,7 +162,7 @@ async function PostPage({ params }: PostPageProps) {
         </section>
 
         <aside className="hidden lg:block">
-          <div className="sticky top-[116px]">
+          <div className="sticky top-[calc(var(--app-header-height)+52px)]">
             <PopularPostsHighlight />
           </div>
         </aside>

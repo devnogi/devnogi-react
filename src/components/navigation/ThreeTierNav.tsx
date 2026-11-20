@@ -16,6 +16,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { isAdminRole } from "@/utils/roles";
 
+import { HomeSearch } from "./HomeSearch";
+
 type NavigationLink = {
   href: string;
   label: string;
@@ -57,7 +59,7 @@ function NavigationItem({
       href={href}
       prefetch={prefetch}
       className={clsx(
-        "relative flex h-12 md:h-16 shrink-0 items-center min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
+        "relative flex h-12 xl:h-16 shrink-0 items-center min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
         isActive
           ? "text-primary"
           : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
@@ -88,7 +90,7 @@ function NavigationDropdown({
           type="button"
           aria-expanded={isOpen}
           className={clsx(
-            "relative flex h-12 shrink-0 md:h-16 items-center gap-1 min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
+            "relative flex h-12 shrink-0 xl:h-16 items-center gap-1 min-w-11 justify-center px-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:px-3",
             isActive
               ? "text-primary"
               : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
@@ -147,7 +149,7 @@ export default function ThreeTierNav() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-md transition-colors dark:border-navy-600 dark:bg-navy-800/95">
-      <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-x-2 px-4 md:grid-cols-[auto_1fr_auto] md:gap-x-4 md:px-6">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 px-4 md:px-6 xl:grid-cols-[auto_auto_minmax(200px,1fr)_auto] xl:gap-x-4">
         <Link
           href="/"
           className="flex h-16 items-center justify-self-start shrink-0 text-[17px] font-bold tracking-[-0.02em] text-gray-950 transition-colors hover:text-primary focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring sm:text-xl dark:text-white "
@@ -158,14 +160,14 @@ export default function ThreeTierNav() {
 
         <nav
           aria-label="주요 메뉴"
-          className="col-span-2 row-start-2 flex h-12 min-w-0 items-center justify-between overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-t border-border md:overflow-visible md:col-span-1 md:col-start-2 md:row-start-1 md:h-16 md:justify-start md:border-0"
+          className="col-span-2 row-start-3 flex h-12 min-w-0 items-center justify-between overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-t border-border xl:overflow-visible xl:col-span-1 xl:col-start-2 xl:row-start-1 xl:h-16 xl:justify-start xl:border-0"
         >
           <Link
             href="/"
             aria-label="메인"
             aria-current={pathname === "/" ? "page" : undefined}
             className={clsx(
-              "relative flex h-12 md:h-16 w-11 shrink-0 items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring",
+              "relative flex h-12 xl:h-16 w-11 shrink-0 items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring",
               pathname === "/"
                 ? "text-primary"
                 : "text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white",
@@ -210,7 +212,11 @@ export default function ThreeTierNav() {
           />
         </nav>
 
-        <div className="col-start-2 row-start-1 ml-auto flex h-16 shrink-0 items-center gap-1.5 md:col-start-3">
+        <div className="col-span-2 row-start-2 flex h-14 min-w-0 items-center xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:h-16">
+          <HomeSearch location="navigation" className="w-full" />
+        </div>
+
+        <div className="col-start-2 row-start-1 ml-auto flex h-16 shrink-0 items-center gap-1.5 xl:col-start-4">
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-xl text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:text-gray-200 dark:hover:bg-navy-600 dark:hover:text-white"

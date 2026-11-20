@@ -26,22 +26,16 @@ jest.mock("@/app/(main)/home/HomeRankingCards", () => {
   return HomeRankingCardsMock;
 });
 
-jest.mock("@/components/navigation/HomeSearch", () => ({
-  HomeSearch: () => <div role="search" aria-label="메인 아이템 검색" />,
-}));
-
 describe("HomeLanding", () => {
-  it("Hero와 카드 사이에 검색을 두고 부가 안내를 제거한다", () => {
+  it("Hero 뒤에 홈 콘텐츠를 표시하고 본문 검색을 중복 표시하지 않는다", () => {
     render(<HomeLanding />);
     const hero = screen.getByRole("region", { name: "메인 광고" });
-    const search = screen.getByRole("search", { name: "메인 아이템 검색" });
+    const content = screen.getByRole("region", { name: "홈 콘텐츠" });
     const cards = screen.getByTestId("ranking-cards");
-    expect(hero).not.toContainElement(search);
+    expect(content).toContainElement(cards);
+    expect(screen.queryByRole("search")).not.toBeInTheDocument();
     expect(
-      hero.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(
-      search.compareDocumentPosition(cards) & Node.DOCUMENT_POSITION_FOLLOWING,
+      hero.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.queryByText("주요 기능 보기")).not.toBeInTheDocument();
     expect(screen.queryByText("데이터 안내")).not.toBeInTheDocument();

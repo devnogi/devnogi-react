@@ -116,7 +116,7 @@ function CommunityPageContent({ initial, startPage = 1 }: Props) {
         </section>
         {showPopular && (
           <aside aria-label="인기 게시글" className="hidden lg:block">
-            <div className="sticky top-[116px]">
+            <div className="sticky top-[calc(var(--app-header-height)+52px)]">
               <PopularPostsContent
                 data={popular.data}
                 isLoading={popular.isLoading}
