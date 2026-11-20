@@ -3,19 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
+import { defaultHeroSlide } from "@/lib/hero/default-slide";
 import { heroRequest } from "@/lib/hero/request";
-import type { HeroResponse, HeroSlide } from "@/types/hero";
-
-const fallback: HeroSlide = {
-  id: 0,
-  imageUrl: "/home-hero-library-v2.png",
-  altText: "마비노기 정보 검색",
-  linkUrl: null,
-  position: 1,
-  advertisement: false,
-  startsAt: null,
-  endsAt: null,
-};
+import type { HeroResponse } from "@/types/hero";
 
 export function useHero() {
   const query = useQuery({
@@ -65,11 +55,12 @@ export function useHero() {
     data?.items
       .filter(
         (slide) =>
+          slide.visible !== false &&
           (!slide.startsAt || Date.parse(slide.startsAt) <= serverNow) &&
           (!slide.endsAt || Date.parse(slide.endsAt) > serverNow),
       )
       .slice(0, 10) ?? [];
   if (items[0]?.advertisement && items[0].position === 2)
-    items.unshift(fallback);
-  return items.length ? items : [fallback];
+    items.unshift(defaultHeroSlide);
+  return items.length ? items : [defaultHeroSlide];
 }

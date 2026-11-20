@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { useHero } from "@/hooks/useHero";
+import { defaultHeroSlide } from "@/lib/hero/default-slide";
 import { validateHeroLink } from "@/lib/hero/validation";
 
 import styles from "./HomeHeroCarousel.module.css";
@@ -43,111 +44,117 @@ export default function HomeHeroCarousel() {
       (current) => (current + direction + slides.length) % slides.length,
     );
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {slides.map((slide, index) => {
-        const failed = failedImages.includes(slide.imageUrl);
-        const link = failed ? null : safeLink(slide.linkUrl);
-        return (
-          <div
-            key={`${slide.id}-${slide.position}`}
-            className={clsx(
-              "absolute inset-0",
-              index !== active && "pointer-events-none",
-            )}
-            aria-hidden={index !== active}
-          >
-            <Image
-              src={failed ? "/home-hero-library-v2.png" : slide.imageUrl}
-              alt={slide.altText}
-              fill
-              priority={index === 0}
-              unoptimized={!slide.imageUrl.startsWith("/")}
-              onError={() =>
-                setFailedImages((current) =>
-                  current.includes(slide.imageUrl)
-                    ? current
-                    : [...current, slide.imageUrl],
-                )
-              }
-              sizes="100vw"
-              data-testid="hero-slide"
-              data-active={index === active ? "true" : "false"}
+    <div className={styles.carousel}>
+      <div className={styles.stage}>
+        {slides.map((slide, index) => {
+          const failed = failedImages.includes(slide.imageUrl);
+          const displayed = failed ? defaultHeroSlide : slide;
+          const link = safeLink(displayed.linkUrl);
+          return (
+            <div
+              key={`${slide.id}-${slide.position}`}
               className={clsx(
-                styles.image,
-                index === active ? "opacity-100" : "opacity-0",
+                "absolute inset-0",
+                index !== active && "pointer-events-none",
               )}
-            />
-            {link && index === active ? (
-              <a
-                href={link}
-                className="absolute inset-0 z-10 focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-ring"
-                aria-label={slide.altText || "광고 링크 이동"}
+              aria-hidden={index !== active}
+            >
+              <Image
+                src={displayed.imageUrl}
+                alt={displayed.altText}
+                fill
+                priority={index === 0}
+                unoptimized={!displayed.imageUrl.startsWith("/")}
+                quality={90}
+                onError={() =>
+                  setFailedImages((current) =>
+                    current.includes(slide.imageUrl)
+                      ? current
+                      : [...current, slide.imageUrl],
+                  )
+                }
+                sizes="100vw"
+                data-testid="hero-slide"
+                data-active={index === active ? "true" : "false"}
+                className={clsx(
+                  styles.image,
+                  index === active ? "opacity-100" : "opacity-0",
+                )}
               />
-            ) : null}
-            {slide.advertisement && !failed && index === active ? (
-              <span className="absolute top-3 left-4 z-10 rounded bg-black/60 px-2 py-1 text-xs text-white">
-                광고
-              </span>
-            ) : null}
-          </div>
-        );
-      })}
-      <Link href="/hero-auctions" className={styles.auctionLink}>
-        광고 경매로 이 자리에 광고를 올릴 수 있습니다
-      </Link>
-      <div
-        className={styles.controls}
-        role="group"
-        aria-label="Hero 이미지 전환"
-        onKeyDown={(event) => {
-          if (
-            slides.length > 1 &&
-            (event.key === "ArrowLeft" || event.key === "ArrowRight")
-          ) {
-            event.preventDefault();
-            move(event.key === "ArrowLeft" ? -1 : 1);
-          }
-        }}
-      >
-        <button
-          type="button"
-          disabled={slides.length < 2}
-          onClick={() => move(-1)}
-          aria-label="이전 Hero 이미지"
+              {link && index === active ? (
+                <a
+                  href={link}
+                  className="absolute inset-0 z-10 focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-ring"
+                  aria-label={displayed.altText || "광고 링크 이동"}
+                />
+              ) : null}
+              {slide.advertisement && !failed && index === active ? (
+                <span className="absolute top-3 left-4 z-10 rounded bg-black/60 px-2 py-1 text-xs text-white">
+                  광고
+                </span>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      <div className={styles.toolbar}>
+        <Link href="/hero-auctions" className={styles.auctionLink}>
+          광고 경매로 이 자리에 광고를 올릴 수 있습니다
+        </Link>
+        <div
+          className={styles.controls}
+          role="group"
+          aria-label="Hero 이미지 전환"
+          onKeyDown={(event) => {
+            if (
+              slides.length > 1 &&
+              (event.key === "ArrowLeft" || event.key === "ArrowRight")
+            ) {
+              event.preventDefault();
+              move(event.key === "ArrowLeft" ? -1 : 1);
+            }
+          }}
         >
-          <ChevronLeft size={18} />
-        </button>
-        <span aria-live={paused || reducedMotion ? "polite" : "off"}>
-          {active + 1}
-          <span> / {slides.length}</span>
-        </span>
-        <button
-          type="button"
-          disabled={slides.length < 2}
-          onClick={() => move(1)}
-          aria-label="다음 Hero 이미지"
-        >
-          <ChevronRight size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setPaused((current) => !current)}
-          disabled={reducedMotion || slides.length < 2}
-          aria-label={
-            reducedMotion
-              ? "모션 감소 설정으로 자동 전환 정지"
-              : paused
-                ? "Hero 자동 전환 재개"
-                : "Hero 자동 전환 정지"
-          }
-          aria-pressed={paused || reducedMotion || slides.length < 2}
-        >
-          {paused || reducedMotion || slides.length < 2 ? (
-            <Play size={16} />
-          ) : (
-            <Pause size={16} />
-          )}
-        </button>
+          <button
+            type="button"
+            disabled={slides.length < 2}
+            onClick={() => move(-1)}
+            aria-label="이전 Hero 이미지"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <span aria-live={paused || reducedMotion ? "polite" : "off"}>
+            {active + 1}
+            <span> / {slides.length}</span>
+          </span>
+          <button
+            type="button"
+            disabled={slides.length < 2}
+            onClick={() => move(1)}
+            aria-label="다음 Hero 이미지"
+          >
+            <ChevronRight size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaused((current) => !current)}
+            disabled={reducedMotion || slides.length < 2}
+            aria-label={
+              reducedMotion
+                ? "모션 감소 설정으로 자동 전환 정지"
+                : paused
+                  ? "Hero 자동 전환 재개"
+                  : "Hero 자동 전환 정지"
+            }
+            aria-pressed={paused || reducedMotion || slides.length < 2}
+          >
+            {paused || reducedMotion || slides.length < 2 ? (
+              <Play size={16} />
+            ) : (
+              <Pause size={16} />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
