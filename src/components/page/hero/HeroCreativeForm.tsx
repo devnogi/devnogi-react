@@ -72,7 +72,7 @@ export default function HeroCreativeForm({
     }
   }
   const input =
-    "mt-1 block w-full rounded-md border border-input bg-background p-2 text-sm";
+    "mt-1 block min-h-11 w-full rounded-md border border-input bg-background p-2 text-sm";
   return (
     <form onSubmit={submit} className="space-y-4">
       <label htmlFor={`${id}-image`} className="block text-sm font-medium">
@@ -91,8 +91,8 @@ export default function HeroCreativeForm({
         />
       </label>
       <p className="text-xs text-muted-foreground">
-        JPEG·PNG, 최대 10 MiB·2,400만 화소. 권장 1920×640. 화면 크기에 따라
-        가장자리가 잘리고 검색창이 겹칩니다.
+        JPEG·PNG, 최대 10 MiB·2,400만 화소. 권장 1920×640. 이미지 전체를 3:1
+        영역에 표시하며, 비율이 다르면 여백이 생깁니다.
       </p>
       <label htmlFor={`${id}-alt`} className="block text-sm font-medium">
         이미지 설명 (필수)
@@ -150,8 +150,11 @@ export default function HeroCreativeForm({
         <div className="space-y-3">
           <p className="text-sm font-medium">실제 배치 미리보기</p>
           {[
-            { label: "데스크톱", className: "aspect-[5/1]" },
-            { label: "모바일", className: "mx-auto h-56 max-w-[360px]" },
+            { label: "데스크톱", className: "aspect-[3/1]" },
+            {
+              label: "모바일",
+              className: "mx-auto aspect-[3/1] max-w-[360px]",
+            },
           ].map((view) => (
             <figure key={view.label}>
               <figcaption className="mb-1 text-xs text-muted-foreground">
@@ -165,22 +168,16 @@ export default function HeroCreativeForm({
                   alt={altText || "업로드 이미지 미리보기"}
                   fill
                   unoptimized
-                  className="object-cover brightness-75"
+                  className="object-contain"
                   sizes="800px"
                 />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-x-4 top-1/3 rounded-md border bg-background/95 p-3 text-xs text-muted-foreground"
-                >
-                  아이템 검색창 영역
-                </div>
               </div>
             </figure>
           ))}
         </div>
       ) : null}
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
           {error}
         </p>
       ) : null}
@@ -189,7 +186,11 @@ export default function HeroCreativeForm({
           저장했습니다.
         </p>
       ) : null}
-      <Button type="submit" disabled={busy || !altText.trim()}>
+      <Button
+        type="submit"
+        className="min-h-11"
+        disabled={busy || !altText.trim()}
+      >
         {busy ? "저장 중…" : label}
       </Button>
     </form>

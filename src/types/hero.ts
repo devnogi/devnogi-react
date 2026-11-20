@@ -7,6 +7,7 @@ export interface HeroSlide {
   advertisement: boolean;
   startsAt: string | null;
   endsAt: string | null;
+  visible?: boolean;
 }
 
 export interface HeroResponse {
@@ -22,6 +23,23 @@ export interface HeroCreative {
   linkUrl: string | null;
   blocked: boolean;
   createdAt: string;
+}
+
+export interface AdminHeroCreative extends HeroCreative {
+  userId: number;
+  nickname: string | null;
+  blockReason: string | null;
+  leadingBidCount: number;
+  scheduledPlacementCount: number;
+  activePlacementCount: number;
+}
+
+export interface AdminHeroCreativesResponse {
+  items: AdminHeroCreative[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
 }
 
 export interface HeroAuction {

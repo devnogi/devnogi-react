@@ -111,6 +111,24 @@ beforeEach(() => {
   request.mockImplementation(async (path, method) => {
     if (method && method !== "GET") return null;
     if (path === "admin/hero/slides") return [slide];
+    if (path.startsWith("admin/hero/creatives/search"))
+      return {
+        items: [
+          {
+            ...creative,
+            userId: 7,
+            nickname: "회원",
+            blockReason: null,
+            leadingBidCount: 0,
+            scheduledPlacementCount: 0,
+            activePlacementCount: 0,
+          },
+        ],
+        page: 0,
+        size: 20,
+        totalElements: 1,
+        totalPages: 1,
+      };
     if (path.includes("auctions") && !path.startsWith("user/"))
       return {
         auctions: [auction, { ...auction, id: 11, slot: 2 }],
@@ -285,6 +303,12 @@ it("protects the final default image and sends required moderation reason", asyn
     target: { value: "운영 정책 위반" },
   });
   fireEvent.click(block);
+  expect(request).not.toHaveBeenCalledWith(
+    "admin/hero/creatives/8/block",
+    "POST",
+    expect.anything(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "확인하고 처리" }));
   await waitFor(() =>
     expect(request).toHaveBeenCalledWith(
       "admin/hero/creatives/8/block",

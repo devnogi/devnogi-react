@@ -177,3 +177,45 @@ it("기본 이미지에서도 광고 안내 링크를 제공한다", () => {
     }),
   ).toHaveAttribute("href", "/hero-auctions");
 });
+
+it("shows the approved promotion and uses one whole-image link", () => {
+  mockUseHero.mockReturnValue([
+    {
+      ...slidesFixture[0],
+      imageUrl: "/home-hero-auction.jpg",
+      altText: "메모노기 광고 경매 안내",
+      linkUrl: "https://www.memonogi.com/hero-auctions",
+    },
+  ]);
+  render(<HomeHeroCarousel />);
+  expect(screen.getByTestId("hero-slide")).toHaveAttribute(
+    "src",
+    expect.stringContaining("home-hero-auction.jpg"),
+  );
+  expect(
+    screen.getByRole("link", { name: "메모노기 광고 경매 안내" }),
+  ).toHaveAttribute("href", "https://www.memonogi.com/hero-auctions");
+  expect(
+    screen.queryByRole("button", { name: "광고 경매 참여하기" }),
+  ).not.toBeInTheDocument();
+});
+
+it("replaces a broken image with an unlinked neutral placeholder", () => {
+  mockUseHero.mockReturnValue([
+    {
+      ...slidesFixture[0],
+      advertisement: true,
+      linkUrl: "https://www.memonogi.com/guilds",
+    },
+  ]);
+  render(<HomeHeroCarousel />);
+  fireEvent.error(screen.getByTestId("hero-slide"));
+  expect(screen.getByTestId("hero-slide")).toHaveAttribute(
+    "src",
+    expect.stringContaining("home-hero-unavailable.svg"),
+  );
+  expect(
+    screen.queryByRole("link", { name: "도서관" }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText("광고")).not.toBeInTheDocument();
+});

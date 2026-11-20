@@ -73,5 +73,26 @@ it("preserves second slot and filters future and expired rows", () => {
 it("renders one safe default without a successful response", () => {
   const { result } = mount();
   expect(result.current).toHaveLength(1);
-  expect(result.current[0].imageUrl).toBe("/home-hero-library-v2.png");
+  expect(result.current[0].imageUrl).toBe("/home-hero-unavailable.svg");
+  expect(result.current[0].linkUrl).toBeNull();
+});
+
+it("does not resurrect a hidden managed promotion when API items are empty", () => {
+  const { result } = mount({ items: [], nextChangeAt: null, serverTime: at });
+  expect(result.current[0].imageUrl).toBe("/home-hero-unavailable.svg");
+  expect(result.current[0].linkUrl).toBeNull();
+});
+
+it("filters hidden defaults without changing paid slot order", () => {
+  const { result } = mount({
+    items: [
+      { ...base, id: 10, advertisement: false, visible: false },
+      { ...base, id: 20, position: 2, endsAt: null },
+    ],
+    nextChangeAt: null,
+    serverTime: at,
+  });
+  expect(result.current.map((slide) => slide.id)).toEqual([0, 20]);
+  expect(result.current[0].imageUrl).toBe("/home-hero-unavailable.svg");
+  expect(result.current[0].linkUrl).toBeNull();
 });

@@ -1,26 +1,35 @@
+.carousel {
+  background: var(--color-ds-surface, var(--background));
+}
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 1920px;
+  aspect-ratio: 3 / 1;
+  margin-inline: auto;
+  overflow: hidden;
+}
 .image {
-  object-fit: cover;
-  filter: brightness(0.71) saturate(0.78);
+  object-fit: contain;
   transition: opacity 1200ms ease-in-out;
 }
-.library {
-  object-position: 35% 60%;
-}
-.winter {
-  object-position: 50% 55%;
-  filter: brightness(0.69) saturate(0.8);
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  width: calc(100% - 32px);
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-block: 8px;
 }
 .controls {
-  position: absolute;
-  z-index: 30;
-  left: max(16px, calc((100% - 1120px) / 2));
-  bottom: 12px;
   display: flex;
   align-items: center;
-  border: 1px solid #ffffff50;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #161616b8;
-  color: white;
+  color: var(--foreground);
 }
 .controls button {
   width: 44px;
@@ -28,12 +37,16 @@
   display: grid;
   place-items: center;
 }
-.controls button:focus-visible {
-  outline: 2px solid white;
+.controls button:disabled {
+  opacity: 0.45;
+}
+.controls button:focus-visible,
+.auctionLink:focus-visible {
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 .controls button:last-child {
-  border-left: 1px solid #ffffff30;
+  border-left: 1px solid var(--border);
 }
 .controls > span {
   font-size: 12px;
@@ -41,51 +54,27 @@
   padding: 0 4px;
 }
 .controls > span span {
-  color: #ccc;
+  color: var(--muted-foreground);
+}
+.auctionLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--foreground);
+  font-size: 12px;
+  line-height: 20px;
+  word-break: keep-all;
+}
+.auctionLink:hover {
+  text-decoration: underline;
 }
 @media (min-width: 768px) {
-  .library {
-    object-position: center 68%;
-  }
-  .winter {
-    object-position: center;
-  }
-  .controls {
-    left: max(24px, calc((100% - 1120px) / 2));
-    bottom: 16px;
+  .toolbar {
+    width: calc(100% - 48px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .image {
     transition: none;
-  }
-}
-
-.auctionLink {
-  position: absolute;
-  z-index: 30;
-  right: max(16px, calc((100% - 1120px) / 2));
-  bottom: 66px;
-  max-width: calc(100% - 32px);
-  border-radius: 6px;
-  padding: 10px 12px;
-  background: #161616b8;
-  color: white;
-  font-size: 12px;
-  line-height: 20px;
-  text-align: right;
-}
-.auctionLink:hover {
-  text-decoration: underline;
-}
-.auctionLink:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
-}
-@media (min-width: 768px) {
-  .auctionLink {
-    right: max(24px, calc((100% - 1120px) / 2));
-    bottom: 16px;
-    max-width: calc(100% - 260px);
   }
 }
