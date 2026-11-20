@@ -1,5 +1,4 @@
 import HomeRankingCards from "@/app/(main)/home/HomeRankingCards";
-import { HomeSearch } from "@/components/navigation/HomeSearch";
 
 import HomeHeroCarousel from "./HomeHeroCarousel";
 import styles from "./HomeLanding.module.css";
@@ -14,11 +13,6 @@ export default function HomeLanding() {
       <section className={styles.hero} aria-label="메인 광고">
         <HomeHeroCarousel />
       </section>
-      <div className={styles.searchContainer}>
-        <div className={styles.searchGroup}>
-          <HomeSearch location="hero" />
-        </div>
-      </div>
       <div role="region" aria-label="홈 콘텐츠" className={styles.content}>
         <HomeRankingCards />
       </div>

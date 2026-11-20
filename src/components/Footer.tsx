@@ -16,8 +16,10 @@ export default function Footer() {
         </span>
         <p className="max-w-2xl text-xs leading-5 text-gray-600 dark:text-gray-300">
           메모노기는 공식 사이트가 아닙니다. 경매장 정보는 NEXON Open API를
-          기반으로 제공합니다. 게임 내 실제 정보와 차이가 있을 수 있으므로 거래
-          전에는 게임에서 다시 확인해 주세요.
+          기반으로 제공합니다.
+          <br />
+          게임 내 실제 정보와 차이가 있을 수 있으므로 거래 전에는 게임에서 다시
+          확인해 주세요.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           {footerLinks.map((link) => (

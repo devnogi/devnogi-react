@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { HomeSearchProvider } from "./HomeSearch";
 import ThreeTierNav from "./ThreeTierNav";
 
 jest.mock("next/link", () => {
@@ -20,6 +21,7 @@ jest.mock("next/link", () => {
 
 let pathname = "/";
 const toggleTheme = jest.fn();
+const push = jest.fn();
 let mockAuthState: {
   isAuthenticated: boolean;
   isLoading?: boolean;
@@ -32,6 +34,16 @@ let mockAuthState: {
 
 jest.mock("next/navigation", () => ({
   usePathname: () => pathname,
+  useRouter: () => ({ push }),
+}));
+jest.mock("@/hooks/useUnifiedSearch", () => ({
+  useUnifiedSearch: () => ({
+    data: [{ type: "MENU", label: "도감", targetKey: "CODEX" }],
+    partialFailures: [],
+    isDebouncing: false,
+    isLoading: false,
+    isError: false,
+  }),
 }));
 jest.mock("@/contexts/AuthContext", () => ({
   useAuth: () => mockAuthState,
@@ -44,10 +56,12 @@ beforeEach(() => {
   pathname = "/";
   mockAuthState = { isAuthenticated: false, user: null };
   toggleTheme.mockClear();
+  push.mockClear();
+  localStorage.clear();
 });
 
 it("길드와 로그인 진입점만 자동 프리패치를 끄고 나머지 메뉴 기본값을 유지한다", () => {
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
   expect(screen.getByRole("link", { name: "길드" })).toHaveAttribute(
     "data-prefetch",
     "false",
@@ -71,8 +85,8 @@ it("길드와 로그인 진입점만 자동 프리패치를 끄고 나머지 메
   );
 });
 
-it("주요 메뉴를 요청된 순서로 제공하고 검색폼은 노출하지 않는다", () => {
-  render(<ThreeTierNav />);
+it("주요 메뉴와 별도 영역에 상단 검색폼을 한 번만 제공한다", () => {
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
 
   const navigation = screen.getByRole("navigation", { name: "주요 메뉴" });
   expect(
@@ -90,12 +104,30 @@ it("주요 메뉴를 요청된 순서로 제공하고 검색폼은 노출하지 
   expect(
     within(navigation).getByRole("button", { name: "도감" }),
   ).toBeInTheDocument();
-  expect(screen.queryByRole("search")).not.toBeInTheDocument();
-  expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+  const search = screen.getByRole("search", { name: "상단 통합 검색" });
+  expect(screen.getAllByRole("search")).toHaveLength(1);
+  expect(navigation).not.toContainElement(search);
+  expect(screen.getByRole("banner")).toContainElement(search);
 });
 
+it.each(["/", "/auction-realtime", "/community"])(
+  "%s에서도 상단 통합 검색 결과를 선택해 이동한다",
+  async (path) => {
+    pathname = path;
+    const user = userEvent.setup();
+    render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
+    await user.type(
+      screen.getByRole("combobox", { name: "상단 통합 검색" }),
+      "도감",
+    );
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(push).toHaveBeenCalledWith("/item-info");
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  },
+);
+
 it("경매장과 도감 드롭다운 링크를 제공한다", () => {
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
 
   fireEvent.click(screen.getByRole("button", { name: "경매장" }));
 
@@ -118,7 +150,7 @@ it("경매장과 도감 드롭다운 링크를 제공한다", () => {
 });
 
 it("테마 전환과 로그인 진입점을 오른쪽에 제공한다", () => {
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
 
   fireEvent.click(screen.getByRole("button", { name: "다크 모드로 전환" }));
   expect(toggleTheme).toHaveBeenCalledTimes(1);
@@ -136,7 +168,7 @@ it.each(["ADMIN", "SUPER_ADMIN"])(
       user: { nickname: "관리자", role, verified: false },
     };
 
-    render(<ThreeTierNav />);
+    render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
 
     expect(screen.getByRole("link", { name: "관리자" })).toHaveAttribute(
       "href",
@@ -151,7 +183,7 @@ it("일반 로그인 사용자에게 관리자 버튼을 노출하지 않는다"
     user: { nickname: "사용자", role: "USER", verified: false },
   };
 
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
 
   expect(
     screen.queryByRole("link", { name: "관리자" }),
@@ -160,7 +192,7 @@ it("일반 로그인 사용자에게 관리자 버튼을 노출하지 않는다"
 
 it("하위 경로에서도 상위 드롭다운 메뉴를 활성 상태로 표시한다", () => {
   pathname = "/auction-realtime";
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
   fireEvent.click(screen.getByRole("button", { name: "경매장" }));
 
   expect(screen.getByRole("link", { name: "실시간 거래" })).toHaveAttribute(
@@ -171,7 +203,7 @@ it("하위 경로에서도 상위 드롭다운 메뉴를 활성 상태로 표시
 
 it("드롭다운을 열고 Escape로 닫으면 트리거로 포커스를 돌린다", async () => {
   const user = userEvent.setup();
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
   const trigger = screen.getByRole("button", { name: "경매장" });
   expect(trigger).toHaveAttribute("aria-expanded", "false");
   await user.click(trigger);
@@ -188,7 +220,7 @@ it("드롭다운을 열고 Escape로 닫으면 트리거로 포커스를 돌린�
 
 it("바깥 영역을 누르면 드롭다운을 닫는다", async () => {
   const user = userEvent.setup();
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
   const trigger = screen.getByRole("button", { name: "경매장" });
   await user.click(trigger);
   await user.click(document.body);
@@ -199,7 +231,7 @@ it("바깥 영역을 누르면 드롭다운을 닫는다", async () => {
 
 it("의장 메뉴를 커뮤니티와 경매장 사이에 표시하고 하위 경로를 활성화한다", () => {
   pathname = "/outfits/123";
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
   const nav = screen.getByRole("navigation", { name: "주요 메뉴" });
   const link = within(nav).getByRole("link", { name: "의장" });
   expect(link).toHaveAttribute("href", "/outfits");
@@ -212,7 +244,9 @@ it("의장 메뉴를 커뮤니티와 경매장 사이에 표시하고 하위 경
 });
 
 it("비로그인 및 인증 로딩 중에도 광고 경매 메뉴를 표시한다", () => {
-  const { rerender } = render(<ThreeTierNav />);
+  const { rerender } = render(<ThreeTierNav />, {
+    wrapper: HomeSearchProvider,
+  });
   expect(screen.queryByRole("link", { name: "광고 경매" })).toBeInTheDocument();
   mockAuthState = {
     isAuthenticated: true,
@@ -231,9 +265,9 @@ it("비로그인 및 인증 로딩 중에도 광고 경매 메뉴를 표시한�
 
 it("모바일 메뉴는 가로 스크롤하며 드롭다운은 헤더 밖 Portal에 표시한다", async () => {
   const user = userEvent.setup();
-  render(<ThreeTierNav />);
+  render(<ThreeTierNav />, { wrapper: HomeSearchProvider });
   const navigation = screen.getByRole("navigation", { name: "주요 메뉴" });
-  expect(navigation).toHaveClass("overflow-x-auto", "md:overflow-visible");
+  expect(navigation).toHaveClass("overflow-x-auto", "xl:overflow-visible");
   await user.click(screen.getByRole("button", { name: "도감" }));
   const menu = await screen.findByRole("group", { name: "도감 메뉴" });
   expect(navigation).not.toContainElement(menu);
